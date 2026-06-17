@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Troubleshooting Guide"
+description: "Troubleshooting guide for diagnosing and resolving Open Horizons platform issues."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["troubleshooting", "operations", "aks", "backstage", "gitops"]
+---
+
 # Open Horizons Platform - Troubleshooting Guide
 
 > **Version:** 4.0.0

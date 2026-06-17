@@ -1,3 +1,13 @@
+---
+title: "Deployment Runbook"
+description: "Operational runbook for planned Open Horizons platform deployments."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["runbook", "deployment", "operations", "validation"]
+---
+
 # Deployment Runbook
 
 Use this runbook for planned Open Horizons platform deployments.

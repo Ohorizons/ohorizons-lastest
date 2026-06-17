@@ -1,3 +1,13 @@
+---
+title: "Copilot Agents Best Practices"
+description: "Best practices for safely and effectively using Open Horizons Copilot Chat agents."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["copilot", "agents", "best-practices", "developer-experience"]
+---
+
 # Copilot Agents Best Practices
 
 This guide describes practical conventions for using the Open Horizons Copilot Chat agents.

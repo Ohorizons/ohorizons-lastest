@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Agent Playbook"
+description: "Overview of the Open Horizons Copilot Chat agents, workflow patterns, and operating conventions."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "2.0.0"
+status: "review"
+tags: ["agents", "copilot", "platform-engineering", "operations"]
+---
+
 # Open Horizons Platform - Agent Playbook
 
 > **Version:** 4.0.0

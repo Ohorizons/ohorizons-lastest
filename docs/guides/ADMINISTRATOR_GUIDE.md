@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Administrator Guide"
+description: "Day-two operations guide for administering, monitoring, scaling, and securing the Open Horizons platform."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["administration", "operations", "sre", "platform-engineering"]
+---
+
 # Open Horizons Platform - Administrator Guide
 
 > **Version:** 4.0.0

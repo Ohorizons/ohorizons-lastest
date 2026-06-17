@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Performance Tuning Guide"
+description: "Performance tuning guide for AKS, workloads, databases, observability, and AI workloads in Open Horizons."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["performance", "aks", "capacity-planning", "observability"]
+---
+
 # Open Horizons Platform - Performance Tuning Guide
 
 > **Version:** 4.0.0

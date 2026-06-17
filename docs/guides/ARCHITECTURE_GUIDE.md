@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Architecture Guide"
+description: "Architecture guide for the Microsoft Azure and GitHub enterprise accelerator using Backstage OSS as the IDP."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["architecture", "azure", "github", "backstage", "agentic-devops"]
+---
+
 # Open Horizons Platform - Architecture Guide
 
 > **Version:** 4.0.0

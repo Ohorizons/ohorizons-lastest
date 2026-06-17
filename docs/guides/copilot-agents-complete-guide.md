@@ -1,3 +1,13 @@
+---
+title: "Copilot Agents Complete Guide"
+description: "Complete guide to Open Horizons Copilot Chat agents, workflows, handoffs, and validation practices."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["copilot", "agents", "workflows", "handoffs"]
+---
+
 # Copilot Agents Complete Guide
 
 Open Horizons uses project-specific Copilot Chat agents to support platform architecture, delivery, validation, and operations.

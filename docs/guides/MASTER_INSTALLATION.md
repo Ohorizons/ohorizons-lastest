@@ -18,23 +18,32 @@ This is the master guide for installing the Open Horizons Agentic DevOps Platfor
 
 ## Table of Contents
 
-- [What You Are Installing](#what-you-are-installing)
-- [The Five Layers and What Ships in Each](#the-five-layers-and-what-ships-in-each)
-- [Inventory at a Glance](#inventory-at-a-glance)
-- [Reference Architecture](#reference-architecture)
-- [Installation Roadmap](#installation-roadmap)
-- [Stage 0 - Prerequisites](#stage-0---prerequisites)
-- [Stage 1 - Receive the Template](#stage-1---receive-the-template)
-- [Stage 2 - Provision Infrastructure (L1)](#stage-2---provision-infrastructure-l1)
-- [Stage 3 - Deploy the Platform (L2)](#stage-3---deploy-the-platform-l2)
-- [Stage 4 - Wire Context (L3)](#stage-4---wire-context-l3)
-- [Stage 5 - Activate Intent (L4)](#stage-5---activate-intent-l4)
-- [Stage 6 - Run Agentic Execution (L5)](#stage-6---run-agentic-execution-l5)
-- [Stage 7 - Configure Identity Federation](#stage-7---configure-identity-federation)
-- [Stage 8 - Validate End to End](#stage-8---validate-end-to-end)
-- [Day-Two Operations](#day-two-operations)
-- [Reverse and Reset](#reverse-and-reset)
-- [References](#references)
+- [Open Horizons - Master Installation Guide](#open-horizons---master-installation-guide)
+  - [Table of Contents](#table-of-contents)
+  - [What You Are Installing](#what-you-are-installing)
+  - [The Five Layers and What Ships in Each](#the-five-layers-and-what-ships-in-each)
+  - [Inventory at a Glance](#inventory-at-a-glance)
+  - [Reference Architecture](#reference-architecture)
+  - [Installation Roadmap](#installation-roadmap)
+  - [Selection Matrix (Install Wizard)](#selection-matrix-install-wizard)
+    - [Inputs](#inputs)
+    - [Outputs](#outputs)
+    - [Dependency Rules](#dependency-rules)
+    - [CLI](#cli)
+    - [Profile Presets](#profile-presets)
+    - [Schema Validation](#schema-validation)
+  - [Stage 0 - Prerequisites](#stage-0---prerequisites)
+  - [Stage 1 - Receive the Template](#stage-1---receive-the-template)
+  - [Stage 2 - Provision Infrastructure (L1)](#stage-2---provision-infrastructure-l1)
+  - [Stage 3 - Deploy the Platform (L2)](#stage-3---deploy-the-platform-l2)
+  - [Stage 4 - Wire Context (L3)](#stage-4---wire-context-l3)
+  - [Stage 5 - Activate Intent (L4)](#stage-5---activate-intent-l4)
+  - [Stage 6 - Run Agentic Execution (L5)](#stage-6---run-agentic-execution-l5)
+  - [Stage 7 - Configure Identity Federation](#stage-7---configure-identity-federation)
+  - [Stage 8 - Validate End to End](#stage-8---validate-end-to-end)
+  - [Day-Two Operations](#day-two-operations)
+  - [Reverse and Reset](#reverse-and-reset)
+  - [References](#references)
 
 ## What You Are Installing
 
@@ -57,7 +66,7 @@ The accelerator covers:
 | L1 - Cloud Infrastructure | Compute and security baseline | 16 Terraform modules in [`terraform/modules/`](../../terraform/modules/) covering AKS, networking, ACR, databases (Postgres + Redis), Key Vault and external secrets, Defender, Purview, observability, cost management, GitHub runners, AI Foundry, ArgoCD, Backstage, naming, disaster recovery, security baseline. Environment tfvars in [`terraform/environments/`](../../terraform/environments/). |
 | L2 - Platform Engineering | Golden paths, GitOps, governance | Backstage portal in [`backstage/`](../../backstage/) (catalog, TechDocs, software templates, AI Chat plugin), 34 Golden Paths in [`golden-paths/`](../../golden-paths/), ArgoCD app-of-apps in [`argocd/`](../../argocd/), 7 Kubernetes OPA policies and 1 Terraform OPA policy in [`policies/`](../../policies/), 5 Grafana dashboards in [`grafana/dashboards/`](../../grafana/dashboards/), Prometheus recording and alerting rules in [`prometheus/`](../../prometheus/), 9 GitHub Actions workflows in [`.github/workflows/`](../../.github/workflows/), 22 automation scripts in [`scripts/`](../../scripts/). |
 | L3 - Context Engineering | Agent context and tools | 27 skills in [`.github/skills/`](../../.github/skills/), 12 MCP servers in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
-| L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), Specky scope-guard hooks in [`.github/hooks/specky/`](../../.github/hooks/specky/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
+| L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), workspace guardrails in [`.github/hooks/`](../../.github/hooks/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
 | L5 - Agentic Execution | Runtime agents and identity | 19 Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 16 prompts in [`.github/prompts/`](../../.github/prompts/), 8 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
 
 ## Inventory at a Glance
@@ -311,7 +320,7 @@ Once Terraform finishes:
 L3 is what makes the agents productive in this codebase rather than generic. It is mostly already wired in the repo, but the client needs to know it is there:
 
 - **27 skills** in [`.github/skills/`](../../.github/skills/) cover Azure CLI, Terraform CLI, kubectl, Helm, ArgoCD, GitHub CLI, Backstage deployment, observability stack, validation scripts, story planning, test coverage, pipeline diagnostics, codespaces golden paths, IssueOps, MCP CLI, MCP ecosystem, and document creation (Markdown, DOCX, PPTX, XLSX, PDF, FigJam).
-- **12 MCP servers** in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) expose live reference data for spec-kit, Microsoft Agent Framework, Anthropic skills, AGENTS.md, awesome-copilot, GitHub Copilot docs, gh-aw, Backstage docs / org / plugins / UI, and Spotify Backstage. They run via [`mcp-servers/docker-compose.yml`](../../mcp-servers/docker-compose.yml) and can be deployed to AKS using [`backstage/k8s/mcp-ecosystem-deployment.yaml`](../../backstage/k8s/mcp-ecosystem-deployment.yaml).
+- **12 MCP servers** in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) expose live reference data for spec-kit, Microsoft Agent Framework, Anthropic skills, AGENTS.md, awesome-copilot, GitHub Copilot docs, gh-aw, Backstage docs / org / plugins / UI, and Spotify Backstage. They run via [`mcp-servers/docker-compose.yml`](../../mcp-servers/docker-compose.yml) and can be deployed to AKS through the rendered manifests under [`backstage/k8s/`](../../backstage/k8s/).
 - **Three-tier memory** (Hot, Warm, Cold) lives under [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/) along with the Shared Context Store.
 - **CODEMAP** at [`CODEMAP.md`](../../CODEMAP.md) is the program skeleton that agents read before navigating the codebase.
 
@@ -325,7 +334,7 @@ Operational checks:
 L4 is what keeps the agents on task when scope or constraints change:
 
 - The intent templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/) (`CONSTITUTION.md`, `SPECIFICATION.md`, `IMPLEMENTATION_PLAN.md`) are produced for every new repository and reused across the platform itself.
-- The Specky scope-guard hooks in [`.github/hooks/specky/`](../../.github/hooks/specky/) run on `preToolUse` and block writes outside approved scope.
+- The workspace guardrails in [`.github/hooks/`](../../.github/hooks/) run during agent sessions and help block unsafe actions or remind agents to validate customization changes.
 - The model routing in [`.github/model-routing.yaml`](../../.github/model-routing.yaml) maps SDLC phases to optimal models (Opus / Sonnet / Haiku-style decisions).
 
 ## Stage 6 - Run Agentic Execution (L5)
@@ -386,7 +395,7 @@ Functional smoke tests:
 | Add a new Golden Path | [`golden-paths/README.md`](../../golden-paths/README.md), per-template `template.yaml` |
 | Add or change a Copilot agent | [`AGENTS.md`](../../AGENTS.md), [`.github/agents/`](../../.github/agents/) |
 | Add a skill | [`.github/skills/`](../../.github/skills/) (companion `SKILL.md`) |
-| Add an MCP server | [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) plus [`backstage/k8s/mcp-ecosystem-deployment.yaml`](../../backstage/k8s/mcp-ecosystem-deployment.yaml) |
+| Add an MCP server | [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) plus rendered manifests under [`backstage/k8s/`](../../backstage/k8s/) |
 | Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr) and the `cd.yml` workflow |
 | Update Helm releases | [`deploy/helm/`](../../deploy/helm/) |
 | Apply Kubernetes policies | [`policies/kubernetes/`](../../policies/kubernetes/) |

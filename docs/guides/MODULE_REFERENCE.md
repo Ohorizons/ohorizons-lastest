@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Terraform Module Reference"
+description: "Reference guide for Terraform modules included in the Open Horizons accelerator."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["terraform", "modules", "azure", "infrastructure"]
+---
+
 # Open Horizons Platform - Module Reference
 
 > **Version:** 4.0.0

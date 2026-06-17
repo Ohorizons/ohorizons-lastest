@@ -1,3 +1,13 @@
+---
+title: "Azure OIDC Setup"
+description: "Guide for configuring GitHub Actions OpenID Connect authentication to Azure in generated repositories."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["azure", "oidc", "github-actions", "workload-identity"]
+---
+
 # Azure OIDC Setup
 
 Generated repositories use GitHub Actions OIDC to authenticate to Azure without long-lived credentials.

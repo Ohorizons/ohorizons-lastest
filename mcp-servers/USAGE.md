@@ -1,3 +1,13 @@
+---
+title: "MCP Servers Usage Guide"
+description: "Usage guide for Model Context Protocol servers and agent access policies in Open Horizons."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["mcp", "agents", "tools", "operations"]
+---
+
 # MCP Servers Usage Guide
 
 ## Overview

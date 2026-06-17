@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Deployment Guide"
+description: "Step-by-step deployment guide for Open Horizons on Azure Kubernetes Service."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "4.0.0"
+status: "review"
+tags: ["deployment", "azure", "aks", "terraform", "gitops"]
+---
+
 # Open Horizons Platform - Complete Deployment Guide
 
 > **Version:** 4.0.0

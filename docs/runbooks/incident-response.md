@@ -1,3 +1,13 @@
+---
+title: "Incident Response Runbook"
+description: "Operational runbook for triaging, mitigating, and learning from Open Horizons platform incidents."
+author: "Platform Engineering"
+date: "2026-06-17"
+version: "1.0.0"
+status: "review"
+tags: ["runbook", "incident-response", "sre", "operations"]
+---
+
 # Incident Response Runbook
 
 Use this runbook when Backstage, ArgoCD, observability, or Golden Path scaffolding is degraded.
