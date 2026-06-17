@@ -1,0 +1,501 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 BATCH JOB GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating batch processing jobs.
+# Supports Kubernetes Jobs, CronJobs, Azure Functions, and Container Apps Jobs.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Scheduled tasks, data processing, report generation, ETL jobs
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-batch-job
+  title: "H2: Create Batch Job"
+  description: |
+    Create batch processing jobs for scheduled tasks, data processing,
+    and background operations. Supports multiple execution platforms.
+  tags:
+    - h2-enhancement
+    - batch-job
+    - cronjob
+    - kubernetes
+    - scheduled-task
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: batch-job
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # Job Information
+    # -------------------------------------------------------------------------
+    - title: Job Information
+      required:
+        - jobName
+        - team
+        - jobType
+      properties:
+        jobName:
+          title: Job Name
+          description: Name of the batch job
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-job$'
+          maxLength: 50
+
+        team:
+          title: Team
+          description: Team that owns this job
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          type: string
+          maxLength: 300
+
+        jobType:
+          title: Job Type
+          type: string
+          default: scheduled
+          enum:
+            - scheduled
+            - triggered
+            - event-driven
+            - manual
+          enumNames:
+            - Scheduled (Cron)
+            - Triggered (Webhook/API)
+            - Event-Driven (Queue/Topic)
+            - Manual (On-demand)
+
+    # -------------------------------------------------------------------------
+    # Execution Platform
+    # -------------------------------------------------------------------------
+    - title: Execution Platform
+      required:
+        - platform
+        - language
+      properties:
+        platform:
+          title: Execution Platform
+          type: string
+          default: kubernetes-cronjob
+          enum:
+            - kubernetes-cronjob
+            - kubernetes-job
+            - container-apps-job
+            - azure-functions
+            - azure-batch
+          enumNames:
+            - Kubernetes CronJob
+            - Kubernetes Job (manual/triggered)
+            - Azure Container Apps Job
+            - Azure Functions (Timer/Queue)
+            - Azure Batch (large-scale)
+
+        language:
+          title: Programming Language
+          type: string
+          default: python
+          enum:
+            - python
+            - nodejs
+            - dotnet
+            - go
+            - java
+
+        pythonVersion:
+          title: Python Version
+          type: string
+          default: "3.11"
+          enum:
+            - "3.10"
+            - "3.11"
+            - "3.12"
+
+    # -------------------------------------------------------------------------
+    # Schedule Configuration
+    # -------------------------------------------------------------------------
+    - title: Schedule Configuration
+      properties:
+        schedule:
+          title: Cron Schedule
+          description: "Cron expression (e.g., '0 2 * * *' for 2 AM daily)"
+          type: string
+          default: "0 2 * * *"
+
+        timezone:
+          title: Timezone
+          type: string
+          default: UTC
+          enum:
+            - UTC
+            - America/New_York
+            - America/Sao_Paulo
+            - America/Los_Angeles
+            - Europe/London
+            - Europe/Paris
+            - Asia/Tokyo
+
+        concurrencyPolicy:
+          title: Concurrency Policy
+          type: string
+          default: Forbid
+          enum:
+            - Allow
+            - Forbid
+            - Replace
+          enumNames:
+            - Allow (multiple concurrent)
+            - Forbid (skip if running)
+            - Replace (stop old, start new)
+
+        startingDeadlineSeconds:
+          title: Starting Deadline (seconds)
+          description: Deadline to start job if missed schedule
+          type: integer
+          default: 300
+          minimum: 60
+          maximum: 3600
+
+    # -------------------------------------------------------------------------
+    # Job Execution
+    # -------------------------------------------------------------------------
+    - title: Job Execution
+      properties:
+        timeout:
+          title: Job Timeout (minutes)
+          type: integer
+          default: 60
+          minimum: 1
+          maximum: 1440
+
+        retryCount:
+          title: Retry Count
+          type: integer
+          default: 3
+          minimum: 0
+          maximum: 10
+
+        retryDelay:
+          title: Retry Delay (seconds)
+          type: integer
+          default: 60
+          minimum: 10
+          maximum: 600
+
+        parallelism:
+          title: Parallelism
+          description: Number of parallel job instances
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 10
+
+        completions:
+          title: Completions Required
+          description: Number of successful completions needed
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 100
+
+    # -------------------------------------------------------------------------
+    # Data Sources & Targets
+    # -------------------------------------------------------------------------
+    - title: Data Sources & Targets
+      properties:
+        dataSources:
+          title: Data Sources
+          type: array
+          items:
+            type: string
+            enum:
+              - azure-storage
+              - sql-database
+              - cosmos-db
+              - event-hubs
+              - service-bus
+              - kafka
+              - api-endpoint
+              - sftp
+          default:
+            - azure-storage
+
+        dataTargets:
+          title: Data Targets
+          type: array
+          items:
+            type: string
+            enum:
+              - azure-storage
+              - sql-database
+              - cosmos-db
+              - event-hubs
+              - api-endpoint
+              - email
+              - teams-webhook
+          default:
+            - azure-storage
+
+        enableDataValidation:
+          title: Enable Data Validation
+          type: boolean
+          default: true
+
+        enableCheckpointing:
+          title: Enable Checkpointing
+          description: Resume from last checkpoint on failure
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Resources
+    # -------------------------------------------------------------------------
+    - title: Resource Configuration
+      properties:
+        resourcePreset:
+          title: Resource Preset
+          type: string
+          default: medium
+          enum:
+            - small
+            - medium
+            - large
+            - xlarge
+          enumNames:
+            - Small (256Mi/250m)
+            - Medium (512Mi/500m)
+            - Large (1Gi/1000m)
+            - X-Large (2Gi/2000m)
+
+        enableSpotInstances:
+          title: Use Spot/Low-Priority VMs
+          description: Reduce costs for fault-tolerant jobs
+          type: boolean
+          default: false
+
+        storageSize:
+          title: Temp Storage Size (Gi)
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+
+    # -------------------------------------------------------------------------
+    # Notifications & Monitoring
+    # -------------------------------------------------------------------------
+    - title: Notifications & Monitoring
+      properties:
+        enableNotifications:
+          title: Enable Notifications
+          type: boolean
+          default: true
+
+        notifyOn:
+          title: Notify On
+          type: array
+          items:
+            type: string
+            enum:
+              - success
+              - failure
+              - timeout
+              - start
+          default:
+            - failure
+            - timeout
+
+        notificationChannels:
+          title: Notification Channels
+          type: array
+          items:
+            type: string
+            enum:
+              - email
+              - teams
+              - slack
+              - pagerduty
+          default:
+            - teams
+
+        enableMetrics:
+          title: Enable Prometheus Metrics
+          type: boolean
+          default: true
+
+        enableTracing:
+          title: Enable Distributed Tracing
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Batch Job Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.jobName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          jobName: ${{ parameters.jobName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          jobType: ${{ parameters.jobType }}
+          platform: ${{ parameters.platform }}
+          language: ${{ parameters.language }}
+          schedule: ${{ parameters.schedule }}
+          timezone: ${{ parameters.timezone }}
+
+    - id: generate-source
+      name: Generate Job Source Code
+      action: fetch:template
+      input:
+        url: ./skeleton/${{ parameters.language }}
+        targetPath: ./repo/src
+        values:
+          jobName: ${{ parameters.jobName }}
+          dataSources: ${{ parameters.dataSources }}
+          dataTargets: ${{ parameters.dataTargets }}
+          enableCheckpointing: ${{ parameters.enableCheckpointing }}
+
+    - id: generate-k8s
+      name: Generate Kubernetes Manifests
+      if: ${{ parameters.platform.startsWith('kubernetes') }}
+      action: fetch:template
+      input:
+        url: ./skeleton/kubernetes
+        targetPath: ./repo/kubernetes
+        values:
+          jobName: ${{ parameters.jobName }}
+          platform: ${{ parameters.platform }}
+          schedule: ${{ parameters.schedule }}
+          concurrencyPolicy: ${{ parameters.concurrencyPolicy }}
+          timeout: ${{ parameters.timeout }}
+          retryCount: ${{ parameters.retryCount }}
+          resourcePreset: ${{ parameters.resourcePreset }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.jobName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-batch-job"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Batch Job: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Batch Job Created
+        content: |
+          ## ⏰ Batch Job Created!
+          
+          **Job:** ${{ parameters.jobName }}
+          **Type:** ${{ parameters.jobType }}
+          **Platform:** ${{ parameters.platform }}
+          
+          **Schedule:**
+          - Cron: `${{ parameters.schedule }}`
+          - Timezone: ${{ parameters.timezone }}
+          - Concurrency: ${{ parameters.concurrencyPolicy }}
+          
+          **Execution:**
+          - Timeout: ${{ parameters.timeout }} minutes
+          - Retries: ${{ parameters.retryCount }}
+          - Parallelism: ${{ parameters.parallelism }}
+          
+          **Data:**
+          - Sources: ${{ parameters.dataSources | join(', ') }}
+          - Targets: ${{ parameters.dataTargets | join(', ') }}
+          
+          **Next Steps:**
+          1. Implement job logic in `src/`
+          2. Configure secrets in GitHub
+          3. Test locally with `make run`
+          4. Deploy via GitOps
+

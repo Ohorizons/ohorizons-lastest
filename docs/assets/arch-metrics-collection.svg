@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 460" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="neg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1abc9c"/><stop offset="100%" stop-color="#16a085"/></linearGradient>
+    <linearGradient id="ksg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="apg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="780" height="460" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="390" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Metrics Collection — Scrape Targets</text>
+
+  <!-- Node Exporter -->
+  <rect x="40" y="50" width="700" height="110" rx="10" fill="url(#neg)" filter="url(#ds)"/>
+  <text x="60" y="78" font-size="14" font-weight="700" fill="#fff">1. NODE EXPORTER</text>
+  <text x="250" y="78" font-size="10" fill="rgba(255,255,255,0.7)">(runs on every node)</text>
+  <text x="60" y="100" font-size="11" fill="rgba(255,255,255,0.85)">Collects: CPU, memory, disk, network stats for the VM</text>
+  <text x="60" y="118" font-size="10" fill="rgba(255,255,255,0.6)">Endpoint: http://node:9100/metrics</text>
+  <rect x="60" y="128" width="190" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="155" y="143" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">node_cpu_seconds_total</text>
+  <rect x="260" y="128" width="230" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="375" y="143" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">node_memory_MemAvailable_bytes</text>
+  <rect x="500" y="128" width="200" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="600" y="143" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">node_disk_read_bytes_total</text>
+
+  <!-- Kube State Metrics -->
+  <rect x="40" y="175" width="700" height="110" rx="10" fill="url(#ksg)" filter="url(#ds)"/>
+  <text x="60" y="203" font-size="14" font-weight="700" fill="#fff">2. KUBE-STATE-METRICS</text>
+  <text x="60" y="225" font-size="11" fill="rgba(255,255,255,0.85)">Collects: Kubernetes object states (pods, deployments, etc.)</text>
+  <text x="60" y="243" font-size="10" fill="rgba(255,255,255,0.6)">Endpoint: http://kube-state-metrics:8080/metrics</text>
+  <rect x="60" y="253" width="190" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="155" y="268" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">kube_pod_status_phase</text>
+  <rect x="260" y="253" width="280" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="400" y="268" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">kube_deployment_status_replicas_ready</text>
+  <rect x="550" y="253" width="180" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="640" y="268" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">kube_node_status_condition</text>
+
+  <!-- Application Metrics -->
+  <rect x="40" y="300" width="700" height="110" rx="10" fill="url(#apg)" filter="url(#ds)"/>
+  <text x="60" y="328" font-size="14" font-weight="700" fill="#fff">3. APPLICATION METRICS</text>
+  <text x="290" y="328" font-size="10" fill="rgba(255,255,255,0.7)">(your apps expose these)</text>
+  <text x="60" y="350" font-size="11" fill="rgba(255,255,255,0.85)">Collects: Business and application-specific metrics</text>
+  <text x="60" y="368" font-size="10" fill="rgba(255,255,255,0.6)">Endpoint: http://your-app:8080/metrics</text>
+  <rect x="60" y="378" width="260" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="190" y="393" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">http_requests_total{method="GET",status="200"}</text>
+  <rect x="330" y="378" width="230" height="22" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="445" y="393" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">order_processing_duration_seconds</text>
+
+  <!-- Legend -->
+  <rect x="40" y="425" width="14" height="10" rx="2" fill="#1abc9c"/>
+  <text x="60" y="434" font-size="9" fill="#555">Infrastructure (node-level)</text>
+  <rect x="220" y="425" width="14" height="10" rx="2" fill="#3498db"/>
+  <text x="240" y="434" font-size="9" fill="#555">Kubernetes (cluster-level)</text>
+  <rect x="410" y="425" width="14" height="10" rx="2" fill="#9b59b6"/>
+  <text x="430" y="434" font-size="9" fill="#555">Application (business-level)</text>
+</svg>

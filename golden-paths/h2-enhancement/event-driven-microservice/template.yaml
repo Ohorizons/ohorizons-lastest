@@ -1,0 +1,641 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 EVENT-DRIVEN MICROSERVICE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating event-driven microservices.
+# Supports Azure Service Bus, Event Hubs (Kafka), and Event Grid patterns.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Async messaging and event-driven architectures
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-event-driven-microservice
+  title: "H2: Create Event-Driven Microservice"
+  description: |
+    Create a new event-driven microservice with message broker integration.
+    Supports Azure Service Bus, Event Hubs (Kafka API), and Event Grid.
+    Includes dead-letter handling, retry patterns, and observability.
+  tags:
+    - h2-enhancement
+    - event-driven
+    - messaging
+    - service-bus
+    - kafka
+    - microservice
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: Azure Service Bus Documentation
+      url: https://docs.microsoft.com/en-us/azure/service-bus-messaging/
+    - title: Event-Driven Architecture Patterns
+      url: https://docs.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven
+
+spec:
+  owner: platform-engineering
+  type: service
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Service Information
+    # -------------------------------------------------------------------------
+    - title: Service Information
+      required:
+        - serviceName
+        - team
+        - description
+      properties:
+        serviceName:
+          title: Service Name
+          description: Name of the event-driven service
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 40
+          ui:autofocus: true
+
+        team:
+          title: Team
+          description: Team that owns this service
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          description: Brief description of the service purpose
+          type: string
+          maxLength: 200
+
+        system:
+          title: System
+          description: System this service belongs to
+          type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+
+    # -------------------------------------------------------------------------
+    # Language and Framework
+    # -------------------------------------------------------------------------
+    - title: Language and Framework
+      required:
+        - language
+      properties:
+        language:
+          title: Programming Language
+          description: Language for the service
+          type: string
+          default: python
+          enum:
+            - python
+            - nodejs
+            - java
+            - dotnet
+            - go
+          enumNames:
+            - Python (FastAPI + asyncio)
+            - Node.js (Express + Bull)
+            - Java (Spring Boot + Spring Cloud Stream)
+            - .NET (Worker Service)
+            - Go (Sarama/Watermill)
+
+        messageLibrary:
+          title: Messaging Library
+          description: Library for message handling
+          type: string
+          default: dapr
+          enum:
+            - dapr
+            - native
+            - spring-cloud
+            - masstransit
+          enumNames:
+            - Dapr (Recommended - portable)
+            - Native SDK
+            - Spring Cloud Stream (Java only)
+            - MassTransit (.NET only)
+
+    # -------------------------------------------------------------------------
+    # Messaging Configuration
+    # -------------------------------------------------------------------------
+    - title: Messaging Configuration
+      required:
+        - messageBroker
+        - messagePattern
+      properties:
+        messageBroker:
+          title: Message Broker
+          description: Azure messaging service to use
+          type: string
+          default: service-bus
+          enum:
+            - service-bus
+            - event-hubs
+            - event-grid
+          enumNames:
+            - Azure Service Bus (Queues/Topics)
+            - Azure Event Hubs (Kafka API)
+            - Azure Event Grid (Events)
+
+        messagePattern:
+          title: Message Pattern
+          description: Primary messaging pattern
+          type: string
+          default: pub-sub
+          enum:
+            - pub-sub
+            - point-to-point
+            - request-reply
+            - event-sourcing
+          enumNames:
+            - Pub/Sub (Topics & Subscriptions)
+            - Point-to-Point (Queues)
+            - Request/Reply (RPC over messages)
+            - Event Sourcing (Append-only events)
+
+        inputTopics:
+          title: Input Topics/Queues
+          description: Topics or queues to consume from
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                title: Name
+                type: string
+              type:
+                title: Type
+                type: string
+                enum:
+                  - topic
+                  - queue
+                default: topic
+              subscription:
+                title: Subscription Name
+                type: string
+              contentType:
+                title: Content Type
+                type: string
+                default: application/json
+          default:
+            - name: orders-created
+              type: topic
+              subscription: ${{ parameters.serviceName }}-sub
+              contentType: application/json
+
+        outputTopics:
+          title: Output Topics
+          description: Topics to publish to
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                title: Name
+                type: string
+              contentType:
+                title: Content Type
+                type: string
+                default: application/json
+          default:
+            - name: orders-processed
+              contentType: application/json
+
+    # -------------------------------------------------------------------------
+    # Reliability Configuration
+    # -------------------------------------------------------------------------
+    - title: Reliability Configuration
+      properties:
+        enableDeadLetterQueue:
+          title: Enable Dead Letter Queue
+          description: Move failed messages to DLQ for analysis
+          type: boolean
+          default: true
+
+        retryPolicy:
+          title: Retry Policy
+          type: object
+          properties:
+            maxRetries:
+              title: Max Retries
+              type: integer
+              default: 5
+              minimum: 1
+              maximum: 10
+            initialDelay:
+              title: Initial Delay (seconds)
+              type: integer
+              default: 1
+            maxDelay:
+              title: Max Delay (seconds)
+              type: integer
+              default: 60
+            backoffMultiplier:
+              title: Backoff Multiplier
+              type: number
+              default: 2
+
+        messageTimeout:
+          title: Message Lock Timeout (seconds)
+          description: How long to hold message lock
+          type: integer
+          default: 300
+          minimum: 30
+          maximum: 1800
+
+        enableIdempotency:
+          title: Enable Idempotency
+          description: Track processed message IDs
+          type: boolean
+          default: true
+
+        idempotencyStore:
+          title: Idempotency Store
+          type: string
+          default: redis
+          enum:
+            - redis
+            - database
+            - in-memory
+
+    # -------------------------------------------------------------------------
+    # Scaling Configuration
+    # -------------------------------------------------------------------------
+    - title: Scaling Configuration
+      properties:
+        scalingTrigger:
+          title: Scaling Trigger
+          description: What triggers pod scaling
+          type: string
+          default: queue-length
+          enum:
+            - queue-length
+            - cpu
+            - memory
+            - custom
+          enumNames:
+            - Queue/Topic Message Count
+            - CPU Utilization
+            - Memory Utilization
+            - Custom Metric
+
+        kedaEnabled:
+          title: Enable KEDA
+          description: Use KEDA for event-driven autoscaling
+          type: boolean
+          default: true
+
+        kedaConfig:
+          title: KEDA Configuration
+          type: object
+          properties:
+            minReplicas:
+              title: Min Replicas
+              type: integer
+              default: 0
+            maxReplicas:
+              title: Max Replicas
+              type: integer
+              default: 10
+            messageCount:
+              title: Messages per Pod
+              type: integer
+              default: 100
+            pollingInterval:
+              title: Polling Interval (seconds)
+              type: integer
+              default: 30
+
+        concurrency:
+          title: Concurrent Message Processing
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+
+    # -------------------------------------------------------------------------
+    # Observability
+    # -------------------------------------------------------------------------
+    - title: Observability
+      properties:
+        enableDistributedTracing:
+          title: Enable Distributed Tracing
+          description: Add correlation IDs and trace context
+          type: boolean
+          default: true
+
+        enableMessageMetrics:
+          title: Enable Message Metrics
+          description: Track message processing metrics
+          type: boolean
+          default: true
+
+        customMetrics:
+          title: Custom Metrics
+          description: Additional metrics to track
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                title: Metric Name
+                type: string
+              type:
+                title: Type
+                type: string
+                enum:
+                  - counter
+                  - gauge
+                  - histogram
+              description:
+                title: Description
+                type: string
+          default: []
+
+        enableAlerts:
+          title: Enable Alerts
+          description: Create default alerting rules
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Repository Configuration
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        enableBranchProtection:
+          title: Enable Branch Protection
+          type: boolean
+          default: true
+
+        enableGHAS:
+          title: Enable GitHub Advanced Security
+          type: boolean
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Fetch Base Template
+    # -------------------------------------------------------------------------
+    - id: fetch-base
+      name: Fetch Base Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.serviceName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          serviceName: ${{ parameters.serviceName }}
+          description: ${{ parameters.description }}
+          team: ${{ parameters.team }}
+          language: ${{ parameters.language }}
+          messageBroker: ${{ parameters.messageBroker }}
+          messagePattern: ${{ parameters.messagePattern }}
+          messageLibrary: ${{ parameters.messageLibrary }}
+          inputTopics: ${{ parameters.inputTopics }}
+          outputTopics: ${{ parameters.outputTopics }}
+          enableDeadLetterQueue: ${{ parameters.enableDeadLetterQueue }}
+          retryPolicy: ${{ parameters.retryPolicy }}
+          enableIdempotency: ${{ parameters.enableIdempotency }}
+          idempotencyStore: ${{ parameters.idempotencyStore }}
+          concurrency: ${{ parameters.concurrency }}
+          enableDistributedTracing: ${{ parameters.enableDistributedTracing }}
+
+    # -------------------------------------------------------------------------
+    # Generate Kubernetes Manifests
+    # -------------------------------------------------------------------------
+    - id: generate-k8s
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ./skeleton/kubernetes
+        targetPath: ./repo/kubernetes
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          team: ${{ parameters.team }}
+          messageBroker: ${{ parameters.messageBroker }}
+          kedaEnabled: ${{ parameters.kedaEnabled }}
+          kedaConfig: ${{ parameters.kedaConfig }}
+          inputTopics: ${{ parameters.inputTopics }}
+
+    # -------------------------------------------------------------------------
+    # Generate KEDA ScaledObject
+    # -------------------------------------------------------------------------
+    - id: generate-keda
+      name: Generate KEDA Configuration
+      if: ${{ parameters.kedaEnabled }}
+      action: fetch:template
+      input:
+        url: ./skeleton/keda
+        targetPath: ./repo/kubernetes/base
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          messageBroker: ${{ parameters.messageBroker }}
+          kedaConfig: ${{ parameters.kedaConfig }}
+          inputTopics: ${{ parameters.inputTopics }}
+
+    # -------------------------------------------------------------------------
+    # Generate Dapr Components (if using Dapr)
+    # -------------------------------------------------------------------------
+    - id: generate-dapr
+      name: Generate Dapr Components
+      if: ${{ parameters.messageLibrary == 'dapr' }}
+      action: fetch:template
+      input:
+        url: ./skeleton/dapr
+        targetPath: ./repo/kubernetes/base
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          messageBroker: ${{ parameters.messageBroker }}
+          inputTopics: ${{ parameters.inputTopics }}
+          outputTopics: ${{ parameters.outputTopics }}
+          enableDeadLetterQueue: ${{ parameters.enableDeadLetterQueue }}
+          retryPolicy: ${{ parameters.retryPolicy }}
+
+    # -------------------------------------------------------------------------
+    # Generate Monitoring
+    # -------------------------------------------------------------------------
+    - id: generate-monitoring
+      name: Generate Monitoring Configuration
+      action: fetch:template
+      input:
+        url: ./skeleton/monitoring
+        targetPath: ./repo/kubernetes/base
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          enableMessageMetrics: ${{ parameters.enableMessageMetrics }}
+          enableAlerts: ${{ parameters.enableAlerts }}
+          customMetrics: ${{ parameters.customMetrics }}
+          messageBroker: ${{ parameters.messageBroker }}
+          inputTopics: ${{ parameters.inputTopics }}
+
+    # -------------------------------------------------------------------------
+    # Generate CI/CD
+    # -------------------------------------------------------------------------
+    - id: generate-cicd
+      name: Generate CI/CD Pipeline
+      action: fetch:template
+      input:
+        url: ./skeleton/cicd
+        targetPath: ./repo/.github/workflows
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          language: ${{ parameters.language }}
+
+    # -------------------------------------------------------------------------
+    # Generate Catalog Info
+    # -------------------------------------------------------------------------
+    - id: generate-catalog
+      name: Generate Catalog Info
+      action: fetch:template
+      input:
+        url: ./skeleton/catalog
+        targetPath: ./repo
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          description: ${{ parameters.description }}
+          team: ${{ parameters.team }}
+          system: ${{ parameters.system }}
+          messageBroker: ${{ parameters.messageBroker }}
+          inputTopics: ${{ parameters.inputTopics }}
+          outputTopics: ${{ parameters.outputTopics }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+    # -------------------------------------------------------------------------
+    # Create Repository
+    # -------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.serviceName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-event-driven-microservice"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "${{ parameters.description }} (Event-Driven Service)"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: ${{ parameters.enableBranchProtection }}
+        requireCodeOwnerReviews: true
+        requiredApprovingReviewCount: 2
+
+    # -------------------------------------------------------------------------
+    # Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+      - title: ArgoCD Application
+        url: https://argocd.example.com/applications/${{ parameters.serviceName }}-dev
+    text:
+      - title: Event-Driven Service Created
+        content: |
+          ## ✅ Event-Driven Service Created!
+          
+          **Service:** ${{ parameters.serviceName }}
+          **Broker:** ${{ parameters.messageBroker }}
+          **Pattern:** ${{ parameters.messagePattern }}
+          
+          **Input Topics:**
+          {%- for topic in parameters.inputTopics %}
+          - ${{ topic.name }} (${{ topic.type }})
+          {%- endfor %}
+          
+          **Output Topics:**
+          {%- for topic in parameters.outputTopics %}
+          - ${{ topic.name }}
+          {%- endfor %}
+          
+          **Features:**
+          - ✅ ${{ parameters.messageLibrary }} messaging integration
+          - ${{ parameters.kedaEnabled ? '✅' : '⏭️' }} KEDA autoscaling
+          - ${{ parameters.enableDeadLetterQueue ? '✅' : '⏭️' }} Dead letter queue
+          - ${{ parameters.enableIdempotency ? '✅' : '⏭️' }} Idempotency tracking
+          - ${{ parameters.enableDistributedTracing ? '✅' : '⏭️' }} Distributed tracing
+          
+          **Next Steps:**
+          1. Configure Service Bus/Event Hub connection in Azure
+          2. Update secrets in Key Vault
+          3. Implement message handlers in `src/handlers/`
+          4. Test with sample messages
+          5. Monitor via Grafana dashboard
+

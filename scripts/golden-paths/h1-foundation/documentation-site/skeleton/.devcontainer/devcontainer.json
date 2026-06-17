@@ -1,0 +1,8 @@
+{
+  "name": "Docs",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "pip install mkdocs-techdocs-core",
+  "forwardPorts": [
+    8000
+  ]
+}

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 300" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="740" height="300" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="740" height="36" rx="12" fill="#2c3e50"/>
+  <rect x="0" y="18" width="740" height="18" fill="#2c3e50"/>
+  <text x="370" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">EXIT CODE MEANINGS</text>
+  <!-- Grid -->
+  <rect x="15" y="46" width="230" height="55" rx="6" fill="#e8f8f5" stroke="#1abc9c" filter="url(#ds)"/>
+  <text x="130" y="64" text-anchor="middle" font-size="16" font-weight="700" fill="#1abc9c">Exit 0</text>
+  <text x="130" y="80" text-anchor="middle" font-size="9" fill="#555">Graceful shutdown</text>
+  <text x="130" y="94" text-anchor="middle" font-size="8" fill="#7f8c8d">App completed successfully</text>
+  <rect x="255" y="46" width="230" height="55" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="370" y="64" text-anchor="middle" font-size="16" font-weight="700" fill="#e74c3c">Exit 1</text>
+  <text x="370" y="80" text-anchor="middle" font-size="9" fill="#555">Application error</text>
+  <text x="370" y="94" text-anchor="middle" font-size="8" fill="#7f8c8d">Check logs for stack trace</text>
+  <rect x="495" y="46" width="230" height="55" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="610" y="64" text-anchor="middle" font-size="16" font-weight="700" fill="#e74c3c">Exit 137</text>
+  <text x="610" y="80" text-anchor="middle" font-size="9" fill="#555">SIGKILL (OOMKilled)</text>
+  <text x="610" y="94" text-anchor="middle" font-size="8" fill="#7f8c8d">Out of memory — increase limits</text>
+  <rect x="15" y="111" width="230" height="55" rx="6" fill="#fef9e7" stroke="#f39c12" filter="url(#ds)"/>
+  <text x="130" y="129" text-anchor="middle" font-size="16" font-weight="700" fill="#f39c12">Exit 143</text>
+  <text x="130" y="145" text-anchor="middle" font-size="9" fill="#555">SIGTERM (graceful stop)</text>
+  <text x="130" y="159" text-anchor="middle" font-size="8" fill="#7f8c8d">Normal pod termination</text>
+  <rect x="255" y="111" width="230" height="55" rx="6" fill="#f5eef8" stroke="#9b59b6" filter="url(#ds)"/>
+  <text x="370" y="129" text-anchor="middle" font-size="16" font-weight="700" fill="#9b59b6">Exit 126</text>
+  <text x="370" y="145" text-anchor="middle" font-size="9" fill="#555">Permission denied</text>
+  <text x="370" y="159" text-anchor="middle" font-size="8" fill="#7f8c8d">Check file permissions, chmod +x</text>
+  <rect x="495" y="111" width="230" height="55" rx="6" fill="#eaf2f8" stroke="#3498db" filter="url(#ds)"/>
+  <text x="610" y="129" text-anchor="middle" font-size="16" font-weight="700" fill="#3498db">Exit 127</text>
+  <text x="610" y="145" text-anchor="middle" font-size="9" fill="#555">Command not found</text>
+  <text x="610" y="159" text-anchor="middle" font-size="8" fill="#7f8c8d">Binary missing — check Dockerfile</text>
+  <!-- Quick ref -->
+  <rect x="15" y="180" width="710" height="30" rx="6" fill="#fff" stroke="#dee2e6"/>
+  <text x="370" y="200" text-anchor="middle" font-size="10" fill="#7f8c8d">Diagnose: kubectl describe pod &lt;name&gt; | grep -A3 "Last State"</text>
+</svg>

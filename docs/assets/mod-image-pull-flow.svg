@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 280" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="700" height="280" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Image Pull Flow</text>
+  <rect x="60" y="55" width="150" height="80" rx="10" fill="#3498db" filter="url(#ds)"/>
+  <text x="135" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">AKS Node</text>
+  <text x="135" y="105" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(Kubelet)</text>
+  <line x1="212" y1="95" x2="308" y2="95" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="260" y="85" text-anchor="middle" font-size="9" fill="#7f8c8d">Managed Identity</text>
+  <text x="260" y="110" text-anchor="middle" font-size="8" fill="#7f8c8d">AcrPull Role</text>
+  <rect x="310" y="55" width="150" height="80" rx="10" fill="#27ae60" filter="url(#ds)"/>
+  <text x="385" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">ACR</text>
+  <text x="385" y="105" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(Premium)</text>
+  <!-- Private endpoint connection -->
+  <path d="M 135 137 C 135 180, 385 180, 385 137" fill="none" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="260" y="195" text-anchor="middle" font-size="10" fill="#9b59b6" font-weight="600">Private Endpoint</text>
+  <text x="260" y="212" text-anchor="middle" font-size="10" fill="#7f8c8d">(No internet needed!)</text>
+  <!-- Auto-config note -->
+  <rect x="40" y="230" width="620" height="35" rx="6" fill="#fff" stroke="#dee2e6"/>
+  <text x="350" y="252" text-anchor="middle" font-size="10" fill="#555">AKS module auto-creates managed identity, assigns AcrPull role, and configures kubelet</text>
+</svg>

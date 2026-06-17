@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
+  <title id="title">Context Platform Stack Pyramid</title>
+  <desc id="desc">Five layers from cloud infrastructure to agentic execution.</desc>
+  <rect width="900" height="560" fill="#ffffff"/>
+  <g font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">
+    <polygon points="450,70 760,470 140,470" fill="#f7fbff" stroke="#0078d4" stroke-width="3"/>
+    <line x1="270" y1="400" x2="630" y2="400" stroke="#0078d4" stroke-width="2"/>
+    <line x1="318" y1="335" x2="582" y2="335" stroke="#0078d4" stroke-width="2"/>
+    <line x1="365" y1="270" x2="535" y2="270" stroke="#0078d4" stroke-width="2"/>
+    <line x1="414" y1="205" x2="486" y2="205" stroke="#0078d4" stroke-width="2"/>
+    <text x="450" y="160" font-size="20" fill="#1b1b1f">L5 Agentic Execution</text>
+    <text x="450" y="245" font-size="20" fill="#1b1b1f">L4 Intent Engineering</text>
+    <text x="450" y="315" font-size="20" fill="#1b1b1f">L3 Context Engineering</text>
+    <text x="450" y="380" font-size="20" fill="#1b1b1f">L2 Platform Engineering</text>
+    <text x="450" y="450" font-size="20" fill="#1b1b1f">L1 Cloud and Infrastructure</text>
+  </g>
+</svg>

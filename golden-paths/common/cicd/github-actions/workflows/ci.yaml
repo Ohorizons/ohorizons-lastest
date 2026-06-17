@@ -1,0 +1,95 @@
+# ${{ values.name }} — CI/CD Pipeline
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up build environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f package.json ]; then
+            npm ci
+          elif [ -f pom.xml ]; then
+            mvn dependency:resolve
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -f pytest.ini ] || [ -f pyproject.toml ]; then
+            pip install pytest
+            pytest --tb=short
+          elif [ -f package.json ]; then
+            npm test -- --passWithNoTests
+          elif [ -f pom.xml ]; then
+            mvn test
+          fi
+
+      - name: Build container image
+        run: |
+          docker build -t ghcr.io/3horizons/${{ values.name }}:${{ '${{ github.sha }}' }} .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run linting
+        run: echo "Linting step — configure per language"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+{%- if values.enableGHAS %}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ values.language | replace("-.*", "") }}
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+{%- endif %}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build, test, security-scan]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to dev
+        run: echo "Deploy to dev environment — configure ArgoCD sync or kubectl apply"

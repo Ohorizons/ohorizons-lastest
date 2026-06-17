@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter></defs>
+  <rect width="680" height="340" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="340" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">Resource Already Exists — Decision Tree</text>
+  <rect x="140" y="42" width="400" height="30" rx="6" fill="#e67e22" filter="url(#ds)"/>
+  <text x="340" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Was the resource created by Terraform that lost state?</text>
+  <line x1="240" y1="74" x2="170" y2="100" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="190" y="90" font-size="9" fill="#27ae60" font-weight="600">YES</text>
+  <rect x="60" y="105" width="220" height="30" rx="6" fill="#3498db" filter="url(#ds)"/>
+  <text x="170" y="125" text-anchor="middle" font-size="10" fill="#fff">Import it: terraform import</text>
+  <line x1="440" y1="74" x2="490" y2="100" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="475" y="90" font-size="9" fill="#e74c3c" font-weight="600">NO</text>
+  <rect x="360" y="105" width="270" height="30" rx="6" fill="#e67e22" filter="url(#ds)"/>
+  <text x="495" y="125" text-anchor="middle" font-size="10" fill="#fff">Created manually — should TF manage it?</text>
+  <line x1="420" y1="137" x2="360" y2="165" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="375" y="155" font-size="9" fill="#27ae60" font-weight="600">YES</text>
+  <rect x="260" y="170" width="200" height="28" rx="6" fill="#3498db" filter="url(#ds)"/>
+  <text x="360" y="189" text-anchor="middle" font-size="10" fill="#fff">Import it (same as above)</text>
+  <line x1="560" y1="137" x2="580" y2="165" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="580" y="155" font-size="9" fill="#e74c3c" font-weight="600">NO</text>
+  <rect x="480" y="170" width="170" height="28" rx="6" fill="#e67e22" filter="url(#ds)"/>
+  <text x="565" y="189" text-anchor="middle" font-size="10" fill="#fff">Should it be deleted?</text>
+  <line x1="520" y1="200" x2="460" y2="228" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="475" y="218" font-size="9" fill="#27ae60" font-weight="600">YES</text>
+  <rect x="340" y="233" width="240" height="28" rx="6" fill="#e74c3c" filter="url(#ds)"/>
+  <text x="460" y="252" text-anchor="middle" font-size="10" fill="#fff">Delete in Azure, then apply</text>
+  <line x1="610" y1="200" x2="620" y2="228" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="625" y="218" font-size="9" fill="#e74c3c" font-weight="600">NO</text>
+  <rect x="530" y="275" width="130" height="40" rx="6" fill="#27ae60" filter="url(#ds)"/>
+  <text x="595" y="295" text-anchor="middle" font-size="10" fill="#fff">Rename your TF</text>
+  <text x="595" y="308" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">resource</text>
+</svg>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 650" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="cpg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8e44ad"/><stop offset="100%" stop-color="#7d3c98"/></linearGradient>
+    <linearGradient id="npg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="sysg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1abc9c"/><stop offset="100%" stop-color="#16a085"/></linearGradient>
+    <linearGradient id="wkg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2ecc71"/><stop offset="100%" stop-color="#27ae60"/></linearGradient>
+    <linearGradient id="aig" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="880" height="650" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="440" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">AKS Cluster Architecture</text>
+
+  <!-- Control Plane -->
+  <rect x="40" y="50" width="800" height="110" rx="10" fill="url(#cpg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="60" y="75" font-size="14" font-weight="700" fill="#fff">CONTROL PLANE (Azure Managed)</text>
+  <text x="60" y="93" font-size="10" fill="#e8daef">You don't manage these — Azure handles them</text>
+  <rect x="60" y="105" width="160" height="40" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="140" y="122" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">API Server</text>
+  <text x="140" y="136" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.8)">Receives commands</text>
+  <rect x="235" y="105" width="160" height="40" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="315" y="122" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">etcd</text>
+  <text x="315" y="136" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.8)">Stores cluster state</text>
+  <rect x="410" y="105" width="160" height="40" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="490" y="122" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Controller Manager</text>
+  <text x="490" y="136" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.8)">Manages desired state</text>
+  <rect x="585" y="105" width="160" height="40" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="665" y="122" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Scheduler</text>
+  <text x="665" y="136" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.8)">Places pods on nodes</text>
+
+  <!-- Node Pools container -->
+  <rect x="40" y="180" width="800" height="430" rx="10" fill="url(#npg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="60" y="205" font-size="14" font-weight="700" fill="#fff">NODE POOLS</text>
+  <text x="60" y="223" font-size="10" fill="#d6eaf8">VMs where your workloads run</text>
+
+  <!-- System Node Pool -->
+  <rect x="60" y="235" width="760" height="110" rx="8" fill="url(#sysg)" opacity="0.85"/>
+  <text x="80" y="258" font-size="12" font-weight="700" fill="#fff">SYSTEM NODE POOL</text>
+  <text x="80" y="275" font-size="10" fill="rgba(255,255,255,0.9)">3 nodes · Standard_D4s_v5 · Ubuntu 22.04 · CriticalAddonsOnly taint</text>
+  <rect x="80" y="288" width="110" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="135" y="308" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 1</text>
+  <text x="135" y="323" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 1</text>
+  <rect x="200" y="288" width="110" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="255" y="308" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 2</text>
+  <text x="255" y="323" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 2</text>
+  <rect x="320" y="288" width="110" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="375" y="308" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 3</text>
+  <text x="375" y="323" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 3</text>
+
+  <!-- Workload Node Pool -->
+  <rect x="60" y="355" width="760" height="110" rx="8" fill="url(#wkg)" opacity="0.85"/>
+  <text x="80" y="378" font-size="12" font-weight="700" fill="#fff">WORKLOAD NODE POOL</text>
+  <text x="80" y="395" font-size="10" fill="rgba(255,255,255,0.9)">3-10 nodes (auto-scales) · Standard_D8s_v5 · No taints</text>
+  <rect x="80" y="408" width="90" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="125" y="428" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 1</text>
+  <text x="125" y="443" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 1</text>
+  <rect x="180" y="408" width="90" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="225" y="428" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 2</text>
+  <text x="225" y="443" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 2</text>
+  <rect x="280" y="408" width="90" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="325" y="428" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 3</text>
+  <text x="325" y="443" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 3</text>
+  <rect x="380" y="408" width="90" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="425" y="428" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Node 4</text>
+  <text x="425" y="443" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">Zone 1</text>
+  <rect x="480" y="408" width="90" height="45" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-dasharray="4,3"/>
+  <text x="525" y="435" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">... (auto)</text>
+
+  <!-- AI Node Pool -->
+  <rect x="60" y="475" width="760" height="90" rx="8" fill="url(#aig)" opacity="0.85"/>
+  <text x="80" y="498" font-size="12" font-weight="700" fill="#fff">AI NODE POOL (Optional — H3)</text>
+  <text x="80" y="515" font-size="10" fill="rgba(255,255,255,0.9)">0-3 nodes (scales to 0) · Standard_NC8as_T4_v3 (GPU) · nvidia.com/gpu taint</text>
+  <rect x="80" y="528" width="90" height="28" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-dasharray="4,3"/>
+  <text x="125" y="547" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.8)">GPU Node</text>
+
+  <!-- Legend -->
+  <rect x="40" y="622" width="14" height="10" rx="2" fill="#8e44ad"/>
+  <text x="60" y="632" font-size="9" fill="#555">Control Plane</text>
+  <rect x="155" y="622" width="14" height="10" rx="2" fill="#1abc9c"/>
+  <text x="175" y="632" font-size="9" fill="#555">System Pool</text>
+  <rect x="260" y="622" width="14" height="10" rx="2" fill="#2ecc71"/>
+  <text x="280" y="632" font-size="9" fill="#555">Workload Pool</text>
+  <rect x="375" y="622" width="14" height="10" rx="2" fill="#e67e22"/>
+  <text x="395" y="632" font-size="9" fill="#555">AI Pool (Optional)</text>
+</svg>

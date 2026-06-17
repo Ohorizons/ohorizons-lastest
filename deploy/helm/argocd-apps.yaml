@@ -1,0 +1,70 @@
+# =============================================================================
+# ArgoCD — Platform App-of-Apps
+# =============================================================================
+# Registers all platform components as ArgoCD Applications for GitOps management
+# =============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-backstage
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: open-horizons
+    open-horizons/horizon: h2
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    targetRevision: demo
+    path: deploy/helm
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backstage
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-monitoring
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: open-horizons
+    open-horizons/horizon: h2
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    targetRevision: demo
+    path: prometheus
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-argocd-config
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: open-horizons
+    open-horizons/horizon: h2
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    targetRevision: demo
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

@@ -1,0 +1,153 @@
+# =============================================================================
+# SRE PrometheusRule — Platform Alerts for Open Horizons
+# =============================================================================
+# Critical alerts for all platform components across H1, H2, H3
+# =============================================================================
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: open-horizons-sre-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app: kube-prometheus-stack
+spec:
+  groups:
+    # =========================================================================
+    # H1 Foundation Alerts
+    # =========================================================================
+    - name: h1-foundation
+      rules:
+        - alert: NodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            horizon: h1
+          annotations:
+            summary: "Node {{ $labels.node }} is not ready"
+            runbook: "Check node status with kubectl describe node"
+
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 5 > 0
+          for: 15m
+          labels:
+            severity: warning
+            horizon: h1
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+
+        - alert: PersistentVolumeClaimPending
+          expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+          for: 15m
+          labels:
+            severity: warning
+            horizon: h1
+          annotations:
+            summary: "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is pending"
+
+        - alert: HighCPUUsage
+          expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (namespace, pod) / sum(kube_pod_container_resource_limits{resource="cpu"}) by (namespace, pod)) > 0.9
+          for: 10m
+          labels:
+            severity: warning
+            horizon: h1
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} CPU > 90%"
+
+        - alert: HighMemoryUsage
+          expr: (sum(container_memory_working_set_bytes{container!=""}) by (namespace, pod) / sum(kube_pod_container_resource_limits{resource="memory"}) by (namespace, pod)) > 0.9
+          for: 10m
+          labels:
+            severity: warning
+            horizon: h1
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} Memory > 90%"
+
+    # =========================================================================
+    # H2 Enhancement Alerts
+    # =========================================================================
+    - name: h2-enhancement
+      rules:
+        - alert: BackstageDown
+          expr: up{job=~".*backstage.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            horizon: h2
+          annotations:
+            summary: "Backstage developer portal is down"
+            runbook: "Check backstage pod: kubectl logs -n backstage -l app.kubernetes.io/name=backstage"
+
+        - alert: ArgoCDSyncFailed
+          expr: argocd_app_info{sync_status="OutOfSync"} == 1
+          for: 30m
+          labels:
+            severity: warning
+            horizon: h2
+          annotations:
+            summary: "ArgoCD app {{ $labels.name }} is OutOfSync for 30m"
+
+        - alert: ArgoCDAppDegraded
+          expr: argocd_app_info{health_status="Degraded"} == 1
+          for: 10m
+          labels:
+            severity: critical
+            horizon: h2
+          annotations:
+            summary: "ArgoCD app {{ $labels.name }} health is Degraded"
+
+        - alert: GrafanaDown
+          expr: up{job=~".*grafana.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+            horizon: h2
+          annotations:
+            summary: "Grafana is down"
+
+        - alert: PrometheusTargetMissing
+          expr: up == 0
+          for: 10m
+          labels:
+            severity: warning
+            horizon: h2
+          annotations:
+            summary: "Prometheus target {{ $labels.job }} is down"
+
+    # =========================================================================
+    # H3 Innovation Alerts (AI Services)
+    # =========================================================================
+    - name: h3-innovation
+      rules:
+        - alert: HighErrorRate
+          expr: sum(rate(http_requests_total{code=~"5.."}[5m])) by (namespace) / sum(rate(http_requests_total[5m])) by (namespace) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+            horizon: h3
+          annotations:
+            summary: "High 5xx error rate in {{ $labels.namespace }}"
+
+    # =========================================================================
+    # SRE SLO Alerts
+    # =========================================================================
+    - name: sre-slos
+      rules:
+        - alert: SLOAvailabilityBreach
+          expr: (1 - (sum(rate(http_requests_total{code=~"5.."}[1h])) / sum(rate(http_requests_total[1h])))) < 0.999
+          for: 5m
+          labels:
+            severity: critical
+            horizon: sre
+          annotations:
+            summary: "Platform availability below 99.9% SLO"
+
+        - alert: HighLatency
+          expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, namespace)) > 2
+          for: 10m
+          labels:
+            severity: warning
+            horizon: sre
+          annotations:
+            summary: "P99 latency > 2s in {{ $labels.namespace }}"

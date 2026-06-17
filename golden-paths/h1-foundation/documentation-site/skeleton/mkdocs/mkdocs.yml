@@ -1,0 +1,6 @@
+site_name: docs
+theme:
+  name: material
+plugins:
+  - search
+  - techdocs-core

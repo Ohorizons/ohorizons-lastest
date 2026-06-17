@@ -1,0 +1,44 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "golden-paths", "golden-paths", "{8D6C601F-385F-A6E3-8FB7-126591C2D013}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "h1-foundation", "h1-foundation", "{EE97EE5D-7058-04E7-4AF3-14EB51D02F81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "web-application", "web-application", "{29F206E9-D5CD-84EC-7BC9-57772813F921}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skeleton", "skeleton", "{C3BA0952-551C-7B9A-923F-1B8CD2D7A54B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{2ED45399-13C9-B52E-642D-94D0B1FEBC67}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aspnet", "aspnet", "{CCFB1A1D-1A3C-59E8-FCC2-829A71441361}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "${{ values.appName }}", "golden-paths\h1-foundation\web-application\skeleton\backend\aspnet\${{ values.appName }}.csproj", "{5FD390E1-D98F-26CA-B977-4F6CB5535120}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FD390E1-D98F-26CA-B977-4F6CB5535120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FD390E1-D98F-26CA-B977-4F6CB5535120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FD390E1-D98F-26CA-B977-4F6CB5535120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FD390E1-D98F-26CA-B977-4F6CB5535120}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE97EE5D-7058-04E7-4AF3-14EB51D02F81} = {8D6C601F-385F-A6E3-8FB7-126591C2D013}
+		{29F206E9-D5CD-84EC-7BC9-57772813F921} = {EE97EE5D-7058-04E7-4AF3-14EB51D02F81}
+		{C3BA0952-551C-7B9A-923F-1B8CD2D7A54B} = {29F206E9-D5CD-84EC-7BC9-57772813F921}
+		{2ED45399-13C9-B52E-642D-94D0B1FEBC67} = {C3BA0952-551C-7B9A-923F-1B8CD2D7A54B}
+		{CCFB1A1D-1A3C-59E8-FCC2-829A71441361} = {2ED45399-13C9-B52E-642D-94D0B1FEBC67}
+		{5FD390E1-D98F-26CA-B977-4F6CB5535120} = {CCFB1A1D-1A3C-59E8-FCC2-829A71441361}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F3D7ACB5-257C-4681-9C2E-95E602CFDB33}
+	EndGlobalSection
+EndGlobal

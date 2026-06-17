@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 500" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="720" height="500" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="360" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Module Dependency Graph</text>
+  <!-- Tier 0: naming -->
+  <rect x="300" y="48" width="120" height="35" rx="8" fill="#27ae60" filter="url(#ds)"/>
+  <text x="360" y="70" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">naming</text>
+  <text x="440" y="70" font-size="9" fill="#7f8c8d">&#8592; START HERE</text>
+  <!-- Lines from naming -->
+  <line x1="360" y1="85" x2="360" y2="100" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="120" y1="100" x2="600" y2="100" stroke="#bdc3c7" stroke-width="1.5"/>
+  <!-- Tier 1 -->
+  <line x1="120" y1="100" x2="120" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="55" y="112" width="130" height="35" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="120" y="134" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">networking</text>
+  <line x1="360" y1="100" x2="360" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="295" y="112" width="130" height="35" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="360" y="134" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">security</text>
+  <line x1="600" y1="100" x2="600" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="535" y="112" width="130" height="35" rx="8" fill="#95a5a6" filter="url(#ds)"/>
+  <text x="600" y="134" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">defender</text>
+  <text x="600" y="165" text-anchor="middle" font-size="8" fill="#7f8c8d">(optional)</text>
+  <!-- Tier 2 lines -->
+  <line x1="120" y1="149" x2="120" y2="180" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="120" y1="180" x2="360" y2="180" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="360" y1="149" x2="360" y2="180" stroke="#bdc3c7" stroke-width="1.5"/>
+  <!-- Tier 2 -->
+  <line x1="120" y1="180" x2="120" y2="195" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="45" y="198" width="150" height="35" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="120" y="220" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">aks-cluster</text>
+  <line x1="310" y1="180" x2="310" y2="195" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="245" y="198" width="130" height="35" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="310" y="220" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">databases</text>
+  <line x1="460" y1="180" x2="460" y2="195" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="395" y="198" width="130" height="35" rx="8" fill="#27ae60" filter="url(#ds)"/>
+  <text x="460" y="220" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">acr</text>
+  <!-- Tier 3 from aks-cluster -->
+  <line x1="120" y1="235" x2="120" y2="260" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="50" y1="260" x2="520" y2="260" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="50" y1="260" x2="50" y2="275" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="15" y="278" width="80" height="35" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="55" y="300" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">argocd</text>
+  <line x1="175" y1="260" x2="175" y2="275" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="115" y="278" width="120" height="35" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="175" y="300" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">external-secrets</text>
+  <line x1="340" y1="260" x2="340" y2="275" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="280" y="278" width="120" height="35" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="340" y="300" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">observability</text>
+  <line x1="500" y1="260" x2="500" y2="275" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="430" y="278" width="140" height="35" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="500" y="300" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">github-runners</text>
+  <!-- H3 -->
+  <text x="360" y="355" text-anchor="middle" font-size="11" font-weight="600" fill="#e74c3c">H3 MODULES (Independent after AKS)</text>
+  <rect x="300" y="368" width="120" height="35" rx="8" fill="#e74c3c" filter="url(#ds)"/>
+  <text x="360" y="390" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">ai-foundry</text>
+  <!-- Legend -->
+  <rect x="40" y="425" width="640" height="55" rx="8" fill="#fff" stroke="#dee2e6"/>
+  <text x="55" y="445" font-size="10" fill="#2c3e50" font-weight="600">Deploy Order:</text>
+  <text x="55" y="465" font-size="9" fill="#7f8c8d">1. naming → 2. networking + security → 3. aks-cluster + databases + acr → 4. argocd + observability + external-secrets</text>
+</svg>

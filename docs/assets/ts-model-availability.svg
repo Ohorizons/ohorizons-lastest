@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 220" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="700" height="220" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="700" height="36" rx="12" fill="#9b59b6"/>
+  <rect x="0" y="18" width="700" height="18" fill="#9b59b6"/>
+  <text x="350" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">AZURE OPENAI — Model Availability by Region</text>
+  <!-- Header row -->
+  <rect x="15" y="48" width="200" height="28" rx="4" fill="#2c3e50"/>
+  <text x="115" y="67" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Model</text>
+  <rect x="225" y="48" width="140" height="28" rx="4" fill="#3498db"/>
+  <text x="295" y="67" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Brazil South</text>
+  <rect x="375" y="48" width="140" height="28" rx="4" fill="#27ae60"/>
+  <text x="445" y="67" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">East US 2</text>
+  <rect x="525" y="48" width="160" height="28" rx="4" fill="#e67e22"/>
+  <text x="605" y="67" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">West Europe</text>
+  <!-- Rows -->
+  <rect x="15" y="82" width="200" height="24" rx="3" fill="#fff" stroke="#dee2e6"/>
+  <text x="25" y="99" font-size="10" fill="#2c3e50" font-weight="600">gpt-4o</text>
+  <text x="295" y="99" text-anchor="middle" font-size="12" fill="#e74c3c">&#10007;</text>
+  <text x="445" y="99" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <text x="605" y="99" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <rect x="15" y="108" width="200" height="24" rx="3" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="25" y="125" font-size="10" fill="#2c3e50" font-weight="600">gpt-4o-mini</text>
+  <text x="295" y="125" text-anchor="middle" font-size="12" fill="#e74c3c">&#10007;</text>
+  <text x="445" y="125" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <text x="605" y="125" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <rect x="15" y="134" width="200" height="24" rx="3" fill="#fff" stroke="#dee2e6"/>
+  <text x="25" y="151" font-size="10" fill="#2c3e50" font-weight="600">gpt-35-turbo</text>
+  <text x="295" y="151" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <text x="445" y="151" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <text x="605" y="151" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <rect x="15" y="160" width="200" height="24" rx="3" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="25" y="177" font-size="10" fill="#2c3e50" font-weight="600">text-embedding-3-large</text>
+  <text x="295" y="177" text-anchor="middle" font-size="12" fill="#e74c3c">&#10007;</text>
+  <text x="445" y="177" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <text x="605" y="177" text-anchor="middle" font-size="12" fill="#27ae60">&#10003;</text>
+  <!-- Recommendation -->
+  <rect x="15" y="192" width="670" height="22" rx="4" fill="#e8f8f5" stroke="#1abc9c"/>
+  <text x="350" y="208" text-anchor="middle" font-size="9" fill="#16a085" font-weight="600">Recommendation: Use East US 2 for best model availability</text>
+</svg>

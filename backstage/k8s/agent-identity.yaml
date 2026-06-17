@@ -1,0 +1,184 @@
+# =============================================================================
+# AGENT-SPECIFIC IDENTITY — Kubernetes RBAC for AI Agents
+# =============================================================================
+#
+# Each agent API gets its own ServiceAccount with scoped permissions.
+# Agents do NOT share the Backstage service account.
+# This enables per-agent audit trails and least-privilege access.
+#
+# Ref: CNCF Cloud Native Agentic Standards (March 2026)
+# Ref: Ch. 01 — SPIFFE/SPIRE workload identity
+# =============================================================================
+
+---
+# ServiceAccount for the AI Chat agent API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-api-chat
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-api-chat
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/version: "2.0.0"
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    description: "Identity for AI Chat agent API — scoped to GitHub API and Backstage catalog"
+
+---
+# ServiceAccount for the AI Impact agent API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-api-impact
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-api-impact
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/version: "2.0.0"
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    description: "Identity for AI Impact agent API — scoped to Copilot metrics and GitHub analytics"
+
+---
+# Role: agent-read — read-only access to platform resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agent-read
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-rbac
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list"]
+
+---
+# Role: agent-write — limited write access for agents that create resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agent-write
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-rbac
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+
+---
+# Bind agent-api-chat to read-only role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: agent-api-chat-read
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-rbac
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: agent-read
+subjects:
+  - kind: ServiceAccount
+    name: agent-api-chat
+    namespace: ai-services
+
+---
+# Bind agent-api-impact to read-only role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: agent-api-impact-read
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-rbac
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: agent-read
+subjects:
+  - kind: ServiceAccount
+    name: agent-api-impact
+    namespace: ai-services
+
+---
+# NetworkPolicy: agents can only reach Backstage and external HTTPS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-api-network-policy
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-network-policy
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: ai-agent
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from Backstage pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backstage
+      ports:
+        - protocol: TCP
+          port: 8008
+        - protocol: TCP
+          port: 8011
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTPS to external APIs (GitHub, Azure OpenAI)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow access to Backstage service within cluster
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backstage
+      ports:
+        - protocol: TCP
+          port: 7007

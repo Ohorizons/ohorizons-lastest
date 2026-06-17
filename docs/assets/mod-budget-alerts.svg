@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 350" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="700" height="350" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Budget Alert Timeline</text>
+  <text x="350" y="48" text-anchor="middle" font-size="11" fill="#7f8c8d">Budget: $10,000/month · Alert thresholds: 50%, 75%, 90%, 100%</text>
+  <rect x="60" y="65" width="580" height="240" rx="10" fill="#fff" stroke="#dee2e6" filter="url(#ds)"/>
+  <!-- Scale -->
+  <line x1="160" y1="85" x2="160" y2="285" stroke="#dee2e6" stroke-width="1"/>
+  <!-- Day 1 -->
+  <text x="80" y="108" font-size="10" fill="#555" font-weight="600">Day 1</text>
+  <text x="115" y="108" font-size="9" fill="#7f8c8d">$0</text>
+  <rect x="160" y="93" width="4" height="20" rx="2" fill="#dee2e6"/>
+  <!-- Day 10 -->
+  <text x="80" y="158" font-size="10" fill="#555" font-weight="600">Day 10</text>
+  <text x="115" y="158" font-size="9" fill="#7f8c8d">$5k</text>
+  <rect x="160" y="143" width="240" height="20" rx="2" fill="#3498db"/>
+  <rect x="410" y="143" width="14" height="20" rx="2" fill="#e67e22"/>
+  <text x="432" y="158" font-size="9" fill="#e67e22" font-weight="600">50% Alert</text>
+  <!-- Day 18 -->
+  <text x="80" y="198" font-size="10" fill="#555" font-weight="600">Day 18</text>
+  <text x="115" y="198" font-size="9" fill="#7f8c8d">$7.5k</text>
+  <rect x="160" y="183" width="360" height="20" rx="2" fill="#3498db"/>
+  <rect x="530" y="183" width="14" height="20" rx="2" fill="#e67e22"/>
+  <text x="552" y="198" font-size="9" fill="#e67e22" font-weight="600">75% Alert</text>
+  <!-- Day 24 -->
+  <text x="80" y="238" font-size="10" fill="#555" font-weight="600">Day 24</text>
+  <text x="115" y="238" font-size="9" fill="#7f8c8d">$9k</text>
+  <rect x="160" y="223" width="432" height="20" rx="2" fill="#e67e22"/>
+  <rect x="600" y="223" width="14" height="20" rx="2" fill="#e74c3c"/>
+  <text x="552" y="258" font-size="9" fill="#e74c3c" font-weight="600">90% Alert</text>
+  <!-- Day 28 -->
+  <text x="80" y="278" font-size="10" fill="#555" font-weight="600">Day 28</text>
+  <text x="115" y="278" font-size="9" fill="#7f8c8d">$10k</text>
+  <rect x="160" y="263" width="480" height="20" rx="2" fill="#e74c3c"/>
+  <text x="552" y="298" font-size="9" fill="#c0392b" font-weight="700">BUDGET EXCEEDED!</text>
+</svg>

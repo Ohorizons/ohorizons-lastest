@@ -1,0 +1,506 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 DOCUMENTATION SITE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating documentation sites.
+# Integrates with TechDocs, GitHub Pages, and static site generators.
+#
+# Horizon: H1 - Foundation
+# Use Case: Create standardized documentation for projects and APIs
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-documentation-site
+  title: "H1: Create Documentation Site"
+  description: |
+    Create a documentation site using your preferred static site generator.
+    Automatically integrates with Backstage TechDocs for unified documentation.
+  tags:
+    - h1-foundation
+    - documentation
+    - techdocs
+    - markdown
+    - developer-portal
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: TechDocs Documentation
+      url: https://backstage.io/docs/features/techdocs/
+
+spec:
+  owner: platform-engineering
+  type: documentation
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Documentation Information
+    # -------------------------------------------------------------------------
+    - title: Documentation Information
+      required:
+        - siteName
+        - team
+        - docType
+      properties:
+        siteName:
+          title: Site Name
+          description: Name of the documentation site
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-docs$'
+          maxLength: 50
+
+        team:
+          title: Team
+          description: Team that owns this documentation
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          description: Brief description of what this documentation covers
+          type: string
+          maxLength: 300
+
+        docType:
+          title: Documentation Type
+          description: Primary type of documentation
+          type: string
+          enum:
+            - api-reference
+            - user-guide
+            - developer-guide
+            - architecture
+            - runbook
+            - onboarding
+            - general
+          enumNames:
+            - API Reference
+            - User Guide
+            - Developer Guide
+            - Architecture Documentation
+            - Operations Runbook
+            - Onboarding Guide
+            - General Documentation
+
+    # -------------------------------------------------------------------------
+    # Generator & Framework
+    # -------------------------------------------------------------------------
+    - title: Generator & Framework
+      required:
+        - generator
+      properties:
+        generator:
+          title: Static Site Generator
+          description: Choose your preferred documentation framework
+          type: string
+          default: mkdocs
+          enum:
+            - mkdocs
+            - docusaurus
+            - sphinx
+            - hugo
+            - vitepress
+            - astro
+          enumNames:
+            - MkDocs (Material theme)
+            - Docusaurus (React-based)
+            - Sphinx (Python docs)
+            - Hugo (Fast builds)
+            - VitePress (Vue-based)
+            - Astro (Modern framework)
+
+        theme:
+          title: Theme
+          description: Documentation theme
+          type: string
+          default: material
+          enum:
+            - material
+            - readthedocs
+            - gitbook
+            - custom
+          enumNames:
+            - Material Design
+            - Read the Docs
+            - GitBook Style
+            - Custom Theme
+
+        enableSearch:
+          title: Enable Search
+          type: boolean
+          default: true
+
+        enableVersioning:
+          title: Enable Versioning
+          description: Support multiple documentation versions
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Content Structure
+    # -------------------------------------------------------------------------
+    - title: Content Structure
+      properties:
+        sections:
+          title: Documentation Sections
+          description: Select sections to include
+          type: array
+          items:
+            type: string
+            enum:
+              - getting-started
+              - installation
+              - configuration
+              - api-reference
+              - tutorials
+              - how-to-guides
+              - architecture
+              - troubleshooting
+              - faq
+              - changelog
+              - contributing
+          uniqueItems: true
+          default:
+            - getting-started
+            - installation
+            - configuration
+
+        includeApiDocs:
+          title: Include API Documentation
+          description: Generate API docs from OpenAPI/Swagger spec
+          type: boolean
+          default: false
+
+        apiSpecUrl:
+          title: OpenAPI Spec URL
+          description: URL to OpenAPI specification (if including API docs)
+          type: string
+          format: uri
+
+        includeCodeSamples:
+          title: Include Code Samples
+          description: Add code sample sections
+          type: boolean
+          default: true
+
+        sampleLanguages:
+          title: Code Sample Languages
+          type: array
+          items:
+            type: string
+            enum:
+              - python
+              - javascript
+              - typescript
+              - java
+              - csharp
+              - go
+              - bash
+              - powershell
+          default:
+            - python
+            - javascript
+
+    # -------------------------------------------------------------------------
+    # TechDocs Integration
+    # -------------------------------------------------------------------------
+    - title: TechDocs Integration
+      properties:
+        enableTechDocs:
+          title: Enable TechDocs Integration
+          description: Publish to Backstage TechDocs
+          type: boolean
+          default: true
+
+        techDocsStorage:
+          title: TechDocs Storage
+          description: Where to store generated docs
+          type: string
+          default: azure-blob
+          enum:
+            - azure-blob
+            - s3
+            - gcs
+            - local
+          enumNames:
+            - Azure Blob Storage
+            - AWS S3
+            - Google Cloud Storage
+            - Local (Dev only)
+
+        autoPublish:
+          title: Auto-Publish on Merge
+          description: Automatically publish docs on main branch merge
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Hosting & Deployment
+    # -------------------------------------------------------------------------
+    - title: Hosting & Deployment
+      properties:
+        hosting:
+          title: Hosting Platform
+          type: string
+          default: github-pages
+          enum:
+            - github-pages
+            - azure-static-web
+            - cloudflare-pages
+            - netlify
+            - techdocs-only
+          enumNames:
+            - GitHub Pages
+            - Azure Static Web Apps
+            - Cloudflare Pages
+            - Netlify
+            - TechDocs Only (no public site)
+
+        customDomain:
+          title: Custom Domain
+          description: Custom domain for the documentation site (optional)
+          type: string
+          format: hostname
+
+        enableAnalytics:
+          title: Enable Analytics
+          type: boolean
+          default: false
+
+        analyticsProvider:
+          title: Analytics Provider
+          type: string
+          default: google
+          enum:
+            - google
+            - plausible
+            - fathom
+            - none
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        createSeparateRepo:
+          title: Create Separate Repository
+          description: Create a dedicated docs repo (vs adding to existing)
+          type: boolean
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Fetch Base Template
+    # -------------------------------------------------------------------------
+    - id: fetch-template
+      name: Fetch Documentation Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.siteName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          siteName: ${{ parameters.siteName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          docType: ${{ parameters.docType }}
+          generator: ${{ parameters.generator }}
+          theme: ${{ parameters.theme }}
+          enableSearch: ${{ parameters.enableSearch }}
+          sections: ${{ parameters.sections }}
+          enableTechDocs: ${{ parameters.enableTechDocs }}
+          hosting: ${{ parameters.hosting }}
+
+    # -------------------------------------------------------------------------
+    # Generate MkDocs Configuration
+    # -------------------------------------------------------------------------
+    - id: generate-mkdocs
+      name: Generate MkDocs Configuration
+      if: ${{ parameters.generator === 'mkdocs' }}
+      action: fetch:template
+      input:
+        url: ./skeleton/mkdocs
+        targetPath: ./repo
+        values:
+          siteName: ${{ parameters.siteName }}
+          description: ${{ parameters.description }}
+          theme: ${{ parameters.theme }}
+          enableSearch: ${{ parameters.enableSearch }}
+          enableVersioning: ${{ parameters.enableVersioning }}
+          sections: ${{ parameters.sections }}
+
+    # -------------------------------------------------------------------------
+    # Generate Docusaurus Configuration
+    # -------------------------------------------------------------------------
+    - id: generate-docusaurus
+      name: Generate Docusaurus Configuration
+      if: ${{ parameters.generator === 'docusaurus' }}
+      action: fetch:template
+      input:
+        url: ./skeleton/docusaurus
+        targetPath: ./repo
+        values:
+          siteName: ${{ parameters.siteName }}
+          description: ${{ parameters.description }}
+          enableVersioning: ${{ parameters.enableVersioning }}
+          sections: ${{ parameters.sections }}
+
+    # -------------------------------------------------------------------------
+    # Generate Content Sections
+    # -------------------------------------------------------------------------
+    - id: generate-content
+      name: Generate Content Sections
+      action: fetch:template
+      input:
+        url: ./skeleton/content
+        targetPath: ./repo/docs
+        values:
+          siteName: ${{ parameters.siteName }}
+          description: ${{ parameters.description }}
+          docType: ${{ parameters.docType }}
+          sections: ${{ parameters.sections }}
+          includeCodeSamples: ${{ parameters.includeCodeSamples }}
+          sampleLanguages: ${{ parameters.sampleLanguages }}
+
+    # -------------------------------------------------------------------------
+    # Generate CI/CD Workflows
+    # -------------------------------------------------------------------------
+    - id: generate-cicd
+      name: Generate CI/CD Workflows
+      action: fetch:template
+      input:
+        url: ./skeleton/workflows
+        targetPath: ./repo/.github/workflows
+        values:
+          generator: ${{ parameters.generator }}
+          hosting: ${{ parameters.hosting }}
+          enableTechDocs: ${{ parameters.enableTechDocs }}
+          autoPublish: ${{ parameters.autoPublish }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+    # -------------------------------------------------------------------------
+    # Create Repository
+    # -------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.siteName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h1-documentation-site"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Documentation: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+
+    # -------------------------------------------------------------------------
+    # Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+      - title: View TechDocs
+        icon: docs
+        url: /docs/default/component/${{ parameters.siteName }}
+    text:
+      - title: Documentation Site Created
+        content: |
+          ## 📚 Documentation Site Created!
+          
+          **Site:** ${{ parameters.siteName }}
+          **Type:** ${{ parameters.docType }}
+          **Generator:** ${{ parameters.generator }}
+          
+          **Features:**
+          - ${{ parameters.enableSearch ? '✅' : '⏭️' }} Search
+          - ${{ parameters.enableVersioning ? '✅' : '⏭️' }} Versioning
+          - ${{ parameters.enableTechDocs ? '✅' : '⏭️' }} TechDocs Integration
+          - ${{ parameters.includeApiDocs ? '✅' : '⏭️' }} API Documentation
+          
+          **Sections Created:**
+          ${{ parameters.sections | join(', ') }}
+          
+          **Next Steps:**
+          1. Clone the repository
+          2. Edit documentation in `docs/` folder
+          3. Preview locally with `make serve`
+          4. Push changes to publish
+

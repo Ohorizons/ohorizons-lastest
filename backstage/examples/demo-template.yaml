@@ -1,0 +1,31 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: open-horizons-platform-service
+  title: Open Horizons Demo Service
+  description: Minimal working template for end-to-end demo flows.
+  tags:
+    - demo
+    - golden-path
+spec:
+  owner: group:default/platform-engineering
+  type: service
+  parameters:
+    - title: Service Metadata
+      required:
+        - serviceName
+      properties:
+        serviceName:
+          title: Service Name
+          type: string
+          description: Name of the service for this demo scaffolding run.
+  steps:
+    - id: log-input
+      name: Validate Demo Input
+      action: debug:log
+      input:
+        message: "Open Horizons demo template executed for: ${{ parameters.serviceName }}"
+  output:
+    links:
+      - title: Back to Catalog
+        url: /catalog

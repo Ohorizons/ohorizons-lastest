@@ -1,0 +1,130 @@
+# =============================================================================
+# Backstage AKS Deployment — Clean Install (v1.48.3)
+# GitHub App Auth + Catalog Sync (Ohorizons)
+# =============================================================================
+
+ingress:
+  enabled: true
+  className: nginx
+  host: backstage.20.62.35.83.sslip.io
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+backstage:
+  replicas: 1
+
+  image:
+    registry: acrbackstagedemo.azurecr.io
+    repository: backstage/ohorizons
+    tag: "v1.48.3-r19"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  extraEnvVarsSecrets:
+    - backstage-github-app
+
+  appConfig:
+    app:
+      title: Open Horizons | Agentic DevOps Platform
+      baseUrl: https://backstage.20.62.35.83.sslip.io
+      branding:
+        fullLogo:
+          alt: Open Horizons — Agentic DevOps Platform
+          src: https://img.icons8.com/fluency/96/microsoft.png
+          width: 40
+        iconLogo:
+          alt: Open Horizons
+          src: https://img.icons8.com/fluency/48/microsoft.png
+          width: 28
+        theme:
+          dark:
+            primaryColor: '#4CC2FF'
+          light:
+            primaryColor: '#0078D4'
+    organization:
+      name: Open Horizons — Agentic DevOps Platform
+    backend:
+      baseUrl: https://backstage.20.62.35.83.sslip.io
+      listen:
+        port: 7007
+      reading:
+        allow:
+          - host: raw.githubusercontent.com
+      csp:
+        img-src: ["'self'", 'data:', 'https:']
+        upgrade-insecure-requests: false
+      cors:
+        origin: https://backstage.20.62.35.83.sslip.io
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+
+    # ── GitHub Integration (App-based) ──────────────────────────────
+    integrations:
+      github:
+        - host: github.com
+          apps:
+            - appId: ${GITHUB_APP_ID}
+              clientId: ${GITHUB_APP_CLIENT_ID}
+              clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+              privateKey: ${GITHUB_APP_PRIVATE_KEY}
+
+    # ── Authentication (GitHub only) ────────────────────────────────
+    auth:
+      environment: development
+      providers:
+        github:
+          development:
+            clientId: ${GITHUB_APP_CLIENT_ID}
+            clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
+                  dangerouslyAllowSignInWithoutUserInCatalog: true
+
+    # ── Software Catalog ────────────────────────────────────────────
+    catalog:
+      rules:
+        - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+      locations:
+        - type: url
+          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/catalog-info.yaml
+          rules:
+            - allow: [Component]
+        - type: url
+          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/org.yaml
+          rules:
+            - allow: [User, Group, Domain, System]
+        - type: url
+          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/entities.yaml
+          rules:
+            - allow: [Component, API, System, Resource, Domain]
+        - type: url
+          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/demo-template.yaml
+          rules:
+            - allow: [Template]
+
+postgresql:
+  enabled: true
+  auth:
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password

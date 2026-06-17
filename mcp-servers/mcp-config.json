@@ -1,0 +1,104 @@
+{
+  "mcpServers": {
+    "azure": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-azure"],
+      "description": "Azure CLI operations",
+      "env": {
+        "AZURE_SUBSCRIPTION_ID": "${AZURE_SUBSCRIPTION_ID}"
+      },
+      "capabilities": ["az", "az aks", "az acr", "az keyvault", "az network", "az ad", "az security", "az purview"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-github"],
+      "description": "GitHub CLI and API operations",
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GH_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "capabilities": ["gh repo", "gh secret", "gh api", "gh auth", "gh workflow", "gh release", "gh issue", "gh pr", "gh app", "gh extension"]
+    },
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-terraform"],
+      "description": "Terraform plan/apply",
+      "env": {
+        "TF_VAR_environment": "${ENVIRONMENT}"
+      },
+      "capabilities": ["terraform init", "terraform plan", "terraform apply", "terraform destroy", "terraform state"]
+    },
+    "kubernetes": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-kubernetes"],
+      "description": "Kubernetes cluster operations",
+      "env": {
+        "KUBECONFIG": "${KUBECONFIG}"
+      },
+      "capabilities": ["kubectl get", "kubectl apply", "kubectl delete", "kubectl logs", "kubectl exec", "kubectl port-forward"]
+    },
+    "helm": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-helm"],
+      "description": "Helm chart operations",
+      "env": {},
+      "capabilities": ["helm install", "helm upgrade", "helm uninstall", "helm repo", "helm search", "helm template"]
+    },
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-docker"],
+      "description": "Docker container operations",
+      "env": {},
+      "capabilities": ["docker build", "docker push", "docker pull", "docker run"]
+    },
+    "git": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-git"],
+      "description": "Git operations",
+      "env": {},
+      "capabilities": ["git clone", "git push", "git pull", "git commit", "git branch"]
+    },
+    "bash": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-bash"],
+      "description": "Shell command execution",
+      "env": {},
+      "capabilities": ["bash", "sh", "curl", "jq", "yq"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-filesystem"],
+      "description": "File system operations",
+      "env": {},
+      "capabilities": ["read", "write", "list", "delete"]
+    },
+    "defender": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-azure"],
+      "description": "Microsoft Defender for Cloud",
+      "env": {},
+      "capabilities": ["az security", "az security pricing", "az security assessment", "az security alert"]
+    },
+    "purview": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-azure"],
+      "description": "Microsoft Purview Data Governance",
+      "env": {},
+      "capabilities": ["az purview", "az purview account", "az purview scan"]
+    },
+    "entra": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-azure"],
+      "description": "Microsoft Entra ID (Azure AD) operations",
+      "env": {},
+      "capabilities": ["az ad app", "az ad sp", "az ad group", "az ad user", "az role assignment"]
+    },
+    "copilot": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-github"],
+      "description": "GitHub Copilot CLI operations",
+      "env": {},
+      "capabilities": ["gh copilot", "gh copilot explain", "gh copilot suggest"]
+    }
+  }
+}

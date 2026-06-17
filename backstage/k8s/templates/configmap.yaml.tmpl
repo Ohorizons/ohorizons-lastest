@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.override.yaml: |
+    app:
+      title: __ORG_DISPLAY_NAME__ — Agentic DevOps Platform
+      baseUrl: http://localhost:7007
+
+    organization:
+      name: __ORG_DISPLAY_NAME__
+
+    backend:
+      baseUrl: http://localhost:7007
+      listen:
+        port: 7007
+      auth:
+        dangerouslyDisableDefaultAuthPolicy: true
+        externalAccess:
+          - type: static
+            options:
+              token: ${BACKEND_SECRET}
+              subject: external
+        keys:
+          - secret: ${BACKEND_SECRET}
+      database:
+        client: better-sqlite3
+        connection: ':memory:'
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+        img-src: ["'self'", 'data:', 'https://avatars.githubusercontent.com', 'https://*.githubusercontent.com']
+      cors:
+        origin: http://localhost:7007
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+    proxy:
+      endpoints:
+        '/github/api':
+          target: 'https://api.github.com'
+          headers:
+            Authorization: 'Bearer ${GITHUB_TOKEN}'
+            Accept: 'application/vnd.github+json'
+            X-GitHub-Api-Version: '2022-11-28'
+          changeOrigin: true
+          allowedMethods: ['GET']
+          credentials: forward
+        '/github-api':
+          target: 'https://api.github.com'
+          headers:
+            Authorization: 'Bearer ${GITHUB_TOKEN}'
+            Accept: 'application/vnd.github+json'
+            X-GitHub-Api-Version: '2022-11-28'
+          changeOrigin: true
+          allowedMethods: ['GET']
+          credentials: forward
+        '/agent-api':
+          target: '${AGENT_API_URL:-http://__PLATFORM_NAME__-agent-api.ai-services.svc.cluster.local:8008}'
+          changeOrigin: true
+          allowedMethods: ['GET', 'POST']
+          credentials: forward
+        '/ai-impact':
+          target: '${AI_IMPACT_API_URL:-http://__PLATFORM_NAME__-agent-api-impact.ai-services.svc.cluster.local:8011}'
+          changeOrigin: true
+          allowedMethods: ['GET', 'POST']
+          credentials: forward
+        '/argocd/api':
+          target: 'https://localhost:8443/api/v1'
+          changeOrigin: true
+          secure: false
+          headers:
+            Cookie: 'argocd.token=${ARGOCD_AUTH_TOKEN}'
+        '/grafana/api':
+          target: 'http://localhost:3000'
+          changeOrigin: true
+          headers:
+            Authorization: 'Bearer ${GRAFANA_TOKEN}'
+
+__AUTH_BLOCK__
+
+    techdocs:
+      builder: local
+      generator:
+        runIn: local
+      publisher:
+        type: local
+
+    catalog:
+      rules:
+        - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+      locations:
+        # Organization Data
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/examples/org.yaml
+          rules:
+            - allow: [User, Group, Domain, System]
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/examples/entities.yaml
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/catalog-info.yaml
+        # AI Agent System
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/catalog/ai-agents.yaml
+          rules:
+            - allow: [System, Component]
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/catalog/ai-apis.yaml
+          rules:
+            - allow: [API]
+        - type: url
+          target: https://github.com/__GITHUB_ORG__/__GITHUB_REPO__/blob/main/backstage/catalog/mcp-servers.yaml
+          rules:
+            - allow: [Resource]
+__CATALOG_LOCATIONS__
+
+    permission:
+      enabled: false
+
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods: []
+
+    argocd:
+      baseUrl: https://localhost:8443
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: local
+              url: https://localhost:8443
+              token: ${ARGOCD_AUTH_TOKEN}
+
+    grafana:
+      domain: http://localhost:3000
+      unifiedAlerting: true
+
+    lighthouse:
+      baseUrl: http://localhost:7007/api/lighthouse
+
+    copilot:
+      host: github.com
+      organization: __GITHUB_ORG__
+
+    costInsights:
+      engineerCost: 200000
+      products:
+        computeEngine:
+          name: Azure Compute
+        cloudStorage:
+          name: Azure Storage
+        bigQuery:
+          name: Azure SQL
+      metrics:
+        DAU:
+          name: Daily Active Users
+          default: true

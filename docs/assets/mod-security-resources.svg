@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="700" height="380" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Security Module Resources</text>
+  <!-- Key Vault -->
+  <rect x="40" y="50" width="620" height="130" rx="10" fill="#3498db" filter="url(#ds)"/>
+  <text x="60" y="78" font-size="14" font-weight="700" fill="#fff">Azure Key Vault</text>
+  <rect x="60" y="92" width="150" height="55" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="135" y="112" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Secrets</text>
+  <text x="135" y="130" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">DB pass · API keys · Tokens</text>
+  <rect x="225" y="92" width="150" height="55" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="300" y="112" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Keys</text>
+  <text x="300" y="130" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Encrypt · Sign</text>
+  <rect x="390" y="92" width="170" height="55" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="475" y="112" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Certificates</text>
+  <text x="475" y="130" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">TLS certs · mTLS</text>
+  <text x="60" y="168" font-size="9" fill="rgba(255,255,255,0.7)">Access: RBAC · Network: Private endpoint only</text>
+  <!-- Managed Identity -->
+  <rect x="40" y="195" width="620" height="60" rx="10" fill="#27ae60" filter="url(#ds)"/>
+  <text x="60" y="222" font-size="13" font-weight="700" fill="#fff">User-Assigned Managed Identity</text>
+  <text x="60" y="242" font-size="10" fill="rgba(255,255,255,0.8)">For AKS cluster · Roles: Network Contributor, Key Vault Reader</text>
+  <!-- Workload Identity -->
+  <rect x="40" y="270" width="620" height="60" rx="10" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="60" y="297" font-size="13" font-weight="700" fill="#fff">Workload Identity</text>
+  <text x="60" y="317" font-size="10" fill="rgba(255,255,255,0.8)">K8s pods authenticate as Azure AD identities — federated credentials (no secrets!)</text>
+  <!-- Legend -->
+  <rect x="40" y="348" width="12" height="12" rx="2" fill="#3498db"/>
+  <text x="58" y="359" font-size="9" fill="#555">Vault</text>
+  <rect x="110" y="348" width="12" height="12" rx="2" fill="#27ae60"/>
+  <text x="128" y="359" font-size="9" fill="#555">Managed Identity</text>
+  <rect x="240" y="348" width="12" height="12" rx="2" fill="#9b59b6"/>
+  <text x="258" y="359" font-size="9" fill="#555">Workload Identity</text>
+</svg>

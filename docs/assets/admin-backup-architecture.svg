@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="srcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#95a5a6"/><stop offset="100%" stop-color="#7f8c8d"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="820" height="440" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Backup Architecture</text>
+
+  <!-- Data Sources -->
+  <rect x="40" y="50" width="740" height="80" rx="10" fill="url(#srcg)" filter="url(#ds)"/>
+  <text x="60" y="75" font-size="13" font-weight="700" fill="#fff">DATA SOURCES</text>
+  <rect x="60" y="88" width="150" height="30" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="135" y="108" text-anchor="middle" font-size="10" fill="#fff">Kubernetes Resources</text>
+  <rect x="225" y="88" width="150" height="30" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="300" y="108" text-anchor="middle" font-size="10" fill="#fff">Terraform State</text>
+  <rect x="390" y="88" width="150" height="30" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="465" y="108" text-anchor="middle" font-size="10" fill="#fff">GitHub Repos</text>
+  <rect x="555" y="88" width="150" height="30" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="630" y="108" text-anchor="middle" font-size="10" fill="#fff">Azure PaaS</text>
+
+  <!-- Arrows -->
+  <line x1="135" y1="132" x2="135" y2="170" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="300" y1="132" x2="300" y2="170" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="465" y1="132" x2="465" y2="170" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="630" y1="132" x2="630" y2="170" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Backup Destinations -->
+  <rect x="55" y="178" width="170" height="130" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="140" y="202" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">VELERO</text>
+  <text x="75" y="224" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; K8s objects</text>
+  <text x="75" y="242" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; PV snapshots</text>
+  <text x="75" y="260" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; Namespaces</text>
+
+  <rect x="240" y="178" width="170" height="130" rx="8" fill="#27ae60" filter="url(#ds)"/>
+  <text x="325" y="202" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Azure Storage</text>
+  <text x="260" y="224" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; tfstate (versioned)</text>
+  <text x="260" y="242" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; Locked</text>
+
+  <rect x="425" y="178" width="170" height="130" rx="8" fill="#2c3e50" filter="url(#ds)"/>
+  <text x="510" y="202" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">GitHub</text>
+  <text x="445" y="224" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; All code</text>
+  <text x="445" y="242" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; All configs</text>
+  <text x="445" y="260" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; History</text>
+
+  <rect x="610" y="178" width="170" height="130" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="695" y="202" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Azure Backup</text>
+  <text x="630" y="224" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; PostgreSQL</text>
+  <text x="630" y="242" font-size="9" fill="rgba(255,255,255,0.85)">&#8226; Key Vault</text>
+
+  <!-- Retention -->
+  <rect x="40" y="330" width="740" height="80" rx="8" fill="#fff" stroke="#dee2e6" filter="url(#ds)"/>
+  <text x="60" y="355" font-size="12" font-weight="700" fill="#2c3e50">Retention Policies</text>
+  <text x="60" y="378" font-size="10" fill="#555">&#8226; Daily backups: 7 days</text>
+  <text x="260" y="378" font-size="10" fill="#555">&#8226; Weekly backups: 4 weeks</text>
+  <text x="500" y="378" font-size="10" fill="#555">&#8226; Monthly backups: 12 months</text>
+</svg>

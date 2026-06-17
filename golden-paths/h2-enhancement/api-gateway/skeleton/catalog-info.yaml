@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - api-gateway
+    - ingress
+    - kong
+    - h2-enhancement
+spec:
+  type: service
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}

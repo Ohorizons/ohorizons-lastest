@@ -1,0 +1,678 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H3 MULTI-AGENT SYSTEM GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating multi-agent AI systems.
+# Supports various orchestration frameworks and agent patterns.
+#
+# Horizon: H3 - Innovation
+# Use Case: Build autonomous multi-agent systems for complex workflows
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h3-multi-agent-system
+  title: "H3: Create Multi-Agent System"
+  description: |
+    Create a production multi-agent AI system with orchestration,
+    collaboration patterns, and human-in-the-loop capabilities.
+    Supports AutoGen, Semantic Kernel, and custom frameworks.
+  tags:
+    - h3-innovation
+    - multi-agent
+    - ai-foundry
+    - autogen
+    - semantic-kernel
+    - autonomous
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: AutoGen Documentation
+      url: https://microsoft.github.io/autogen/
+    - title: Semantic Kernel
+      url: https://learn.microsoft.com/semantic-kernel/
+
+spec:
+  owner: platform-engineering
+  type: multi-agent-system
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # System Information
+    # -------------------------------------------------------------------------
+    - title: System Information
+      required:
+        - systemName
+        - team
+        - useCase
+      properties:
+        systemName:
+          title: System Name
+          description: Name of the multi-agent system
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 40
+
+        team:
+          title: Team
+          description: Team that owns this system
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          description: What does this agent system do?
+          type: string
+          maxLength: 500
+
+        useCase:
+          title: Use Case
+          description: Primary use case for the agent system
+          type: string
+          enum:
+            - software-development
+            - customer-support
+            - data-analysis
+            - content-creation
+            - research-assistant
+            - workflow-automation
+            - code-review
+            - incident-response
+            - document-processing
+            - custom
+          enumNames:
+            - Software Development Team
+            - Customer Support Automation
+            - Data Analysis & Insights
+            - Content Creation & Review
+            - Research & Knowledge Discovery
+            - Business Workflow Automation
+            - Code Review & Quality
+            - Incident Response & Remediation
+            - Document Processing & Extraction
+            - Custom Use Case
+
+    # -------------------------------------------------------------------------
+    # Orchestration Framework
+    # -------------------------------------------------------------------------
+    - title: Orchestration Framework
+      required:
+        - framework
+      properties:
+        framework:
+          title: Agent Framework
+          description: Primary orchestration framework
+          type: string
+          default: autogen
+          enum:
+            - autogen
+            - semantic-kernel
+            - langchain
+            - crewai
+            - custom
+          enumNames:
+            - Microsoft AutoGen
+            - Semantic Kernel
+            - LangChain/LangGraph
+            - CrewAI
+            - Custom Framework
+
+        orchestrationPattern:
+          title: Orchestration Pattern
+          description: How agents collaborate
+          type: string
+          default: hierarchical
+          enum:
+            - sequential
+            - hierarchical
+            - collaborative
+            - competitive
+            - swarm
+          enumNames:
+            - Sequential (Pipeline)
+            - Hierarchical (Manager/Workers)
+            - Collaborative (Peer-to-peer)
+            - Competitive (Best Response)
+            - Swarm (Dynamic)
+
+        communicationProtocol:
+          title: Communication Protocol
+          type: string
+          default: async-message
+          enum:
+            - sync-rpc
+            - async-message
+            - event-driven
+            - shared-memory
+          enumNames:
+            - Synchronous RPC
+            - Asynchronous Messaging
+            - Event-Driven
+            - Shared Memory/State
+
+    # -------------------------------------------------------------------------
+    # Agent Configuration
+    # -------------------------------------------------------------------------
+    - title: Agent Configuration
+      properties:
+        agents:
+          title: Agent Definitions
+          description: Define the agents in your system
+          type: array
+          minItems: 2
+          maxItems: 10
+          items:
+            type: object
+            required:
+              - name
+              - role
+            properties:
+              name:
+                title: Agent Name
+                type: string
+              role:
+                title: Role
+                type: string
+                enum:
+                  - orchestrator
+                  - planner
+                  - executor
+                  - critic
+                  - researcher
+                  - coder
+                  - reviewer
+                  - writer
+                  - analyst
+                  - specialist
+              model:
+                title: LLM Model
+                type: string
+                default: gpt-4o
+                enum:
+                  - gpt-4o
+                  - gpt-4o-mini
+                  - gpt-4-turbo
+                  - o1
+                  - o1-mini
+              tools:
+                title: Available Tools
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - code-interpreter
+                    - file-search
+                    - web-search
+                    - api-call
+                    - database-query
+                    - github-actions
+                    - azure-cli
+                    - custom-function
+          default:
+            - name: orchestrator
+              role: orchestrator
+              model: gpt-4o
+              tools: []
+            - name: worker
+              role: executor
+              model: gpt-4o-mini
+              tools:
+                - code-interpreter
+
+        maxConcurrentAgents:
+          title: Max Concurrent Agents
+          type: integer
+          default: 5
+          minimum: 2
+          maximum: 20
+
+        agentTimeout:
+          title: Agent Timeout (seconds)
+          type: integer
+          default: 300
+          minimum: 60
+          maximum: 3600
+
+    # -------------------------------------------------------------------------
+    # Human-in-the-Loop
+    # -------------------------------------------------------------------------
+    - title: Human-in-the-Loop Configuration
+      properties:
+        enableHumanInLoop:
+          title: Enable Human-in-the-Loop
+          type: boolean
+          default: true
+
+        approvalTriggers:
+          title: Approval Triggers
+          description: When to require human approval
+          type: array
+          items:
+            type: string
+            enum:
+              - high-cost-operation
+              - external-api-call
+              - data-modification
+              - code-deployment
+              - sensitive-data-access
+              - threshold-exceeded
+              - error-recovery
+              - final-output
+          default:
+            - high-cost-operation
+            - code-deployment
+            - final-output
+
+        approvalChannel:
+          title: Approval Channel
+          type: string
+          default: teams
+          enum:
+            - teams
+            - slack
+            - email
+            - github-issue
+            - custom-webhook
+
+        approvalTimeout:
+          title: Approval Timeout (minutes)
+          type: integer
+          default: 30
+          minimum: 5
+          maximum: 1440
+
+        escalationPolicy:
+          title: Escalation Policy
+          description: What to do if approval times out
+          type: string
+          default: pause
+          enum:
+            - pause
+            - fail
+            - continue-limited
+            - escalate
+          enumNames:
+            - Pause and Wait
+            - Fail Task
+            - Continue with Limitations
+            - Escalate to Manager
+
+    # -------------------------------------------------------------------------
+    # Memory & State
+    # -------------------------------------------------------------------------
+    - title: Memory & State Management
+      properties:
+        memoryType:
+          title: Memory Type
+          type: string
+          default: conversation
+          enum:
+            - conversation
+            - long-term
+            - episodic
+            - semantic
+            - hybrid
+          enumNames:
+            - Conversation Only
+            - Long-term Memory
+            - Episodic Memory
+            - Semantic Memory (Knowledge Graph)
+            - Hybrid (All Types)
+
+        memoryBackend:
+          title: Memory Backend
+          type: string
+          default: redis
+          enum:
+            - in-memory
+            - redis
+            - cosmos-db
+            - postgres
+            - ai-search
+          enumNames:
+            - In-Memory (Dev only)
+            - Redis
+            - Cosmos DB
+            - PostgreSQL
+            - Azure AI Search
+
+        enableStateCheckpoints:
+          title: Enable State Checkpoints
+          description: Save agent state for recovery
+          type: boolean
+          default: true
+
+        checkpointInterval:
+          title: Checkpoint Interval (seconds)
+          type: integer
+          default: 60
+          minimum: 10
+          maximum: 300
+
+    # -------------------------------------------------------------------------
+    # Safety & Governance
+    # -------------------------------------------------------------------------
+    - title: Safety & Governance
+      properties:
+        enableContentSafety:
+          title: Enable Content Safety
+          type: boolean
+          default: true
+
+        safetyLevel:
+          title: Safety Level
+          type: string
+          default: medium
+          enum:
+            - low
+            - medium
+            - high
+            - custom
+
+        enableAuditLog:
+          title: Enable Audit Logging
+          description: Log all agent decisions and actions
+          type: boolean
+          default: true
+
+        auditRetentionDays:
+          title: Audit Log Retention (days)
+          type: integer
+          default: 90
+          minimum: 30
+          maximum: 365
+
+        costLimit:
+          title: Cost Limit (USD/day)
+          type: number
+          default: 100
+          minimum: 10
+          maximum: 10000
+
+        tokenLimitPerTask:
+          title: Token Limit per Task
+          type: integer
+          default: 100000
+          minimum: 10000
+          maximum: 1000000
+
+        enableGroundedness:
+          title: Enable Groundedness Check
+          description: Verify agent outputs are factually grounded
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Integration & Deployment
+    # -------------------------------------------------------------------------
+    - title: Integration & Deployment
+      properties:
+        integrations:
+          title: External Integrations
+          type: array
+          items:
+            type: string
+            enum:
+              - github
+              - azure-devops
+              - jira
+              - servicenow
+              - salesforce
+              - sharepoint
+              - confluence
+              - slack
+              - teams
+          default:
+            - github
+            - teams
+
+        deploymentTarget:
+          title: Deployment Target
+          type: string
+          default: aks
+          enum:
+            - aks
+            - container-apps
+            - azure-functions
+          enumNames:
+            - AKS (Full Control)
+            - Container Apps (Serverless)
+            - Azure Functions (Event-driven)
+
+        enableAutoScaling:
+          title: Enable Auto-Scaling
+          type: boolean
+          default: true
+
+        minReplicas:
+          title: Minimum Replicas
+          type: integer
+          default: 1
+          minimum: 0
+          maximum: 10
+
+        maxReplicas:
+          title: Maximum Replicas
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Fetch Base Template
+    # -------------------------------------------------------------------------
+    - id: fetch-template
+      name: Fetch Multi-Agent Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.systemName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          systemName: ${{ parameters.systemName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          useCase: ${{ parameters.useCase }}
+          framework: ${{ parameters.framework }}
+          orchestrationPattern: ${{ parameters.orchestrationPattern }}
+          agents: ${{ parameters.agents }}
+          enableHumanInLoop: ${{ parameters.enableHumanInLoop }}
+          approvalTriggers: ${{ parameters.approvalTriggers }}
+          memoryType: ${{ parameters.memoryType }}
+          memoryBackend: ${{ parameters.memoryBackend }}
+          enableContentSafety: ${{ parameters.enableContentSafety }}
+          safetyLevel: ${{ parameters.safetyLevel }}
+          integrations: ${{ parameters.integrations }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+
+    # -------------------------------------------------------------------------
+    # Generate Agent Definitions
+    # -------------------------------------------------------------------------
+    - id: generate-agents
+      name: Generate Agent Configurations
+      action: fetch:template
+      input:
+        url: ./skeleton/agents
+        targetPath: ./repo/src/agents
+        values:
+          framework: ${{ parameters.framework }}
+          agents: ${{ parameters.agents }}
+          orchestrationPattern: ${{ parameters.orchestrationPattern }}
+
+    # -------------------------------------------------------------------------
+    # Generate Orchestrator
+    # -------------------------------------------------------------------------
+    - id: generate-orchestrator
+      name: Generate Orchestrator
+      action: fetch:template
+      input:
+        url: ./skeleton/orchestrator
+        targetPath: ./repo/src/orchestrator
+        values:
+          framework: ${{ parameters.framework }}
+          orchestrationPattern: ${{ parameters.orchestrationPattern }}
+          enableHumanInLoop: ${{ parameters.enableHumanInLoop }}
+
+    # -------------------------------------------------------------------------
+    # Generate Memory System
+    # -------------------------------------------------------------------------
+    - id: generate-memory
+      name: Generate Memory System
+      action: fetch:template
+      input:
+        url: ./skeleton/memory
+        targetPath: ./repo/src/memory
+        values:
+          memoryType: ${{ parameters.memoryType }}
+          memoryBackend: ${{ parameters.memoryBackend }}
+
+    # -------------------------------------------------------------------------
+    # Generate Kubernetes Manifests
+    # -------------------------------------------------------------------------
+    - id: generate-k8s
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ./skeleton/kubernetes
+        targetPath: ./repo/kubernetes
+        values:
+          systemName: ${{ parameters.systemName }}
+          team: ${{ parameters.team }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          enableAutoScaling: ${{ parameters.enableAutoScaling }}
+          minReplicas: ${{ parameters.minReplicas }}
+          maxReplicas: ${{ parameters.maxReplicas }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+    # -------------------------------------------------------------------------
+    # Create Repository
+    # -------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.systemName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h3-multi-agent-system"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Multi-Agent System: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: true
+        requireCodeOwnerReviews: true
+
+    # -------------------------------------------------------------------------
+    # Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Multi-Agent System Created
+        content: |
+          ## 🤖 Multi-Agent System Created!
+          
+          **System:** ${{ parameters.systemName }}
+          **Use Case:** ${{ parameters.useCase }}
+          **Framework:** ${{ parameters.framework }}
+          
+          **Agents Configured:** ${{ parameters.agents | length }}
+          **Pattern:** ${{ parameters.orchestrationPattern }}
+          
+          **Features:**
+          - ${{ parameters.enableHumanInLoop ? '✅' : '⏭️' }} Human-in-the-Loop
+          - ${{ parameters.enableContentSafety ? '✅' : '⏭️' }} Content Safety
+          - ${{ parameters.enableAuditLog ? '✅' : '⏭️' }} Audit Logging
+          - Memory: ${{ parameters.memoryType }} (${{ parameters.memoryBackend }})
+          
+          **Next Steps:**
+          1. Configure agent prompts in `src/agents/`
+          2. Add custom tools in `src/tools/`
+          3. Set up integrations
+          4. Test locally with `make run-local`
+          5. Deploy to ${{ parameters.deploymentTarget }}
+

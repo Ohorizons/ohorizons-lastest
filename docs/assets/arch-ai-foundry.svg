@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 500" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="oaig" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/></linearGradient>
+    <linearGradient id="k8g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="820" height="500" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">AI Foundry Architecture</text>
+
+  <!-- Azure OpenAI Service -->
+  <rect x="60" y="50" width="700" height="190" rx="10" fill="url(#oaig)" filter="url(#ds)"/>
+  <text x="80" y="78" font-size="14" font-weight="700" fill="#fff">AZURE OPENAI SERVICE</text>
+  <text x="80" y="100" font-size="11" fill="#e8daef">Model Deployments:</text>
+
+  <rect x="80" y="115" width="190" height="90" rx="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="175" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">GPT-4o</text>
+  <text x="175" y="158" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Complex reasoning</text>
+  <text x="175" y="175" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">$$$ · 10 TPM</text>
+
+  <rect x="290" y="115" width="190" height="90" rx="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="385" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">GPT-4o-mini</text>
+  <text x="385" y="158" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Simple tasks</text>
+  <text x="385" y="175" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">$ · 20 TPM</text>
+
+  <rect x="500" y="115" width="190" height="90" rx="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="595" y="138" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">text-embed-3-large</text>
+  <text x="595" y="158" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Vector embeddings</text>
+  <text x="595" y="175" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">$$ · 50 TPM</text>
+
+  <text x="80" y="225" font-size="10" fill="rgba(255,255,255,0.7)">Access: Private Endpoint (10.0.4.7) · Auth: Managed Identity (no API keys!)</text>
+
+  <!-- Arrow -->
+  <line x1="410" y1="242" x2="410" y2="268" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="460" y="262" font-size="9" fill="#7f8c8d">Private endpoint</text>
+
+  <!-- Kubernetes Pods -->
+  <rect x="60" y="275" width="700" height="170" rx="10" fill="url(#k8g)" filter="url(#ds)"/>
+  <text x="80" y="303" font-size="14" font-weight="700" fill="#fff">KUBERNETES PODS</text>
+  <text x="80" y="325" font-size="11" fill="rgba(255,255,255,0.85)">Applications access AI via:</text>
+  <text x="80" y="348" font-size="10" fill="rgba(255,255,255,0.75)">1. Azure SDK with Managed Identity</text>
+  <text x="80" y="368" font-size="10" fill="rgba(255,255,255,0.75)">2. OpenAI Python client</text>
+  <text x="80" y="388" font-size="10" fill="rgba(255,255,255,0.75)">3. REST API calls</text>
+
+  <rect x="360" y="310" width="380" height="120" rx="8" fill="rgba(0,0,0,0.2)" stroke="rgba(255,255,255,0.2)"/>
+  <text x="380" y="330" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">from azure.identity import DefaultAzureCredential</text>
+  <text x="380" y="348" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">from openai import AzureOpenAI</text>
+  <text x="380" y="370" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">client = AzureOpenAI(</text>
+  <text x="380" y="388" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">  azure_endpoint=os.environ["..."],</text>
+  <text x="380" y="406" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">  azure_ad_token_provider=...,</text>
+  <text x="380" y="424" font-size="10" fill="rgba(255,255,255,0.6)" font-family="monospace">)</text>
+
+  <!-- Legend -->
+  <rect x="60" y="465" width="14" height="10" rx="2" fill="#9b59b6"/>
+  <text x="80" y="474" font-size="9" fill="#555">Azure OpenAI Service</text>
+  <rect x="220" y="465" width="14" height="10" rx="2" fill="#3498db"/>
+  <text x="240" y="474" font-size="9" fill="#555">Kubernetes (Consumer)</text>
+  <text x="500" y="474" font-size="9" fill="#7f8c8d" font-style="italic">All traffic via private endpoint — no public internet</text>
+</svg>

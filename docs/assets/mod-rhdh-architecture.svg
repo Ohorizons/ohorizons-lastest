@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="rhdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="plug" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="catg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <linearGradient id="scfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/></linearGradient>
+    <linearGradient id="tdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="extg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1abc9c"/><stop offset="100%" stop-color="#16a085"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="800" height="620" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Backstage (Backstage) Architecture</text>
+
+  <!-- Backstage Core -->
+  <rect x="50" y="48" width="700" height="60" rx="10" fill="url(#rhdg)" filter="url(#ds)"/>
+  <text x="70" y="78" font-size="14" font-weight="700" fill="#fff">Backstage PORTAL (Backstage-based)</text>
+  <text x="70" y="96" font-size="10" fill="rgba(255,255,255,0.85)">Unified developer portal · Self-service platform · Golden Path templates</text>
+
+  <!-- Plugins row -->
+  <text x="400" y="135" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Core Plugins</text>
+
+  <!-- Software Catalog -->
+  <rect x="50" y="150" width="220" height="90" rx="10" fill="url(#catg)" filter="url(#ds)"/>
+  <text x="70" y="178" font-size="13" font-weight="700" fill="#fff">SOFTWARE CATALOG</text>
+  <text x="70" y="196" font-size="9" fill="rgba(255,255,255,0.85)">Tracks all services, APIs,</text>
+  <text x="70" y="210" font-size="9" fill="rgba(255,255,255,0.85)">resources, and ownership</text>
+
+  <!-- Scaffolder -->
+  <rect x="290" y="150" width="220" height="90" rx="10" fill="url(#scfg)" filter="url(#ds)"/>
+  <text x="310" y="178" font-size="13" font-weight="700" fill="#fff">SCAFFOLDER</text>
+  <text x="310" y="196" font-size="9" fill="rgba(255,255,255,0.85)">Golden Path templates for</text>
+  <text x="310" y="210" font-size="9" fill="rgba(255,255,255,0.85)">new services and infra</text>
+
+  <!-- TechDocs -->
+  <rect x="530" y="150" width="220" height="90" rx="10" fill="url(#tdg)" filter="url(#ds)"/>
+  <text x="550" y="178" font-size="13" font-weight="700" fill="#fff">TECHDOCS</text>
+  <text x="550" y="196" font-size="9" fill="rgba(255,255,255,0.85)">Docs-as-code, auto-generated</text>
+  <text x="550" y="210" font-size="9" fill="rgba(255,255,255,0.85)">from Markdown in repos</text>
+
+  <!-- Arrows down -->
+  <line x1="160" y1="242" x2="160" y2="280" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="400" y1="242" x2="400" y2="280" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="640" y1="242" x2="640" y2="280" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Integration Plugins row -->
+  <text x="400" y="275" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Integration Plugins</text>
+
+  <!-- Kubernetes Plugin -->
+  <rect x="50" y="290" width="220" height="90" rx="10" fill="url(#plug)" filter="url(#ds)"/>
+  <text x="70" y="318" font-size="13" font-weight="700" fill="#fff">KUBERNETES PLUGIN</text>
+  <text x="70" y="336" font-size="9" fill="rgba(255,255,255,0.85)">Workload visibility, pod</text>
+  <text x="70" y="350" font-size="9" fill="rgba(255,255,255,0.85)">status, logs, and events</text>
+
+  <!-- ArgoCD Plugin -->
+  <rect x="290" y="290" width="220" height="90" rx="10" fill="url(#plug)" filter="url(#ds)"/>
+  <text x="310" y="318" font-size="13" font-weight="700" fill="#fff">ARGOCD PLUGIN</text>
+  <text x="310" y="336" font-size="9" fill="rgba(255,255,255,0.85)">GitOps sync status,</text>
+  <text x="310" y="350" font-size="9" fill="rgba(255,255,255,0.85)">deployment history</text>
+
+  <!-- GitHub Plugin -->
+  <rect x="530" y="290" width="220" height="90" rx="10" fill="url(#plug)" filter="url(#ds)"/>
+  <text x="550" y="318" font-size="13" font-weight="700" fill="#fff">GITHUB PLUGIN</text>
+  <text x="550" y="336" font-size="9" fill="rgba(255,255,255,0.85)">PRs, Actions, issues,</text>
+  <text x="550" y="350" font-size="9" fill="rgba(255,255,255,0.85)">repository insights</text>
+
+  <!-- Arrows to external systems -->
+  <line x1="160" y1="382" x2="160" y2="420" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="400" y1="382" x2="400" y2="420" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="640" y1="382" x2="640" y2="420" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- External Systems -->
+  <text x="400" y="415" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">External Systems</text>
+
+  <rect x="50" y="430" width="220" height="70" rx="10" fill="url(#extg)" filter="url(#ds)"/>
+  <text x="70" y="460" font-size="13" font-weight="700" fill="#fff">AKS CLUSTER</text>
+  <text x="70" y="478" font-size="9" fill="rgba(255,255,255,0.85)">Workloads, namespaces, pods</text>
+
+  <rect x="290" y="430" width="220" height="70" rx="10" fill="url(#extg)" filter="url(#ds)"/>
+  <text x="310" y="460" font-size="13" font-weight="700" fill="#fff">ARGOCD SERVER</text>
+  <text x="310" y="478" font-size="9" fill="rgba(255,255,255,0.85)">GitOps applications, sync</text>
+
+  <rect x="530" y="430" width="220" height="70" rx="10" fill="url(#extg)" filter="url(#ds)"/>
+  <text x="550" y="460" font-size="13" font-weight="700" fill="#fff">GITHUB</text>
+  <text x="550" y="478" font-size="9" fill="rgba(255,255,255,0.85)">Repos, workflows, templates</text>
+
+  <!-- Legend -->
+  <rect x="50" y="525" width="700" height="80" rx="8" fill="#fff" stroke="#dee2e6"/>
+  <text x="70" y="545" font-size="11" font-weight="600" fill="#2c3e50">Legend</text>
+  <rect x="70" y="555" width="12" height="12" rx="2" fill="#e74c3c"/>
+  <text x="88" y="566" font-size="9" fill="#555">Backstage Portal</text>
+  <rect x="170" y="555" width="12" height="12" rx="2" fill="#27ae60"/>
+  <text x="188" y="566" font-size="9" fill="#555">Catalog</text>
+  <rect x="250" y="555" width="12" height="12" rx="2" fill="#9b59b6"/>
+  <text x="268" y="566" font-size="9" fill="#555">Scaffolder</text>
+  <rect x="340" y="555" width="12" height="12" rx="2" fill="#e67e22"/>
+  <text x="358" y="566" font-size="9" fill="#555">TechDocs</text>
+  <rect x="430" y="555" width="12" height="12" rx="2" fill="#3498db"/>
+  <text x="448" y="566" font-size="9" fill="#555">Integration Plugins</text>
+  <rect x="570" y="555" width="12" height="12" rx="2" fill="#1abc9c"/>
+  <text x="588" y="566" font-size="9" fill="#555">External Systems</text>
+  <text x="70" y="590" font-size="9" fill="#7f8c8d" font-style="italic">Backstage Portal → Plugins → External Systems (AKS, ArgoCD, GitHub)</text>
+</svg>

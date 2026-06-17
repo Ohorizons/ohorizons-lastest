@@ -1,0 +1,49 @@
+# CODEOWNERS for Open Horizons Platform
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+*                               @platform-team
+
+# Terraform infrastructure
+/terraform/                     @platform-team @infra-team
+/terraform/modules/aks/         @platform-team @infra-team
+/terraform/modules/backstage/        @platform-team @infra-team
+/terraform/modules/networking/  @platform-team @infra-team
+/terraform/modules/security/    @platform-team @security-team
+
+# Kubernetes and Helm
+/deploy/                        @platform-team @devops-team
+/deploy/helm/                   @platform-team @devops-team
+
+# Golden Path templates
+/golden-paths/                  @platform-team @developer-experience-team
+/golden-paths/h1-foundation/    @platform-team @infra-team
+/golden-paths/h2-enhancement/   @platform-team @devops-team
+/golden-paths/h3-innovation/    @platform-team @ai-team
+
+# AI Agents
+/agents/                        @platform-team @ai-team
+/agents/h3-innovation/          @platform-team @ai-team
+
+# Scripts and automation
+/scripts/                       @platform-team @devops-team
+
+# GitHub workflows and configuration
+/.github/                       @platform-team
+/.github/workflows/             @platform-team @devops-team
+/.github/ISSUE_TEMPLATE/        @platform-team
+
+# Security-related files
+/SECURITY.md                    @platform-team @security-team
+/.github/agents/security.agent.md  @security-team
+
+# Documentation
+/docs/                          @platform-team @docs-team
+/README.md                      @platform-team
+/CONTRIBUTING.md                @platform-team
+
+# Configuration files
+/config/                        @platform-team
+
+# MCP Server configurations
+/mcp-servers/                   @platform-team @ai-team

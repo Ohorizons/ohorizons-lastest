@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 350" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="740" height="350" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="740" height="36" rx="12" fill="#e67e22"/>
+  <rect x="0" y="18" width="740" height="18" fill="#e67e22"/>
+  <text x="370" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">PENDING POD — Solutions by Event Message</text>
+  <rect x="15" y="46" width="350" height="70" rx="6" fill="#fef9e7" stroke="#e67e22" filter="url(#ds)"/>
+  <text x="25" y="64" font-size="10" font-weight="700" fill="#d35400">"Insufficient cpu" / "Insufficient memory"</text>
+  <text x="25" y="82" font-size="9" fill="#555">Cause: No node has enough resources</text>
+  <text x="25" y="98" font-size="9" fill="#555">Fix: Scale node pool or reduce pod requests</text>
+  <text x="25" y="112" font-size="8" fill="#7f8c8d" font-family="monospace">kubectl describe pod &lt;name&gt; | grep -A5 Events</text>
+  <rect x="375" y="46" width="350" height="70" rx="6" fill="#eaf2f8" stroke="#3498db" filter="url(#ds)"/>
+  <text x="385" y="64" font-size="10" font-weight="700" fill="#2980b9">"didn't match node selector"</text>
+  <text x="385" y="82" font-size="9" fill="#555">Cause: Pod requires labels no node has</text>
+  <text x="385" y="98" font-size="9" fill="#555">Fix: Add labels to nodes or remove selector</text>
+  <text x="385" y="112" font-size="8" fill="#7f8c8d" font-family="monospace">kubectl get nodes --show-labels</text>
+  <rect x="15" y="126" width="350" height="70" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="25" y="144" font-size="10" font-weight="700" fill="#c0392b">"didn't tolerate taint"</text>
+  <text x="25" y="162" font-size="9" fill="#555">Cause: Node has taint pod doesn't tolerate</text>
+  <text x="25" y="178" font-size="9" fill="#555">Fix: Add toleration to pod spec or remove taint</text>
+  <text x="25" y="192" font-size="8" fill="#7f8c8d" font-family="monospace">kubectl describe node &lt;name&gt; | grep Taints</text>
+  <rect x="375" y="126" width="350" height="70" rx="6" fill="#f5eef8" stroke="#9b59b6" filter="url(#ds)"/>
+  <text x="385" y="144" font-size="10" font-weight="700" fill="#8e44ad">"unbound PersistentVolumeClaims"</text>
+  <text x="385" y="162" font-size="9" fill="#555">Cause: PVC can't find matching PV</text>
+  <text x="385" y="178" font-size="9" fill="#555">Fix: Check StorageClass, create PV, or fix PVC</text>
+  <text x="385" y="192" font-size="8" fill="#7f8c8d" font-family="monospace">kubectl get pvc -n &lt;namespace&gt;</text>
+</svg>

@@ -1,0 +1,110 @@
+# APM Package Manifest
+# Agent Package Manager - https://github.com/danielmeppiel/apm
+
+name: agentic-devops-platform
+version: 1.0.0
+description: |
+  Enterprise Platform Engineering accelerator with AI-native deployment agents.
+  Provides automated infrastructure provisioning, GitOps setup, and AI platform
+  deployment across Azure services.
+
+author: Microsoft LATAM Platform Engineering
+license: MIT
+repository: https://github.com/microsoft-latam/agentic-devops-platform
+
+# Keywords for discovery
+keywords:
+  - platform-engineering
+  - azure
+  - kubernetes
+  - gitops
+  - ai-foundry
+  - open-horizons
+  - enterprise
+
+# Dependencies from APM ecosystem
+dependencies:
+  apm:
+    # Compliance and security rules
+    - danielmeppiel/compliance-rules
+    
+    # Azure best practices
+    # - microsoft/azure-best-practices  # When available
+    
+    # GitHub security standards
+    # - github/enterprise-security      # When available
+
+# Primitives - Instructions (guardrails)
+instructions:
+  - path: .apm/instructions/azure-infrastructure.instructions.md
+    applyTo: "**/*.tf"
+    description: Azure infrastructure standards
+    
+  - path: .apm/instructions/kubernetes-security.instructions.md
+    applyTo: "**/*.yaml"
+    description: Kubernetes security policies
+    
+  - path: .apm/instructions/ai-deployment.instructions.md
+    applyTo: "**/ai-foundry/**"
+    description: AI Foundry deployment guidelines
+
+# Primitives - Prompts (workflows)
+prompts:
+  - path: .apm/prompts/deploy-infrastructure.prompt.md
+    name: deploy-infrastructure
+    description: Deploy H1 infrastructure
+    
+  - path: .apm/prompts/setup-gitops.prompt.md
+    name: setup-gitops
+    description: Configure ArgoCD and GitOps
+    
+  - path: .apm/prompts/configure-ai-foundry.prompt.md
+    name: configure-ai-foundry
+    description: Deploy Azure AI Foundry
+    
+  - path: .apm/prompts/health-check.prompt.md
+    name: health-check
+    description: Run platform health check
+
+# Primitives - Agents (personas)
+agents:
+  - path: .apm/agents/infrastructure-agent.agent.md
+    name: infrastructure-agent
+    description: Azure infrastructure specialist
+    
+  - path: .apm/agents/gitops-agent.agent.md
+    name: gitops-agent
+    description: GitOps and ArgoCD specialist
+    
+  - path: .apm/agents/ai-foundry-agent.agent.md
+    name: ai-foundry-agent
+    description: Azure AI platform specialist
+    
+  - path: .apm/agents/platform-orchestrator.agent.md
+    name: platform-orchestrator
+    description: Multi-agent workflow coordinator
+
+# Compilation targets
+targets:
+  vscode:
+    - AGENTS.md
+    - .github/prompts/
+    - .github/agents/
+    
+  claude:
+    - .claude/commands/
+    - .claude/skills/
+    
+  codex:
+    - AGENTS.md
+
+# Configuration
+config:
+  # Auto-compile on install
+  autoCompile: true
+  
+  # Target detection
+  autoDetect: true
+  
+  # Merge strategy for existing files
+  mergeStrategy: append

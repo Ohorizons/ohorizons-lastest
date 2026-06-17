@@ -1,0 +1,494 @@
+# =============================================================================
+# OPEN HORIZONS GOLDEN PATH: RAG APPLICATION (H3)
+# =============================================================================
+#
+# This template creates a production-ready RAG (Retrieval-Augmented Generation)
+# application using Azure AI Foundry, Azure AI Search, and Azure OpenAI.
+#
+# Features:
+#   - Azure AI Search for vector storage and retrieval
+#   - Azure OpenAI for embeddings and chat completion
+#   - Document ingestion pipeline
+#   - Streaming responses
+#   - Content safety integration
+#   - Observability with tracing
+#   - Kubernetes deployment with auto-scaling
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rag-application
+  title: RAG Application (H3)
+  description: |
+    Create a production-ready RAG application with Azure AI Foundry.
+    Includes vector search, document ingestion, streaming chat, and observability.
+  tags:
+    - h3-innovation
+    - ai
+    - rag
+    - azure-openai
+    - python
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: '{{parameters.repoName}}'
+
+spec:
+  owner: platform-team
+  type: service
+  
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Step 1: Application Information
+    # -------------------------------------------------------------------------
+    - title: Application Information
+      required:
+        - appName
+        - description
+        - owner
+      properties:
+        appName:
+          title: Application Name
+          type: string
+          description: Name of your RAG application (lowercase, hyphens only)
+          pattern: '^[a-z][a-z0-9-]{2,30}$'
+          ui:autofocus: true
+          ui:help: 'Example: knowledge-assistant, doc-search, support-bot'
+          
+        description:
+          title: Description
+          type: string
+          description: What does this RAG application do?
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+            
+        owner:
+          title: Owner Team
+          type: string
+          description: Team that owns this application
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+              
+    # -------------------------------------------------------------------------
+    # Step 2: RAG Configuration
+    # -------------------------------------------------------------------------
+    - title: RAG Configuration
+      required:
+        - useCase
+        - documentSources
+      properties:
+        useCase:
+          title: Use Case
+          type: string
+          description: Primary use case for this RAG application
+          enum:
+            - knowledge-base
+            - customer-support
+            - code-assistant
+            - document-qa
+            - research-assistant
+          enumNames:
+            - 'Knowledge Base - Internal documentation and wiki'
+            - 'Customer Support - FAQ and support documentation'
+            - 'Code Assistant - Code repositories and technical docs'
+            - 'Document Q&A - PDF, Word, and general documents'
+            - 'Research Assistant - Academic papers and reports'
+          default: knowledge-base
+          
+        documentSources:
+          title: Document Sources
+          type: array
+          description: Where will documents come from?
+          items:
+            type: string
+            enum:
+              - blob-storage
+              - sharepoint
+              - github-repos
+              - confluence
+              - web-crawler
+          uniqueItems: true
+          ui:widget: checkboxes
+          default:
+            - blob-storage
+            
+        maxDocumentSize:
+          title: Max Document Size (MB)
+          type: integer
+          description: Maximum size of documents to process
+          default: 50
+          minimum: 1
+          maximum: 500
+          
+        chunkingStrategy:
+          title: Chunking Strategy
+          type: string
+          description: How to split documents for embedding
+          enum:
+            - semantic
+            - fixed-size
+            - paragraph
+            - sentence
+          enumNames:
+            - 'Semantic - AI-based meaningful chunks (recommended)'
+            - 'Fixed Size - Fixed token count per chunk'
+            - 'Paragraph - Split by paragraphs'
+            - 'Sentence - Split by sentences'
+          default: semantic
+          
+    # -------------------------------------------------------------------------
+    # Step 3: Azure AI Configuration
+    # -------------------------------------------------------------------------
+    - title: Azure AI Configuration
+      required:
+        - embeddingModel
+        - chatModel
+      properties:
+        embeddingModel:
+          title: Embedding Model
+          type: string
+          description: Model for generating document embeddings
+          enum:
+            - text-embedding-3-large
+            - text-embedding-3-small
+            - text-embedding-ada-002
+          enumNames:
+            - 'text-embedding-3-large - Best quality (3072 dimensions)'
+            - 'text-embedding-3-small - Good quality, lower cost (1536 dimensions)'
+            - 'text-embedding-ada-002 - Legacy model (1536 dimensions)'
+          default: text-embedding-3-large
+          
+        chatModel:
+          title: Chat Completion Model
+          type: string
+          description: Model for generating responses
+          enum:
+            - gpt-4o
+            - gpt-4o-mini
+            - gpt-4-turbo
+            - gpt-4
+            - gpt-35-turbo
+          enumNames:
+            - 'GPT-4o - Latest, best quality and speed'
+            - 'GPT-4o-mini - Fast and cost-effective'
+            - 'GPT-4 Turbo - High quality with 128k context'
+            - 'GPT-4 - Original high quality'
+            - 'GPT-3.5 Turbo - Fast, lowest cost'
+          default: gpt-4o
+          
+        enableContentSafety:
+          title: Enable Content Safety
+          type: boolean
+          description: Filter harmful content in inputs and outputs
+          default: true
+          
+        enableGroundedness:
+          title: Enable Groundedness Check
+          type: boolean
+          description: Verify responses are grounded in retrieved documents
+          default: true
+          
+        maxTokensResponse:
+          title: Max Response Tokens
+          type: integer
+          description: Maximum tokens in generated response
+          default: 2000
+          minimum: 100
+          maximum: 8000
+          
+    # -------------------------------------------------------------------------
+    # Step 4: Search Configuration
+    # -------------------------------------------------------------------------
+    - title: Search Configuration
+      properties:
+        searchTier:
+          title: Azure AI Search Tier
+          type: string
+          description: Search service tier (affects performance and cost)
+          enum:
+            - basic
+            - standard
+            - standard2
+            - standard3
+          enumNames:
+            - 'Basic - Up to 1M docs, 3 replicas'
+            - 'Standard - Up to 25M docs, 12 replicas'
+            - 'Standard 2 - Up to 100M docs'
+            - 'Standard 3 - Up to 200M docs, highest performance'
+          default: standard
+          
+        hybridSearch:
+          title: Enable Hybrid Search
+          type: boolean
+          description: Combine vector + keyword search for better results
+          default: true
+          
+        semanticRanking:
+          title: Enable Semantic Ranking
+          type: boolean
+          description: Re-rank results using AI (improves relevance)
+          default: true
+          
+        topK:
+          title: Results to Retrieve (Top K)
+          type: integer
+          description: Number of documents to retrieve for context
+          default: 5
+          minimum: 1
+          maximum: 20
+          
+    # -------------------------------------------------------------------------
+    # Step 5: Deployment Configuration
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      required:
+        - environment
+      properties:
+        environment:
+          title: Environments to Deploy
+          type: array
+          description: Which environments to create
+          items:
+            type: string
+            enum:
+              - dev
+              - staging
+              - prod
+          uniqueItems: true
+          ui:widget: checkboxes
+          default:
+            - dev
+            - staging
+            - prod
+            
+        minReplicas:
+          title: Minimum Replicas
+          type: integer
+          description: Minimum number of pods
+          default: 2
+          minimum: 1
+          maximum: 10
+          
+        maxReplicas:
+          title: Maximum Replicas
+          type: integer
+          description: Maximum pods for auto-scaling
+          default: 10
+          minimum: 2
+          maximum: 50
+          
+        cpuRequest:
+          title: CPU Request
+          type: string
+          description: CPU request per pod
+          enum:
+            - '250m'
+            - '500m'
+            - '1000m'
+            - '2000m'
+          default: '500m'
+          
+        memoryRequest:
+          title: Memory Request
+          type: string
+          description: Memory request per pod
+          enum:
+            - '512Mi'
+            - '1Gi'
+            - '2Gi'
+            - '4Gi'
+          default: '1Gi'
+          
+        enableIngress:
+          title: Enable External Access
+          type: boolean
+          description: Expose application via ingress
+          default: true
+          
+    # -------------------------------------------------------------------------
+    # Step 6: Repository Settings
+    # -------------------------------------------------------------------------
+    - title: Repository Settings
+      required:
+        - repoName
+      properties:
+        repoName:
+          title: Repository Name
+          type: string
+          description: GitHub repository name
+          pattern: '^[a-z][a-z0-9-]{2,50}$'
+          
+        visibility:
+          title: Repository Visibility
+          type: string
+          enum:
+            - private
+            - internal
+            - public
+          default: private
+          
+        branchProtection:
+          title: Enable Branch Protection
+          type: boolean
+          description: Require PRs and reviews for main branch
+          default: true
+          
+        enableCopilot:
+          title: Enable GitHub Copilot
+          type: boolean
+          description: Allow Copilot suggestions in this repo
+          default: true
+          
+        enableGHAS:
+          title: Enable Advanced Security
+          type: boolean
+          description: Enable code scanning and secret detection
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+  steps:
+    # -------------------------------------------------------------------------
+    # Step 1: Fetch RAG Application Skeleton
+    # -------------------------------------------------------------------------
+    - id: fetch-skeleton
+      name: Fetch RAG Application Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          lifecycle: production
+          name: ${{ parameters.appName }}
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+          system: default
+          appName: ${{ parameters.appName }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          useCase: ${{ parameters.useCase }}
+          embeddingModel: ${{ parameters.embeddingModel }}
+          chatModel: ${{ parameters.chatModel }}
+          enableContentSafety: ${{ parameters.enableContentSafety }}
+          enableGroundedness: ${{ parameters.enableGroundedness }}
+          maxTokensResponse: ${{ parameters.maxTokensResponse }}
+          searchTier: ${{ parameters.searchTier }}
+          hybridSearch: ${{ parameters.hybridSearch }}
+          semanticRanking: ${{ parameters.semanticRanking }}
+          topK: ${{ parameters.topK }}
+          chunkingStrategy: ${{ parameters.chunkingStrategy }}
+          documentSources: ${{ parameters.documentSources }}
+          
+    # -------------------------------------------------------------------------
+    # Step 2: Fetch Kubernetes Manifests
+    # -------------------------------------------------------------------------
+    - id: fetch-k8s
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ../../common/kubernetes
+        targetPath: ./deploy/kubernetes
+        values:
+          appName: ${{ parameters.appName }}
+          environments: ${{ parameters.environment }}
+          minReplicas: ${{ parameters.minReplicas }}
+          maxReplicas: ${{ parameters.maxReplicas }}
+          cpuRequest: ${{ parameters.cpuRequest }}
+          memoryRequest: ${{ parameters.memoryRequest }}
+          enableIngress: ${{ parameters.enableIngress }}
+          serviceType: ai-application
+          
+    # -------------------------------------------------------------------------
+    # Step 3: Fetch CI/CD Pipeline
+    # -------------------------------------------------------------------------
+    - id: fetch-cicd
+      name: Generate CI/CD Pipeline
+      action: fetch:template
+      input:
+        url: ../../common/cicd/python
+        targetPath: ./.github/workflows
+        values:
+          appName: ${{ parameters.appName }}
+          pythonVersion: '3.11'
+          enableTests: true
+          enableLinting: true
+          enableSecurity: ${{ parameters.enableGHAS }}
+          environments: ${{ parameters.environment }}
+          
+    # -------------------------------------------------------------------------
+    # Step 4: Fetch Azure Infrastructure (Bicep)
+    # -------------------------------------------------------------------------
+    - id: fetch-infra
+      name: Generate Azure Infrastructure
+      action: fetch:template
+      input:
+        url: ./infrastructure
+        targetPath: ./deploy/infrastructure
+        values:
+          appName: ${{ parameters.appName }}
+          searchTier: ${{ parameters.searchTier }}
+          embeddingModel: ${{ parameters.embeddingModel }}
+          chatModel: ${{ parameters.chatModel }}
+          enableContentSafety: ${{ parameters.enableContentSafety }}
+
+    - id: add-azure-oidc-helper
+      name: Add Azure OIDC Setup Helper
+      action: fetch:plain
+      input:
+        url: ../../common/azure-infrastructure/scripts
+        targetPath: ./scripts
+          
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+    # -------------------------------------------------------------------------
+    # Step 5: Create GitHub Repository
+    # -------------------------------------------------------------------------
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: ${{ parameters.visibility }}
+        
+    # -------------------------------------------------------------------------
+    # Step 6: Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Backstage Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+        icon: github
+        
+      - title: Backstage Catalog
+        url: ${{ steps['register-catalog'].output.entityRef }}
+        icon: catalog

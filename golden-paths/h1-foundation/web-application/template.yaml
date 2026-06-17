@@ -1,0 +1,499 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 WEB APPLICATION GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating full-stack web applications.
+# Supports multiple frameworks, databases, and deployment targets.
+#
+# Horizon: H1 - Foundation
+# Use Case: Create production-ready web applications with best practices
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-web-application
+  title: "H1: Create Web Application"
+  description: |
+    Create a full-stack web application with your choice of frontend
+    and backend frameworks. Includes CI/CD, testing, and monitoring.
+  tags:
+    - h1-foundation
+    - web-application
+    - fullstack
+    - react
+    - python
+    - nodejs
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: website
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Application Information
+    # -------------------------------------------------------------------------
+    - title: Application Information
+      required:
+        - appName
+        - team
+      properties:
+        appName:
+          title: Application Name
+          description: Name of the web application
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 40
+
+        team:
+          title: Team
+          description: Team that owns this application
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          description: Brief description of the application
+          type: string
+          maxLength: 300
+
+    # -------------------------------------------------------------------------
+    # Frontend Configuration
+    # -------------------------------------------------------------------------
+    - title: Frontend Configuration
+      required:
+        - frontendFramework
+      properties:
+        frontendFramework:
+          title: Frontend Framework
+          type: string
+          default: react
+          enum:
+            - react
+            - nextjs
+            - vue
+            - angular
+            - svelte
+            - static
+          enumNames:
+            - React (Vite)
+            - Next.js (Full-stack)
+            - Vue 3
+            - Angular
+            - SvelteKit
+            - Static HTML/CSS/JS
+
+        uiLibrary:
+          title: UI Component Library
+          type: string
+          default: tailwind
+          enum:
+            - tailwind
+            - mui
+            - shadcn
+            - chakra
+            - bootstrap
+            - none
+          enumNames:
+            - Tailwind CSS
+            - Material UI
+            - shadcn/ui
+            - Chakra UI
+            - Bootstrap
+            - None (Custom)
+
+        enableTypeScript:
+          title: Use TypeScript
+          type: boolean
+          default: true
+
+        enablePWA:
+          title: Enable PWA Support
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Backend Configuration
+    # -------------------------------------------------------------------------
+    - title: Backend Configuration
+      properties:
+        backendFramework:
+          title: Backend Framework
+          type: string
+          default: fastapi
+          enum:
+            - fastapi
+            - express
+            - nestjs
+            - django
+            - aspnet
+            - go
+            - none
+          enumNames:
+            - FastAPI (Python)
+            - Express (Node.js)
+            - NestJS (Node.js)
+            - Django (Python)
+            - ASP.NET Core
+            - Go (Gin)
+            - None (Frontend Only)
+
+        apiStyle:
+          title: API Style
+          type: string
+          default: rest
+          enum:
+            - rest
+            - graphql
+            - trpc
+
+        enableOpenAPI:
+          title: Generate OpenAPI Spec
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Database
+    # -------------------------------------------------------------------------
+    - title: Database Configuration
+      properties:
+        database:
+          title: Database
+          type: string
+          default: postgres
+          enum:
+            - postgres
+            - mysql
+            - mongodb
+            - cosmos-db
+            - sqlite
+            - none
+          enumNames:
+            - PostgreSQL
+            - MySQL
+            - MongoDB
+            - Cosmos DB
+            - SQLite (Dev only)
+            - None
+
+        enableORM:
+          title: Enable ORM
+          type: boolean
+          default: true
+
+        orm:
+          title: ORM Library
+          type: string
+          default: auto
+          enum:
+            - auto
+            - prisma
+            - sqlalchemy
+            - typeorm
+            - drizzle
+
+        enableCaching:
+          title: Enable Caching (Redis)
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Authentication
+    # -------------------------------------------------------------------------
+    - title: Authentication
+      properties:
+        authProvider:
+          title: Authentication Provider
+          type: string
+          default: entra-id
+          enum:
+            - entra-id
+            - auth0
+            - cognito
+            - clerk
+            - custom
+            - none
+          enumNames:
+            - Microsoft Entra ID
+            - Auth0
+            - AWS Cognito
+            - Clerk
+            - Custom JWT
+            - None
+
+        enableRBAC:
+          title: Enable Role-Based Access Control
+          type: boolean
+          default: true
+
+        enableMFA:
+          title: Enable Multi-Factor Auth
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Deployment
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      properties:
+        deploymentTarget:
+          title: Deployment Target
+          type: string
+          default: aks
+          enum:
+            - aks
+            - container-apps
+            - app-service
+            - static-web-apps
+          enumNames:
+            - AKS (Kubernetes)
+            - Container Apps
+            - App Service
+            - Static Web Apps (Frontend only)
+
+        enableCDN:
+          title: Enable CDN (Front Door)
+          type: boolean
+          default: false
+
+        environments:
+          title: Environments
+          type: array
+          items:
+            type: string
+            enum:
+              - development
+              - staging
+              - production
+          default:
+            - development
+            - staging
+            - production
+
+    # -------------------------------------------------------------------------
+    # Observability
+    # -------------------------------------------------------------------------
+    - title: Observability
+      properties:
+        enableMonitoring:
+          title: Enable Monitoring
+          type: boolean
+          default: true
+
+        enableTracing:
+          title: Enable Distributed Tracing
+          type: boolean
+          default: true
+
+        enableRUM:
+          title: Enable Real User Monitoring
+          type: boolean
+          default: false
+
+        enableErrorTracking:
+          title: Enable Error Tracking
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        enableMonorepo:
+          title: Monorepo Structure
+          description: Use monorepo with frontend and backend in same repo
+          type: boolean
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Web Application Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          framework: ${{ parameters.frontendFramework }}
+          lifecycle: production
+          name: ${{ parameters.appName }}
+          owner: ${{ parameters.team }}
+          system: default
+          appName: ${{ parameters.appName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          repoUrl: ${{ parameters.repoUrl }}
+          frontendFramework: ${{ parameters.frontendFramework }}
+          uiLibrary: ${{ parameters.uiLibrary }}
+          enableTypeScript: ${{ parameters.enableTypeScript }}
+          backendFramework: ${{ parameters.backendFramework }}
+          database: ${{ parameters.database }}
+          authProvider: ${{ parameters.authProvider }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          environments: ${{ parameters.environments }}
+
+    - id: generate-frontend
+      name: Generate Frontend
+      action: fetch:template
+      input:
+        url: ./skeleton/frontend/${{ parameters.frontendFramework }}
+        targetPath: ./repo/frontend
+        values:
+          appName: ${{ parameters.appName }}
+          uiLibrary: ${{ parameters.uiLibrary }}
+          enableTypeScript: ${{ parameters.enableTypeScript }}
+
+    - id: generate-backend
+      name: Generate Backend
+      if: ${{ parameters.backendFramework !== 'none' }}
+      action: fetch:template
+      input:
+        url: ./skeleton/backend/${{ parameters.backendFramework }}
+        targetPath: ./repo/backend
+        values:
+          appName: ${{ parameters.appName }}
+          database: ${{ parameters.database }}
+          authProvider: ${{ parameters.authProvider }}
+
+    - id: generate-infrastructure
+      name: Generate Infrastructure
+      action: fetch:template
+      input:
+        url: ./skeleton/infrastructure
+        targetPath: ./repo/infrastructure
+        values:
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          environments: ${{ parameters.environments }}
+
+    - id: generate-cicd
+      name: Generate CI/CD Workflows
+      action: fetch:template
+      input:
+        url: ./skeleton/cicd
+        targetPath: ./repo/.github/workflows
+        values:
+          frontendFramework: ${{ parameters.frontendFramework }}
+          backendFramework: ${{ parameters.backendFramework }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          environments: ${{ parameters.environments }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.appName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h1-web-application"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Web Application: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: true
+        requireCodeOwnerReviews: true
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Web Application Created
+        content: |
+          ## 🌐 Web Application Created!
+          
+          **Application:** ${{ parameters.appName }}
+          
+          **Frontend:**
+          - Framework: ${{ parameters.frontendFramework }}
+          - UI Library: ${{ parameters.uiLibrary }}
+          - TypeScript: ${{ parameters.enableTypeScript ? '✅' : '❌' }}
+          
+          **Backend:**
+          - Framework: ${{ parameters.backendFramework }}
+          - Database: ${{ parameters.database }}
+          - Auth: ${{ parameters.authProvider }}
+          
+          **Deployment:**
+          - Target: ${{ parameters.deploymentTarget }}
+          - Environments: ${{ parameters.environments | join(', ') }}
+          
+          **Next Steps:**
+          1. Clone the repository
+          2. Run `make setup` to install dependencies
+          3. Run `make dev` to start local development
+          4. Push to trigger CI/CD pipeline
+

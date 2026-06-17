@@ -1,0 +1,473 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 API GATEWAY GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating API Gateways.
+# Supports Azure APIM, Kong, and Kubernetes-native gateways.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Centralized API management with security, rate limiting, and analytics
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-api-gateway
+  title: "H2: Create API Gateway"
+  description: |
+    Create an API Gateway configuration for centralized API management.
+    Includes authentication, rate limiting, caching, and analytics.
+  tags:
+    - h2-enhancement
+    - api-gateway
+    - apim
+    - kong
+    - security
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: api-gateway
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # Gateway Information
+    # -------------------------------------------------------------------------
+    - title: Gateway Information
+      required:
+        - gatewayName
+        - team
+        - gatewayType
+      properties:
+        gatewayName:
+          title: Gateway Name
+          description: Name of the API Gateway
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-gateway$'
+          maxLength: 50
+
+        team:
+          title: Team
+          description: Team that owns this gateway
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          type: string
+          maxLength: 300
+
+        gatewayType:
+          title: Gateway Type
+          type: string
+          default: azure-apim
+          enum:
+            - azure-apim
+            - kong
+            - nginx-ingress
+            - istio
+            - envoy
+          enumNames:
+            - Azure API Management
+            - Kong Gateway
+            - NGINX Ingress Controller
+            - Istio Service Mesh
+            - Envoy Gateway
+
+    # -------------------------------------------------------------------------
+    # API Configuration
+    # -------------------------------------------------------------------------
+    - title: API Configuration
+      properties:
+        apis:
+          title: APIs to Expose
+          description: Configure APIs behind this gateway
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            type: object
+            required:
+              - name
+              - backendUrl
+            properties:
+              name:
+                title: API Name
+                type: string
+              backendUrl:
+                title: Backend URL
+                type: string
+                format: uri
+              basePath:
+                title: Base Path
+                type: string
+                default: /api/v1
+              version:
+                title: Version
+                type: string
+                default: v1
+          default:
+            - name: sample-api
+              backendUrl: http://backend-service:8080
+              basePath: /api/v1
+              version: v1
+
+        enableVersioning:
+          title: Enable API Versioning
+          type: boolean
+          default: true
+
+        versioningStrategy:
+          title: Versioning Strategy
+          type: string
+          default: path
+          enum:
+            - path
+            - header
+            - query
+
+    # -------------------------------------------------------------------------
+    # Security
+    # -------------------------------------------------------------------------
+    - title: Security Configuration
+      properties:
+        authMethods:
+          title: Authentication Methods
+          type: array
+          items:
+            type: string
+            enum:
+              - oauth2
+              - jwt
+              - api-key
+              - mtls
+              - basic
+          default:
+            - oauth2
+            - api-key
+
+        enableOAuth:
+          title: Enable OAuth 2.0
+          type: boolean
+          default: true
+
+        oauthProvider:
+          title: OAuth Provider
+          type: string
+          default: entra-id
+          enum:
+            - entra-id
+            - auth0
+            - okta
+            - custom
+
+        enableJWTValidation:
+          title: Enable JWT Validation
+          type: boolean
+          default: true
+
+        enableMTLS:
+          title: Enable Mutual TLS
+          type: boolean
+          default: false
+
+        enableWAF:
+          title: Enable Web Application Firewall
+          type: boolean
+          default: true
+
+        enableCORS:
+          title: Enable CORS
+          type: boolean
+          default: true
+
+        corsOrigins:
+          title: CORS Allowed Origins
+          type: array
+          items:
+            type: string
+          default:
+            - https://*.example.com
+
+    # -------------------------------------------------------------------------
+    # Rate Limiting
+    # -------------------------------------------------------------------------
+    - title: Rate Limiting & Throttling
+      properties:
+        enableRateLimiting:
+          title: Enable Rate Limiting
+          type: boolean
+          default: true
+
+        rateLimitTier:
+          title: Default Rate Limit Tier
+          type: string
+          default: standard
+          enum:
+            - basic
+            - standard
+            - premium
+            - unlimited
+
+        rateLimits:
+          title: Rate Limit Configuration
+          type: object
+          properties:
+            basic:
+              title: Basic Tier (calls/minute)
+              type: integer
+              default: 60
+            standard:
+              title: Standard Tier (calls/minute)
+              type: integer
+              default: 300
+            premium:
+              title: Premium Tier (calls/minute)
+              type: integer
+              default: 1000
+
+        enableQuotas:
+          title: Enable Usage Quotas
+          type: boolean
+          default: true
+
+        quotaPeriod:
+          title: Quota Period
+          type: string
+          default: month
+          enum:
+            - day
+            - week
+            - month
+
+    # -------------------------------------------------------------------------
+    # Caching & Performance
+    # -------------------------------------------------------------------------
+    - title: Caching & Performance
+      properties:
+        enableCaching:
+          title: Enable Response Caching
+          type: boolean
+          default: true
+
+        cacheTTL:
+          title: Cache TTL (seconds)
+          type: integer
+          default: 300
+          minimum: 60
+          maximum: 86400
+
+        enableCompression:
+          title: Enable Response Compression
+          type: boolean
+          default: true
+
+        enableLoadBalancing:
+          title: Enable Load Balancing
+          type: boolean
+          default: true
+
+        loadBalancingStrategy:
+          title: Load Balancing Strategy
+          type: string
+          default: round-robin
+          enum:
+            - round-robin
+            - least-connections
+            - weighted
+            - ip-hash
+
+    # -------------------------------------------------------------------------
+    # Observability
+    # -------------------------------------------------------------------------
+    - title: Observability
+      properties:
+        enableAnalytics:
+          title: Enable API Analytics
+          type: boolean
+          default: true
+
+        enableLogging:
+          title: Enable Request Logging
+          type: boolean
+          default: true
+
+        logLevel:
+          title: Log Level
+          type: string
+          default: info
+          enum:
+            - debug
+            - info
+            - warn
+            - error
+
+        enableTracing:
+          title: Enable Distributed Tracing
+          type: boolean
+          default: true
+
+        enableMetrics:
+          title: Enable Prometheus Metrics
+          type: boolean
+          default: true
+
+        alertChannels:
+          title: Alert Channels
+          type: array
+          items:
+            type: string
+            enum:
+              - email
+              - teams
+              - slack
+              - pagerduty
+          default:
+            - teams
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch API Gateway Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.gatewayName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          gatewayName: ${{ parameters.gatewayName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          gatewayType: ${{ parameters.gatewayType }}
+          apis: ${{ parameters.apis }}
+          authMethods: ${{ parameters.authMethods }}
+          enableRateLimiting: ${{ parameters.enableRateLimiting }}
+          enableCaching: ${{ parameters.enableCaching }}
+
+    - id: generate-gateway-config
+      name: Generate Gateway Configuration
+      action: fetch:template
+      input:
+        url: ./skeleton/${{ parameters.gatewayType }}
+        targetPath: ./repo/config
+        values:
+          gatewayName: ${{ parameters.gatewayName }}
+          apis: ${{ parameters.apis }}
+          rateLimits: ${{ parameters.rateLimits }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.gatewayName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-api-gateway"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "API Gateway: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: API Gateway Created
+        content: |
+          ## 🚪 API Gateway Created!
+          
+          **Gateway:** ${{ parameters.gatewayName }}
+          **Type:** ${{ parameters.gatewayType }}
+          
+          **APIs Configured:** ${{ parameters.apis | length }}
+          
+          **Security:**
+          - Auth Methods: ${{ parameters.authMethods | join(', ') }}
+          - ${{ parameters.enableWAF ? '✅' : '⏭️' }} WAF
+          - ${{ parameters.enableMTLS ? '✅' : '⏭️' }} mTLS
+          
+          **Features:**
+          - ${{ parameters.enableRateLimiting ? '✅' : '⏭️' }} Rate Limiting
+          - ${{ parameters.enableCaching ? '✅' : '⏭️' }} Caching
+          - ${{ parameters.enableAnalytics ? '✅' : '⏭️' }} Analytics
+          
+          **Next Steps:**
+          1. Review gateway configuration
+          2. Configure OAuth settings
+          3. Import API specifications
+          4. Deploy to target environment
+

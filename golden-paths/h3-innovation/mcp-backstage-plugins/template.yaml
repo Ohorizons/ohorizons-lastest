@@ -1,0 +1,110 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: mcp-backstage-plugins
+  title: MCP Server — Backstage Plugins
+  description: |
+    Creates a standalone MCP server for Backstage plugins registry and community plugins tools.
+    - TypeScript + MCP SDK
+    - Streamable HTTP transport
+    - Docker-ready with health checks
+    - Backstage catalog integration
+  tags:
+    - mcp
+    - backstage
+    - plugins
+    - idp
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Server Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Server Name
+          type: string
+          description: Unique name for your MCP server (lowercase, hyphens)
+          pattern: '^[a-z0-9-]+$'
+          default: mcp-backstage-plugins
+          ui:autofocus: true
+        owner:
+          title: Owner Team
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+          default: Backstage plugins registry and community plugins tools
+          ui:widget: textarea
+        port:
+          title: Server Port
+          type: integer
+          default: 3100
+
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          port: ${{ parameters.port }}
+
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "mcp-backstage-plugins"
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        repoVisibility: public
+        defaultBranch: main
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

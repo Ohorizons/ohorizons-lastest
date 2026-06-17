@@ -1,0 +1,96 @@
+# =============================================================================
+# Open Horizons — Agentic DevOps Platform (Backstage v1.48.0)
+# Branding: Open Horizons | devcentral.ai | Microsoft favicon
+# =============================================================================
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_hide_header Strict-Transport-Security;
+      proxy_hide_header Content-Security-Policy;
+      proxy_hide_header X-Content-Type-Options;
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location = /favicon.ico {
+        return 302 https://learn.microsoft.com/favicon.ico;
+      }
+      location = /favicon-32x32.png {
+        return 302 https://learn.microsoft.com/favicon.ico;
+      }
+      location = /favicon-16x16.png {
+        return 302 https://learn.microsoft.com/favicon.ico;
+      }
+      location = /apple-touch-icon.png {
+        return 302 https://learn.microsoft.com/favicon.ico;
+      }
+  host: backstage.128.85.226.112.sslip.io
+  path: /
+
+backstage:
+  replicas: 1
+
+  image:
+    registry: ghcr.io
+    repository: backstage/backstage
+    tag: "1.48.0"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  appConfig:
+    app:
+      title: "Open Horizons | Agentic DevOps Platform"
+      baseUrl: http://backstage.128.85.226.112.sslip.io
+      branding:
+        fullLogo:
+          src: https://img.icons8.com/fluency/96/microsoft.png
+          width: 40
+          alt: "Open Horizons — Agentic DevOps Platform"
+        iconLogo:
+          src: https://img.icons8.com/fluency/48/microsoft.png
+          width: 28
+          alt: "Open Horizons"
+        theme:
+          light:
+            primaryColor: '#0078D4'
+          dark:
+            primaryColor: '#4CC2FF'
+    organization:
+      name: "Open Horizons — Agentic DevOps Platform"
+    backend:
+      baseUrl: http://backstage.128.85.226.112.sslip.io
+      listen:
+        port: 7007
+      cors:
+        origin: http://backstage.128.85.226.112.sslip.io
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+
+postgresql:
+  enabled: true
+  auth:
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password

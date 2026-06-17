@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 320" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="740" height="320" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="740" height="36" rx="12" fill="#e74c3c"/>
+  <rect x="0" y="18" width="740" height="18" fill="#e74c3c"/>
+  <text x="370" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">ESCALATION CRITERIA</text>
+  <rect x="15" y="46" width="350" height="65" rx="6" fill="#fdedec" stroke="#e74c3c" stroke-width="2" filter="url(#ds)"/>
+  <rect x="15" y="46" width="6" height="65" rx="3" fill="#e74c3c"/>
+  <text x="30" y="64" font-size="12" font-weight="700" fill="#c0392b">SEV1 — Escalate Immediately</text>
+  <text x="30" y="82" font-size="9" fill="#555">&#8226; Complete platform outage</text>
+  <text x="30" y="96" font-size="9" fill="#555">&#8226; Data breach or security incident</text>
+  <text x="30" y="108" font-size="9" fill="#555">&#8226; All environments affected</text>
+  <rect x="375" y="46" width="350" height="65" rx="6" fill="#fef9e7" stroke="#f39c12" stroke-width="2" filter="url(#ds)"/>
+  <rect x="375" y="46" width="6" height="65" rx="3" fill="#f39c12"/>
+  <text x="390" y="64" font-size="12" font-weight="700" fill="#e67e22">SEV2 — Escalate after 1 hour</text>
+  <text x="390" y="82" font-size="9" fill="#555">&#8226; Production app down for 1+ user</text>
+  <text x="390" y="96" font-size="9" fill="#555">&#8226; Data loss possibility</text>
+  <text x="390" y="108" font-size="9" fill="#555">&#8226; No workaround available</text>
+  <rect x="15" y="121" width="350" height="65" rx="6" fill="#eaf2f8" stroke="#3498db" stroke-width="2" filter="url(#ds)"/>
+  <rect x="15" y="121" width="6" height="65" rx="3" fill="#3498db"/>
+  <text x="30" y="139" font-size="12" font-weight="700" fill="#2980b9">SEV3 — Escalate after 4 hours</text>
+  <text x="30" y="157" font-size="9" fill="#555">&#8226; Non-production issue</text>
+  <text x="30" y="171" font-size="9" fill="#555">&#8226; Degraded but functional</text>
+  <text x="30" y="183" font-size="9" fill="#555">&#8226; Workaround available</text>
+  <rect x="375" y="121" width="350" height="65" rx="6" fill="#e8f8f5" stroke="#1abc9c" stroke-width="2" filter="url(#ds)"/>
+  <rect x="375" y="121" width="6" height="65" rx="3" fill="#1abc9c"/>
+  <text x="390" y="139" font-size="12" font-weight="700" fill="#16a085">SEV4 — Next Business Day</text>
+  <text x="390" y="157" font-size="9" fill="#555">&#8226; Minor issue, cosmetic</text>
+  <text x="390" y="171" font-size="9" fill="#555">&#8226; Feature request</text>
+  <text x="390" y="183" font-size="9" fill="#555">&#8226; Documentation update</text>
+</svg>

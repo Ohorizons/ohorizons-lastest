@@ -1,0 +1,23 @@
+name: Reusable Build
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+      node-version:
+        required: false
+        type: string
+        default: '20'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+      - run: echo 'Build step for ${{ inputs.language }}'

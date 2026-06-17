@@ -1,0 +1,11 @@
+{
+  "name": "API Gateway",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [
+    3000
+  ]
+}

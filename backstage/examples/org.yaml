@@ -1,0 +1,228 @@
+---
+# =============================================================================
+# AGENTIC DEVOPS PLATFORM — Organization Structure
+# =============================================================================
+# Backstage organization catalog.
+# =============================================================================
+# Domain, Systems, Groups, and Users for the developer portal catalog.
+# Groups here are referenced by Golden Path templates via OwnerPicker.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Domain
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Domain
+metadata:
+  name: open-horizons-platform
+  title: Agentic DevOps Platform
+  description: Enterprise platform accelerator spanning Foundation (H1), Enhancement (H2), and Innovation (H3) horizons. Deploys as Backstage developer portal.
+spec:
+  owner: group:default/platform-engineering
+
+---
+# -----------------------------------------------------------------------------
+# Systems
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: developer-platform
+  title: Developer Platform
+  description: Backstage portal, Golden Paths, TechDocs, and developer self-service tooling.
+  tags:
+    - backstage
+    - portal
+spec:
+  owner: group:default/platform-engineering
+  domain: open-horizons-platform
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: h1-foundation
+  title: H1 — Foundation
+  description: Core infrastructure — AKS, networking, security, databases, identity, and CI/CD pipelines.
+  tags:
+    - h1
+    - infrastructure
+    - foundation
+spec:
+  owner: group:default/platform-engineering
+  domain: open-horizons-platform
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: h2-enhancement
+  title: H2 — Enhancement
+  description: Platform services — ArgoCD GitOps, observability, Golden Path templates, and microservice patterns.
+  tags:
+    - h2
+    - platform-services
+    - enhancement
+spec:
+  owner: group:default/platform-engineering
+  domain: open-horizons-platform
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: h3-innovation
+  title: H3 — Innovation
+  description: AI capabilities — Azure AI Foundry, multi-agent systems, MLOps, RAG, and intelligent workflows.
+  tags:
+    - h3
+    - ai
+    - innovation
+spec:
+  owner: group:default/platform-engineering
+  domain: open-horizons-platform
+
+---
+# -----------------------------------------------------------------------------
+# Groups
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: engineering
+  title: Engineering
+  description: Top-level engineering organization.
+spec:
+  type: organization
+  children:
+    - platform-engineering
+    - dev-team
+    - sre-team
+    - security-team
+    - data-team
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-engineering
+  title: Platform Engineering
+  description: Builds and maintains the developer platform, Golden Paths, and infrastructure.
+spec:
+  type: team
+  parent: engineering
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: dev-team
+  title: Development Team
+  description: Application developers building microservices and web applications.
+spec:
+  type: team
+  parent: engineering
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: sre-team
+  title: SRE Team
+  description: Site reliability engineers managing observability, incident response, and platform health.
+spec:
+  type: team
+  parent: engineering
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: security-team
+  title: Security Team
+  description: Security engineers managing policies, scanning, compliance, and identity.
+spec:
+  type: team
+  parent: engineering
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: data-team
+  title: Data & AI Team
+  description: Data engineers and ML engineers building data pipelines and AI solutions.
+spec:
+  type: team
+  parent: engineering
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: guests
+  title: Guests
+  description: Guest users for local development and demo access.
+spec:
+  type: team
+  children: []
+
+---
+# -----------------------------------------------------------------------------
+# Users
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: guest
+  title: Guest User
+spec:
+  memberOf:
+    - guests
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: open-horizons
+  title: Open Horizons
+  annotations:
+    github.com/user-login: Ohorizons
+spec:
+  profile:
+    displayName: Open Horizons
+  memberOf:
+    - platform-engineering
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: paulanunes85
+  title: Paula Nunes
+  annotations:
+    github.com/user-login: paulanunes85
+spec:
+  profile:
+    displayName: Paula Nunes
+  memberOf:
+    - platform-engineering
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: Ohorizons
+  title: Open Horizons (GitHub)
+  annotations:
+    github.com/user-login: Ohorizons
+spec:
+  profile:
+    displayName: Open Horizons
+  memberOf:
+    - platform-engineering

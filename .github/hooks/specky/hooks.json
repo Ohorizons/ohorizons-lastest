@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "preToolUse": [
+      {
+        "name": "scope-guard",
+        "description": "Blocks file writes outside IMPLEMENTATION_PLAN.md scope. Zero token cost enforcement.",
+        "script": ".github/hooks/specky/scripts/scope-guard.sh",
+        "tools": ["write_file", "create_file", "edit_file", "replace_in_file"],
+        "enabled": true,
+        "mode": "permissive"
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Spec-Driven Development hooks for intent enforcement",
+    "reference": "arXiv:2602.00180"
+  }
+}

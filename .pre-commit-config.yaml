@@ -1,0 +1,259 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - PRE-COMMIT CONFIGURATION
+# =============================================================================
+#
+# This file configures pre-commit hooks to ensure code quality and security
+# before commits are made to the repository.
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Manual run:
+#   pre-commit run --all-files
+#
+# Update hooks:
+#   pre-commit autoupdate
+#
+# =============================================================================
+
+default_language_version:
+  python: python3.11
+
+default_stages: [commit, push]
+
+repos:
+  # ===========================================================================
+  # GENERAL HOOKS
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        args: [--markdown-linebreak-ext=md]
+
+      - id: end-of-file-fixer
+        name: Fix end of files
+        exclude: \.min\.(js|css)$
+
+      - id: check-yaml
+        name: Check YAML syntax
+        args: [--allow-multiple-documents]
+        exclude: ^(golden-paths/.*|\.github/ISSUE_TEMPLATE/.*)$
+
+      - id: check-json
+        name: Check JSON syntax
+
+      - id: check-toml
+        name: Check TOML syntax
+
+      - id: check-xml
+        name: Check XML syntax
+
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+
+      - id: check-added-large-files
+        name: Check for large files
+        args: [--maxkb=1000]
+
+      - id: check-case-conflict
+        name: Check case conflicts
+
+      - id: check-symlinks
+        name: Check symlinks
+
+      - id: detect-private-key
+        name: Detect private keys
+
+      - id: no-commit-to-branch
+        name: Prevent commits to main/master
+        args: [--branch, main, --branch, master]
+
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+        args: [--fix=lf]
+
+  # ===========================================================================
+  # TERRAFORM HOOKS
+  # ===========================================================================
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.86.0
+    hooks:
+      - id: terraform_fmt
+        name: Terraform format
+        args:
+          - --args=-recursive
+
+      - id: terraform_validate
+        name: Terraform validate
+        args:
+          - --args=-no-color
+          - --init-args=-backend=false
+
+      - id: terraform_tflint
+        name: TFLint
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+
+      - id: terraform_tfsec
+        name: TFSec security scan
+        args:
+          - --args=--soft-fail
+          - --args=--concise-output
+
+      - id: terraform_docs
+        name: Terraform docs
+        args:
+          - --args=--config=.terraform-docs.yml
+        files: ^terraform/modules/
+
+      - id: terraform_checkov
+        name: Checkov security scan
+        args:
+          - --args=--quiet
+          - --args=--compact
+          - --args=--skip-check=CKV_AZURE_35,CKV_AZURE_59
+
+  # ===========================================================================
+  # SHELL SCRIPT HOOKS
+  # ===========================================================================
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        args:
+          - --severity=warning
+          - --shell=bash
+          - --external-sources
+        files: \.sh$
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.8.0-1
+    hooks:
+      - id: shfmt
+        name: Shell format
+        args:
+          - -i
+          - "4"
+          - -ci
+          - -bn
+        files: \.sh$
+
+  # ===========================================================================
+  # SECRETS DETECTION
+  # ===========================================================================
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
+        name: Gitleaks secrets scan
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        args:
+          - --baseline
+          - .secrets.baseline
+        exclude: package-lock\.json|\.secrets\.baseline
+
+  # ===========================================================================
+  # KUBERNETES / YAML HOOKS
+  # ===========================================================================
+  - repo: https://github.com/yannh/kubeconform
+    rev: v0.6.4
+    hooks:
+      - id: kubeconform
+        name: Kubeconform validation
+        args:
+          - -strict
+          - -ignore-missing-schemas
+          - -kubernetes-version
+          - "1.29.0"
+          - -summary
+        files: ^(deploy|argocd|kubernetes)/.*\.(yaml|yml)$
+        exclude: ^(golden-paths/|\.github/)
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        name: YAML lint
+        args:
+          - -c
+          - .yamllint.yml
+        exclude: ^(golden-paths/|\.github/ISSUE_TEMPLATE/)
+
+  # ===========================================================================
+  # MARKDOWN HOOKS
+  # ===========================================================================
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        name: Markdown lint
+        args:
+          - --config
+          - .markdownlint.json
+          - --fix
+        exclude: ^(CHANGELOG\.md|golden-paths/)
+
+  # ===========================================================================
+  # PYTHON HOOKS
+  # ===========================================================================
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        name: Black formatter
+        language_version: python3.11
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort imports
+        args:
+          - --profile
+          - black
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 linter
+        args:
+          - --max-line-length=120
+          - --extend-ignore=E203,E501,W503
+        additional_dependencies:
+          - flake8-bugbear
+          - flake8-comprehensions
+
+  # ===========================================================================
+  # COMMIT MESSAGE HOOKS
+  # ===========================================================================
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        name: Conventional commits
+        stages: [commit-msg]
+
+# =============================================================================
+# CI CONFIGURATION
+# =============================================================================
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [terraform_validate, terraform_tflint, terraform_tfsec, terraform_checkov, kubeconform]
+  submodules: false

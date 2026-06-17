@@ -1,0 +1,227 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: copilot-extension
+  title: GitHub Copilot Extension
+  description: |
+    Creates a GitHub Copilot Extension (Agent) with:
+    - Custom agent implementation
+    - Skillset configuration
+    - Azure integration for data retrieval
+    - OAuth authentication
+    - Deployment to GitHub Marketplace
+  tags:
+    - copilot
+    - ai
+    - github
+    - extension
+    - h3-innovation
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Extension Configuration
+      required:
+        - name
+        - owner
+        - display_name
+      properties:
+        name:
+          title: Extension Name
+          type: string
+          description: Unique name for your Copilot extension (lowercase, hyphens)
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+        display_name:
+          title: Display Name
+          type: string
+          description: Human-readable name shown in Copilot
+        owner:
+          title: Owner Team
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+          description: What does this extension help users with?
+          ui:widget: textarea
+          
+    - title: Agent Capabilities
+      properties:
+        agent_type:
+          title: Agent Type
+          type: string
+          enum:
+            - skillset
+            - full_agent
+          enumNames:
+            - Skillset (Tools only)
+            - Full Agent (Custom logic)
+          default: skillset
+        skills:
+          title: Skills to Include
+          type: array
+          description: Select capabilities for your extension
+          items:
+            type: string
+            enum:
+              - code_search
+              - documentation_search
+              - database_query
+              - api_integration
+              - azure_resources
+              - ticket_lookup
+              - deployment_status
+        custom_instructions:
+          title: Custom Instructions
+          type: string
+          description: System prompt for the agent
+          ui:widget: textarea
+          
+    - title: Data Sources
+      properties:
+        enable_azure_search:
+          title: Enable Azure AI Search
+          type: boolean
+          default: false
+          description: Search internal documentation and knowledge bases
+        enable_github_search:
+          title: Enable GitHub Code Search
+          type: boolean
+          default: true
+          description: Search repositories and code
+        enable_database:
+          title: Enable Database Queries
+          type: boolean
+          default: false
+          description: Query internal databases
+        data_sources:
+          title: Additional Data Sources
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+                enum: [rest_api, graphql, azure_function]
+              endpoint:
+                type: string
+                
+    - title: Infrastructure
+      required:
+        - environment
+      properties:
+        environment:
+          title: Environment
+          type: string
+          enum:
+            - dev
+            - staging
+            - prod
+        hosting:
+          title: Hosting Platform
+          type: string
+          enum:
+            - azure_functions
+            - azure_container_apps
+            - github_actions
+          default: azure_functions
+        azure_region:
+          title: Azure Region
+          type: string
+          enum:
+            - brazilsouth
+            - eastus
+            - westeurope
+          default: eastus
+          
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Copilot Extension Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          lifecycle: production
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+          system: default
+          name: ${{ parameters.name }}
+          display_name: ${{ parameters.display_name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          agent_type: ${{ parameters.agent_type }}
+          custom_instructions: ${{ parameters.custom_instructions }}
+          skills: ${{ parameters.skills }}
+          enable_azure_search: ${{ parameters.enable_azure_search }}
+          enable_github_search: ${{ parameters.enable_github_search }}
+          enable_database: ${{ parameters.enable_database }}
+          environment: ${{ parameters.environment }}
+          azure_region: ${{ parameters.azure_region }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "copilot-extension"
+    - id: publish-github
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        description: GitHub Copilot Extension - ${{ parameters.display_name }}
+        defaultBranch: main
+        repoVisibility: private
+        
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+        
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: GitHub App Settings
+        url: https://github.com/organizations/${{ parameters.owner }}/settings/apps
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}

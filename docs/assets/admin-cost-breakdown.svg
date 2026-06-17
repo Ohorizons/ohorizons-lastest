@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="700" height="300" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Typical Cost Breakdown</text>
+
+  <!-- Bars -->
+  <text x="50" y="75" font-size="12" fill="#2c3e50" font-weight="600">AKS (65%)</text>
+  <rect x="170" y="60" width="468" height="24" rx="5" fill="#3498db" filter="url(#ds)"/>
+  <rect x="170" y="60" width="468" height="24" rx="5" fill="#3498db" opacity="0.9"/>
+
+  <text x="50" y="115" font-size="12" fill="#2c3e50" font-weight="600">AI (15%)</text>
+  <rect x="170" y="100" width="108" height="24" rx="5" fill="#9b59b6" filter="url(#ds)"/>
+
+  <text x="50" y="155" font-size="12" fill="#2c3e50" font-weight="600">Storage (10%)</text>
+  <rect x="170" y="140" width="72" height="24" rx="5" fill="#27ae60" filter="url(#ds)"/>
+
+  <text x="50" y="195" font-size="12" fill="#2c3e50" font-weight="600">Network (5%)</text>
+  <rect x="170" y="180" width="36" height="24" rx="5" fill="#e67e22" filter="url(#ds)"/>
+
+  <text x="50" y="235" font-size="12" fill="#2c3e50" font-weight="600">Other (5%)</text>
+  <rect x="170" y="220" width="36" height="24" rx="5" fill="#95a5a6" filter="url(#ds)"/>
+
+  <!-- Scale markers -->
+  <line x1="170" y1="252" x2="638" y2="252" stroke="#dee2e6" stroke-width="1"/>
+  <text x="170" y="270" font-size="9" fill="#7f8c8d">0%</text>
+  <text x="287" y="270" font-size="9" fill="#7f8c8d">25%</text>
+  <text x="404" y="270" font-size="9" fill="#7f8c8d">50%</text>
+  <text x="521" y="270" font-size="9" fill="#7f8c8d">75%</text>
+  <text x="625" y="270" font-size="9" fill="#7f8c8d">100%</text>
+</svg>

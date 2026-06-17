@@ -1,0 +1,288 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - GATEKEEPER ARGOCD APPLICATION
+# =============================================================================
+#
+# Deploys OPA Gatekeeper for Kubernetes policy enforcement.
+#
+# Prerequisites:
+#   - ArgoCD installed and configured
+#   - Cluster admin permissions for CRD installation
+#
+# IMPORTANT: Set the GITHUB_ORG environment variable before deployment.
+#
+# Example: export GITHUB_ORG=mycompany
+#
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gatekeeper
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: gatekeeper
+    app.kubernetes.io/component: policy-enforcement
+    app.kubernetes.io/part-of: open-horizons-platform
+    platform.open-horizons/tier: h1-foundation
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform-infrastructure
+
+  source:
+    repoURL: https://open-policy-agent.github.io/gatekeeper/charts
+    chart: gatekeeper
+    targetRevision: 3.14.0
+    helm:
+      releaseName: gatekeeper
+      values: |
+        # Replica configuration for high availability
+        replicas: 3
+
+        # Resource limits
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+
+        # Audit configuration
+        auditInterval: 60
+        auditMatchKindOnly: false
+        auditFromCache: false
+        auditChunkSize: 500
+
+        # Constraint violation limit
+        constraintViolationsLimit: 20
+
+        # Mutation webhooks (enabled for advanced use cases)
+        mutatingWebhookEnabled: true
+        mutatingWebhookFailurePolicy: Ignore
+        mutatingWebhookReinvocationPolicy: Never
+        mutatingWebhookTimeoutSeconds: 3
+
+        # Validating webhook configuration
+        validatingWebhookFailurePolicy: Fail
+        validatingWebhookTimeoutSeconds: 5
+
+        # Enable external data for dynamic policy data
+        enableExternalData: false
+
+        # Log level
+        logLevel: INFO
+
+        # Enable mutation logging
+        logMutations: true
+        logDenies: true
+
+        # Pod disruption budget
+        podDisruptionBudget:
+          minAvailable: 1
+
+        # Node selector for control plane nodes
+        nodeSelector:
+          kubernetes.io/os: linux
+
+        # Tolerations for control plane
+        tolerations: []
+
+        # Pod anti-affinity for HA
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - gatekeeper
+                  topologyKey: kubernetes.io/hostname
+
+        # Exempt namespaces from policy enforcement
+        exemptNamespaces:
+          - kube-system
+          - kube-public
+          - kube-node-lease
+          - gatekeeper-system
+          - cert-manager
+          - ingress-nginx
+          - external-secrets
+          - argocd
+
+        # Exempt namespace prefixes
+        exemptNamespacePrefixes: []
+
+        # Image configuration
+        image:
+          repository: openpolicyagent/gatekeeper
+          release: v3.14.0
+          pullPolicy: IfNotPresent
+
+        # Pre-install job for CRDs
+        preInstall:
+          crdRepository:
+            image:
+              repository: openpolicyagent/gatekeeper-crds
+              tag: v3.14.0
+
+        # Metrics configuration
+        metricsBackends:
+          - prometheus
+
+        # Pod security context
+        podSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          fsGroup: 1000
+
+        # Container security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gatekeeper-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Health checks
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+
+---
+# =============================================================================
+# CONSTRAINT TEMPLATES APPLICATION
+# =============================================================================
+#
+# Deploys custom ConstraintTemplates for the platform
+#
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gatekeeper-templates
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: gatekeeper-templates
+    app.kubernetes.io/component: policy-templates
+    app.kubernetes.io/part-of: open-horizons-platform
+    platform.open-horizons/tier: h1-foundation
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform-infrastructure
+
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/agentic-devops-platform.git
+    targetRevision: HEAD
+    path: policies/kubernetes/constraint-templates
+    directory:
+      recurse: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gatekeeper-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m
+
+---
+# =============================================================================
+# CONSTRAINTS APPLICATION
+# =============================================================================
+#
+# Deploys Constraints that use the ConstraintTemplates
+#
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gatekeeper-constraints
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: gatekeeper-constraints
+    app.kubernetes.io/component: policy-constraints
+    app.kubernetes.io/part-of: open-horizons-platform
+    platform.open-horizons/tier: h1-foundation
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform-infrastructure
+
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/agentic-devops-platform.git
+    targetRevision: HEAD
+    path: policies/kubernetes/constraints
+    directory:
+      recurse: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gatekeeper-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m

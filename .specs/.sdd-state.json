@@ -1,0 +1,45 @@
+{
+  "version": "4.0.0",
+  "project_name": "primitive-selection-and-plugin-toggle",
+  "current_phase": "init",
+  "phases": {
+    "init": {
+      "status": "completed",
+      "started_at": "2026-05-05T22:06:34.360Z",
+      "completed_at": "2026-05-05T22:06:34.360Z"
+    },
+    "discover": {
+      "status": "pending"
+    },
+    "specify": {
+      "status": "pending"
+    },
+    "clarify": {
+      "status": "pending"
+    },
+    "design": {
+      "status": "pending"
+    },
+    "tasks": {
+      "status": "pending"
+    },
+    "analyze": {
+      "status": "pending"
+    },
+    "implement": {
+      "status": "pending"
+    },
+    "verify": {
+      "status": "pending"
+    },
+    "release": {
+      "status": "pending"
+    }
+  },
+  "features": [
+    ".specs/001-open-horizons-install-wizard-and-component-selection",
+    ".specs/002-primitive-selection-and-plugin-toggle"
+  ],
+  "amendments": [],
+  "gate_decision": null
+}

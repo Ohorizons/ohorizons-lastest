@@ -1,0 +1,4 @@
+name: TF
+on:
+  push:
+    branches: [main]

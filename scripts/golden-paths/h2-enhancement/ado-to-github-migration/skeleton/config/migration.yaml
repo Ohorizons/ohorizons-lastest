@@ -1,0 +1,12 @@
+source:
+  type: azure-devops
+  organization: ''
+  project: ''
+target:
+  type: github
+  organization: ''
+scope:
+  repos: true
+  pipelines: true
+  boards: false
+  artifacts: false

@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ${{values.name}}
+  tags:
+    - gitops
+    - argocd
+    - kubernetes
+    - h2-enhancement
+spec:
+  type: gitops-config
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}

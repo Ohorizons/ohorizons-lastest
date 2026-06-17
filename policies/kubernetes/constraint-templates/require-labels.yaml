@@ -1,0 +1,376 @@
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - REQUIRE LABELS
+# =============================================================================
+#
+# Ensures that Kubernetes resources have required labels.
+# Standard labels help with organization, cost allocation, and operations.
+#
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredlabels
+  annotations:
+    description: "Requires specified labels on Kubernetes resources"
+    metadata.gatekeeper.sh/title: "Required Labels"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredLabels
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: "Custom error message"
+            labels:
+              type: array
+              description: "List of required label keys"
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: "Label key name"
+                  allowedRegex:
+                    type: string
+                    description: "Optional regex for allowed values"
+                required:
+                  - key
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredlabels
+
+        import future.keywords.in
+
+        violation[{"msg": msg, "details": {"missing_labels": missing}}] {
+          provided := {label | input.review.object.metadata.labels[label]}
+          required := {label | label := input.parameters.labels[_].key}
+          missing := required - provided
+          count(missing) > 0
+          msg := sprintf("Resource %v/%v is missing required labels: %v", [
+            input.review.object.kind,
+            input.review.object.metadata.name,
+            missing
+          ])
+        }
+
+        violation[{"msg": msg, "details": {"invalid_label": key}}] {
+          some i
+          label := input.parameters.labels[i]
+          label.allowedRegex != ""
+          value := input.review.object.metadata.labels[label.key]
+          not regex.match(label.allowedRegex, value)
+          msg := sprintf("Label %v value '%v' does not match pattern %v", [
+            label.key,
+            value,
+            label.allowedRegex
+          ])
+        }
+
+---
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - REQUIRE RESOURCE LIMITS
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8scontainerresources
+  annotations:
+    description: "Requires resource requests and limits on containers"
+    metadata.gatekeeper.sh/title: "Container Resources"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sContainerResources
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              description: "Images exempt from this policy"
+              items:
+                type: string
+            requireLimits:
+              type: boolean
+              description: "Require resource limits"
+              default: true
+            requireRequests:
+              type: boolean
+              description: "Require resource requests"
+              default: true
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8scontainerresources
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          input.parameters.requireLimits
+          not container.resources.limits
+          msg := sprintf("Container %v does not have resource limits defined", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          input.parameters.requireLimits
+          not container.resources.limits.cpu
+          msg := sprintf("Container %v does not have CPU limit defined", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          input.parameters.requireLimits
+          not container.resources.limits.memory
+          msg := sprintf("Container %v does not have memory limit defined", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          input.parameters.requireRequests
+          not container.resources.requests
+          msg := sprintf("Container %v does not have resource requests defined", [container.name])
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.initContainers[_]
+        }
+
+        is_exempt(container) {
+          exempt_images := object.get(input.parameters, "exemptImages", [])
+          img := container.image
+          some pattern in exempt_images
+          glob.match(pattern, [], img)
+        }
+
+---
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - DENY PRIVILEGED CONTAINERS
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdenyprivileged
+  annotations:
+    description: "Denies privileged containers"
+    metadata.gatekeeper.sh/title: "Deny Privileged"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDenyPrivileged
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdenyprivileged
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          container.securityContext.privileged == true
+          msg := sprintf("Privileged container is not allowed: %v", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          container.securityContext.allowPrivilegeEscalation == true
+          msg := sprintf("Privilege escalation is not allowed: %v", [container.name])
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.initContainers[_]
+        }
+
+        is_exempt(container) {
+          exempt_images := object.get(input.parameters, "exemptImages", [])
+          img := container.image
+          some pattern in exempt_images
+          glob.match(pattern, [], img)
+        }
+
+---
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - REQUIRE NON-ROOT
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequirenonroot
+  annotations:
+    description: "Requires containers to run as non-root user"
+    metadata.gatekeeper.sh/title: "Require Non-Root"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequireNonRoot
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequirenonroot
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not is_exempt(container)
+          not run_as_non_root(container)
+          msg := sprintf("Container %v must run as non-root user", [container.name])
+        }
+
+        run_as_non_root(container) {
+          container.securityContext.runAsNonRoot == true
+        }
+
+        run_as_non_root(container) {
+          container.securityContext.runAsUser > 0
+        }
+
+        run_as_non_root(container) {
+          input.review.object.spec.securityContext.runAsNonRoot == true
+        }
+
+        run_as_non_root(container) {
+          input.review.object.spec.template.spec.securityContext.runAsNonRoot == true
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.containers[_]
+        }
+
+        is_exempt(container) {
+          exempt_images := object.get(input.parameters, "exemptImages", [])
+          img := container.image
+          some pattern in exempt_images
+          glob.match(pattern, [], img)
+        }
+
+---
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - ALLOWED REGISTRIES
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedregistries
+  annotations:
+    description: "Restricts container images to allowed registries"
+    metadata.gatekeeper.sh/title: "Allowed Registries"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedRegistries
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            registries:
+              type: array
+              description: "List of allowed registry prefixes"
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedregistries
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not image_allowed(container.image)
+          msg := sprintf("Container image %v is from an unauthorized registry. Allowed: %v", [
+            container.image,
+            input.parameters.registries
+          ])
+        }
+
+        image_allowed(image) {
+          some registry in input.parameters.registries
+          startswith(image, registry)
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.template.spec.initContainers[_]
+        }

@@ -1,0 +1,83 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM — CONFIGURATION TEMPLATE
+# =============================================================================
+#
+# Copy this file and fill in your values:
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# Or use an environment-specific file:
+#   terraform plan -var-file=environments/dev.tfvars
+#
+# Sensitive values (github_token, argocd_admin_password, github_app_*) should
+# be set via environment variables:
+#   export TF_VAR_github_token="ghp_xxxx"
+#   export TF_VAR_azure_subscription_id="xxxx-xxxx"
+#
+# =============================================================================
+
+# --- REQUIRED -----------------------------------------------------------------
+
+customer_name         = "contoso"           # Your company/project name (lowercase)
+environment           = "dev"               # dev | staging | prod
+location              = "brazilsouth"       # Azure region
+azure_subscription_id = ""                  # az account show --query id -o tsv
+azure_tenant_id       = ""                  # az account show --query tenantId -o tsv
+admin_group_id        = ""                  # Azure AD group for admins
+github_org            = ""                  # GitHub organization name
+domain_name           = "internal.local"    # Base domain for platform services
+
+# --- DEPLOYMENT MODE ----------------------------------------------------------
+# express   = Minimal (dev/testing, ~$50-100/month)
+# standard  = Production-ready (HA, monitoring, ~$500-1000/month)
+# enterprise = Full HA + multi-zone + DR (~$3000+/month)
+
+deployment_mode = "express"
+
+# --- H1 FOUNDATION (always deployed: networking, aks, security) ---------------
+
+enable_container_registry = true
+enable_databases          = true
+enable_defender            = false
+enable_purview             = false
+
+# --- H2 ENHANCEMENT -----------------------------------------------------------
+
+enable_argocd           = true
+enable_external_secrets  = true
+enable_observability     = true
+enable_github_runners    = false
+enable_cost_management   = false
+
+# --- H3 INNOVATION ------------------------------------------------------------
+
+enable_ai_foundry   = false
+ai_foundry_location = "eastus2"    # Best model availability
+
+# --- CROSS-CUTTING ------------------------------------------------------------
+
+enable_disaster_recovery = false
+dr_location              = "eastus2"
+
+# --- BACKSTAGE COMPONENTS -----------------------------------------------------
+# Toggle which Backstage runtime pieces ship with the platform.
+# Defaults preserve current behavior: AI Chat plugin and its agent-api are on,
+# the other agent runtimes are off, and the MCP ecosystem deployment is off.
+
+enable_ai_chat_plugin   = true   # Backstage UI plugin used by developers
+enable_agent_api        = true   # Required by AI Chat
+enable_agent_api_impact = false  # Agentic DevOps impact analytics
+enable_agent_api_maf    = false  # Microsoft Agent Framework reference runtime
+enable_agent_api_sk     = false  # Semantic Kernel reference runtime
+enable_mcp_ecosystem    = false  # 12 MCP servers as a single AKS deployment
+
+# --- COST ALERTS (when enable_cost_management = true) -------------------------
+
+budget_amount = 5000
+alert_emails  = []
+
+# --- TAGS ---------------------------------------------------------------------
+
+tags = {
+  Project   = "open-horizons"
+  ManagedBy = "terraform"
+}

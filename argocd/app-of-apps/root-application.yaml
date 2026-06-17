@@ -1,0 +1,719 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - ARGOCD APP-OF-APPS
+# =============================================================================
+#
+# This is the root ArgoCD Application that bootstraps the entire platform.
+# It uses the App-of-Apps pattern to deploy all platform components in order.
+#
+# Deployment Order (waves):
+#   Wave 1: Core infrastructure (cert-manager, external-dns)
+#   Wave 2: Ingress (nginx-ingress)
+#   Wave 3: Observability (prometheus, grafana, jaeger)
+#   Wave 4: Platform (Backstage, databases)
+#   Wave 5: Security (policies, gatekeeper)
+#   Wave 6: Team namespaces
+#
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-horizons-root
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: open-horizons
+    app.kubernetes.io/component: root
+    app.kubernetes.io/part-of: open-horizons-platform
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    targetRevision: main
+    path: platform/apps
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+# =============================================================================
+# ARGOCD PROJECT FOR PLATFORM COMPONENTS
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: open-horizons-platform
+spec:
+  description: "Open Horizons Platform Components"
+  
+  # Source repositories
+  sourceRepos:
+    - https://github.com/${GITHUB_ORG}/gitops-config.git
+    - https://github.com/${GITHUB_ORG}/golden-paths.git
+    - https://charts.jetstack.io
+    - https://kubernetes.github.io/ingress-nginx
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana.github.io/helm-charts
+    - https://jaegertracing.github.io/helm-charts
+    - https://charts.bitnami.com/bitnami
+    - registry-1.docker.io
+    
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+      
+  # Cluster resources the project can manage
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: ''
+      kind: PersistentVolume
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+    - group: networking.k8s.io
+      kind: IngressClass
+    - group: storage.k8s.io
+      kind: StorageClass
+    - group: cert-manager.io
+      kind: ClusterIssuer
+    - group: monitoring.coreos.com
+      kind: '*'
+      
+  # Namespace-scoped resources
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+      
+  # Roles for project members
+  roles:
+    - name: platform-admin
+      description: "Full access to platform project"
+      policies:
+        - p, proj:platform:platform-admin, applications, *, platform/*, allow
+        - p, proj:platform:platform-admin, repositories, *, platform/*, allow
+      groups:
+        - platform-admins
+        
+    - name: platform-viewer
+      description: "Read-only access to platform project"
+      policies:
+        - p, proj:platform:platform-viewer, applications, get, platform/*, allow
+      groups:
+        - platform-viewers
+
+---
+# =============================================================================
+# WAVE 1: CERT-MANAGER
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.14.0
+    helm:
+      values: |
+        installCRDs: true
+        
+        global:
+          leaderElection:
+            namespace: cert-manager
+            
+        replicaCount: 2
+        
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
+          
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+            
+        prometheus:
+          enabled: true
+          servicemonitor:
+            enabled: true
+            
+        webhook:
+          replicaCount: 2
+          
+        cainjector:
+          replicaCount: 2
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+---
+# =============================================================================
+# WAVE 1: EXTERNAL-DNS
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: external-dns
+    targetRevision: 6.31.0
+    helm:
+      values: |
+        provider: azure
+        
+        azure:
+          resourceGroup: ${DNS_ZONE_RESOURCE_GROUP}
+          tenantId: ${AZURE_TENANT_ID}
+          subscriptionId: ${AZURE_SUBSCRIPTION_ID}
+          useManagedIdentityExtension: true
+          
+        domainFilters:
+          - ${DNS_ZONE_NAME}
+          
+        policy: sync
+        
+        sources:
+          - service
+          - ingress
+          
+        txtOwnerId: open-horizons-${CUSTOMER_NAME}
+        
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+            
+        serviceAccount:
+          annotations:
+            azure.workload.identity/client-id: ${EXTERNAL_DNS_CLIENT_ID}
+            
+        podLabels:
+          azure.workload.identity/use: "true"
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+# =============================================================================
+# WAVE 2: INGRESS-NGINX
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    chart: ingress-nginx
+    targetRevision: 4.9.0
+    helm:
+      values: |
+        controller:
+          replicaCount: 2
+          
+          service:
+            annotations:
+              service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+              
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              
+          autoscaling:
+            enabled: true
+            minReplicas: 2
+            maxReplicas: 10
+            targetCPUUtilizationPercentage: 80
+            
+          podDisruptionBudget:
+            enabled: true
+            minAvailable: 1
+            
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+              
+          admissionWebhooks:
+            enabled: true
+            
+          config:
+            use-forwarded-headers: "true"
+            compute-full-forwarded-for: "true"
+            use-proxy-protocol: "false"
+            
+        defaultBackend:
+          enabled: true
+          replicaCount: 2
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+# =============================================================================
+# WAVE 3: PROMETHEUS STACK
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 56.0.0
+    helm:
+      skipCrds: false
+      values: |
+        fullnameOverride: prometheus
+        
+        prometheus:
+          prometheusSpec:
+            retention: 30d
+            retentionSize: 45GB
+            
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: managed-premium
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 50Gi
+                      
+            resources:
+              requests:
+                cpu: 500m
+                memory: 2Gi
+              limits:
+                cpu: 2
+                memory: 4Gi
+                
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - prometheus.${DNS_ZONE_NAME}
+            tls:
+              - secretName: prometheus-tls
+                hosts:
+                  - prometheus.${DNS_ZONE_NAME}
+                  
+        alertmanager:
+          alertmanagerSpec:
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: managed-premium
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 10Gi
+                      
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - alertmanager.${DNS_ZONE_NAME}
+            tls:
+              - secretName: alertmanager-tls
+                hosts:
+                  - alertmanager.${DNS_ZONE_NAME}
+                  
+        grafana:
+          enabled: true
+          adminPassword: ${GRAFANA_ADMIN_PASSWORD}
+          
+          persistence:
+            enabled: true
+            storageClassName: managed-premium
+            size: 10Gi
+            
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - grafana.${DNS_ZONE_NAME}
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.${DNS_ZONE_NAME}
+                  
+          sidecar:
+            dashboards:
+              enabled: true
+              searchNamespace: ALL
+            datasources:
+              enabled: true
+              
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: 'default'
+                  orgId: 1
+                  folder: ''
+                  type: file
+                  disableDeletion: false
+                  editable: true
+                  options:
+                    path: /var/lib/grafana/dashboards/default
+                    
+          additionalDataSources:
+            - name: Jaeger
+              type: jaeger
+              url: http://jaeger-query.observability:16686
+              access: proxy
+              
+        kubeStateMetrics:
+          enabled: true
+          
+        nodeExporter:
+          enabled: true
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+---
+# =============================================================================
+# WAVE 3: JAEGER
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jaeger
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://jaegertracing.github.io/helm-charts
+    chart: jaeger
+    targetRevision: 2.0.0
+    helm:
+      values: |
+        provisionDataStore:
+          cassandra: false
+          elasticsearch: true
+          
+        storage:
+          type: elasticsearch
+          elasticsearch:
+            host: elasticsearch-master
+            port: 9200
+            
+        collector:
+          replicaCount: 2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              
+        query:
+          replicaCount: 2
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts:
+              - jaeger.${DNS_ZONE_NAME}
+            tls:
+              - secretName: jaeger-tls
+                hosts:
+                  - jaeger.${DNS_ZONE_NAME}
+                  
+        agent:
+          daemonset:
+            useHostPort: true
+            
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+# =============================================================================
+# WAVE 4: BACKSTAGE (Developer Portal)
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backstage
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    targetRevision: main
+    path: platform/backstage
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backstage
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+---
+# =============================================================================
+# APPLICATION SET: TEAM NAMESPACES
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: team-namespaces
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        revision: main
+        files:
+          - path: "teams/*/team.yaml"
+          
+  template:
+    metadata:
+      name: 'team-{{team.name}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/managed-by: argocd
+        open-horizons/team: '{{team.name}}'
+    spec:
+      project: platform
+      
+      source:
+        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        targetRevision: main
+        path: 'teams/{{team.name}}/namespaces'
+        
+      destination:
+        server: https://kubernetes.default.svc
+        
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+
+---
+# =============================================================================
+# APPLICATION SET: GOLDEN PATH APPLICATIONS
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: golden-path-apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        revision: main
+        directories:
+          - path: "teams/*/apps/*"
+          
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/managed-by: argocd
+        open-horizons/golden-path: 'true'
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: '{{path}}'
+    spec:
+      project: '{{path[1]}}'  # Team name from path
+      
+      source:
+        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        targetRevision: main
+        path: '{{path}}'
+        
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+        
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+
+---
+# =============================================================================
+# CLUSTER ISSUER FOR LETS ENCRYPT
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-issuers
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    targetRevision: main
+    path: platform/cert-manager/cluster-issuers
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 260" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="740" height="260" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="740" height="36" rx="12" fill="#e67e22"/>
+  <rect x="0" y="18" width="740" height="18" fill="#e67e22"/>
+  <text x="370" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">SERVICE COMMUNICATION — Troubleshooting</text>
+  <rect x="15" y="46" width="710" height="60" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="25" y="66" font-size="11" font-weight="700" fill="#c0392b">"no such host"</text>
+  <text x="25" y="84" font-size="9" fill="#555">Cause: DNS resolution failure</text>
+  <text x="25" y="98" font-size="9" fill="#7f8c8d">Check: 1. Service exists? 2. Correct namespace? 3. CoreDNS running?</text>
+  <rect x="15" y="116" width="710" height="60" rx="6" fill="#fef9e7" stroke="#f39c12" filter="url(#ds)"/>
+  <text x="25" y="136" font-size="11" font-weight="700" fill="#e67e22">"connection refused"</text>
+  <text x="25" y="154" font-size="9" fill="#555">Cause: Service exists but pod not listening</text>
+  <text x="25" y="168" font-size="9" fill="#7f8c8d">Check: 1. Pod running? 2. Correct port? 3. Endpoints exist?</text>
+  <rect x="15" y="186" width="710" height="60" rx="6" fill="#eaf2f8" stroke="#3498db" filter="url(#ds)"/>
+  <text x="25" y="206" font-size="11" font-weight="700" fill="#2980b9">"connection timed out"</text>
+  <text x="25" y="224" font-size="9" fill="#555">Cause: Network policy or NSG blocking traffic</text>
+  <text x="25" y="238" font-size="9" fill="#7f8c8d">Check: 1. Network policies? 2. NSG rules? 3. Firewall rules?</text>
+</svg>

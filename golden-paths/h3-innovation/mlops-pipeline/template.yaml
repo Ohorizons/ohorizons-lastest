@@ -1,0 +1,295 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: mlops-pipeline
+  title: MLOps Pipeline
+  description: |
+    Creates a production-grade MLOps pipeline with:
+    - Model training and versioning
+    - Feature store integration
+    - Automated model deployment
+    - A/B testing and canary releases
+    - Model monitoring and drift detection
+    - Integration with Azure ML and AI Foundry
+  tags:
+    - mlops
+    - ai
+    - machine-learning
+    - azure
+    - h3-innovation
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Pipeline Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Pipeline Name
+          type: string
+          description: Name for your MLOps pipeline
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+        owner:
+          title: Owner Team
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+          description: Brief description of the ML use case
+          
+    - title: Model Configuration
+      required:
+        - model_framework
+        - model_type
+      properties:
+        model_framework:
+          title: ML Framework
+          type: string
+          enum:
+            - pytorch
+            - tensorflow
+            - sklearn
+            - xgboost
+            - huggingface
+            - custom
+          default: pytorch
+        model_type:
+          title: Model Type
+          type: string
+          enum:
+            - classification
+            - regression
+            - nlp
+            - computer_vision
+            - recommendation
+            - time_series
+            - llm_finetuning
+        base_model:
+          title: Base Model (for fine-tuning)
+          type: string
+          description: HuggingFace model ID or Azure model name
+          
+    - title: Data Configuration
+      properties:
+        feature_store:
+          title: Feature Store
+          type: string
+          enum:
+            - azure_ml_feature_store
+            - feast
+            - none
+          default: azure_ml_feature_store
+        data_source:
+          title: Training Data Source
+          type: string
+          enum:
+            - azure_blob
+            - azure_sql
+            - databricks
+            - snowflake
+        enable_data_versioning:
+          title: Enable Data Versioning
+          type: boolean
+          default: true
+        enable_data_drift_detection:
+          title: Enable Data Drift Detection
+          type: boolean
+          default: true
+          
+    - title: Training Configuration
+      properties:
+        compute_type:
+          title: Training Compute
+          type: string
+          enum:
+            - cpu
+            - gpu_single
+            - gpu_cluster
+            - serverless
+          default: gpu_single
+        gpu_sku:
+          title: GPU SKU (if applicable)
+          type: string
+          enum:
+            - Standard_NC6s_v3
+            - Standard_NC12s_v3
+            - Standard_NC24s_v3
+            - Standard_ND40rs_v2
+          default: Standard_NC6s_v3
+        enable_hyperparameter_tuning:
+          title: Enable Hyperparameter Tuning
+          type: boolean
+          default: true
+        enable_distributed_training:
+          title: Enable Distributed Training
+          type: boolean
+          default: false
+          
+    - title: Deployment Configuration
+      properties:
+        deployment_target:
+          title: Deployment Target
+          type: string
+          enum:
+            - azure_ml_endpoint
+            - azure_kubernetes
+            - azure_container_apps
+            - azure_functions
+          default: azure_ml_endpoint
+        enable_ab_testing:
+          title: Enable A/B Testing
+          type: boolean
+          default: true
+        enable_canary_deployment:
+          title: Enable Canary Deployment
+          type: boolean
+          default: true
+        auto_scaling:
+          title: Auto-scaling Configuration
+          type: object
+          properties:
+            min_instances:
+              type: integer
+              default: 1
+            max_instances:
+              type: integer
+              default: 10
+            target_utilization:
+              type: integer
+              default: 70
+              
+    - title: Monitoring
+      properties:
+        enable_model_monitoring:
+          title: Enable Model Monitoring
+          type: boolean
+          default: true
+        enable_drift_detection:
+          title: Enable Model Drift Detection
+          type: boolean
+          default: true
+        alert_threshold:
+          title: Alert Threshold (accuracy drop %)
+          type: number
+          default: 5
+          
+    - title: Infrastructure
+      required:
+        - environment
+      properties:
+        environment:
+          title: Environment
+          type: string
+          enum:
+            - dev
+            - staging
+            - prod
+        azure_region:
+          title: Azure Region
+          type: string
+          enum:
+            - brazilsouth
+            - eastus
+            - westeurope
+          default: brazilsouth
+          
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          lifecycle: production
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+          system: default
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          model_framework: ${{ parameters.model_framework }}
+          model_type: ${{ parameters.model_type }}
+          base_model: ${{ parameters.base_model }}
+          feature_store: ${{ parameters.feature_store }}
+          data_source: ${{ parameters.data_source }}
+          enable_data_versioning: ${{ parameters.enable_data_versioning }}
+          enable_data_drift_detection: ${{ parameters.enable_data_drift_detection }}
+          compute_type: ${{ parameters.compute_type }}
+          gpu_sku: ${{ parameters.gpu_sku }}
+          enable_hyperparameter_tuning: ${{ parameters.enable_hyperparameter_tuning }}
+          enable_distributed_training: ${{ parameters.enable_distributed_training }}
+          deployment_target: ${{ parameters.deployment_target }}
+          enable_ab_testing: ${{ parameters.enable_ab_testing }}
+          enable_canary_deployment: ${{ parameters.enable_canary_deployment }}
+          enable_model_monitoring: ${{ parameters.enable_model_monitoring }}
+          enable_drift_detection: ${{ parameters.enable_drift_detection }}
+          alert_threshold: ${{ parameters.alert_threshold }}
+          environment: ${{ parameters.environment }}
+          azure_region: ${{ parameters.azure_region }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "mlops-pipeline"
+    - id: publish-github
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        description: MLOps Pipeline - ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: private
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}

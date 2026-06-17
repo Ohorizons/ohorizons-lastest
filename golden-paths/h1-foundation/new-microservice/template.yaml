@@ -1,0 +1,190 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 NEW MICROSERVICE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating new microservices.
+# Supports Node.js (Express) with CI/CD and Kubernetes deployment.
+#
+# Horizon: H1 - Foundation
+# Use Case: Scaffold production-ready microservices with best practices
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-new-microservice
+  title: "H1: Create New Microservice"
+  description: |
+    Create a production-ready Node.js microservice with CI/CD pipeline,
+    Docker container, Kubernetes deployment manifests, and
+    GitHub Codespaces support.
+  tags:
+    - h1-foundation
+    - microservice
+    - nodejs
+    - express
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: Node.js Best Practices
+      url: https://github.com/goldbergyoni/nodebestpractices
+    - title: Open Horizons Guide
+      url: https://github.com/Ohorizons/agentic-devops-platform
+
+spec:
+  owner: platform-engineering
+  type: service
+
+  parameters:
+    - title: Service Information
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Service Name
+          description: Unique name for the microservice (lowercase, hyphens allowed)
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 50
+          ui:autofocus: true
+
+        description:
+          title: Description
+          description: A brief description of the microservice
+          type: string
+          maxLength: 300
+
+        owner:
+          title: Owner
+          description: Team that owns this service
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        system:
+          title: System
+          description: Parent system this service belongs to
+          type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+
+        lifecycle:
+          title: Lifecycle
+          description: Development stage of the service
+          type: string
+          default: experimental
+          enum:
+            - experimental
+            - production
+            - deprecated
+          enumNames:
+            - Experimental
+            - Production
+            - Deprecated
+
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        language:
+          title: Language
+          type: string
+          default: nodejs
+          enum:
+            - nodejs
+          enumNames:
+            - Node.js (Express)
+
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Microservice Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+          lifecycle: ${{ parameters.lifecycle }}
+          language: ${{ parameters.language }}
+          repoUrl: ${{ parameters.repoUrl }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h1-new-microservice"
+    - id: publish
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        protectDefaultBranch: true
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

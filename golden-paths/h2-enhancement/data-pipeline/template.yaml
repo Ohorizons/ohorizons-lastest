@@ -1,0 +1,622 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 DATA PIPELINE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating data pipelines.
+# Supports batch ETL, streaming, and real-time analytics.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Build data ingestion, transformation, and analytics pipelines
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-data-pipeline
+  title: "H2: Create Data Pipeline"
+  description: |
+    Create a data pipeline for batch processing, streaming, or real-time
+    analytics. Supports Azure Data Factory, Databricks, Synapse, and
+    custom Spark/Flink deployments on AKS.
+  tags:
+    - h2-enhancement
+    - data-pipeline
+    - etl
+    - streaming
+    - analytics
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: Azure Data Factory
+      url: https://docs.microsoft.com/azure/data-factory/
+    - title: Databricks
+      url: https://docs.databricks.com/
+
+spec:
+  owner: platform-engineering
+  type: data-pipeline
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Pipeline Information
+    # -------------------------------------------------------------------------
+    - title: Pipeline Information
+      required:
+        - pipelineName
+        - team
+        - pipelineType
+      properties:
+        pipelineName:
+          title: Pipeline Name
+          description: Name of the data pipeline
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-pipeline$'
+          maxLength: 50
+
+        team:
+          title: Team
+          description: Team that owns this pipeline
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          description: What does this pipeline do?
+          type: string
+          maxLength: 500
+
+        pipelineType:
+          title: Pipeline Type
+          type: string
+          enum:
+            - batch-etl
+            - streaming
+            - real-time-analytics
+            - change-data-capture
+            - data-lakehouse
+            - ml-feature-pipeline
+          enumNames:
+            - Batch ETL (Scheduled)
+            - Streaming (Continuous)
+            - Real-Time Analytics
+            - Change Data Capture (CDC)
+            - Data Lakehouse (Delta Lake)
+            - ML Feature Pipeline
+
+    # -------------------------------------------------------------------------
+    # Processing Framework
+    # -------------------------------------------------------------------------
+    - title: Processing Framework
+      required:
+        - framework
+      properties:
+        framework:
+          title: Processing Framework
+          type: string
+          default: databricks
+          enum:
+            - databricks
+            - synapse-spark
+            - data-factory
+            - spark-on-aks
+            - flink-on-aks
+            - fabric
+          enumNames:
+            - Azure Databricks
+            - Synapse Analytics (Spark)
+            - Azure Data Factory
+            - Apache Spark on AKS
+            - Apache Flink on AKS
+            - Microsoft Fabric
+
+        language:
+          title: Primary Language
+          type: string
+          default: python
+          enum:
+            - python
+            - scala
+            - sql
+          enumNames:
+            - Python (PySpark)
+            - Scala
+            - SQL
+
+        orchestrator:
+          title: Orchestration Tool
+          type: string
+          default: databricks-workflows
+          enum:
+            - databricks-workflows
+            - data-factory
+            - airflow
+            - prefect
+            - dagster
+            - github-actions
+          enumNames:
+            - Databricks Workflows
+            - Azure Data Factory
+            - Apache Airflow
+            - Prefect
+            - Dagster
+            - GitHub Actions
+
+    # -------------------------------------------------------------------------
+    # Data Sources
+    # -------------------------------------------------------------------------
+    - title: Data Sources
+      properties:
+        sources:
+          title: Data Sources
+          description: Configure input data sources
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: object
+            required:
+              - name
+              - type
+            properties:
+              name:
+                title: Source Name
+                type: string
+              type:
+                title: Source Type
+                type: string
+                enum:
+                  - adls-gen2
+                  - blob-storage
+                  - sql-database
+                  - cosmos-db
+                  - event-hubs
+                  - kafka
+                  - api
+                  - file-upload
+              format:
+                title: Data Format
+                type: string
+                enum:
+                  - parquet
+                  - delta
+                  - json
+                  - csv
+                  - avro
+                default: parquet
+          default:
+            - name: raw-data
+              type: adls-gen2
+              format: parquet
+
+        enableSchemaEvolution:
+          title: Enable Schema Evolution
+          type: boolean
+          default: true
+
+        enableDataValidation:
+          title: Enable Data Validation
+          type: boolean
+          default: true
+
+        validationTool:
+          title: Validation Tool
+          type: string
+          default: great-expectations
+          enum:
+            - great-expectations
+            - deequ
+            - pandera
+            - custom
+
+    # -------------------------------------------------------------------------
+    # Data Destinations
+    # -------------------------------------------------------------------------
+    - title: Data Destinations
+      properties:
+        destinations:
+          title: Data Destinations
+          description: Configure output destinations
+          type: array
+          minItems: 1
+          maxItems: 5
+          items:
+            type: object
+            required:
+              - name
+              - type
+            properties:
+              name:
+                title: Destination Name
+                type: string
+              type:
+                title: Destination Type
+                type: string
+                enum:
+                  - delta-lake
+                  - synapse-sql
+                  - cosmos-db
+                  - sql-database
+                  - power-bi
+                  - event-hubs
+                  - api
+              tier:
+                title: Storage Tier
+                type: string
+                enum:
+                  - bronze
+                  - silver
+                  - gold
+                default: silver
+          default:
+            - name: processed-data
+              type: delta-lake
+              tier: silver
+
+        enablePartitioning:
+          title: Enable Partitioning
+          type: boolean
+          default: true
+
+        partitionKeys:
+          title: Partition Keys
+          type: array
+          items:
+            type: string
+          default:
+            - year
+            - month
+            - day
+
+    # -------------------------------------------------------------------------
+    # Schedule & Triggers
+    # -------------------------------------------------------------------------
+    - title: Schedule & Triggers
+      properties:
+        triggerType:
+          title: Trigger Type
+          type: string
+          default: scheduled
+          enum:
+            - scheduled
+            - event-driven
+            - continuous
+            - manual
+          enumNames:
+            - Scheduled (Cron)
+            - Event-Driven (New Files)
+            - Continuous (Streaming)
+            - Manual Only
+
+        schedule:
+          title: Schedule (Cron)
+          description: Cron expression for scheduled runs
+          type: string
+          default: "0 2 * * *"
+
+        enableBackfill:
+          title: Enable Backfill Support
+          type: boolean
+          default: true
+
+        maxConcurrentRuns:
+          title: Max Concurrent Runs
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 10
+
+        retryPolicy:
+          title: Retry Policy
+          type: object
+          properties:
+            maxRetries:
+              title: Max Retries
+              type: integer
+              default: 3
+            retryDelay:
+              title: Retry Delay (seconds)
+              type: integer
+              default: 60
+
+    # -------------------------------------------------------------------------
+    # Data Quality & Governance
+    # -------------------------------------------------------------------------
+    - title: Data Quality & Governance
+      properties:
+        enableDataLineage:
+          title: Enable Data Lineage
+          description: Track data provenance with Purview
+          type: boolean
+          default: true
+
+        enableDataCatalog:
+          title: Register in Data Catalog
+          type: boolean
+          default: true
+
+        catalogService:
+          title: Catalog Service
+          type: string
+          default: purview
+          enum:
+            - purview
+            - unity-catalog
+            - custom
+
+        dataClassification:
+          title: Data Classification
+          type: string
+          default: internal
+          enum:
+            - public
+            - internal
+            - confidential
+            - restricted
+
+        enablePII:
+          title: Contains PII Data
+          type: boolean
+          default: false
+
+        enableEncryption:
+          title: Enable Encryption at Rest
+          type: boolean
+          default: true
+
+        retentionDays:
+          title: Data Retention (days)
+          type: integer
+          default: 365
+          minimum: 30
+          maximum: 3650
+
+    # -------------------------------------------------------------------------
+    # Monitoring & Alerting
+    # -------------------------------------------------------------------------
+    - title: Monitoring & Alerting
+      properties:
+        enableMonitoring:
+          title: Enable Monitoring
+          type: boolean
+          default: true
+
+        metrics:
+          title: Metrics to Track
+          type: array
+          items:
+            type: string
+            enum:
+              - records-processed
+              - processing-time
+              - data-freshness
+              - data-quality-score
+              - error-rate
+              - resource-utilization
+          default:
+            - records-processed
+            - processing-time
+            - error-rate
+
+        alertChannels:
+          title: Alert Channels
+          type: array
+          items:
+            type: string
+            enum:
+              - email
+              - teams
+              - slack
+              - pagerduty
+          default:
+            - teams
+
+        slaMinutes:
+          title: SLA (minutes)
+          description: Max acceptable latency for data freshness
+          type: integer
+          default: 60
+          minimum: 5
+          maximum: 1440
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Fetch Base Template
+    # -------------------------------------------------------------------------
+    - id: fetch-template
+      name: Fetch Data Pipeline Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.pipelineName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          pipelineName: ${{ parameters.pipelineName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          pipelineType: ${{ parameters.pipelineType }}
+          framework: ${{ parameters.framework }}
+          language: ${{ parameters.language }}
+          orchestrator: ${{ parameters.orchestrator }}
+          sources: ${{ parameters.sources }}
+          destinations: ${{ parameters.destinations }}
+          triggerType: ${{ parameters.triggerType }}
+          schedule: ${{ parameters.schedule }}
+
+    # -------------------------------------------------------------------------
+    # Generate Pipeline Code
+    # -------------------------------------------------------------------------
+    - id: generate-pipeline
+      name: Generate Pipeline Code
+      action: fetch:template
+      input:
+        url: ./skeleton/pipeline
+        targetPath: ./repo/src
+        values:
+          framework: ${{ parameters.framework }}
+          language: ${{ parameters.language }}
+          pipelineType: ${{ parameters.pipelineType }}
+          sources: ${{ parameters.sources }}
+          destinations: ${{ parameters.destinations }}
+
+    # -------------------------------------------------------------------------
+    # Generate Data Quality
+    # -------------------------------------------------------------------------
+    - id: generate-quality
+      name: Generate Data Quality Checks
+      action: fetch:template
+      input:
+        url: ./skeleton/quality
+        targetPath: ./repo/quality
+        values:
+          validationTool: ${{ parameters.validationTool }}
+          enableSchemaEvolution: ${{ parameters.enableSchemaEvolution }}
+
+    # -------------------------------------------------------------------------
+    # Generate CI/CD
+    # -------------------------------------------------------------------------
+    - id: generate-cicd
+      name: Generate CI/CD Workflows
+      action: fetch:template
+      input:
+        url: ./skeleton/cicd
+        targetPath: ./repo/.github/workflows
+        values:
+          framework: ${{ parameters.framework }}
+          orchestrator: ${{ parameters.orchestrator }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+    # -------------------------------------------------------------------------
+    # Create Repository
+    # -------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.pipelineName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-data-pipeline"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Data Pipeline: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: true
+
+    # -------------------------------------------------------------------------
+    # Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Data Pipeline Created
+        content: |
+          ## 📊 Data Pipeline Created!
+          
+          **Pipeline:** ${{ parameters.pipelineName }}
+          **Type:** ${{ parameters.pipelineType }}
+          **Framework:** ${{ parameters.framework }}
+          
+          **Configuration:**
+          - Language: ${{ parameters.language }}
+          - Orchestrator: ${{ parameters.orchestrator }}
+          - Trigger: ${{ parameters.triggerType }}
+          - Schedule: ${{ parameters.schedule }}
+          
+          **Data Flow:**
+          - Sources: ${{ parameters.sources | length }}
+          - Destinations: ${{ parameters.destinations | length }}
+          
+          **Governance:**
+          - ${{ parameters.enableDataLineage ? '✅' : '⏭️' }} Data Lineage (Purview)
+          - ${{ parameters.enableDataCatalog ? '✅' : '⏭️' }} Data Catalog
+          - Classification: ${{ parameters.dataClassification }}
+          
+          **Next Steps:**
+          1. Configure data source connections
+          2. Define transformation logic
+          3. Set up data quality expectations
+          4. Test pipeline locally
+          5. Deploy to development environment
+

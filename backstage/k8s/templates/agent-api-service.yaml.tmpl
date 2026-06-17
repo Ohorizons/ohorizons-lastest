@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: __PLATFORM_NAME__-agent-api
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-api
+    app.kubernetes.io/part-of: __PLATFORM_NAME__
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8008
+      targetPort: 8008
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: agent-api

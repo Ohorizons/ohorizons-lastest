@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
+  <title id="title">Backstage Architecture</title>
+  <desc id="desc">Backstage portal connected to catalog, TechDocs, scaffolder, GitHub, Kubernetes, ArgoCD, and observability.</desc>
+  <rect width="960" height="520" fill="#ffffff"/>
+  <rect x="70" y="70" width="820" height="380" rx="8" fill="#f7fbff" stroke="#0078d4" stroke-width="2"/>
+  <text x="480" y="115" text-anchor="middle" font-family="Segoe UI, Arial" font-size="28" font-weight="700" fill="#1b1b1f">Backstage OSS on AKS</text>
+  <rect x="360" y="175" width="240" height="90" rx="8" fill="#0078d4"/>
+  <text x="480" y="212" text-anchor="middle" font-family="Segoe UI, Arial" font-size="22" font-weight="700" fill="#ffffff">Developer Portal</text>
+  <text x="480" y="242" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" fill="#ffffff">Catalog, plugins, auth</text>
+  <g font-family="Segoe UI, Arial" font-size="16" font-weight="600" text-anchor="middle">
+    <rect x="120" y="165" width="170" height="72" rx="8" fill="#e8f5e9" stroke="#7fba00"/>
+    <text x="205" y="207" fill="#1b1b1f">Software Catalog</text>
+    <rect x="120" y="285" width="170" height="72" rx="8" fill="#fff8e1" stroke="#ffb900"/>
+    <text x="205" y="327" fill="#1b1b1f">TechDocs</text>
+    <rect x="670" y="165" width="170" height="72" rx="8" fill="#ffebe5" stroke="#f25022"/>
+    <text x="755" y="207" fill="#1b1b1f">Scaffolder</text>
+    <rect x="670" y="285" width="170" height="72" rx="8" fill="#e5f4ff" stroke="#00a4ef"/>
+    <text x="755" y="327" fill="#1b1b1f">Platform Plugins</text>
+  </g>
+  <g stroke="#425466" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M290 200 L360 210"/>
+    <path d="M290 320 L360 245"/>
+    <path d="M600 210 L670 200"/>
+    <path d="M600 245 L670 320"/>
+  </g>
+  <text x="480" y="405" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" fill="#425466">Integrates with GitHub, Kubernetes, ArgoCD, Prometheus, Grafana, and Azure identity.</text>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#425466"/></marker></defs>
+</svg>

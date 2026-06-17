@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter></defs>
+  <rect width="500" height="200" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="250" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">AI Foundry Agent</text>
+  <rect x="40" y="48" width="420" height="110" rx="10" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="250" y="72" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">AI Foundry Agent</text>
+  <rect x="60" y="84" width="110" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="115" y="104" text-anchor="middle" font-size="10" fill="#fff">Tools</text>
+  <rect x="185" y="84" width="110" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="240" y="104" text-anchor="middle" font-size="10" fill="#fff">RAG</text>
+  <rect x="310" y="84" width="110" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="365" y="104" text-anchor="middle" font-size="10" fill="#fff">Memory</text>
+  <rect x="60" y="122" width="360" height="25" rx="5" fill="rgba(0,0,0,0.15)"/>
+  <text x="240" y="140" text-anchor="middle" font-size="10" fill="#fff">Azure OpenAI (GPT-4)</text>
+  <text x="250" y="185" text-anchor="middle" font-size="10" fill="#7f8c8d">Tools + RAG + Memory → Azure OpenAI</text>
+</svg>

@@ -1,0 +1,68 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ${{values.name}}
+  tags:
+    - rag
+    - ai
+    - openai
+    - h3-innovation
+  links:
+    - url: https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+      title: GitHub Repository
+      icon: github
+spec:
+  type: service
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}
+  dependsOn:
+    - resource:azure-openai
+    - resource:azure-ai-search
+    - resource:azure-blob-storage
+  providesApis:
+    - ${{values.name}}-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{values.name}}-api
+  description: RAG API for ${{values.name}}
+spec:
+  type: openapi
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: ${{values.name}} RAG API
+      version: 1.0.0
+    paths:
+      /chat:
+        post:
+          summary: Chat with RAG system
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    query:
+                      type: string
+                    conversation_id:
+                      type: string
+          responses:
+            '200':
+              description: Chat response
+      /documents:
+        post:
+          summary: Upload documents for indexing
+          responses:
+            '202':
+              description: Documents accepted for processing

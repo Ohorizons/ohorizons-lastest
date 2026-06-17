@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 380" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="adg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="rbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="740" height="380" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="370" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Access Control Hierarchy</text>
+
+  <!-- Azure AD Groups -->
+  <rect x="50" y="50" width="640" height="120" rx="10" fill="url(#adg)" filter="url(#ds)"/>
+  <text x="70" y="78" font-size="14" font-weight="700" fill="#fff">AZURE AD GROUPS</text>
+
+  <rect x="70" y="92" width="180" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="160" y="113" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Platform-Admins</text>
+  <text x="160" y="133" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Full access (Owner role)</text>
+
+  <rect x="270" y="92" width="190" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="365" y="113" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Platform-Operators</text>
+  <text x="365" y="133" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Ops access (Contributor)</text>
+
+  <rect x="480" y="92" width="180" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="570" y="113" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Platform-Viewers</text>
+  <text x="570" y="133" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Read-only (Reader role)</text>
+
+  <!-- Arrow -->
+  <line x1="370" y1="172" x2="370" y2="210" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Kubernetes RBAC -->
+  <rect x="50" y="218" width="640" height="120" rx="10" fill="url(#rbg)" filter="url(#ds)"/>
+  <text x="70" y="246" font-size="14" font-weight="700" fill="#fff">KUBERNETES RBAC</text>
+
+  <rect x="70" y="260" width="180" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="160" y="281" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">cluster-admin</text>
+  <text x="160" y="301" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">All K8s · All namespaces</text>
+
+  <rect x="270" y="260" width="190" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="365" y="281" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">edit</text>
+  <text x="365" y="301" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Create/update · Limited NS</text>
+
+  <rect x="480" y="260" width="180" height="60" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="570" y="281" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">view</text>
+  <text x="570" y="301" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Read-only · All namespaces</text>
+
+  <!-- Legend -->
+  <rect x="50" y="355" width="14" height="10" rx="2" fill="#3498db"/>
+  <text x="70" y="364" font-size="9" fill="#555">Azure AD (Identity)</text>
+  <rect x="210" y="355" width="14" height="10" rx="2" fill="#27ae60"/>
+  <text x="230" y="364" font-size="9" fill="#555">Kubernetes RBAC (Authorization)</text>
+</svg>

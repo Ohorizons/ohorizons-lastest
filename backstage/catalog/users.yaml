@@ -1,0 +1,93 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: ohorizons-team
+  description: Open Horizons Platform Team
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: paulanunes85
+  annotations:
+    github.com/user-login: paulanunes85
+spec:
+  profile:
+    displayName: Open Horizons
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: andrefontourainvillia
+  annotations:
+    github.com/user-login: andrefontourainvillia
+spec:
+  profile:
+    displayName: Andre Fontoura
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: cody-carlson
+  annotations:
+    github.com/user-login: cody-carlson
+spec:
+  profile:
+    displayName: Cody Carlson
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: jdvcDev
+  annotations:
+    github.com/user-login: jdvcDev
+spec:
+  profile:
+    displayName: JDVC Dev
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: kfolkes
+  annotations:
+    github.com/user-login: kfolkes
+spec:
+  profile:
+    displayName: K Folkes
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: queuedecay
+  annotations:
+    github.com/user-login: queuedecay
+spec:
+  profile:
+    displayName: Queue Decay
+  memberOf:
+    - ohorizons-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: tcardosoMSFT
+  annotations:
+    github.com/user-login: tcardosoMSFT
+spec:
+  profile:
+    displayName: T Cardoso
+  memberOf:
+    - ohorizons-team

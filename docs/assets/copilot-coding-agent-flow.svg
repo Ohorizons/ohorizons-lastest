@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 200" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker>
+  </defs>
+  <rect width="740" height="200" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="370" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Coding Agent Workflow</text>
+  <!-- 3 boxes -->
+  <rect x="40" y="50" width="190" height="55" rx="10" fill="#3498db" filter="url(#ds)"/>
+  <text x="135" y="78" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Task Assigned</text>
+  <text x="135" y="95" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">via Issue / UI</text>
+  <line x1="232" y1="77" x2="268" y2="77" stroke="#7f8c8d" stroke-width="2.5" marker-end="url(#arr)"/>
+  <rect x="270" y="50" width="190" height="55" rx="10" fill="#e67e22" filter="url(#ds)"/>
+  <text x="365" y="78" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Agent Works</text>
+  <text x="365" y="95" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Autonomously</text>
+  <line x1="462" y1="77" x2="498" y2="77" stroke="#7f8c8d" stroke-width="2.5" marker-end="url(#arr)"/>
+  <rect x="500" y="50" width="190" height="55" rx="10" fill="#27ae60" filter="url(#ds)"/>
+  <text x="595" y="78" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">PR Created</text>
+  <text x="595" y="95" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">for Review</text>
+  <!-- Details below -->
+  <text x="135" y="135" text-anchor="middle" font-size="9" fill="#555">@github tag</text>
+  <text x="135" y="150" text-anchor="middle" font-size="9" fill="#555">Agents panel</text>
+  <text x="135" y="165" text-anchor="middle" font-size="9" fill="#555">VS Code ext</text>
+  <text x="365" y="135" text-anchor="middle" font-size="9" fill="#555">Explores repo</text>
+  <text x="365" y="150" text-anchor="middle" font-size="9" fill="#555">Makes changes</text>
+  <text x="365" y="165" text-anchor="middle" font-size="9" fill="#555">Runs tests</text>
+  <text x="595" y="135" text-anchor="middle" font-size="9" fill="#555">Draft PR [WIP]</text>
+  <text x="595" y="150" text-anchor="middle" font-size="9" fill="#555">Runs CI/CD</text>
+  <text x="595" y="165" text-anchor="middle" font-size="9" fill="#555">Updates title</text>
+</svg>

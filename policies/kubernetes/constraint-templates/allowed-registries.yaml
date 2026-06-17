@@ -1,0 +1,62 @@
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - ALLOWED REGISTRIES
+# =============================================================================
+#
+# Restricts container images to approved registries only.
+# Prevents supply chain attacks from unauthorized image sources.
+#
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedregistries
+  annotations:
+    description: "Restricts container images to approved registries"
+    metadata.gatekeeper.sh/title: "Allowed Registries"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedRegistries
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            registries:
+              type: array
+              description: "List of approved registry prefixes"
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedregistries
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not any_registry_match(container.image)
+          msg := sprintf("Container %v uses image %v from an unapproved registry. Approved registries: %v", [
+            container.name,
+            container.image,
+            input.parameters.registries
+          ])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.initContainers[_]
+          not any_registry_match(container.image)
+          msg := sprintf("Init container %v uses image %v from an unapproved registry. Approved registries: %v", [
+            container.name,
+            container.image,
+            input.parameters.registries
+          ])
+        }
+
+        any_registry_match(image) {
+          registry := input.parameters.registries[_]
+          startswith(image, registry)
+        }

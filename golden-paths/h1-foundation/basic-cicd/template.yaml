@@ -1,0 +1,492 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 BASIC CI/CD GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for adding CI/CD pipelines to existing repositories.
+# Adds GitHub Actions workflows for build, test, security scanning, and deploy.
+#
+# Horizon: H1 - Foundation
+# Use Case: Standardize CI/CD across existing repositories
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-basic-cicd
+  title: "H1: Add CI/CD Pipeline to Existing Repository"
+  description: |
+    Add standardized CI/CD pipelines to an existing repository.
+    Includes build, test, security scanning (GHAS), and deployment workflows.
+  tags:
+    - h1-foundation
+    - cicd
+    - github-actions
+    - security
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: GitHub Actions Documentation
+      url: https://docs.github.com/en/actions
+    - title: Open Horizons Guide
+      url: https://github.com/{{orgName}}/platform-docs/blob/main/open-horizons.md
+
+spec:
+  owner: platform-engineering
+  type: cicd-pipeline
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Repository Selection
+    # -------------------------------------------------------------------------
+    - title: Repository Selection
+      description: Select the existing repository to add CI/CD pipelines
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository URL
+          description: The existing GitHub repository
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - ${{ parameters.orgName | default('your-org') }}
+
+        branch:
+          title: Target Branch
+          description: Branch to add the CI/CD configuration
+          type: string
+          default: main
+          enum:
+            - main
+            - master
+            - develop
+
+    # -------------------------------------------------------------------------
+    # Application Type
+    # -------------------------------------------------------------------------
+    - title: Application Configuration
+      description: Configure the application type and build settings
+      required:
+        - applicationType
+        - language
+      properties:
+        applicationType:
+          title: Application Type
+          description: Type of application in the repository
+          type: string
+          default: service
+          enum:
+            - service
+            - library
+            - cli
+            - frontend
+            - infrastructure
+          enumNames:
+            - "Backend Service (API, Microservice)"
+            - "Library/Package"
+            - "CLI Tool"
+            - "Frontend Application"
+            - "Infrastructure as Code"
+
+        language:
+          title: Programming Language
+          description: Primary language of the application
+          type: string
+          enum:
+            - python
+            - nodejs
+            - java
+            - dotnet
+            - go
+            - typescript
+            - terraform
+            - bicep
+          enumNames:
+            - Python
+            - Node.js
+            - Java (Maven/Gradle)
+            - .NET
+            - Go
+            - TypeScript
+            - Terraform
+            - Bicep
+
+        languageVersion:
+          title: Language Version
+          description: Version of the programming language
+          type: string
+          default: "latest"
+
+        packageManager:
+          title: Package Manager
+          description: Package manager for dependencies
+          type: string
+          enum:
+            - pip
+            - poetry
+            - npm
+            - yarn
+            - pnpm
+            - maven
+            - gradle
+            - nuget
+            - go-mod
+          enumNames:
+            - pip (Python)
+            - Poetry (Python)
+            - npm (Node.js)
+            - Yarn (Node.js)
+            - pnpm (Node.js)
+            - Maven (Java)
+            - Gradle (Java)
+            - NuGet (.NET)
+            - Go Modules
+
+    # -------------------------------------------------------------------------
+    # Pipeline Configuration
+    # -------------------------------------------------------------------------
+    - title: Pipeline Configuration
+      description: Configure the CI/CD pipeline features
+      properties:
+        enableBuild:
+          title: Enable Build
+          description: Add build workflow
+          type: boolean
+          default: true
+
+        enableTest:
+          title: Enable Tests
+          description: Add test workflow with coverage
+          type: boolean
+          default: true
+
+        testCommand:
+          title: Test Command
+          description: Custom test command (optional)
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 2
+
+        enableLint:
+          title: Enable Linting
+          description: Add linting and code quality checks
+          type: boolean
+          default: true
+
+        enableSecurity:
+          title: Enable Security Scanning
+          description: Enable GitHub Advanced Security (GHAS) scanning
+          type: boolean
+          default: true
+
+        enableDependencyReview:
+          title: Enable Dependency Review
+          description: Review dependencies on PRs for vulnerabilities
+          type: boolean
+          default: true
+
+        enableSonarQube:
+          title: Enable SonarQube
+          description: Add SonarQube code analysis (requires SonarQube setup)
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Deployment Configuration
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      description: Configure deployment settings
+      properties:
+        enableDeploy:
+          title: Enable Deployment
+          description: Add deployment workflow
+          type: boolean
+          default: true
+
+        deploymentTarget:
+          title: Deployment Target
+          description: Where to deploy the application
+          type: string
+          default: aks
+          enum:
+            - aks
+            - container-apps
+            - app-service
+            - functions
+            - static-web
+            - none
+          enumNames:
+            - Azure Kubernetes Service (ArgoCD)
+            - Azure Container Apps
+            - Azure App Service
+            - Azure Functions
+            - Azure Static Web Apps
+            - No Deployment (CI only)
+          ui:widget: radio
+
+        environments:
+          title: Environments
+          description: Deployment environments
+          type: array
+          items:
+            type: string
+            enum:
+              - dev
+              - staging
+              - prod
+          uniqueItems: true
+          default:
+            - dev
+            - staging
+            - prod
+
+        requireApproval:
+          title: Require Approval for Production
+          description: Require manual approval for production deployments
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Container Configuration (if applicable)
+    # -------------------------------------------------------------------------
+    - title: Container Configuration
+      description: Configure container build settings
+      properties:
+        buildContainer:
+          title: Build Container Image
+          description: Build and push container image
+          type: boolean
+          default: true
+
+        containerRegistry:
+          title: Container Registry
+          description: Azure Container Registry name
+          type: string
+          default: ${{ values.acrName | default('acrthreehorizons') }}
+
+        dockerfilePath:
+          title: Dockerfile Path
+          description: Path to Dockerfile
+          type: string
+          default: ./Dockerfile
+
+        containerContext:
+          title: Build Context
+          description: Docker build context path
+          type: string
+          default: "."
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Fetch Existing Repository
+    # -------------------------------------------------------------------------
+    - id: fetch-repo
+      name: Fetch Existing Repository
+      action: fetch:plain
+      input:
+        url: https://github.com/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+        targetPath: ./repo
+
+    # -------------------------------------------------------------------------
+    # Generate CI Workflow
+    # -------------------------------------------------------------------------
+    - id: generate-ci
+      name: Generate CI Workflow
+      action: fetch:template
+      input:
+        url: ./skeleton/workflows/ci
+        targetPath: ./repo/.github/workflows
+        values:
+          language: ${{ parameters.language }}
+          languageVersion: ${{ parameters.languageVersion }}
+          packageManager: ${{ parameters.packageManager }}
+          applicationType: ${{ parameters.applicationType }}
+          enableBuild: ${{ parameters.enableBuild }}
+          enableTest: ${{ parameters.enableTest }}
+          testCommand: ${{ parameters.testCommand }}
+          enableLint: ${{ parameters.enableLint }}
+
+    # -------------------------------------------------------------------------
+    # Generate Security Workflows
+    # -------------------------------------------------------------------------
+    - id: generate-security
+      name: Generate Security Workflows
+      if: ${{ parameters.enableSecurity }}
+      action: fetch:template
+      input:
+        url: ./skeleton/workflows/security
+        targetPath: ./repo/.github/workflows
+        values:
+          language: ${{ parameters.language }}
+          enableDependencyReview: ${{ parameters.enableDependencyReview }}
+
+    # -------------------------------------------------------------------------
+    # Generate Deployment Workflow
+    # -------------------------------------------------------------------------
+    - id: generate-deploy
+      name: Generate Deployment Workflow
+      if: ${{ parameters.enableDeploy }}
+      action: fetch:template
+      input:
+        url: ./skeleton/workflows/deploy
+        targetPath: ./repo/.github/workflows
+        values:
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          environments: ${{ parameters.environments }}
+          requireApproval: ${{ parameters.requireApproval }}
+          buildContainer: ${{ parameters.buildContainer }}
+          containerRegistry: ${{ parameters.containerRegistry }}
+          dockerfilePath: ${{ parameters.dockerfilePath }}
+          containerContext: ${{ parameters.containerContext }}
+
+    # -------------------------------------------------------------------------
+    # Generate Dependabot Config
+    # -------------------------------------------------------------------------
+    - id: generate-dependabot
+      name: Generate Dependabot Configuration
+      action: fetch:template
+      input:
+        url: ./skeleton/dependabot
+        targetPath: ./repo/.github
+        values:
+          language: ${{ parameters.language }}
+          packageManager: ${{ parameters.packageManager }}
+
+    # -------------------------------------------------------------------------
+    # Generate CODEOWNERS
+    # -------------------------------------------------------------------------
+    - id: generate-codeowners
+      name: Generate CODEOWNERS
+      action: fetch:template
+      input:
+        url: ./skeleton/codeowners
+        targetPath: ./repo/.github
+        values:
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h1-basic-cicd"
+    # -------------------------------------------------------------------------
+    # Create Pull Request
+    # -------------------------------------------------------------------------
+    - id: create-pr
+      name: Create Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: add-cicd-pipelines
+        title: "feat: Add standardized CI/CD pipelines"
+        description: |
+          ## 🚀 CI/CD Pipeline Addition
+          
+          This PR adds standardized CI/CD pipelines to the repository using the 
+          Open Horizons H1 Foundation template.
+          
+          ### Features Added
+          
+          **CI Workflows:**
+          - ✅ Build workflow (${{ parameters.language }})
+          ${{ parameters.enableTest ? '- ✅ Test workflow with coverage' : '' }}
+          ${{ parameters.enableLint ? '- ✅ Linting and code quality' : '' }}
+          
+          **Security:**
+          ${{ parameters.enableSecurity ? '- ✅ GitHub Advanced Security (CodeQL)' : '- ⏭️ Security scanning skipped' }}
+          ${{ parameters.enableDependencyReview ? '- ✅ Dependency review on PRs' : '' }}
+          - ✅ Dependabot configuration
+          
+          **Deployment:**
+          ${{ parameters.enableDeploy ? '- ✅ Deployment to ' + parameters.deploymentTarget : '- ⏭️ Deployment skipped' }}
+          ${{ parameters.enableDeploy ? '- 📦 Environments: ' + parameters.environments.join(', ') : '' }}
+          ${{ parameters.requireApproval ? '- 🔐 Production approval required' : '' }}
+          
+          ### Next Steps
+          
+          1. Review the workflow files in `.github/workflows/`
+          2. Update any environment-specific variables
+          3. Configure repository secrets if needed
+          4. Merge this PR to enable CI/CD
+          
+          ---
+          *Generated by Backstage Open Horizons Platform*
+        sourcePath: ./repo
+        targetPath: .
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Pull Request
+        url: ${{ steps['create-pr'].output.remoteUrl }}
+      - title: Repository
+        url: https://github.com/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+    text:
+      - title: Next Steps
+        content: |
+          ## ✅ CI/CD Pipeline Created!
+          
+          A pull request has been created to add CI/CD pipelines to your repository.
+          
+          **Review and merge the PR to enable:**
+          - Automated builds on every push
+          - Test execution with coverage reports
+          - Security scanning with GHAS
+          - Automated deployments to ${{ parameters.deploymentTarget }}
+          
+          **After merging:**
+          1. Check the Actions tab for workflow runs
+          2. Configure any missing secrets
+          3. Enable branch protection rules
+

@@ -1,0 +1,518 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 MICROSERVICE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for creating containerized microservices.
+# Supports multiple languages, API styles, and deployment patterns.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Create production-ready microservices with observability
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-microservice
+  title: "H2: Create Microservice"
+  description: |
+    Create a containerized microservice with your choice of language,
+    API style, and deployment configuration. Includes health checks,
+    metrics, tracing, and GitOps deployment.
+  tags:
+    - h2-enhancement
+    - microservice
+    - kubernetes
+    - container
+    - api
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: service
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # Service Information
+    # -------------------------------------------------------------------------
+    - title: Service Information
+      required:
+        - serviceName
+        - team
+      properties:
+        serviceName:
+          title: Service Name
+          description: Name of the microservice
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-service$'
+          maxLength: 50
+
+        team:
+          title: Team
+          description: Team that owns this service
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          type: string
+          maxLength: 300
+
+        system:
+          title: System
+          description: Parent system this service belongs to
+          type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+
+    # -------------------------------------------------------------------------
+    # Language & Framework
+    # -------------------------------------------------------------------------
+    - title: Language & Framework
+      required:
+        - language
+      properties:
+        language:
+          title: Programming Language
+          type: string
+          default: python
+          enum:
+            - python
+            - nodejs
+            - go
+            - java
+            - csharp
+            - rust
+          enumNames:
+            - Python
+            - Node.js (TypeScript)
+            - Go
+            - Java (Spring Boot)
+            - C# (.NET)
+            - Rust
+
+        framework:
+          title: Framework
+          type: string
+          default: auto
+
+        pythonVersion:
+          title: Python Version
+          type: string
+          default: "3.11"
+          enum:
+            - "3.10"
+            - "3.11"
+            - "3.12"
+
+        nodeVersion:
+          title: Node.js Version
+          type: string
+          default: "20"
+          enum:
+            - "18"
+            - "20"
+            - "22"
+
+        goVersion:
+          title: Go Version
+          type: string
+          default: "1.22"
+          enum:
+            - "1.21"
+            - "1.22"
+            - "1.23"
+
+    # -------------------------------------------------------------------------
+    # API Configuration
+    # -------------------------------------------------------------------------
+    - title: API Configuration
+      properties:
+        apiStyle:
+          title: API Style
+          type: string
+          default: rest
+          enum:
+            - rest
+            - grpc
+            - graphql
+            - event-driven
+          enumNames:
+            - REST (OpenAPI)
+            - gRPC (Protocol Buffers)
+            - GraphQL
+            - Event-Driven (No HTTP API)
+
+        enableOpenAPI:
+          title: Generate OpenAPI Spec
+          type: boolean
+          default: true
+
+        enableAsyncAPI:
+          title: Generate AsyncAPI Spec
+          description: For event-driven services
+          type: boolean
+          default: false
+
+        httpPort:
+          title: HTTP Port
+          type: integer
+          default: 8080
+          minimum: 1024
+          maximum: 65535
+
+        grpcPort:
+          title: gRPC Port
+          type: integer
+          default: 50051
+
+    # -------------------------------------------------------------------------
+    # Data & Messaging
+    # -------------------------------------------------------------------------
+    - title: Data & Messaging
+      properties:
+        database:
+          title: Database
+          type: string
+          default: none
+          enum:
+            - none
+            - postgres
+            - mysql
+            - mongodb
+            - redis
+            - cosmos-db
+
+        messageQueue:
+          title: Message Queue
+          type: string
+          default: none
+          enum:
+            - none
+            - service-bus
+            - event-hubs
+            - kafka
+            - rabbitmq
+
+        enableCaching:
+          title: Enable Caching (Redis)
+          type: boolean
+          default: false
+
+        enableOutbox:
+          title: Enable Outbox Pattern
+          description: For reliable event publishing
+          type: boolean
+          default: false
+
+    # -------------------------------------------------------------------------
+    # Observability
+    # -------------------------------------------------------------------------
+    - title: Observability
+      properties:
+        enableMetrics:
+          title: Enable Prometheus Metrics
+          type: boolean
+          default: true
+
+        enableTracing:
+          title: Enable Distributed Tracing
+          type: boolean
+          default: true
+
+        enableLogging:
+          title: Enable Structured Logging
+          type: boolean
+          default: true
+
+        logFormat:
+          title: Log Format
+          type: string
+          default: json
+          enum:
+            - json
+            - text
+
+        enableHealthChecks:
+          title: Enable Health Checks
+          type: boolean
+          default: true
+
+        enableReadiness:
+          title: Enable Readiness Probe
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Security
+    # -------------------------------------------------------------------------
+    - title: Security
+      properties:
+        enableAuth:
+          title: Enable Authentication
+          type: boolean
+          default: true
+
+        authMethod:
+          title: Authentication Method
+          type: string
+          default: jwt
+          enum:
+            - jwt
+            - oauth2
+            - api-key
+            - mtls
+
+        enableRBAC:
+          title: Enable RBAC
+          type: boolean
+          default: true
+
+        enableSecurityScanning:
+          title: Enable Security Scanning
+          description: GHAS, container scanning
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Deployment
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      properties:
+        deploymentTarget:
+          title: Deployment Target
+          type: string
+          default: aks
+          enum:
+            - aks
+            - container-apps
+
+        replicas:
+          title: Default Replicas
+          type: integer
+          default: 2
+          minimum: 1
+          maximum: 10
+
+        enableHPA:
+          title: Enable Horizontal Pod Autoscaler
+          type: boolean
+          default: true
+
+        minReplicas:
+          title: Min Replicas (HPA)
+          type: integer
+          default: 2
+
+        maxReplicas:
+          title: Max Replicas (HPA)
+          type: integer
+          default: 10
+
+        resourcePreset:
+          title: Resource Preset
+          type: string
+          default: small
+          enum:
+            - small
+            - medium
+            - large
+          enumNames:
+            - Small (256Mi/250m)
+            - Medium (512Mi/500m)
+            - Large (1Gi/1000m)
+
+        environments:
+          title: Environments
+          type: array
+          items:
+            type: string
+            enum:
+              - dev
+              - staging
+              - prod
+          default:
+            - dev
+            - staging
+            - prod
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Microservice Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.serviceName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          serviceName: ${{ parameters.serviceName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          system: ${{ parameters.system }}
+          language: ${{ parameters.language }}
+          apiStyle: ${{ parameters.apiStyle }}
+          database: ${{ parameters.database }}
+          messageQueue: ${{ parameters.messageQueue }}
+          enableMetrics: ${{ parameters.enableMetrics }}
+          enableTracing: ${{ parameters.enableTracing }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          environments: ${{ parameters.environments }}
+
+    - id: generate-source
+      name: Generate Source Code
+      action: fetch:template
+      input:
+        url: ./skeleton/${{ parameters.language }}
+        targetPath: ./repo/src
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          apiStyle: ${{ parameters.apiStyle }}
+          database: ${{ parameters.database }}
+          httpPort: ${{ parameters.httpPort }}
+
+    - id: generate-k8s
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ./skeleton/kubernetes
+        targetPath: ./repo/kubernetes
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          replicas: ${{ parameters.replicas }}
+          enableHPA: ${{ parameters.enableHPA }}
+          minReplicas: ${{ parameters.minReplicas }}
+          maxReplicas: ${{ parameters.maxReplicas }}
+          resourcePreset: ${{ parameters.resourcePreset }}
+          httpPort: ${{ parameters.httpPort }}
+          environments: ${{ parameters.environments }}
+
+    - id: generate-cicd
+      name: Generate CI/CD Workflows
+      action: fetch:template
+      input:
+        url: ./skeleton/cicd
+        targetPath: ./repo/.github/workflows
+        values:
+          language: ${{ parameters.language }}
+          deploymentTarget: ${{ parameters.deploymentTarget }}
+          enableSecurityScanning: ${{ parameters.enableSecurityScanning }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.serviceName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-microservice"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Microservice: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: true
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Microservice Created
+        content: |
+          ## 🔧 Microservice Created!
+          
+          **Service:** ${{ parameters.serviceName }}
+          **Language:** ${{ parameters.language }}
+          **API:** ${{ parameters.apiStyle }}
+          
+          **Infrastructure:**
+          - Database: ${{ parameters.database }}
+          - Messaging: ${{ parameters.messageQueue }}
+          - Target: ${{ parameters.deploymentTarget }}
+          
+          **Observability:**
+          - ${{ parameters.enableMetrics ? '✅' : '⏭️' }} Prometheus Metrics
+          - ${{ parameters.enableTracing ? '✅' : '⏭️' }} Distributed Tracing
+          - ${{ parameters.enableHealthChecks ? '✅' : '⏭️' }} Health Checks
+          
+          **Environments:** ${{ parameters.environments | join(', ') }}
+          
+          **Next Steps:**
+          1. Clone repository
+          2. Implement business logic
+          3. Add unit tests
+          4. Push to trigger CI/CD
+

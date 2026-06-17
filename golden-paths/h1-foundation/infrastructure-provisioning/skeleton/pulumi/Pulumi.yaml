@@ -1,0 +1,6 @@
+name: ${{ values.projectName }}
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Azure infrastructure for ${{ values.projectName }}

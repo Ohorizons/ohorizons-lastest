@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 250" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="700" height="250" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="700" height="36" rx="12" fill="#e74c3c"/>
+  <rect x="0" y="18" width="700" height="18" fill="#e74c3c"/>
+  <text x="350" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">PROMETHEUS SCRAPING ISSUES</text>
+  <rect x="15" y="46" width="670" height="55" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="25" y="66" font-size="11" font-weight="700" fill="#c0392b">Target shows "DOWN"</text>
+  <text x="25" y="84" font-size="9" fill="#555">1. Pod running? 2. Metrics port correct? 3. /metrics path accessible? 4. Network policy blocking?</text>
+  <rect x="15" y="111" width="670" height="55" rx="6" fill="#fef9e7" stroke="#f39c12" filter="url(#ds)"/>
+  <text x="25" y="131" font-size="11" font-weight="700" fill="#e67e22">Target not appearing at all</text>
+  <text x="25" y="149" font-size="9" fill="#555">1. ServiceMonitor created? 2. Labels match? 3. Correct namespace? 4. Prometheus selectors?</text>
+  <rect x="15" y="176" width="670" height="55" rx="6" fill="#eaf2f8" stroke="#3498db" filter="url(#ds)"/>
+  <text x="25" y="196" font-size="11" font-weight="700" fill="#2980b9">Target "UP" but metrics missing</text>
+  <text x="25" y="214" font-size="9" fill="#555">1. App exposing metrics? 2. Correct metric name? 3. Metric type correct? 4. Labels matching?</text>
+</svg>

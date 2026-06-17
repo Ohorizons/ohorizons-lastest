@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 586" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAFBFC"/>
+      <stop offset="100%" stop-color="#F0F2F5"/>
+    </linearGradient>
+    <filter id="cs">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="1"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.06"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="880" height="586" rx="12" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="440" y="34" text-anchor="middle" fill="#1A1A1A" font-size="14" font-weight="700" letter-spacing="0.08em">ARCHITECTURE LAYERS</text>
+  <text x="440" y="52" text-anchor="middle" fill="#999999" font-size="10.5">Eight-layer reference architecture for enterprise Agentic DevOps</text>
+
+  <!-- ROW GRID: y_start=70, row_h=58, gap=6 -->
+
+  <!-- Layer 8 — Application Platform: y=70 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="70" width="808" height="58" rx="8" fill="#ffffff" stroke="#F0C5B7" stroke-width="1"/>
+    <rect x="36" y="70" width="5" height="58" rx="4" fill="#F25022"/>
+  </g>
+  <rect x="58" y="84" width="26" height="22" rx="5" fill="#F25022"/>
+  <text x="71" y="99" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">8</text>
+  <text x="96" y="96" fill="#1A1A1A" font-size="13" font-weight="700">Application Platform</text>
+  <text x="96" y="114" fill="#5A5A5A" font-size="10.5">AKS  ·  Azure Container Apps  ·  Azure Arc</text>
+  <rect x="740" y="84" width="88" height="22" rx="5" fill="#F25022" opacity="0.05"/>
+  <text x="784" y="99" text-anchor="middle" fill="#C43F1A" font-size="9.5" font-weight="600">RUNTIME</text>
+
+  <!-- Layer 7 — Agents and Tools: y=134 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="134" width="808" height="58" rx="8" fill="#ffffff" stroke="#F5DDD5" stroke-width="0.75"/>
+    <rect x="36" y="134" width="5" height="58" rx="4" fill="#F25022" opacity="0.5"/>
+  </g>
+  <rect x="58" y="148" width="26" height="22" rx="5" fill="#F25022" opacity="0.7"/>
+  <text x="71" y="163" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">7</text>
+  <text x="96" y="160" fill="#1A1A1A" font-size="13" font-weight="700">Agents and Tools</text>
+  <text x="96" y="178" fill="#5A5A5A" font-size="10.5">Microsoft Agent Framework  ·  MCP Servers  ·  GitHub Copilot</text>
+  <rect x="740" y="148" width="88" height="22" rx="5" fill="#F25022" opacity="0.03"/>
+  <text x="784" y="163" text-anchor="middle" fill="#D4705A" font-size="9.5" font-weight="600">AI</text>
+
+  <!-- Layer 6 — Engineering Systems: y=198 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="198" width="808" height="58" rx="8" fill="#ffffff" stroke="#F0DEB8" stroke-width="1"/>
+    <rect x="36" y="198" width="5" height="58" rx="4" fill="#FFB900"/>
+  </g>
+  <rect x="58" y="212" width="26" height="22" rx="5" fill="#FFB900"/>
+  <text x="71" y="227" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">6</text>
+  <text x="96" y="224" fill="#1A1A1A" font-size="13" font-weight="700">Engineering Systems</text>
+  <text x="96" y="242" fill="#5A5A5A" font-size="10.5">GitHub Platform  ·  Azure DevOps  ·  Azure AI Foundry</text>
+  <rect x="740" y="212" width="88" height="22" rx="5" fill="#FFB900" opacity="0.05"/>
+  <text x="784" y="227" text-anchor="middle" fill="#B38300" font-size="9.5" font-weight="600">TOOLS</text>
+
+  <!-- Layer 5 — Infrastructure as Code: y=262 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="262" width="808" height="58" rx="8" fill="#ffffff" stroke="#F5ECD5" stroke-width="0.75"/>
+    <rect x="36" y="262" width="5" height="58" rx="4" fill="#FFB900" opacity="0.5"/>
+  </g>
+  <rect x="58" y="276" width="26" height="22" rx="5" fill="#FFB900" opacity="0.7"/>
+  <text x="71" y="291" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">5</text>
+  <text x="96" y="288" fill="#1A1A1A" font-size="13" font-weight="700">Infrastructure as Code</text>
+  <text x="96" y="306" fill="#5A5A5A" font-size="10.5">Terraform  ·  Helm  ·  Bicep</text>
+  <rect x="740" y="276" width="88" height="22" rx="5" fill="#FFB900" opacity="0.03"/>
+  <text x="784" y="291" text-anchor="middle" fill="#C9A040" font-size="9.5" font-weight="600">IAC</text>
+
+  <!-- Layer 4 — Developer Portal: y=326 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="326" width="808" height="58" rx="8" fill="#ffffff" stroke="#B8D8F0" stroke-width="1"/>
+    <rect x="36" y="326" width="5" height="58" rx="4" fill="#00A4EF"/>
+  </g>
+  <rect x="58" y="340" width="26" height="22" rx="5" fill="#00A4EF"/>
+  <text x="71" y="355" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">4</text>
+  <text x="96" y="352" fill="#1A1A1A" font-size="13" font-weight="700">Developer Portal</text>
+  <text x="96" y="370" fill="#5A5A5A" font-size="10.5">Backstage  ·  Software Templates  ·  Software Catalog</text>
+  <rect x="740" y="340" width="88" height="22" rx="5" fill="#00A4EF" opacity="0.05"/>
+  <text x="784" y="355" text-anchor="middle" fill="#0078B5" font-size="9.5" font-weight="600">PORTAL</text>
+
+  <!-- Layer 3 — CI/CD and GitOps: y=390 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="390" width="808" height="58" rx="8" fill="#ffffff" stroke="#D0E5F5" stroke-width="0.75"/>
+    <rect x="36" y="390" width="5" height="58" rx="4" fill="#00A4EF" opacity="0.5"/>
+  </g>
+  <rect x="58" y="404" width="26" height="22" rx="5" fill="#00A4EF" opacity="0.7"/>
+  <text x="71" y="419" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">3</text>
+  <text x="96" y="416" fill="#1A1A1A" font-size="13" font-weight="700">CI/CD and GitOps</text>
+  <text x="96" y="434" fill="#5A5A5A" font-size="10.5">GitHub Actions  ·  ArgoCD  ·  Flux</text>
+  <rect x="740" y="404" width="88" height="22" rx="5" fill="#00A4EF" opacity="0.03"/>
+  <text x="784" y="419" text-anchor="middle" fill="#5AADDB" font-size="9.5" font-weight="600">DEPLOY</text>
+
+  <!-- Layer 2 — Observability: y=454 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="454" width="808" height="58" rx="8" fill="#ffffff" stroke="#CCDFB0" stroke-width="1"/>
+    <rect x="36" y="454" width="5" height="58" rx="4" fill="#7FBA00"/>
+  </g>
+  <rect x="58" y="468" width="26" height="22" rx="5" fill="#7FBA00"/>
+  <text x="71" y="483" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">2</text>
+  <text x="96" y="480" fill="#1A1A1A" font-size="13" font-weight="700">Monitoring and Observability</text>
+  <text x="96" y="498" fill="#5A5A5A" font-size="10.5">Azure Monitor  ·  Prometheus  ·  Grafana  ·  Loki</text>
+  <rect x="740" y="468" width="88" height="22" rx="5" fill="#7FBA00" opacity="0.05"/>
+  <text x="784" y="483" text-anchor="middle" fill="#5A8A00" font-size="9.5" font-weight="600">OBSERVE</text>
+
+  <!-- Layer 1 — Security: y=518 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="518" width="808" height="58" rx="8" fill="#ffffff" stroke="#DDEBC8" stroke-width="0.75"/>
+    <rect x="36" y="518" width="5" height="58" rx="4" fill="#7FBA00" opacity="0.5"/>
+  </g>
+  <rect x="58" y="532" width="26" height="22" rx="5" fill="#7FBA00" opacity="0.7"/>
+  <text x="71" y="547" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">1</text>
+  <text x="96" y="544" fill="#1A1A1A" font-size="13" font-weight="700">Security and Compliance</text>
+  <text x="96" y="562" fill="#5A5A5A" font-size="10.5">Defender for Cloud  ·  GHAS  ·  Key Vault  ·  Sentinel  ·  Purview</text>
+  <rect x="740" y="532" width="88" height="22" rx="5" fill="#7FBA00" opacity="0.03"/>
+  <text x="784" y="547" text-anchor="middle" fill="#8DC040" font-size="9.5" font-weight="600">SECURE</text>
+
+  <!-- Bottom bar -->
+  <rect x="36" y="582" width="202" height="3" rx="1.5" fill="#F25022"/>
+  <rect x="238" y="582" width="202" height="3" fill="#7FBA00"/>
+  <rect x="440" y="582" width="202" height="3" fill="#00A4EF"/>
+  <rect x="642" y="582" width="202" height="3" rx="1.5" fill="#FFB900"/>
+</svg>

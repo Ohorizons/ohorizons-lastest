@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="700" height="320" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Self-Hosted Runners on AKS</text>
+  <!-- GitHub side -->
+  <rect x="40" y="55" width="240" height="140" rx="10" fill="#2c3e50" filter="url(#ds)"/>
+  <text x="60" y="82" font-size="14" font-weight="700" fill="#fff">GitHub.com</text>
+  <text x="60" y="108" font-size="10" fill="rgba(255,255,255,0.7)" font-family="monospace">workflow.yaml</text>
+  <text x="60" y="128" font-size="10" fill="rgba(255,255,255,0.7)" font-family="monospace">runs-on: self-hosted</text>
+  <!-- AKS side -->
+  <rect x="380" y="55" width="280" height="210" rx="10" fill="#3498db" filter="url(#ds)"/>
+  <text x="400" y="82" font-size="14" font-weight="700" fill="#fff">Your AKS Cluster</text>
+  <text x="400" y="105" font-size="11" fill="rgba(255,255,255,0.85)">Runner Scale Set</text>
+  <rect x="400" y="115" width="80" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="440" y="137" text-anchor="middle" font-size="9" fill="#fff">Runner Pod</text>
+  <rect x="490" y="115" width="80" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="530" y="137" text-anchor="middle" font-size="9" fill="#fff">Runner Pod</text>
+  <rect x="580" y="115" width="60" height="35" rx="5" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-dasharray="3,2"/>
+  <text x="610" y="137" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.6)">...</text>
+  <text x="400" y="170" font-size="9" fill="rgba(255,255,255,0.7)">Auto-scales 1-10</text>
+  <text x="400" y="195" font-size="10" fill="rgba(255,255,255,0.85)">&#10003; Access to VNet</text>
+  <text x="400" y="213" font-size="10" fill="rgba(255,255,255,0.85)">&#10003; Can reach databases</text>
+  <text x="525" y="195" font-size="10" fill="rgba(255,255,255,0.85)">&#10003; Push to ACR</text>
+  <text x="525" y="213" font-size="10" fill="rgba(255,255,255,0.85)">&#10003; Custom tools</text>
+  <text x="400" y="250" font-size="10" fill="rgba(255,255,255,0.85)">&#10003; More resources</text>
+  <!-- Connection -->
+  <line x1="282" y1="125" x2="378" y2="125" stroke="#e67e22" stroke-width="2.5"/>
+  <line x1="378" y1="125" x2="370" y2="118" stroke="#e67e22" stroke-width="2.5"/>
+  <line x1="378" y1="125" x2="370" y2="132" stroke="#e67e22" stroke-width="2.5"/>
+  <line x1="282" y1="125" x2="290" y2="118" stroke="#e67e22" stroke-width="2.5"/>
+  <line x1="282" y1="125" x2="290" y2="132" stroke="#e67e22" stroke-width="2.5"/>
+  <text x="330" y="115" text-anchor="middle" font-size="9" fill="#e67e22" font-weight="600">HTTPS</text>
+</svg>

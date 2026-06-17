@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 220" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="700" height="220" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">Modules vs Monolithic — Comparison</text>
+  <!-- Without modules -->
+  <rect x="20" y="40" width="310" height="160" rx="8" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="175" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#c0392b">Without Modules</text>
+  <rect x="35" y="72" width="280" height="20" rx="4" fill="#e74c3c" opacity="0.15"/>
+  <text x="45" y="87" font-size="10" fill="#555" font-family="monospace">main.tf (3000 lines)</text>
+  <text x="45" y="107" font-size="9" fill="#7f8c8d">&#9500; VNet configuration</text>
+  <text x="45" y="121" font-size="9" fill="#7f8c8d">&#9500; Subnets, NSGs, AKS cluster</text>
+  <text x="45" y="135" font-size="9" fill="#7f8c8d">&#9500; Node pools, Key Vault, ACR</text>
+  <text x="45" y="149" font-size="9" fill="#7f8c8d">&#9492; ... (hard to maintain &amp; reuse)</text>
+  <text x="175" y="180" text-anchor="middle" font-size="10" fill="#e74c3c" font-weight="600">&#10007; Hard to maintain</text>
+  <!-- With modules -->
+  <rect x="370" y="40" width="310" height="160" rx="8" fill="#e8f8f5" stroke="#27ae60" filter="url(#ds)"/>
+  <text x="525" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#27ae60">With Modules</text>
+  <rect x="385" y="72" width="280" height="20" rx="4" fill="#27ae60" opacity="0.15"/>
+  <text x="395" y="87" font-size="10" fill="#555" font-family="monospace">main.tf (100 lines)</text>
+  <text x="395" y="107" font-size="9" fill="#2c3e50">&#9500; module "networking" &#8594; VNet, subnets, NSGs</text>
+  <text x="395" y="121" font-size="9" fill="#2c3e50">&#9500; module "aks" &#8594; AKS cluster</text>
+  <text x="395" y="135" font-size="9" fill="#2c3e50">&#9500; module "security" &#8594; Key Vault, identities</text>
+  <text x="395" y="149" font-size="9" fill="#2c3e50">&#9492; module "acr" &#8594; Container Registry</text>
+  <text x="525" y="180" text-anchor="middle" font-size="10" fill="#27ae60" font-weight="600">&#10003; Clean &amp; reusable</text>
+</svg>

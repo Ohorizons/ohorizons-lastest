@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@backstage/cli": "^0.35.4"
+  }
+}

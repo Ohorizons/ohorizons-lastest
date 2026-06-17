@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 560" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="ghg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c3e50"/><stop offset="100%" stop-color="#34495e"/></linearGradient>
+    <linearGradient id="cig" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="acrg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <linearGradient id="argog" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="k8g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="820" height="560" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Application Deployment Data Flow</text>
+
+  <!-- Developer -->
+  <rect x="340" y="48" width="140" height="38" rx="8" fill="#95a5a6" filter="url(#ds)"/>
+  <text x="410" y="72" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">Developer</text>
+  <line x1="410" y1="88" x2="410" y2="108" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="430" y="103" font-size="8" fill="#7f8c8d">1. git push</text>
+
+  <!-- GitHub -->
+  <rect x="330" y="115" width="160" height="45" rx="8" fill="url(#ghg)" filter="url(#ds)"/>
+  <text x="410" y="143" text-anchor="middle" font-size="12" fill="#fff" font-weight="600">GitHub</text>
+
+  <!-- Fork to CI and ArgoCD -->
+  <line x1="330" y1="140" x2="200" y2="195" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="240" y="172" font-size="8" fill="#7f8c8d">2. Trigger CI</text>
+
+  <!-- GitHub Actions CI -->
+  <rect x="60" y="200" width="300" height="100" rx="10" fill="url(#cig)" filter="url(#ds)"/>
+  <text x="80" y="225" font-size="12" font-weight="700" fill="#fff">GITHUB ACTIONS CI</text>
+  <rect x="80" y="240" width="60" height="30" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="110" y="260" text-anchor="middle" font-size="9" fill="#fff">Test</text>
+  <line x1="142" y1="255" x2="152" y2="255" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="155" y="240" width="60" height="30" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="185" y="260" text-anchor="middle" font-size="9" fill="#fff">Build</text>
+  <line x1="217" y1="255" x2="227" y2="255" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="230" y="240" width="60" height="30" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="260" y="260" text-anchor="middle" font-size="9" fill="#fff">Scan</text>
+  <line x1="292" y1="255" x2="302" y2="255" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="305" y="240" width="40" height="30" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="325" y="260" text-anchor="middle" font-size="9" fill="#fff">Push</text>
+
+  <!-- ACR -->
+  <line x1="210" y1="302" x2="210" y2="340" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="220" y="328" font-size="8" fill="#7f8c8d">3. Push image</text>
+  <rect x="110" y="345" width="200" height="50" rx="8" fill="url(#acrg)" filter="url(#ds)"/>
+  <text x="210" y="375" text-anchor="middle" font-size="12" fill="#fff" font-weight="600">ACR — Container images</text>
+
+  <!-- ArgoCD -->
+  <line x1="490" y1="140" x2="620" y2="195" stroke="#7f8c8d" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="580" y="172" font-size="8" fill="#7f8c8d">4. Detect change</text>
+  <rect x="480" y="200" width="280" height="100" rx="10" fill="url(#argog)" filter="url(#ds)"/>
+  <text x="500" y="225" font-size="12" font-weight="700" fill="#fff">ARGOCD</text>
+  <text x="500" y="248" font-size="10" fill="rgba(255,255,255,0.8)">5. Compare desired vs actual</text>
+  <text x="500" y="268" font-size="10" fill="rgba(255,255,255,0.8)">6. Sync manifests to cluster</text>
+
+  <!-- Kubernetes Cluster -->
+  <line x1="620" y1="302" x2="620" y2="340" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="640" y="328" font-size="8" fill="#7f8c8d">7. Apply</text>
+  <rect x="380" y="345" width="380" height="120" rx="10" fill="url(#k8g)" filter="url(#ds)"/>
+  <text x="400" y="372" font-size="12" font-weight="700" fill="#fff">KUBERNETES CLUSTER</text>
+  <text x="400" y="395" font-size="10" fill="rgba(255,255,255,0.8)">8. Create/Update deployment</text>
+  <text x="400" y="415" font-size="10" fill="rgba(255,255,255,0.8)">10. Start new pods</text>
+  <text x="400" y="435" font-size="10" fill="rgba(255,255,255,0.8)">11. Route traffic to new pods</text>
+
+  <!-- ACR to K8s pull -->
+  <line x1="312" y1="370" x2="378" y2="370" stroke="#7f8c8d" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+  <text x="345" y="363" text-anchor="middle" font-size="8" fill="#7f8c8d">9. Pull image</text>
+
+  <!-- Steps summary -->
+  <rect x="60" y="490" width="700" height="45" rx="8" fill="#fff" stroke="#dee2e6" filter="url(#ds)"/>
+  <text x="80" y="510" font-size="10" fill="#2c3e50" font-weight="600">Complete Flow:</text>
+  <text x="80" y="526" font-size="9" fill="#7f8c8d">Push → CI (test/build/scan) → ACR → ArgoCD detects → Sync → Apply → Pull image → Start pods → Route traffic</text>
+</svg>

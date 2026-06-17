@@ -1,0 +1,295 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ado-to-github-migration
+  title: Azure DevOps to GitHub Migration
+  description: |
+    Complete migration toolkit from Azure DevOps to GitHub following the official
+    Microsoft Migration Playbook. Supports repository migration, pipeline conversion,
+    mannequin management, and hybrid Azure DevOps/GitHub integration.
+  tags:
+    - migration
+    - azure-devops
+    - github
+    - h2-enhancement
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://devblogs.microsoft.com/all-things-azure/azure-devops-to-github-migration-playbook-unlocking-agentic-devops/
+      title: Microsoft Migration Playbook
+      icon: docs
+spec:
+  owner: platform-engineering
+  type: migration
+
+  parameters:
+    - title: Migration Configuration
+      required:
+        - adoOrganization
+        - adoProject
+        - githubOrganization
+      properties:
+        adoOrganization:
+          title: Azure DevOps Organization
+          type: string
+          description: Your Azure DevOps organization name (e.g., myorg from dev.azure.com/myorg)
+          ui:autofocus: true
+
+        adoProject:
+          title: Azure DevOps Project
+          type: string
+          description: The project to migrate
+
+        githubOrganization:
+          title: GitHub Organization
+          type: string
+          description: Target GitHub organization
+
+        migrationMode:
+          title: Migration Mode
+          type: string
+          default: hybrid
+          enum:
+            - full
+            - hybrid
+            - repos-only
+          enumNames:
+            - Full Migration (move everything to GitHub)
+            - Hybrid (code on GitHub, keep Azure Boards)
+            - Repositories Only
+          description: |
+            Hybrid mode keeps Azure Boards for project management while moving code to GitHub.
+            This is the recommended approach per Microsoft guidance.
+
+    - title: Repository Options
+      properties:
+        repositorySelection:
+          title: Repositories to Migrate
+          type: string
+          default: all
+          enum:
+            - all
+            - selected
+          enumNames:
+            - All repositories in project
+            - Select specific repositories
+
+        selectedRepositories:
+          title: Repository Names (comma-separated)
+          type: string
+          description: Only if 'Select specific repositories' is chosen
+          ui:widget: textarea
+
+        namingConvention:
+          title: Repository Naming Convention
+          type: string
+          default: kebab-case
+          enum:
+            - kebab-case
+            - preserve
+            - prefix
+          enumNames:
+            - Convert to kebab-case (recommended)
+            - Preserve original names
+            - Add project prefix
+
+        repositoryVisibility:
+          title: Repository Visibility
+          type: string
+          default: private
+          enum:
+            - private
+            - internal
+            - public
+          enumNames:
+            - Private
+            - Internal (Enterprise only)
+            - Public
+
+        lockAdoRepos:
+          title: Lock ADO Repositories
+          type: boolean
+          default: true
+          description: Set source repositories to read-only after migration
+
+        disableAdoRepos:
+          title: Disable ADO Repositories
+          type: boolean
+          default: false
+          description: Disable ADO repositories post-migration (more restrictive than lock)
+
+    - title: Pipeline Options
+      properties:
+        migratePipelines:
+          title: Migrate Pipelines
+          type: boolean
+          default: true
+          description: Convert Azure Pipelines to GitHub Actions
+
+        rewirePipelines:
+          title: Rewire Azure Pipelines
+          type: boolean
+          default: true
+          description: |
+            Reconfigure Azure Pipelines to use GitHub as source.
+            Requires Azure Pipelines GitHub App to be installed.
+
+        pipelineConversionMode:
+          title: Pipeline Conversion Mode
+          type: string
+          default: auto
+          enum:
+            - auto
+            - manual
+            - hybrid
+          enumNames:
+            - Automatic conversion
+            - Generate templates for manual review
+            - Keep Azure Pipelines + add GitHub Actions
+
+    - title: Team & Security Options
+      properties:
+        createTeams:
+          title: Create GitHub Teams
+          type: boolean
+          default: true
+          description: Create GitHub teams based on ADO team structure
+
+        enableGHAS:
+          title: Enable GitHub Advanced Security
+          type: boolean
+          default: true
+          description: Enable secret scanning, code scanning, and Dependabot
+
+        enableBranchProtection:
+          title: Enable Branch Protection
+          type: boolean
+          default: true
+
+        requiredReviewers:
+          title: Required Reviewers
+          type: integer
+          default: 1
+          minimum: 0
+          maximum: 6
+
+    - title: Additional Options
+      properties:
+        migrateWorkItems:
+          title: Migrate Work Items
+          type: boolean
+          default: false
+          description: Migrate work items to GitHub Issues (not recommended for hybrid mode)
+
+        migrateWiki:
+          title: Migrate Wiki
+          type: boolean
+          default: false
+          description: Migrate Azure DevOps Wiki to GitHub Wiki
+
+        migrateArtifacts:
+          title: Migrate Artifacts
+          type: boolean
+          default: false
+          description: Migrate Azure Artifacts to GitHub Packages
+
+        dryRun:
+          title: Dry Run Mode
+          type: boolean
+          default: true
+          description: Preview migration without making changes (recommended for first run)
+
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Migration Playbook
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          description: Azure DevOps to GitHub Migration
+          lifecycle: production
+          name: ${{ parameters.name }}
+          owner: platform-team
+          repoUrl: github.com?owner=${{ parameters.githubOrganization }}&repo=ado-migration-${{ parameters.adoProject }}
+          system: default
+          adoOrganization: ${{ parameters.adoOrganization }}
+          adoProject: ${{ parameters.adoProject }}
+          githubOrganization: ${{ parameters.githubOrganization }}
+          migrateRepos: ${{ parameters.migrateRepos }}
+          migratePipelines: ${{ parameters.migratePipelines }}
+          migrateBoards: ${{ parameters.migrateBoards }}
+          migrateArtifacts: ${{ parameters.migrateArtifacts }}
+          enableCopilot: ${{ parameters.enableCopilot }}
+          enableGHAS: ${{ parameters.enableGHAS }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "ado-to-github-migration"
+    - id: publish-github
+      name: Publish Migration Playbook
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=${{ parameters.githubOrganization }}&repo=ado-migration-${{ parameters.adoProject }}
+        description: "ADO to GitHub migration playbook for ${{ parameters.adoProject }}"
+        defaultBranch: main
+        repoVisibility: private
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Migration Playbook Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+      - title: GitHub Organization
+        url: https://github.com/${{ parameters.githubOrganization }}
+      - title: Migration Guide
+        url: https://devblogs.microsoft.com/all-things-azure/azure-devops-to-github-migration-playbook-unlocking-agentic-devops/
+      - title: Azure DevOps Project
+        url: https://dev.azure.com/${{ parameters.adoOrganization }}/${{ parameters.adoProject }}
+
+          if gh auth status &>/dev/null; then

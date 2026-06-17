@@ -1,0 +1,23 @@
+{
+  "name": "Copilot Extension",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "github.copilot"
+      ]
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [7071],
+  "portsAttributes": {
+    "7071": { "label": "Azure Functions", "onAutoForward": "notify" }
+  }
+}

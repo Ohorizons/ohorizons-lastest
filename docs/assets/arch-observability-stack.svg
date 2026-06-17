@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="srcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#95a5a6"/><stop offset="100%" stop-color="#7f8c8d"/></linearGradient>
+    <linearGradient id="prg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="grfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <linearGradient id="almg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="mong" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="820" height="520" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Observability Architecture</text>
+
+  <!-- Data Sources -->
+  <rect x="40" y="48" width="740" height="80" rx="10" fill="url(#srcg)" filter="url(#ds)"/>
+  <text x="60" y="72" font-size="13" font-weight="700" fill="#fff">DATA SOURCES</text>
+  <rect x="60" y="82" width="130" height="32" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="125" y="103" text-anchor="middle" font-size="10" fill="#fff">AKS Nodes</text>
+  <rect x="200" y="82" width="130" height="32" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="265" y="103" text-anchor="middle" font-size="10" fill="#fff">Pods</text>
+  <rect x="340" y="82" width="130" height="32" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="405" y="103" text-anchor="middle" font-size="10" fill="#fff">Azure Services</text>
+  <rect x="480" y="82" width="130" height="32" rx="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="545" y="103" text-anchor="middle" font-size="10" fill="#fff">External Probes</text>
+
+  <!-- Arrow down -->
+  <line x1="410" y1="130" x2="410" y2="160" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="420" y="152" font-size="9" fill="#7f8c8d">Metrics</text>
+
+  <!-- Prometheus -->
+  <rect x="120" y="168" width="580" height="120" rx="10" fill="url(#prg)" filter="url(#ds)"/>
+  <text x="140" y="195" font-size="14" font-weight="700" fill="#fff">PROMETHEUS</text>
+  <text x="300" y="195" font-size="11" fill="rgba(255,255,255,0.85)">Time-Series Database for Metrics</text>
+  <text x="140" y="218" font-size="10" fill="rgba(255,255,255,0.8)">&#8226; Scrapes targets every 15-30 seconds</text>
+  <text x="140" y="236" font-size="10" fill="rgba(255,255,255,0.8)">&#8226; PromQL for analysis</text>
+  <text x="140" y="254" font-size="10" fill="rgba(255,255,255,0.8)">&#8226; Evaluates alerting rules continuously</text>
+  <text x="420" y="236" font-size="9" fill="rgba(255,255,255,0.6)" font-style="italic">container_cpu_usage_seconds_total{pod="my-app",namespace="prod"}</text>
+
+  <!-- Fork arrows to 3 outputs -->
+  <line x1="250" y1="290" x2="170" y2="330" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="410" y1="290" x2="410" y2="330" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="570" y1="290" x2="650" y2="330" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Grafana -->
+  <rect x="60" y="338" width="220" height="90" rx="10" fill="url(#grfg)" filter="url(#ds)"/>
+  <text x="170" y="365" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">GRAFANA</text>
+  <text x="170" y="385" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.85)">DASHBOARDS</text>
+  <text x="170" y="408" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">Visualize metrics in graphs</text>
+
+  <!-- Alertmanager -->
+  <rect x="300" y="338" width="220" height="90" rx="10" fill="url(#almg)" filter="url(#ds)"/>
+  <text x="410" y="365" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">ALERTMANAGER</text>
+  <text x="410" y="385" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.85)">ALERTS</text>
+  <text x="410" y="408" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">Route to Slack / PagerDuty</text>
+
+  <!-- Azure Monitor -->
+  <rect x="540" y="338" width="220" height="90" rx="10" fill="url(#mong)" filter="url(#ds)"/>
+  <text x="650" y="365" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">AZURE MONITOR</text>
+  <text x="650" y="385" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.85)">LOGS</text>
+  <text x="650" y="408" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">Long-term log retention</text>
+
+  <!-- Legend -->
+  <rect x="40" y="448" width="740" height="50" rx="8" fill="#fff" stroke="#dee2e6"/>
+  <text x="60" y="468" font-size="10" fill="#2c3e50" font-weight="600">Data Flow:</text>
+  <text x="60" y="486" font-size="9" fill="#7f8c8d">Sources (nodes, pods, Azure) → Prometheus (scrape &amp; store) → Grafana (visualize) + Alertmanager (alert) + Azure Monitor (archive)</text>
+</svg>

@@ -1,0 +1,208 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - GATEKEEPER CONSTRAINTS
+# =============================================================================
+#
+# These constraints enforce platform security and compliance standards.
+# They use the ConstraintTemplates defined in constraint-templates/
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# REQUIRE STANDARD LABELS
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: require-standard-labels
+  annotations:
+    description: "Enforces standard Kubernetes labels on workloads"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+      - argocd
+      - external-secrets
+  parameters:
+    labels:
+      - key: "app.kubernetes.io/name"
+      - key: "app.kubernetes.io/instance"
+      - key: "app.kubernetes.io/version"
+        allowedRegex: "^[0-9]+\\.[0-9]+\\.[0-9]+.*$"
+      - key: "app.kubernetes.io/managed-by"
+
+---
+# -----------------------------------------------------------------------------
+# REQUIRE RESOURCE LIMITS
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sContainerResources
+metadata:
+  name: require-resource-limits
+  annotations:
+    description: "Requires CPU and memory limits on all containers"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+  parameters:
+    requireLimits: true
+    requireRequests: true
+    exemptImages:
+      - "gcr.io/k8s-minikube/*"
+      - "k8s.gcr.io/*"
+      - "registry.k8s.io/*"
+
+---
+# -----------------------------------------------------------------------------
+# DENY PRIVILEGED CONTAINERS
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDenyPrivileged
+metadata:
+  name: deny-privileged-containers
+  annotations:
+    description: "Blocks privileged containers and privilege escalation"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+      - observability
+  parameters:
+    exemptImages:
+      # System components that require privileged access
+      - "*/kube-proxy:*"
+      - "*/csi-*:*"
+      - "*/node-driver-registrar:*"
+      - "*/livenessprobe:*"
+
+---
+# -----------------------------------------------------------------------------
+# REQUIRE NON-ROOT USER
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequireNonRoot
+metadata:
+  name: require-non-root-user
+  annotations:
+    description: "Requires containers to run as non-root user"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+      - observability
+  parameters:
+    exemptImages:
+      - "*/nginx:*"
+      - "*/redis:*"
+
+---
+# -----------------------------------------------------------------------------
+# ALLOWED CONTAINER REGISTRIES
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRegistries
+metadata:
+  name: allowed-container-registries
+  annotations:
+    description: "Restricts images to approved registries only"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+  parameters:
+    registries:
+      # Customer ACR
+      - "${ACR_NAME}.azurecr.io/"
+      # Microsoft Container Registry
+      - "mcr.microsoft.com/"
+      # Red Hat Registry
+      - "registry.redhat.io/"
+      - "registry.access.redhat.com/"
+      # Kubernetes official images
+      - "registry.k8s.io/"
+      - "k8s.gcr.io/"
+      # Quay.io (for operators)
+      - "quay.io/"
+      # GitHub Container Registry
+      - "ghcr.io/"
+      # Docker Hub official images (restricted)
+      - "docker.io/library/"
+
+---
+# -----------------------------------------------------------------------------
+# DENY LATEST TAG
+# -----------------------------------------------------------------------------
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDenyLatestTag
+metadata:
+  name: deny-latest-tag
+  annotations:
+    description: "Blocks container images using :latest tag for reproducibility"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    excludedNamespaces:
+      - kube-system
+      - kube-public
+      - gatekeeper-system
+  parameters:
+    exemptImages:
+      - "gcr.io/k8s-minikube/*"
+      - "registry.k8s.io/*"

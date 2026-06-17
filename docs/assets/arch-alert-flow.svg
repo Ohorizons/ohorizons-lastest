@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 340" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="prg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="amg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="rtg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="acg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="820" height="340" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Alert Flow</text>
+
+  <!-- Pipeline boxes -->
+  <rect x="40" y="50" width="160" height="70" rx="10" fill="url(#prg)" filter="url(#ds)"/>
+  <text x="120" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Prometheus</text>
+  <text x="120" y="100" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(detects)</text>
+
+  <line x1="202" y1="85" x2="238" y2="85" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrg)"/>
+
+  <rect x="240" y="50" width="160" height="70" rx="10" fill="url(#amg)" filter="url(#ds)"/>
+  <text x="320" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Alertmanager</text>
+  <text x="320" y="100" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(receives &amp; groups)</text>
+
+  <line x1="402" y1="85" x2="438" y2="85" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrg)"/>
+
+  <rect x="440" y="50" width="160" height="70" rx="10" fill="url(#rtg)" filter="url(#ds)"/>
+  <text x="520" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Routing</text>
+  <text x="520" y="100" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(decides)</text>
+
+  <line x1="602" y1="85" x2="638" y2="85" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrg)"/>
+
+  <rect x="640" y="50" width="140" height="70" rx="10" fill="url(#acg)" filter="url(#ds)"/>
+  <text x="710" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Action</text>
+  <text x="710" y="100" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">(notifies)</text>
+
+  <!-- Example flow -->
+  <rect x="40" y="145" width="740" height="160" rx="10" fill="#fff" stroke="#dee2e6" filter="url(#ds)"/>
+  <text x="60" y="170" font-size="12" font-weight="700" fill="#2c3e50">Example Alert Flow</text>
+
+  <text x="60" y="195" font-size="10" fill="#555">1. Prometheus detects: CPU > 85% for 10 minutes</text>
+  <text x="60" y="215" font-size="10" fill="#555">2. Fires alert: HighNodeCPU (severity: warning)</text>
+  <text x="60" y="235" font-size="10" fill="#555">3. Alertmanager receives, groups similar alerts</text>
+  <text x="60" y="255" font-size="10" fill="#555">4. Routes based on severity:</text>
+
+  <rect x="100" y="265" width="160" height="25" rx="5" fill="#e74c3c" opacity="0.9"/>
+  <text x="180" y="282" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">critical → PagerDuty</text>
+  <rect x="280" y="265" width="180" height="25" rx="5" fill="#e67e22" opacity="0.9"/>
+  <text x="370" y="282" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">warning → Slack #alerts</text>
+  <rect x="480" y="265" width="140" height="25" rx="5" fill="#27ae60" opacity="0.9"/>
+  <text x="550" y="282" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">info → Log only</text>
+
+  <!-- Legend -->
+  <text x="410" y="328" text-anchor="middle" font-size="10" fill="#7f8c8d" font-style="italic">Detect → Receive → Route → Notify</text>
+</svg>

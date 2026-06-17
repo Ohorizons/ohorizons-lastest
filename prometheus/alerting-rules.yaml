@@ -1,0 +1,514 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - PROMETHEUS ALERTING RULES
+# =============================================================================
+#
+# Comprehensive alerting rules for monitoring the Open Horizons Platform.
+# Covers infrastructure, applications, AI agents, and platform health.
+#
+# =============================================================================
+
+groups:
+  # ===========================================================================
+  # INFRASTRUCTURE ALERTS
+  # ===========================================================================
+  - name: infrastructure
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # AKS Cluster Health
+      # -----------------------------------------------------------------------
+      - alert: AKSNodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h1
+          component: aks
+        annotations:
+          summary: "AKS node not ready: {{ $labels.node }}"
+          description: "Node {{ $labels.node }} has been not ready for more than 5 minutes."
+          runbook_url: "${RUNBOOK_BASE_URL}/aks-node-not-ready"
+
+      - alert: AKSNodeHighCPU
+        expr: |
+          100 - (avg by (node) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h1
+          component: aks
+        annotations:
+          summary: "High CPU usage on node: {{ $labels.node }}"
+          description: "Node {{ $labels.node }} CPU usage is above 85% for 10 minutes."
+
+      - alert: AKSNodeHighMemory
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h1
+          component: aks
+        annotations:
+          summary: "High memory usage on node: {{ $labels.node }}"
+          description: "Node {{ $labels.node }} memory usage is above 85% for 10 minutes."
+
+      - alert: AKSPodOOMKilled
+        expr: |
+          increase(kube_pod_container_status_restarts_total[1h]) > 5
+          and
+          kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h1
+          component: aks
+        annotations:
+          summary: "Pod OOM killed: {{ $labels.namespace }}/{{ $labels.pod }}"
+          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} was OOM killed."
+
+      - alert: AKSPersistentVolumeUsageHigh
+        expr: |
+          kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes * 100 > 80
+        for: 15m
+        labels:
+          severity: warning
+          horizon: h1
+          component: storage
+        annotations:
+          summary: "PV usage high: {{ $labels.persistentvolumeclaim }}"
+          description: "Persistent volume {{ $labels.persistentvolumeclaim }} usage is above 80%."
+
+      # -----------------------------------------------------------------------
+      # Container Registry
+      # -----------------------------------------------------------------------
+      - alert: ContainerRegistryPushFailures
+        expr: |
+          sum(rate(container_registry_push_failures_total[5m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h1
+          component: acr
+        annotations:
+          summary: "Container registry push failures detected"
+          description: "Container registry is experiencing push failures."
+
+  # ===========================================================================
+  # APPLICATION ALERTS (Golden Path Applications)
+  # ===========================================================================
+  - name: applications
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # RED Method - Request Rate
+      # -----------------------------------------------------------------------
+      - alert: ApplicationHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (app, namespace)
+          /
+          sum(rate(http_requests_total[5m])) by (app, namespace)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h2
+          component: application
+        annotations:
+          summary: "High error rate for {{ $labels.app }}"
+          description: "Application {{ $labels.app }} in {{ $labels.namespace }} has error rate > 5%."
+
+      - alert: ApplicationNoTraffic
+        expr: |
+          sum(rate(http_requests_total[5m])) by (app, namespace) == 0
+          and
+          kube_deployment_status_replicas_available{deployment=~".*"} > 0
+        for: 15m
+        labels:
+          severity: warning
+          horizon: h2
+          component: application
+        annotations:
+          summary: "No traffic for {{ $labels.app }}"
+          description: "Application {{ $labels.app }} has running pods but no traffic for 15 minutes."
+
+      # -----------------------------------------------------------------------
+      # RED Method - Latency
+      # -----------------------------------------------------------------------
+      - alert: ApplicationHighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (app, namespace, le)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h2
+          component: application
+        annotations:
+          summary: "High latency for {{ $labels.app }}"
+          description: "P95 latency for {{ $labels.app }} is above 2 seconds."
+
+      - alert: ApplicationLatencySpike
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (app, namespace, le)
+          )
+          >
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[30m] offset 1h)) by (app, namespace, le)
+          ) * 2
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h2
+          component: application
+        annotations:
+          summary: "Latency spike for {{ $labels.app }}"
+          description: "P99 latency for {{ $labels.app }} has doubled compared to 1 hour ago."
+
+      # -----------------------------------------------------------------------
+      # Resource Saturation
+      # -----------------------------------------------------------------------
+      - alert: ApplicationHighCPU
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total[5m])) by (pod, namespace)
+          /
+          sum(kube_pod_container_resource_limits{resource="cpu"}) by (pod, namespace)
+          > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h2
+          component: application
+        annotations:
+          summary: "High CPU for pod {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} CPU usage is above 90% of limits."
+
+      - alert: ApplicationHighMemory
+        expr: |
+          sum(container_memory_working_set_bytes) by (pod, namespace)
+          /
+          sum(kube_pod_container_resource_limits{resource="memory"}) by (pod, namespace)
+          > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h2
+          component: application
+        annotations:
+          summary: "High memory for pod {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} memory usage is above 90% of limits."
+
+      # -----------------------------------------------------------------------
+      # Deployment Health
+      # -----------------------------------------------------------------------
+      - alert: DeploymentReplicasMismatch
+        expr: |
+          kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h2
+          component: deployment
+        annotations:
+          summary: "Replicas mismatch for {{ $labels.deployment }}"
+          description: "Deployment {{ $labels.deployment }} has {{ $value }} replicas available but {{ $labels.replicas }} desired."
+
+      - alert: PodCrashLooping
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) * 60 * 15 > 3
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h2
+          component: application
+        annotations:
+          summary: "Pod crash looping: {{ $labels.pod }}"
+          description: "Pod {{ $labels.pod }} has restarted more than 3 times in 15 minutes."
+
+  # ===========================================================================
+  # AI & AGENT ALERTS (H3 Innovation)
+  # ===========================================================================
+  - name: ai-agents
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # AI Foundry
+      # -----------------------------------------------------------------------
+      - alert: AIFoundryHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(llm_request_duration_seconds_bucket[5m])) by (model, le)
+          ) > 10
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h3
+          component: ai-foundry
+        annotations:
+          summary: "High AI Foundry latency for model {{ $labels.model }}"
+          description: "P95 latency for model {{ $labels.model }} is above 10 seconds."
+
+      - alert: AIFoundryHighErrorRate
+        expr: |
+          sum(rate(llm_requests_total{status="error"}[5m])) by (model)
+          /
+          sum(rate(llm_requests_total[5m])) by (model)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h3
+          component: ai-foundry
+        annotations:
+          summary: "High AI Foundry error rate for {{ $labels.model }}"
+          description: "Error rate for model {{ $labels.model }} is above 5%."
+
+      - alert: AIFoundryTokenLimitApproaching
+        expr: |
+          sum(rate(llm_tokens_total[1h])) by (model) * 24 > 900000
+        for: 30m
+        labels:
+          severity: warning
+          horizon: h3
+          component: ai-foundry
+        annotations:
+          summary: "Token limit approaching for {{ $labels.model }}"
+          description: "Projected daily token usage for {{ $labels.model }} exceeds 900k tokens."
+
+      # -----------------------------------------------------------------------
+      # AI Agents
+      # -----------------------------------------------------------------------
+      - alert: AgentInvocationFailure
+        expr: |
+          sum(rate(agent_invocations_total{status="failed"}[5m])) by (agent_name)
+          /
+          sum(rate(agent_invocations_total[5m])) by (agent_name)
+          > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h3
+          component: agent
+        annotations:
+          summary: "Agent {{ $labels.agent_name }} high failure rate"
+          description: "Agent {{ $labels.agent_name }} has failure rate above 10%."
+
+      - alert: AgentStuck
+        expr: |
+          agent_execution_duration_seconds > 600
+          and
+          agent_execution_status == 1
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h3
+          component: agent
+        annotations:
+          summary: "Agent {{ $labels.agent_name }} appears stuck"
+          description: "Agent {{ $labels.agent_name }} has been running for over 10 minutes."
+
+      - alert: MultiAgentOrchestrationFailure
+        expr: |
+          sum(rate(multi_agent_orchestration_failures_total[5m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h3
+          component: multi-agent
+        annotations:
+          summary: "Multi-agent orchestration failures detected"
+          description: "Multi-agent system is experiencing orchestration failures."
+
+      # -----------------------------------------------------------------------
+      # SRE Agent
+      # -----------------------------------------------------------------------
+      - alert: SREAgentNotResponding
+        expr: |
+          up{job="sre-agent"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h3
+          component: sre-agent
+        annotations:
+          summary: "SRE Agent not responding"
+          description: "SRE Agent has been down for 5 minutes."
+
+      - alert: SREAgentHighWorkload
+        expr: |
+          sum(rate(sre_agent_actions_total[5m])) > 10
+        for: 10m
+        labels:
+          severity: warning
+          horizon: h3
+          component: sre-agent
+        annotations:
+          summary: "SRE Agent high workload"
+          description: "SRE Agent is processing more than 10 actions per second."
+
+  # ===========================================================================
+  # GITOPS & PLATFORM ALERTS
+  # ===========================================================================
+  - name: gitops-platform
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # ArgoCD
+      # -----------------------------------------------------------------------
+      - alert: ArgoCDAppOutOfSync
+        expr: |
+          argocd_app_info{sync_status!="Synced"} == 1
+        for: 15m
+        labels:
+          severity: warning
+          horizon: h2
+          component: argocd
+        annotations:
+          summary: "ArgoCD app out of sync: {{ $labels.name }}"
+          description: "ArgoCD application {{ $labels.name }} has been out of sync for 15 minutes."
+
+      - alert: ArgoCDAppDegraded
+        expr: |
+          argocd_app_info{health_status="Degraded"} == 1
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h2
+          component: argocd
+        annotations:
+          summary: "ArgoCD app degraded: {{ $labels.name }}"
+          description: "ArgoCD application {{ $labels.name }} health is degraded."
+
+      - alert: ArgoCDSyncFailed
+        expr: |
+          increase(argocd_app_sync_total{phase="Failed"}[30m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h2
+          component: argocd
+        annotations:
+          summary: "ArgoCD sync failed for {{ $labels.name }}"
+          description: "ArgoCD application {{ $labels.name }} sync has failed."
+
+      # -----------------------------------------------------------------------
+      # Backstage
+      # -----------------------------------------------------------------------
+      - alert: BackstageNotAvailable
+        expr: |
+          up{job="backstage"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h2
+          component: backstage
+        annotations:
+          summary: "Backstage developer portal not available"
+          description: "Backstage has been down for 5 minutes."
+
+      - alert: BackstageHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(backstage_request_duration_seconds_bucket[5m])) by (le)
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h2
+          component: backstage
+        annotations:
+          summary: "Backstage high latency"
+          description: "Backstage P95 request latency is above 5 seconds."
+
+      - alert: GoldenPathCreationFailure
+        expr: |
+          sum(rate(backstage_scaffolder_task_count{status="failed"}[1h])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h2
+          component: golden-paths
+        annotations:
+          summary: "Golden Path creation failures detected"
+          description: "Some Golden Path template creations have failed in the last hour."
+
+  # ===========================================================================
+  # SECURITY ALERTS
+  # ===========================================================================
+  - name: security
+    interval: 60s
+    rules:
+      - alert: CertificateExpiringSoon
+        expr: |
+          (cert_expiry_timestamp_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          horizon: h1
+          component: security
+        annotations:
+          summary: "Certificate expiring: {{ $labels.common_name }}"
+          description: "Certificate {{ $labels.common_name }} expires in {{ $value | humanizeDuration }}."
+
+      - alert: HighFailedLoginAttempts
+        expr: |
+          sum(rate(authentication_failures_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h1
+          component: security
+        annotations:
+          summary: "High failed login attempts"
+          description: "More than 10 failed login attempts per second detected."
+
+      - alert: PodSecurityPolicyViolation
+        expr: |
+          sum(rate(pod_security_violations_total[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          horizon: h1
+          component: security
+        annotations:
+          summary: "Pod security policy violation"
+          description: "Pod security policy violations detected."
+
+  # ===========================================================================
+  # SLA ALERTS
+  # ===========================================================================
+  - name: sla
+    interval: 60s
+    rules:
+      - alert: SLOBurnRateHigh
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[1h])) 
+          / 
+          sum(rate(http_requests_total[1h])) 
+          > 0.001 * 14.4
+        for: 5m
+        labels:
+          severity: critical
+          horizon: h2
+          component: slo
+        annotations:
+          summary: "High SLO burn rate detected"
+          description: "Error budget is being consumed at 14.4x the sustainable rate."
+
+      - alert: AvailabilitySLOBreach
+        expr: |
+          (1 - (
+            sum(rate(http_requests_total{status=~"5.."}[30d]))
+            /
+            sum(rate(http_requests_total[30d]))
+          )) < 0.999
+        for: 1h
+        labels:
+          severity: critical
+          horizon: h2
+          component: slo
+        annotations:
+          summary: "Availability SLO breach"
+          description: "30-day availability has dropped below 99.9% SLO."

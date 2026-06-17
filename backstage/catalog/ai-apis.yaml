@@ -1,0 +1,205 @@
+---
+# =============================================================================
+# AI AGENT APIs — Catalog Entities
+# =============================================================================
+# Registers the Agent API endpoints as kind: API in the Backstage catalog.
+# =============================================================================
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: agent-chat-api
+  title: Agent Chat API
+  description: |
+    Multi-agent chat endpoint with SSE streaming. Routes messages to specialist
+    agents via @mention or keyword detection. Supports conversation memory and
+    tool invocation with real GitHub API calls.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+  tags:
+    - rest
+    - sse
+    - ai
+    - agents
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/main.py
+      title: API Source
+      icon: github
+spec:
+  type: openapi
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Agent Chat API
+      version: "2.0.0"
+      description: Multi-agent AI chat with SSE streaming, @mention routing, and real GitHub API tool calls.
+    servers:
+      - url: http://agent-api.ai-services.svc.cluster.local:8008
+        description: In-cluster
+    paths:
+      /api/agents/chat:
+        post:
+          summary: Send a chat message to the agent system
+          description: |
+            Routes the message to the appropriate agent via @mention or keyword detection.
+            Returns an SSE stream with agent responses, tool calls, and errors.
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [message]
+                  properties:
+                    message:
+                      type: string
+                      description: "User message. Use @mention to target an agent (e.g. @pipeline check the build on open-horizons-platform)"
+                    conversation_id:
+                      type: string
+                      description: Conversation ID for memory continuity
+          responses:
+            "200":
+              description: SSE stream with agent responses
+              content:
+                text/event-stream:
+                  schema:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: [content, agent, tool_call, tool_result, error, done]
+                      content:
+                        type: string
+                      agent:
+                        type: string
+                      tool_name:
+                        type: string
+      /health:
+        get:
+          summary: Health check
+          responses:
+            "200":
+              description: Agent API is healthy
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      model:
+                        type: string
+                      deployment:
+                        type: string
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: agent-info-api
+  title: Agent Discovery API
+  description: |
+    Returns metadata about all registered agents — names, display names,
+    descriptions, available tools, and model configuration.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+  tags:
+    - rest
+    - ai
+    - discovery
+spec:
+  type: openapi
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Agent Discovery API
+      version: "2.0.0"
+      description: Returns metadata about all registered agents including tools and configuration.
+    servers:
+      - url: http://agent-api.ai-services.svc.cluster.local:8008
+        description: In-cluster
+    paths:
+      /api/agents/info:
+        get:
+          summary: List all registered agents
+          responses:
+            "200":
+              description: Agent metadata
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      agents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            display_name:
+                              type: string
+                            description:
+                              type: string
+                            tools:
+                              type: array
+                              items:
+                                type: string
+                            temperature:
+                              type: number
+                      total_agents:
+                        type: integer
+                      model:
+                        type: string
+                      version:
+                        type: string
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: agent-impact-api
+  title: AI Impact Analysis API
+  description: |
+    Agentic AI impact assessment API. Analyzes platform metrics, generates
+    executive insights, and provides ROI calculations for the agent system.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+  tags:
+    - rest
+    - ai
+    - analytics
+    - impact
+spec:
+  type: openapi
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: AI Impact Analysis API
+      version: "1.0.0"
+      description: Agentic AI impact assessment — platform metrics, executive insights, and ROI analysis.
+    servers:
+      - url: http://agent-api-impact.ai-services.svc.cluster.local:8011
+        description: In-cluster
+    paths:
+      /health:
+        get:
+          summary: Health check
+          responses:
+            "200":
+              description: Impact API is healthy
+      /api/impact/analyze:
+        post:
+          summary: Run impact analysis
+          responses:
+            "200":
+              description: Impact analysis results

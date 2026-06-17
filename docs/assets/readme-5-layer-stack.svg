@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 480" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAFBFC"/>
+      <stop offset="100%" stop-color="#F0F2F5"/>
+    </linearGradient>
+    <linearGradient id="L5bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF5F2"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="L4bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFF9EE"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="L3bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F0F8FE"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="L2bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F5FAF0"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="L1bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EFF5FC"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="cs">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dy="1"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.06"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="880" height="480" rx="12" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="440" y="34" text-anchor="middle" fill="#1A1A1A" font-size="14" font-weight="700" letter-spacing="0.08em">CONTEXT PLATFORM STACK</text>
+  <text x="440" y="52" text-anchor="middle" fill="#999999" font-size="10.5">Five layers grounded in 25+ peer-reviewed papers</text>
+
+  <!-- ROW GRID: y_start=72, row_h=72, gap=8 -->
+  <!-- Each row: badge vertically centered, title at badge center, desc 18px below title -->
+
+  <!-- L5 Agentic Execution: y=72, h=72 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="72" width="808" height="72" rx="8" fill="url(#L5bg)" stroke="#F0C5B7" stroke-width="1"/>
+    <rect x="36" y="72" width="5" height="72" rx="4" fill="#F25022"/>
+  </g>
+  <rect x="58" y="90" width="34" height="22" rx="5" fill="#F25022"/>
+  <text x="75" y="105" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">L5</text>
+  <text x="104" y="102" fill="#1A1A1A" font-size="14" font-weight="700">Agentic Execution</text>
+  <text x="58" y="124" fill="#5A5A5A" font-size="11">Trajectory logging  ·  Cost tracking  ·  Agent K8s identity  ·  7 production agents</text>
+  <rect x="722" y="90" width="108" height="22" rx="5" fill="#F25022" opacity="0.06"/>
+  <text x="776" y="105" text-anchor="middle" fill="#C43F1A" font-size="9.5" font-weight="600">AGENTS</text>
+
+  <!-- L4 Intent Engineering: y=152, h=72 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="152" width="808" height="72" rx="8" fill="url(#L4bg)" stroke="#F0DEB8" stroke-width="1"/>
+    <rect x="36" y="152" width="5" height="72" rx="4" fill="#FFB900"/>
+  </g>
+  <rect x="58" y="170" width="34" height="22" rx="5" fill="#FFB900"/>
+  <text x="75" y="185" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">L4</text>
+  <text x="104" y="182" fill="#1A1A1A" font-size="14" font-weight="700">Intent Engineering</text>
+  <text x="58" y="204" fill="#5A5A5A" font-size="11">CONSTITUTION.md  ·  SPECIFICATION.md  ·  Scope-guard hooks  ·  Model routing</text>
+  <rect x="722" y="170" width="108" height="22" rx="5" fill="#FFB900" opacity="0.06"/>
+  <text x="776" y="185" text-anchor="middle" fill="#B38300" font-size="9.5" font-weight="600">STRATEGY</text>
+
+  <!-- L3 Context Engineering: y=232, h=72 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="232" width="808" height="72" rx="8" fill="url(#L3bg)" stroke="#B8D8F0" stroke-width="1"/>
+    <rect x="36" y="232" width="5" height="72" rx="4" fill="#00A4EF"/>
+  </g>
+  <rect x="58" y="250" width="34" height="22" rx="5" fill="#00A4EF"/>
+  <text x="75" y="265" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">L3</text>
+  <text x="104" y="262" fill="#1A1A1A" font-size="14" font-weight="700">Context Engineering</text>
+  <text x="58" y="284" fill="#5A5A5A" font-size="11">MCP servers  ·  3-tier memory  ·  27 skills  ·  CODEMAP.md  ·  Context quality audit</text>
+  <rect x="722" y="250" width="108" height="22" rx="5" fill="#00A4EF" opacity="0.06"/>
+  <text x="776" y="265" text-anchor="middle" fill="#0078B5" font-size="9.5" font-weight="600">KNOWLEDGE</text>
+
+  <!-- L2 Platform Engineering: y=312, h=72 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="312" width="808" height="72" rx="8" fill="url(#L2bg)" stroke="#CCDFB0" stroke-width="1"/>
+    <rect x="36" y="312" width="5" height="72" rx="4" fill="#7FBA00"/>
+  </g>
+  <rect x="58" y="330" width="34" height="22" rx="5" fill="#7FBA00"/>
+  <text x="75" y="345" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">L2</text>
+  <text x="104" y="342" fill="#1A1A1A" font-size="14" font-weight="700">Platform Engineering</text>
+  <text x="58" y="364" fill="#5A5A5A" font-size="11">Backstage portal  ·  ArgoCD GitOps  ·  OPA Gatekeeper  ·  Grafana dashboards</text>
+  <rect x="722" y="330" width="108" height="22" rx="5" fill="#7FBA00" opacity="0.06"/>
+  <text x="776" y="345" text-anchor="middle" fill="#5A8A00" font-size="9.5" font-weight="600">GOVERNANCE</text>
+
+  <!-- L1 Cloud Infrastructure: y=392, h=72 -->
+  <g filter="url(#cs)">
+    <rect x="36" y="392" width="808" height="72" rx="8" fill="url(#L1bg)" stroke="#C4DBF3" stroke-width="1"/>
+    <rect x="36" y="392" width="5" height="72" rx="4" fill="#0078D4"/>
+  </g>
+  <rect x="58" y="410" width="34" height="22" rx="5" fill="#0078D4"/>
+  <text x="75" y="425" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">L1</text>
+  <text x="104" y="422" fill="#1A1A1A" font-size="14" font-weight="700">Cloud and Infrastructure</text>
+  <text x="58" y="444" fill="#5A5A5A" font-size="11">16 Terraform modules  ·  AKS  ·  Key Vault  ·  ACR  ·  Workload Identity</text>
+  <rect x="722" y="410" width="108" height="22" rx="5" fill="#0078D4" opacity="0.06"/>
+  <text x="776" y="425" text-anchor="middle" fill="#0063B1" font-size="9.5" font-weight="600">COMPUTE</text>
+
+  <!-- Bottom bar -->
+  <rect x="36" y="476" width="202" height="3" rx="1.5" fill="#F25022"/>
+  <rect x="238" y="476" width="202" height="3" fill="#7FBA00"/>
+  <rect x="440" y="476" width="202" height="3" fill="#00A4EF"/>
+  <rect x="642" y="476" width="202" height="3" rx="1.5" fill="#FFB900"/>
+</svg>

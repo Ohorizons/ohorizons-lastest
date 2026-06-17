@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 780" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="extg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#95a5a6"/><stop offset="100%" stop-color="#7f8c8d"/></linearGradient>
+    <linearGradient id="ingg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="k8sg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="paasg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="900" height="780" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Layered Platform Architecture</text>
+
+  <!-- External Layer -->
+  <rect x="30" y="45" width="840" height="80" rx="10" fill="url(#extg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="50" y="68" font-size="13" font-weight="700" fill="#fff">EXTERNAL LAYER</text>
+  <rect x="50" y="78" width="130" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="115" y="100" text-anchor="middle" font-size="10" fill="#fff">Developers</text>
+  <rect x="200" y="78" width="130" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="265" y="100" text-anchor="middle" font-size="10" fill="#fff">GitHub (Source)</text>
+  <rect x="350" y="78" width="130" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="415" y="100" text-anchor="middle" font-size="10" fill="#fff">Azure Portal</text>
+  <rect x="500" y="78" width="130" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)"/>
+  <text x="565" y="100" text-anchor="middle" font-size="10" fill="#fff">External APIs</text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="128" x2="450" y2="148" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Ingress Layer -->
+  <rect x="30" y="152" width="840" height="85" rx="10" fill="url(#ingg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="50" y="175" font-size="13" font-weight="700" fill="#fff">INGRESS LAYER</text>
+  <text x="50" y="195" font-size="11" fill="#fdebd0">Azure Application Gateway</text>
+  <text x="50" y="212" font-size="10" fill="rgba(255,255,255,0.8)">SSL/TLS Termination  ·  WAF  ·  Load Balancing  ·  URL-based Routing</text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="240" x2="450" y2="260" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Kubernetes Cluster -->
+  <rect x="30" y="264" width="840" height="340" rx="10" fill="url(#k8sg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="50" y="290" font-size="13" font-weight="700" fill="#fff">KUBERNETES CLUSTER (AKS)</text>
+
+  <!-- System Namespace -->
+  <rect x="50" y="300" width="800" height="70" rx="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="70" y="320" font-size="11" font-weight="600" fill="#fff">System Namespace</text>
+  <rect x="70" y="330" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="120" y="350" text-anchor="middle" font-size="9" fill="#fff">CoreDNS</text>
+  <rect x="180" y="330" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="230" y="350" text-anchor="middle" font-size="9" fill="#fff">Metrics Server</text>
+  <rect x="290" y="330" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="340" y="350" text-anchor="middle" font-size="9" fill="#fff">Gatekeeper</text>
+  <rect x="400" y="330" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="450" y="350" text-anchor="middle" font-size="9" fill="#fff">CSI Drivers</text>
+
+  <!-- Platform Namespace -->
+  <rect x="50" y="380" width="800" height="70" rx="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="70" y="400" font-size="11" font-weight="600" fill="#fff">Platform Namespaces (H2)</text>
+  <rect x="70" y="410" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="120" y="430" text-anchor="middle" font-size="9" fill="#fff">ArgoCD</text>
+  <rect x="180" y="410" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="230" y="430" text-anchor="middle" font-size="9" fill="#fff">Backstage</text>
+  <rect x="290" y="410" width="120" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="350" y="430" text-anchor="middle" font-size="9" fill="#fff">External Secrets</text>
+  <rect x="420" y="410" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="470" y="430" text-anchor="middle" font-size="9" fill="#fff">Observability</text>
+
+  <!-- Application Namespace -->
+  <rect x="50" y="460" width="800" height="70" rx="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="70" y="480" font-size="11" font-weight="600" fill="#fff">Application Namespaces</text>
+  <rect x="70" y="490" width="90" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="115" y="510" text-anchor="middle" font-size="9" fill="#fff">app-a (dev)</text>
+  <rect x="170" y="490" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="220" y="510" text-anchor="middle" font-size="9" fill="#fff">app-b (staging)</text>
+  <rect x="280" y="490" width="100" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="330" y="510" text-anchor="middle" font-size="9" fill="#fff">app-c (prod)</text>
+  <rect x="390" y="490" width="80" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="430" y="510" text-anchor="middle" font-size="9" fill="#fff">app-n ...</text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="607" x2="450" y2="627" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="540" y="622" font-size="10" fill="#7f8c8d">Private Endpoints</text>
+
+  <!-- Azure PaaS -->
+  <rect x="30" y="632" width="840" height="130" rx="10" fill="url(#paasg)" filter="url(#ds)" opacity="0.9"/>
+  <text x="50" y="658" font-size="13" font-weight="700" fill="#fff">AZURE PaaS SERVICES</text>
+  <text x="50" y="675" font-size="10" fill="#d5f5e3">Managed by Azure — you don't manage the servers</text>
+  <rect x="50" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="95" y="707" text-anchor="middle" font-size="9" fill="#fff">ACR</text>
+  <rect x="150" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="195" y="707" text-anchor="middle" font-size="9" fill="#fff">Key Vault</text>
+  <rect x="250" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="295" y="707" text-anchor="middle" font-size="9" fill="#fff">PostgreSQL</text>
+  <rect x="350" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="395" y="707" text-anchor="middle" font-size="9" fill="#fff">Redis</text>
+  <rect x="450" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="495" y="707" text-anchor="middle" font-size="9" fill="#fff">AI Foundry</text>
+  <rect x="550" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="595" y="707" text-anchor="middle" font-size="9" fill="#fff">Defender</text>
+  <rect x="650" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="695" y="707" text-anchor="middle" font-size="9" fill="#fff">Monitor</text>
+  <rect x="750" y="685" width="90" height="35" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="795" y="707" text-anchor="middle" font-size="9" fill="#fff">Storage</text>
+
+  <!-- Legend -->
+  <rect x="30" y="770" width="14" height="8" rx="2" fill="#95a5a6"/>
+  <text x="50" y="778" font-size="9" fill="#555">External</text>
+  <rect x="110" y="770" width="14" height="8" rx="2" fill="#e67e22"/>
+  <text x="130" y="778" font-size="9" fill="#555">Ingress</text>
+  <rect x="190" y="770" width="14" height="8" rx="2" fill="#3498db"/>
+  <text x="210" y="778" font-size="9" fill="#555">Kubernetes</text>
+  <rect x="290" y="770" width="14" height="8" rx="2" fill="#27ae60"/>
+  <text x="310" y="778" font-size="9" fill="#555">Azure PaaS</text>
+</svg>

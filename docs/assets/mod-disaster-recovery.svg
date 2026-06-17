@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="prg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="drg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7f8c8d"/></marker>
+  </defs>
+  <rect width="800" height="400" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="400" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Disaster Recovery Setup</text>
+  <!-- Primary Region -->
+  <text x="190" y="55" text-anchor="middle" font-size="12" font-weight="600" fill="#3498db">PRIMARY (Brazil South)</text>
+  <rect x="50" y="70" width="280" height="80" rx="10" fill="url(#prg)" filter="url(#ds)"/>
+  <text x="190" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">AKS Cluster (Active)</text>
+  <line x1="332" y1="110" x2="438" y2="110" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="385" y="103" text-anchor="middle" font-size="8" fill="#7f8c8d">Velero backups</text>
+  <rect x="50" y="165" width="280" height="80" rx="10" fill="url(#prg)" filter="url(#ds)"/>
+  <text x="190" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">PostgreSQL (Primary)</text>
+  <line x1="332" y1="205" x2="438" y2="205" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="385" y="198" text-anchor="middle" font-size="8" fill="#7f8c8d">Async replica</text>
+  <rect x="50" y="260" width="280" height="80" rx="10" fill="url(#prg)" filter="url(#ds)"/>
+  <text x="190" y="290" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Storage (GRS)</text>
+  <text x="190" y="310" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">Blobs, Files</text>
+  <line x1="332" y1="300" x2="438" y2="300" stroke="#7f8c8d" stroke-width="3" stroke-dasharray="2,2" marker-end="url(#arr)"/>
+  <text x="385" y="293" text-anchor="middle" font-size="8" fill="#7f8c8d">Geo-redundant</text>
+  <!-- Secondary Region -->
+  <text x="580" y="55" text-anchor="middle" font-size="12" font-weight="600" fill="#e67e22">SECONDARY / DR (East US 2)</text>
+  <rect x="440" y="70" width="280" height="80" rx="10" fill="url(#drg)" filter="url(#ds)"/>
+  <text x="580" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">AKS Cluster (Standby)</text>
+  <text x="580" y="120" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Scaled to 0</text>
+  <rect x="440" y="165" width="280" height="80" rx="10" fill="url(#drg)" filter="url(#ds)"/>
+  <text x="580" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">PostgreSQL (Read Replica)</text>
+  <text x="580" y="215" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Can be promoted</text>
+  <rect x="440" y="260" width="280" height="80" rx="10" fill="url(#drg)" filter="url(#ds)"/>
+  <text x="580" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Storage (auto-replicated)</text>
+  <!-- RPO/RTO -->
+  <rect x="50" y="360" width="340" height="25" rx="5" fill="#fff" stroke="#dee2e6"/>
+  <text x="220" y="377" text-anchor="middle" font-size="10" fill="#555">RPO (data loss): &lt; 1 hour · RTO (recovery): 4-8 hours</text>
+</svg>

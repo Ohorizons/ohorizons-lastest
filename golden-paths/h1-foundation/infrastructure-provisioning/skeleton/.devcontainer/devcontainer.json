@@ -1,0 +1,10 @@
+{
+  "name": "Infra",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.7"
+    },
+    "ghcr.io/devcontainers/features/azure-cli:1": {}
+  }
+}

@@ -1,0 +1,7 @@
+name: Security Scan
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron    - cron    - cron    - cron    - cron    - cron    - cron    -        - cron    -on    - cron    - cron    - cron    - cron    - cron    - cron    - civ    - cron    - cron    - cron    - cron    - cron    - cron    - cron   ar    - cron    - cron    - cron    - cron    - cron    - cron    - cron nd    - cron    - cron    - cron    - cron    - cron    - cron    -am    - cron    - cron    - cron    - cron    - cron    - cron    -ns-    - cron    -st    - cron    - cron    - cron    - cron    - cron    - cron    - cron    -        - cron    -on    - cron    - cron    - cron    - cron    - cron    - cron    - civ    - cron    - cron    - cron    - cron    - cron    - cron    - cron   ar    - cron    - cron    - cron    - cron    - cron    - cron    - cron nd    - cron    - cron    - cron    - cron    - cron    - cron    -am    - cron hs/h1-foundation/basic-cicd/skeleton/codeowners/CODEOWNERS << 'EOF'
+* @${{ values.owner }}

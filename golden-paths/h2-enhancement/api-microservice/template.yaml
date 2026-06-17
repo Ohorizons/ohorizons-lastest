@@ -1,0 +1,539 @@
+# =============================================================================
+# OPEN HORIZONS - H2 ENHANCEMENT GOLDEN PATH
+# API Microservice with Database
+# =============================================================================
+#
+# This template creates a production-ready API microservice with:
+#   - REST API with OpenAPI documentation
+#   - PostgreSQL database connection
+#   - Redis caching layer
+#   - Full observability (metrics, traces, logs)
+#   - GitHub Actions CI/CD
+#   - ArgoCD GitOps deployment
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-api-microservice
+  title: "H2: API Microservice with Database"
+  description: |
+    Create a production-ready API microservice with PostgreSQL database, 
+    Redis caching, OpenAPI documentation, and full observability stack.
+    
+    **Includes:**
+    - FastAPI/Express/Spring Boot REST API
+    - PostgreSQL with migrations
+    - Redis caching layer
+    - OpenTelemetry instrumentation
+    - Prometheus metrics
+    - Health endpoints
+    - GitHub Actions CI/CD
+    - ArgoCD deployment
+    
+  tags:
+    - api
+    - microservice
+    - postgresql
+    - redis
+    - h2-enhancement
+    - platform-engineering
+    - recommended
+  
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: "{{parameters.repoName}}"
+
+spec:
+  owner: platform-team
+  type: service
+  
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Step 1: Application Information
+    # -------------------------------------------------------------------------
+    - title: Application Information
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Unique name for this microservice (lowercase, hyphens allowed)
+          pattern: "^[a-z][a-z0-9-]*[a-z0-9]$"
+          minLength: 3
+          maxLength: 40
+          ui:autofocus: true
+        
+        description:
+          title: Description
+          type: string
+          description: Brief description of what this service does
+          maxLength: 200
+        
+        owner:
+          title: Owner Team
+          type: string
+          description: The team that owns this service
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+    
+    # -------------------------------------------------------------------------
+    # Step 2: Language & Framework
+    # -------------------------------------------------------------------------
+    - title: Technology Stack
+      required:
+        - language
+      properties:
+        language:
+          title: Programming Language
+          type: string
+          description: Select the programming language and framework
+          enum:
+            - python-fastapi
+            - nodejs-express
+            - java-spring
+            - dotnet-webapi
+            - go-gin
+          enumNames:
+            - "Python (FastAPI)"
+            - "Node.js (Express)"
+            - "Java (Spring Boot)"
+            - ".NET (Web API)"
+            - "Go (Gin)"
+          default: python-fastapi
+        
+        apiStyle:
+          title: API Style
+          type: string
+          description: API design approach
+          enum:
+            - rest
+            - graphql
+          enumNames:
+            - "REST API (OpenAPI)"
+            - "GraphQL"
+          default: rest
+    
+    # -------------------------------------------------------------------------
+    # Step 3: Database Configuration
+    # -------------------------------------------------------------------------
+    - title: Database & Caching
+      required:
+        - enableDatabase
+      properties:
+        enableDatabase:
+          title: Enable PostgreSQL Database
+          type: boolean
+          default: true
+          description: Include PostgreSQL database connectivity
+        
+        databaseName:
+          title: Database Name
+          type: string
+          description: Name of the database to create
+          pattern: "^[a-z][a-z0-9_]*$"
+          ui:widget: hidden
+          ui:options:
+            hidden:
+              condition:
+                enableDatabase: false
+        
+        enableMigrations:
+          title: Enable Database Migrations
+          type: boolean
+          default: true
+          description: Include migration framework (Alembic/Flyway/EF)
+          ui:widget: hidden
+          ui:options:
+            hidden:
+              condition:
+                enableDatabase: false
+        
+        enableRedis:
+          title: Enable Redis Caching
+          type: boolean
+          default: true
+          description: Include Redis for caching and session management
+        
+        redisPurpose:
+          title: Redis Usage
+          type: array
+          items:
+            type: string
+            enum:
+              - caching
+              - sessions
+              - rate-limiting
+              - pub-sub
+          uniqueItems: true
+          default:
+            - caching
+          ui:widget: checkboxes
+          ui:options:
+            hidden:
+              condition:
+                enableRedis: false
+    
+    # -------------------------------------------------------------------------
+    # Step 4: Security & Authentication
+    # -------------------------------------------------------------------------
+    - title: Security Configuration
+      properties:
+        authMethod:
+          title: Authentication Method
+          type: string
+          description: How will this API authenticate requests?
+          enum:
+            - none
+            - api-key
+            - jwt
+            - oauth2
+            - entra-id
+          enumNames:
+            - "None (Internal service)"
+            - "API Key"
+            - "JWT Bearer Token"
+            - "OAuth 2.0"
+            - "Microsoft Entra ID"
+          default: jwt
+        
+        enableRateLimiting:
+          title: Enable Rate Limiting
+          type: boolean
+          default: true
+          description: Apply rate limiting to API endpoints
+        
+        rateLimitRequests:
+          title: Rate Limit (requests/minute)
+          type: integer
+          default: 100
+          minimum: 10
+          maximum: 10000
+          ui:widget: hidden
+          ui:options:
+            hidden:
+              condition:
+                enableRateLimiting: false
+        
+        enableCors:
+          title: Enable CORS
+          type: boolean
+          default: true
+          description: Enable Cross-Origin Resource Sharing
+        
+        corsOrigins:
+          title: Allowed CORS Origins
+          type: string
+          description: Comma-separated list of allowed origins (* for all)
+          default: "*"
+          ui:widget: hidden
+          ui:options:
+            hidden:
+              condition:
+                enableCors: false
+    
+    # -------------------------------------------------------------------------
+    # Step 5: Deployment Configuration
+    # -------------------------------------------------------------------------
+    - title: Deployment Settings
+      required:
+        - environments
+      properties:
+        environments:
+          title: Target Environments
+          type: array
+          items:
+            type: string
+            enum:
+              - dev
+              - staging
+              - prod
+          uniqueItems: true
+          default:
+            - dev
+            - staging
+            - prod
+          ui:widget: checkboxes
+        
+        minReplicas:
+          title: Minimum Replicas
+          type: integer
+          default: 2
+          minimum: 1
+          maximum: 10
+        
+        maxReplicas:
+          title: Maximum Replicas (HPA)
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+        
+        cpuRequest:
+          title: CPU Request
+          type: string
+          default: "100m"
+          enum:
+            - "50m"
+            - "100m"
+            - "250m"
+            - "500m"
+            - "1000m"
+        
+        memoryRequest:
+          title: Memory Request
+          type: string
+          default: "256Mi"
+          enum:
+            - "128Mi"
+            - "256Mi"
+            - "512Mi"
+            - "1Gi"
+            - "2Gi"
+        
+        enableIngress:
+          title: Enable External Ingress
+          type: boolean
+          default: true
+          description: Expose service via ingress controller
+        
+        ingressPath:
+          title: Ingress Path
+          type: string
+          default: "/api/${{ parameters.name }}"
+          ui:widget: hidden
+          ui:options:
+            hidden:
+              condition:
+                enableIngress: false
+    
+    # -------------------------------------------------------------------------
+    # Step 6: Repository Settings
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoName
+      properties:
+        repoName:
+          title: Repository Name
+          type: string
+          description: Name for the GitHub repository
+          default: "${{ parameters.name }}"
+          pattern: "^[a-z][a-z0-9-]*[a-z0-9]$"
+        
+        visibility:
+          title: Repository Visibility
+          type: string
+          enum:
+            - private
+            - internal
+            - public
+          default: private
+        
+        enableBranchProtection:
+          title: Enable Branch Protection
+          type: boolean
+          default: true
+          description: Require PR reviews and status checks
+        
+        enableCopilot:
+          title: Enable GitHub Copilot
+          type: boolean
+          default: true
+        
+        enableGHAS:
+          title: Enable GitHub Advanced Security
+          type: boolean
+          default: true
+          description: Enable code scanning, secret scanning, and dependency review
+
+  # ===========================================================================
+  # SCAFFOLDER STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Step 1: Fetch Template Skeleton
+    # -------------------------------------------------------------------------
+    - id: fetch-skeleton
+      name: Fetch API Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: .
+        values:
+          domain: application
+          language: python
+          lifecycle: production
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+          system: default
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          apiStyle: ${{ parameters.apiStyle }}
+          enableDatabase: ${{ parameters.enableDatabase }}
+          databaseName: ${{ parameters.databaseName or parameters.name | replace("-", "_") }}
+          enableMigrations: ${{ parameters.enableMigrations }}
+          enableRedis: ${{ parameters.enableRedis }}
+          redisPurpose: ${{ parameters.redisPurpose }}
+          authMethod: ${{ parameters.authMethod }}
+          enableRateLimiting: ${{ parameters.enableRateLimiting }}
+          rateLimitRequests: ${{ parameters.rateLimitRequests }}
+          enableCors: ${{ parameters.enableCors }}
+          corsOrigins: ${{ parameters.corsOrigins }}
+    
+    # -------------------------------------------------------------------------
+    # Step 2: Generate Kubernetes Manifests
+    # -------------------------------------------------------------------------
+    - id: generate-manifests
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ../../common/kubernetes
+        targetPath: deploy/kubernetes
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          environments: ${{ parameters.environments }}
+          minReplicas: ${{ parameters.minReplicas }}
+          maxReplicas: ${{ parameters.maxReplicas }}
+          cpuRequest: ${{ parameters.cpuRequest }}
+          memoryRequest: ${{ parameters.memoryRequest }}
+          enableIngress: ${{ parameters.enableIngress }}
+          ingressPath: ${{ parameters.ingressPath }}
+          enableDatabase: ${{ parameters.enableDatabase }}
+          enableRedis: ${{ parameters.enableRedis }}
+          language: ${{ parameters.language }}
+    
+    # -------------------------------------------------------------------------
+    # Step 3: Generate Database Manifests (if enabled)
+    # -------------------------------------------------------------------------
+    - id: generate-db-manifests
+      name: Generate Database Configuration
+      if: ${{ parameters.enableDatabase }}
+      action: fetch:template
+      input:
+        url: ../../common/database
+        targetPath: deploy/database
+        values:
+          name: ${{ parameters.name }}
+          databaseName: ${{ parameters.databaseName or parameters.name | replace("-", "_") }}
+          enableMigrations: ${{ parameters.enableMigrations }}
+          language: ${{ parameters.language }}
+    
+    # -------------------------------------------------------------------------
+    # Step 4: Generate CI/CD Pipeline
+    # -------------------------------------------------------------------------
+    - id: generate-cicd
+      name: Generate CI/CD Pipeline
+      action: fetch:template
+      input:
+        url: ../../common/cicd/github-actions
+        targetPath: .github
+        values:
+          name: ${{ parameters.name }}
+          language: ${{ parameters.language }}
+          environments: ${{ parameters.environments }}
+          enableGHAS: ${{ parameters.enableGHAS }}
+          enableDatabase: ${{ parameters.enableDatabase }}
+          enableMigrations: ${{ parameters.enableMigrations }}
+    
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+    # -------------------------------------------------------------------------
+    # Step 5: Publish to GitHub
+    # -------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-api-microservice"
+    - id: create-repo
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: ${{ parameters.visibility }}
+        protectDefaultBranch: ${{ parameters.enableBranchProtection }}
+    
+    # -------------------------------------------------------------------------
+    # Step 6: Register in Catalog
+    # -------------------------------------------------------------------------
+    - id: register-catalog
+      name: Register in Developer Portal
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: GitHub Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+        icon: github
+      
+      - title: Developer Portal
+        url: ${{ steps['register-catalog'].output.entityRef }}
+        icon: catalog
+      
+      - title: CI/CD Pipeline
+        url: ${{ steps['create-repo'].output.remoteUrl }}/actions
+        icon: github
+    
+    text:
+      - title: Next Steps
+        content: |
+          Your API microservice **${{ parameters.name }}** has been created!
+          
+          1. Review the Welcome PR for documentation
+          2. Run `docker-compose up` for local development
+          3. Access API docs at http://localhost:8080/docs
+          4. Push changes to trigger CI/CD pipeline

@@ -1,0 +1,278 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sre-agent-integration
+  title: SRE Agent Integration
+  description: |
+    Integrates AI-powered SRE agents for:
+    - Automated incident response
+    - Root cause analysis
+    - Self-healing infrastructure
+    - Runbook automation
+    - Intelligent alerting
+    - Integration with Azure Monitor, PagerDuty, and ServiceNow
+  tags:
+    - sre
+    - ai
+    - automation
+    - incident-response
+    - h3-innovation
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Agent Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: SRE Agent Name
+          type: string
+          description: Name for your SRE agent configuration
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+        owner:
+          title: Owner Team
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+          description: Scope and purpose of this SRE agent
+          
+    - title: Capabilities
+      properties:
+        enable_incident_response:
+          title: Automated Incident Response
+          type: boolean
+          default: true
+          description: Auto-triage and respond to incidents
+        enable_root_cause_analysis:
+          title: Root Cause Analysis
+          type: boolean
+          default: true
+          description: AI-powered RCA for incidents
+        enable_self_healing:
+          title: Self-Healing Actions
+          type: boolean
+          default: false
+          description: Automated remediation actions
+        enable_runbook_automation:
+          title: Runbook Automation
+          type: boolean
+          default: true
+          description: Execute runbooks automatically
+        enable_predictive_alerts:
+          title: Predictive Alerting
+          type: boolean
+          default: true
+          description: Predict issues before they occur
+          
+    - title: Integrations
+      properties:
+        monitoring_platform:
+          title: Monitoring Platform
+          type: string
+          enum:
+            - azure_monitor
+            - datadog
+            - prometheus
+            - grafana
+          default: azure_monitor
+        incident_platform:
+          title: Incident Management
+          type: string
+          enum:
+            - pagerduty
+            - servicenow
+            - opsgenie
+            - github_issues
+          default: pagerduty
+        communication_platform:
+          title: Communication Platform
+          type: string
+          enum:
+            - slack
+            - teams
+            - discord
+          default: teams
+        ticketing_system:
+          title: Ticketing System
+          type: string
+          enum:
+            - servicenow
+            - jira
+            - github_issues
+            - azure_devops
+          default: github_issues
+          
+    - title: AI Configuration
+      properties:
+        ai_model:
+          title: AI Model
+          type: string
+          enum:
+            - gpt-4o
+            - gpt-4o-mini
+            - claude-3-5-sonnet
+          default: gpt-4o
+        knowledge_sources:
+          title: Knowledge Sources
+          type: array
+          description: Sources for context-aware responses
+          items:
+            type: string
+            enum:
+              - runbooks
+              - architecture_docs
+              - incident_history
+              - monitoring_data
+              - change_logs
+        max_auto_actions:
+          title: Max Auto-Actions per Incident
+          type: integer
+          default: 3
+          description: Limit automated remediation actions
+          
+    - title: Safety & Governance
+      properties:
+        require_approval_for:
+          title: Require Human Approval For
+          type: array
+          items:
+            type: string
+            enum:
+              - production_changes
+              - database_operations
+              - security_changes
+              - cost_impact_high
+        blast_radius_limit:
+          title: Blast Radius Limit
+          type: string
+          enum:
+            - single_service
+            - single_namespace
+            - single_cluster
+            - no_limit
+          default: single_service
+        enable_dry_run:
+          title: Dry Run Mode
+          type: boolean
+          default: true
+          description: Test actions before executing
+          
+    - title: Infrastructure
+      required:
+        - environment
+      properties:
+        environment:
+          title: Environment
+          type: string
+          enum:
+            - dev
+            - staging
+            - prod
+        azure_region:
+          title: Azure Region
+          type: string
+          enum:
+            - brazilsouth
+            - eastus
+            - westeurope
+          default: brazilsouth
+          
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          lifecycle: production
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+          system: default
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          enable_incident_response: ${{ parameters.enable_incident_response }}
+          enable_root_cause_analysis: ${{ parameters.enable_root_cause_analysis }}
+          enable_self_healing: ${{ parameters.enable_self_healing }}
+          enable_runbook_automation: ${{ parameters.enable_runbook_automation }}
+          enable_predictive_alerts: ${{ parameters.enable_predictive_alerts }}
+          monitoring_platform: ${{ parameters.monitoring_platform }}
+          incident_platform: ${{ parameters.incident_platform }}
+          communication_platform: ${{ parameters.communication_platform }}
+          ticketing_system: ${{ parameters.ticketing_system }}
+          ai_model: ${{ parameters.ai_model }}
+          knowledge_sources: ${{ parameters.knowledge_sources }}
+          max_auto_actions: ${{ parameters.max_auto_actions }}
+          require_approval_for: ${{ parameters.require_approval_for }}
+          blast_radius_limit: ${{ parameters.blast_radius_limit }}
+          enable_dry_run: ${{ parameters.enable_dry_run }}
+          environment: ${{ parameters.environment }}
+          azure_region: ${{ parameters.azure_region }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "sre-agent-integration"
+    - id: publish-github
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        description: SRE Agent - ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: private
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}

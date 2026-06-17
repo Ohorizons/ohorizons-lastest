@@ -1,0 +1,39 @@
+{
+  "name": "@open-horizons/plugin-ai-chat",
+  "version": "1.0.0",
+  "description": "AI Chat plugin for Open Horizons — powered by Claude SDK + MCP",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "private": true,
+  "backstage": {
+    "role": "frontend-plugin",
+    "pluginId": "ai-chat"
+  },
+  "dependencies": {
+    "@backstage/core-components": "^0.16.0",
+    "@backstage/core-plugin-api": "^1.10.0",
+    "@backstage/theme": "^0.6.0",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-markdown": "^9.0.0",
+    "react-router-dom": "^6.0.0"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.29.0",
+    "typescript": "~5.4.0"
+  },
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean"
+  },
+  "files": [
+    "dist"
+  ]
+}

@@ -1,0 +1,386 @@
+app:
+  title: Open Horizons — Agentic DevOps Platform
+  baseUrl: http://localhost:3000
+
+organization:
+  name: Open Horizons
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  auth:
+    dangerouslyDisableDefaultAuthPolicy: true
+    keys:
+      - secret: ${BACKEND_SECRET:-supersecret-dev-only}
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    img-src: ["'self'", 'data:', 'https://avatars.githubusercontent.com', 'https://*.githubusercontent.com']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+integrations:
+  github:
+    - host: github.com
+      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+      # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+      token: ${GITHUB_TOKEN}
+    ### Example for how to add your GitHub Enterprise instance using the API:
+    # - host: ghe.example.net
+    #   apiBaseUrl: https://ghe.example.net/api/v3
+    #   token: ${GHE_TOKEN}
+
+proxy:
+  endpoints:
+    '/github/api':
+      target: 'https://api.github.com'
+      headers:
+        Authorization: 'Bearer ${GITHUB_TOKEN}'
+        Accept: 'application/vnd.github+json'
+        X-GitHub-Api-Version: '2022-11-28'
+        User-Agent: 'Backstage'
+      changeOrigin: true
+      allowedMethods: ['GET']
+      credentials: forward
+
+    '/github-api':
+      target: 'https://api.github.com'
+      headers:
+        Authorization: 'Bearer ${GITHUB_TOKEN}'
+        Accept: 'application/vnd.github+json'
+        X-GitHub-Api-Version: '2022-11-28'
+        User-Agent: 'Backstage'
+      changeOrigin: true
+      allowedMethods: ['GET']
+      credentials: forward
+
+    # AI Chat Agent — Python FastAPI backend with Claude SDK
+    '/agent-api':
+      target: 'http://localhost:8008'
+      changeOrigin: true
+      allowedMethods: ['GET', 'POST']
+      credentials: forward
+
+    # AI Impact Agent — Python FastAPI backend with MAF + ChromaDB
+    '/ai-impact':
+      target: 'http://localhost:8011'
+      changeOrigin: true
+      allowedMethods: ['GET', 'POST']
+      credentials: forward
+
+    # ArgoCD — GitOps deployment tracking
+    '/argocd/api':
+      target: 'https://localhost:8443/api/v1'
+      changeOrigin: true
+      secure: false
+      headers:
+        Cookie: 'argocd.token=${ARGOCD_AUTH_TOKEN}'
+
+    # Grafana — Observability dashboards
+    '/grafana/api':
+      target: 'http://localhost:3000'
+      changeOrigin: true
+      headers:
+        Authorization: 'Bearer ${GRAFANA_TOKEN}'
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers:
+    # GitHub OAuth — requires GITHUB_APP_CLIENT_ID and GITHUB_APP_CLIENT_SECRET env vars
+    # Create a GitHub OAuth App at: https://github.com/organizations/Ohorizons/settings/applications
+    # Callback URL: http://localhost:7007/api/auth/github/handler/frame
+    github:
+      development:
+        clientId: ${GITHUB_APP_CLIENT_ID}
+        clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+        scopes:
+          - repo
+          - codespace
+        signIn:
+          resolvers:
+            - resolver: usernameMatchingUserEntityName
+              dangerouslyAllowSignInWithoutUserInCatalog: true
+
+scaffolder:
+  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+kubernetes:
+  serviceLocatorMethod:
+    type: multiTenant
+  clusterLocatorMethods: []
+
+# ArgoCD plugin configuration
+argocd:
+  baseUrl: https://localhost:8443
+  appLocatorMethods:
+    - type: 'config'
+      instances:
+        - name: local
+          url: https://localhost:8443
+          token: ${ARGOCD_AUTH_TOKEN}
+
+# Grafana plugin configuration
+grafana:
+  domain: http://localhost:3000
+  unifiedAlerting: true
+
+# Lighthouse plugin configuration
+lighthouse:
+  baseUrl: http://localhost:7007/api/lighthouse
+
+# Cost Insights (demo data — no cloud provider required)
+copilot:
+  host: github.com
+  organization: Ohorizons
+
+costInsights:
+  engineerCost: 200000
+  products:
+    computeEngine:
+      name: Azure Compute
+    cloudStorage:
+      name: Azure Storage
+    bigQuery:
+      name: Azure SQL
+  metrics:
+    DAU:
+      name: Daily Active Users
+      default: true
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+  locations:
+    # -----------------------------------------------------------------
+    # Platform Self-Registration
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../catalog-info.yaml
+
+    # -----------------------------------------------------------------
+    # Organization Data (groups, users, domain, systems)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../examples/org.yaml
+      rules:
+        - allow: [User, Group, Domain, System]
+
+    # -----------------------------------------------------------------
+    # Platform Entities (components, APIs, resources)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../examples/entities.yaml
+
+    # -----------------------------------------------------------------
+    # H1 Foundation Golden Path Templates (6)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../../golden-paths/h1-foundation/web-application/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h1-foundation/new-microservice/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h1-foundation/basic-cicd/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h1-foundation/documentation-site/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h1-foundation/infrastructure-provisioning/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h1-foundation/security-baseline/template.yaml
+      rules:
+        - allow: [Template]
+
+    # -----------------------------------------------------------------
+    # H2 Enhancement Golden Path Templates (10)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/todo-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/api-microservice/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/microservice/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/api-gateway/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/gitops-deployment/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/event-driven-microservice/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/batch-job/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/data-pipeline/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/reusable-workflows/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h2-enhancement/ado-to-github-migration/template.yaml
+      rules:
+        - allow: [Template]
+
+    # -----------------------------------------------------------------
+    # H3 Innovation Golden Path Templates (21)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../../golden-paths/h3-innovation/rag-application/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/copilot-extension/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/foundry-agent/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/multi-agent-system/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mlops-pipeline/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/ai-evaluation-pipeline/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/sre-agent-integration/template.yaml
+      rules:
+        - allow: [Template]
+
+    # MCP Golden Path Templates (14)
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-ecosystem/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-spec-kit/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-awesome-copilot/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-agent-framework/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-gh-aw/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-agents-md/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-backstage-docs/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-backstage-plugins/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-backstage-ui/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-spotify-backstage/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../golden-paths/h3-innovation/mcp-backstage-org/template.yaml
+      rules:
+        - allow: [Template]
+
+    # -----------------------------------------------------------------
+    # Example Template (Backstage stock)
+    # -----------------------------------------------------------------
+    - type: file
+      target: ../../examples/template/template.yaml
+      rules:
+        - allow: [Template]
+
+# see https://backstage.io/docs/permissions/getting-started for more on the permission framework
+permission:
+  # setting this to `false` will disable permissions
+  enabled: false
+
+# MCP Actions — exposes Backstage scaffolder actions as MCP tools for AI clients
+# AI clients (GitHub Copilot) can connect to: http://localhost:7007/api/mcp-actions/v1
+# See https://backstage.io/docs/features/mcp-actions/
+mcpActions:
+  # Static bearer token for AI client authentication (set via env var)
+  # Generate with: openssl rand -hex 32
+  # Add to your MCP client config as: Authorization: Bearer <token>
+  auth:
+    externalAccess:
+      enabled: ${MCP_ACTIONS_AUTH_ENABLED:-false}
+      token: ${MCP_ACTIONS_TOKEN}
+
+# GitHub Events — webhook routing for real-time catalog updates
+# Configure webhook in GitHub: https://github.com/organizations/Ohorizons/settings/hooks
+# Payload URL: http://<your-host>/api/events/http/github
+# Content type: application/json
+# Secret: must match GITHUB_WEBHOOK_SECRET env var
+events:
+  modules:
+    github:
+      webhookSecret: ${GITHUB_WEBHOOK_SECRET}

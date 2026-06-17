@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ohorizons/ohorizons-demo/.openhorizons-selection.schema.json",
+  "title": "Open Horizons Install Wizard Selection Manifest",
+  "description": "Schema for .openhorizons-selection.yaml produced by scripts/install-wizard.sh",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "horizon",
+    "environment",
+    "deployment_mode",
+    "modules",
+    "backstage_components",
+    "golden_paths"
+  ],
+  "properties": {
+    "horizon": {
+      "type": "string",
+      "enum": ["h1", "h2", "h3", "all"]
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["dev", "staging", "prod"]
+    },
+    "deployment_mode": {
+      "type": "string",
+      "enum": ["express", "standard", "enterprise"]
+    },
+    "modules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enable_container_registry": {"type": "boolean"},
+        "enable_databases": {"type": "boolean"},
+        "enable_defender": {"type": "boolean"},
+        "enable_purview": {"type": "boolean"},
+        "enable_argocd": {"type": "boolean"},
+        "enable_external_secrets": {"type": "boolean"},
+        "enable_observability": {"type": "boolean"},
+        "enable_github_runners": {"type": "boolean"},
+        "enable_cost_management": {"type": "boolean"},
+        "enable_ai_foundry": {"type": "boolean"},
+        "enable_disaster_recovery": {"type": "boolean"}
+      }
+    },
+    "backstage_components": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enable_ai_chat_plugin": {"type": "boolean"},
+        "enable_agent_api": {"type": "boolean"},
+        "enable_agent_api_impact": {"type": "boolean"},
+        "enable_agent_api_maf": {"type": "boolean"},
+        "enable_agent_api_sk": {"type": "boolean"},
+        "enable_mcp_ecosystem": {"type": "boolean"}
+      }
+    },
+    "golden_paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^h[1-3]-(foundation|enhancement|innovation)/[a-z0-9-]+$"
+      },
+      "uniqueItems": true
+    },
+    "agents": {
+      "type": "array",
+      "description": "Allowlist of Copilot Chat agent ids (file basenames without .agent.md). Empty list means include all agents in .github/agents/.",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "uniqueItems": true
+    },
+    "skills": {
+      "type": "array",
+      "description": "Allowlist of skill folder names. Empty list means include all skills in .github/skills/.",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "uniqueItems": true
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Allowlist of prompt ids (file basenames without .prompt.md). Empty list means include all prompts in .github/prompts/.",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "uniqueItems": true
+    },
+    "mcp_servers": {
+      "type": "array",
+      "description": "Allowlist of MCP server ids (file basenames without .ts) under mcp-servers/src/tools/. Empty list means include all servers.",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "uniqueItems": true
+    }
+  },
+  "patternProperties": {
+    "^(secret_|token_|password_|key_)": {
+      "not": {},
+      "description": "Selection manifest must never contain secret material."
+    }
+  }
+}

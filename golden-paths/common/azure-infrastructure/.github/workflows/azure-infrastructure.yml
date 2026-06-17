@@ -1,0 +1,84 @@
+name: Azure Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      resource_group:
+        description: Azure resource group name
+        required: true
+        type: string
+      location:
+        description: Azure region
+        required: true
+        default: centralus
+        type: string
+      mode:
+        description: Deployment mode
+        required: true
+        default: what-if
+        type: choice
+        options:
+          - what-if
+          - apply
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  what-if:
+    name: Bicep what-if
+    runs-on: ubuntu-latest
+    environment: "{% raw %}${{ inputs.environment }}{% endraw %}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        shell: bash
+        run: |
+          federated_token=$(curl -sSL \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api://AzureADTokenExchange" | jq -r '.value')
+          az login \
+            --service-principal \
+            --username "{% raw %}${{ secrets.AZURE_CLIENT_ID }}{% endraw %}" \
+            --tenant "{% raw %}${{ secrets.AZURE_TENANT_ID }}{% endraw %}" \
+            --federated-token "${federated_token}"
+          az account set --subscription "{% raw %}${{ secrets.AZURE_SUBSCRIPTION_ID }}{% endraw %}"
+
+      - name: Run deployment
+        shell: bash
+        env:
+          DEPLOYMENT_MODE: "{% raw %}${{ inputs.mode }}{% endraw %}"
+          RESOURCE_GROUP: "{% raw %}${{ inputs.resource_group }}{% endraw %}"
+          DEPLOYMENT_ENVIRONMENT: "{% raw %}${{ inputs.environment }}{% endraw %}"
+          DEPLOYMENT_LOCATION: "{% raw %}${{ inputs.location }}{% endraw %}"
+        run: |
+          case "${DEPLOYMENT_MODE}" in
+            what-if)
+              az deployment group what-if \
+                --resource-group "${RESOURCE_GROUP}" \
+                --template-file deploy/azure/main.bicep \
+                --parameters environment="${DEPLOYMENT_ENVIRONMENT}" location="${DEPLOYMENT_LOCATION}"
+              ;;
+            apply)
+              az deployment group create \
+                --resource-group "${RESOURCE_GROUP}" \
+                --template-file deploy/azure/main.bicep \
+                --parameters environment="${DEPLOYMENT_ENVIRONMENT}" location="${DEPLOYMENT_LOCATION}"
+              ;;
+            *)
+              echo "Unsupported deployment mode: ${DEPLOYMENT_MODE}" >&2
+              exit 1
+              ;;
+          esac

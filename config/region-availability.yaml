@@ -1,0 +1,200 @@
+# Azure Region Availability Matrix for Open Horizons Platform
+#
+# Overview:
+# This document defines which Azure regions support all services required by the Open Horizons Platform, with focus on LATAM deployment options.
+#
+# Required Services Checklist:
+# - AKS (Standard)
+# - Azure OpenAI / AI Foundry (Standard)
+# - Defender for Cloud (Standard)
+# - Microsoft Purview (Standard)
+# - ACR (Standard/Premium)
+# - PostgreSQL Flexible (Burstable+)
+# - Redis Cache (Basic+)
+# - Key Vault (Standard)
+# - Log Analytics
+
+regions:
+  # Tier 1: Full Platform Support
+  brazilsouth:
+    display_name: "Brazil South (São Paulo)"
+    data_residency: "Brazil"
+    tier: 1
+    latency:
+      from_brazil: "<10ms"
+      from_latam: "50-150ms"
+    services:
+      aks: "Full support"
+      ai_foundry: "Limited models (GPT-4, GPT-3.5)"
+      openai_gpt4o: "Not available (use East US 2)"
+      defender_cloud: "All plans"
+      purview: "Full support"
+      acr_premium: "With geo-replication"
+      postgresql_flexible: "Full support"
+      redis_cache: "All tiers"
+      key_vault_premium: "HSM available"
+      log_analytics: "Full support"
+      application_gateway: "Standard_v2"
+      front_door: "Standard/Premium"
+    recommended_for:
+      - "Brazilian enterprises with data residency requirements"
+      - "LGPD compliance"
+      - "Latency-sensitive workloads in Brazil"
+    limitations:
+      - "Limited AI model availability"
+      - "Requires East US 2 for GPT-4o/o3 models"
+    sizing_availability:
+      small: true
+      medium: true
+      large: true
+      xlarge: "With AI spillover"
+
+  eastus2:
+    display_name: "East US 2 (Virginia)"
+    data_residency: "United States"
+    tier: 1
+    latency:
+      from_brazil: "~120ms"
+      from_latam: "80-150ms"
+    services:
+      aks: "Full support"
+      ai_foundry: "Full support (all models)"
+      openai_gpt4o: "Available"
+      openai_o3: "Available"
+      openai_gpt5: "Preview available"
+      defender_cloud: "All plans"
+      defender_ai: "Full support"
+      purview: "Full support"
+      acr_premium: "With geo-replication"
+      postgresql_flexible: "Full support"
+      redis_cache: "All tiers"
+      key_vault_premium: "HSM available"
+      log_analytics: "Full support"
+      application_gateway: "Standard_v2"
+      front_door: "Standard/Premium"
+      cosmos_db: "All APIs"
+    recommended_for:
+      - "AI-intensive workloads"
+      - "Multi-region deployments"
+      - "Disaster recovery for Brazil South"
+      - "Full AI Foundry capabilities"
+    sizing_availability:
+      small: true
+      medium: true
+      large: true
+      xlarge: true
+
+  southcentralus:
+    display_name: "South Central US (Texas)"
+    data_residency: "United States"
+    tier: 1
+    latency:
+      from_mexico: "~30ms"
+      from_brazil: "~150ms"
+      from_latam: "50-120ms"
+    services:
+      aks: "Full support"
+      ai_foundry: "Most models"
+      openai_gpt4o: "Available"
+      defender_cloud: "All plans"
+      purview: "Full support"
+      acr_premium: "With geo-replication"
+      postgresql_flexible: "Full support"
+      redis_cache: "All tiers"
+      key_vault_premium: "HSM available"
+      log_analytics: "Full support"
+      application_gateway: "Standard_v2"
+      front_door: "Standard/Premium"
+    recommended_for:
+      - "Mexico-focused deployments"
+      - "Central America workloads"
+      - "DR for East US regions"
+    sizing_availability:
+      small: true
+      medium: true
+      large: true
+      xlarge: true
+
+  # Tier 2: Partial Support
+  westus2:
+    display_name: "West US 2 (Washington)"
+    data_residency: "United States"
+    tier: 2
+    services:
+      aks: "Full support"
+      ai_foundry: "Most models"
+      openai_gpt4o: "Limited availability"
+      defender_cloud: "All plans"
+      purview: "Full support"
+    recommended_for:
+      - "DR for South Central US"
+      - "US West Coast clients"
+    limitations:
+      - "Higher latency from LATAM"
+      - "Some AI model restrictions"
+
+deployment_patterns:
+  brazil_centric:
+    name: "brazil-centric"
+    description: "For Brazilian enterprises with LGPD requirements"
+    primary_region: "brazilsouth"
+    ai_region: "eastus2"
+    dr_region: "southcentralus"
+    architecture:
+      - "Platform infrastructure in Brazil South"
+      - "AI workloads routed to East US 2"
+      - "Private Link for cross-region AI calls"
+      - "Geo-replicated ACR between regions"
+    compliance:
+      lgpd: "Data stays in Brazil"
+      ai_data: "May cross borders for inference"
+
+  multi_latam:
+    name: "multi-latam"
+    description: "For enterprises serving multiple LATAM countries"
+    primary_region: "eastus2"
+    secondary_regions:
+      - "brazilsouth"
+      - "southcentralus"
+    architecture:
+      - "Central platform in East US 2"
+      - "Regional data processing in local regions"
+      - "Front Door for global routing"
+      - "Read replicas in regional locations"
+
+  us_based:
+    name: "us-based"
+    description: "For companies with US headquarters serving LATAM"
+    primary_region: "eastus2"
+    dr_region: "southcentralus"
+    architecture:
+      - "All infrastructure in US"
+      - "CDN/Front Door for LATAM latency optimization"
+      - "No data residency restrictions"
+
+metadata:
+  last_updated: "2024-12"
+  issue_template_config:
+    - type: dropdown
+      id: azure_region
+      attributes:
+        label: "Primary Azure Region"
+        description: "Select primary region for deployment"
+        options:
+          - "brazilsouth - Brazil South (São Paulo) - LGPD Compliant"
+          - "eastus2 - East US 2 (Virginia) - Full AI Support"
+          - "southcentralus - South Central US (Texas) - Mexico/Central America"
+          - "westus2 - West US 2 (Washington) - US West Coast"
+      validations:
+        required: true
+    - type: dropdown
+      id: ai_region
+      attributes:
+        label: "AI Workloads Region"
+        description: "Region for AI Foundry (may differ for model availability)"
+        options:
+          - "same - Same as primary region"
+          - "eastus2 - East US 2 (recommended for full AI)"
+          - "southcentralus - South Central US"
+      validations:
+        required: true

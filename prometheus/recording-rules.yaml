@@ -1,0 +1,408 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - PROMETHEUS RECORDING RULES
+# =============================================================================
+#
+# Recording rules pre-compute frequently-used or expensive queries for
+# faster dashboard rendering and more efficient alerting.
+#
+# =============================================================================
+
+groups:
+  # ===========================================================================
+  # CLUSTER RESOURCE METRICS
+  # ===========================================================================
+  - name: cluster-resources
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # CPU Metrics
+      # -----------------------------------------------------------------------
+      - record: cluster:cpu:usage_ratio
+        expr: |
+          1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))
+
+      - record: node:cpu:usage_ratio
+        expr: |
+          1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (node)
+
+      - record: namespace:cpu:usage_cores
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace)
+
+      - record: pod:cpu:usage_ratio
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace, pod)
+          /
+          sum(kube_pod_container_resource_limits{resource="cpu"}) by (namespace, pod)
+
+      # -----------------------------------------------------------------------
+      # Memory Metrics
+      # -----------------------------------------------------------------------
+      - record: cluster:memory:usage_ratio
+        expr: |
+          1 - (sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes))
+
+      - record: node:memory:usage_ratio
+        expr: |
+          1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+
+      - record: namespace:memory:usage_bytes
+        expr: |
+          sum(container_memory_working_set_bytes) by (namespace)
+
+      - record: pod:memory:usage_ratio
+        expr: |
+          sum(container_memory_working_set_bytes) by (namespace, pod)
+          /
+          sum(kube_pod_container_resource_limits{resource="memory"}) by (namespace, pod)
+
+      # -----------------------------------------------------------------------
+      # Storage Metrics
+      # -----------------------------------------------------------------------
+      - record: pv:storage:usage_ratio
+        expr: |
+          kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+
+  # ===========================================================================
+  # APPLICATION METRICS (RED Method)
+  # ===========================================================================
+  - name: application-red
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # Request Rate
+      # -----------------------------------------------------------------------
+      - record: app:http:requests_per_second
+        expr: |
+          sum(rate(http_requests_total[5m])) by (namespace, app)
+
+      - record: app:http:requests_per_second:by_method
+        expr: |
+          sum(rate(http_requests_total[5m])) by (namespace, app, method)
+
+      - record: app:http:requests_per_second:by_status
+        expr: |
+          sum(rate(http_requests_total[5m])) by (namespace, app, status)
+
+      # -----------------------------------------------------------------------
+      # Error Rate
+      # -----------------------------------------------------------------------
+      - record: app:http:error_rate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (namespace, app)
+          /
+          sum(rate(http_requests_total[5m])) by (namespace, app)
+
+      - record: app:http:error_rate:4xx
+        expr: |
+          sum(rate(http_requests_total{status=~"4.."}[5m])) by (namespace, app)
+          /
+          sum(rate(http_requests_total[5m])) by (namespace, app)
+
+      # -----------------------------------------------------------------------
+      # Duration (Latency)
+      # -----------------------------------------------------------------------
+      - record: app:http:latency_p50
+        expr: |
+          histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (namespace, app, le))
+
+      - record: app:http:latency_p95
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (namespace, app, le))
+
+      - record: app:http:latency_p99
+        expr: |
+          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (namespace, app, le))
+
+  # ===========================================================================
+  # SLO METRICS
+  # ===========================================================================
+  - name: slo-metrics
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # Availability SLI
+      # -----------------------------------------------------------------------
+      - record: slo:availability:ratio_5m
+        expr: |
+          1 - (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          )
+
+      - record: slo:availability:ratio_1h
+        expr: |
+          1 - (
+            sum(rate(http_requests_total{status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total[1h]))
+          )
+
+      - record: slo:availability:ratio_24h
+        expr: |
+          1 - (
+            sum(rate(http_requests_total{status=~"5.."}[24h]))
+            /
+            sum(rate(http_requests_total[24h]))
+          )
+
+      - record: slo:availability:ratio_30d
+        expr: |
+          1 - (
+            sum(rate(http_requests_total{status=~"5.."}[30d]))
+            /
+            sum(rate(http_requests_total[30d]))
+          )
+
+      # -----------------------------------------------------------------------
+      # Latency SLI
+      # -----------------------------------------------------------------------
+      - record: slo:latency:good_requests_ratio_5m
+        expr: |
+          sum(rate(http_request_duration_seconds_bucket{le="0.5"}[5m]))
+          /
+          sum(rate(http_request_duration_seconds_count[5m]))
+
+      - record: slo:latency:good_requests_ratio_1h
+        expr: |
+          sum(rate(http_request_duration_seconds_bucket{le="0.5"}[1h]))
+          /
+          sum(rate(http_request_duration_seconds_count[1h]))
+
+      # -----------------------------------------------------------------------
+      # Error Budget
+      # -----------------------------------------------------------------------
+      - record: slo:error_budget:remaining_ratio
+        expr: |
+          1 - (
+            (1 - slo:availability:ratio_30d)
+            /
+            (1 - 0.999)
+          )
+
+      - record: slo:error_budget:burn_rate_1h
+        expr: |
+          (1 - slo:availability:ratio_1h) / (1 - 0.999)
+
+  # ===========================================================================
+  # GITOPS METRICS
+  # ===========================================================================
+  - name: gitops-metrics
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # ArgoCD Application Status
+      # -----------------------------------------------------------------------
+      - record: argocd:apps:total
+        expr: |
+          count(argocd_app_info)
+
+      - record: argocd:apps:synced
+        expr: |
+          count(argocd_app_info{sync_status="Synced"})
+
+      - record: argocd:apps:out_of_sync
+        expr: |
+          count(argocd_app_info{sync_status!="Synced"})
+
+      - record: argocd:apps:healthy
+        expr: |
+          count(argocd_app_info{health_status="Healthy"})
+
+      - record: argocd:apps:degraded
+        expr: |
+          count(argocd_app_info{health_status="Degraded"})
+
+      # -----------------------------------------------------------------------
+      # Sync Operations
+      # -----------------------------------------------------------------------
+      - record: argocd:sync:success_rate_1h
+        expr: |
+          sum(increase(argocd_app_sync_total{phase="Succeeded"}[1h]))
+          /
+          sum(increase(argocd_app_sync_total[1h]))
+
+  # ===========================================================================
+  # AI AGENT METRICS
+  # ===========================================================================
+  - name: ai-agent-metrics
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # Agent Invocations
+      # -----------------------------------------------------------------------
+      - record: agent:invocations:rate_5m
+        expr: |
+          sum(rate(agent_invocations_total[5m])) by (agent_name)
+
+      - record: agent:invocations:success_rate
+        expr: |
+          sum(rate(agent_invocations_total{status="success"}[5m])) by (agent_name)
+          /
+          sum(rate(agent_invocations_total[5m])) by (agent_name)
+
+      - record: agent:invocations:error_rate
+        expr: |
+          sum(rate(agent_invocations_total{status="failed"}[5m])) by (agent_name)
+          /
+          sum(rate(agent_invocations_total[5m])) by (agent_name)
+
+      # -----------------------------------------------------------------------
+      # LLM Metrics
+      # -----------------------------------------------------------------------
+      - record: llm:requests:rate_5m
+        expr: |
+          sum(rate(llm_requests_total[5m])) by (model)
+
+      - record: llm:requests:error_rate
+        expr: |
+          sum(rate(llm_requests_total{status="error"}[5m])) by (model)
+          /
+          sum(rate(llm_requests_total[5m])) by (model)
+
+      - record: llm:tokens:rate_5m
+        expr: |
+          sum(rate(llm_tokens_total[5m])) by (model, type)
+
+      - record: llm:tokens:total_24h
+        expr: |
+          sum(increase(llm_tokens_total[24h])) by (model)
+
+      - record: llm:latency:p95
+        expr: |
+          histogram_quantile(0.95, sum(rate(llm_request_duration_seconds_bucket[5m])) by (model, le))
+
+      - record: llm:latency:p99
+        expr: |
+          histogram_quantile(0.99, sum(rate(llm_request_duration_seconds_bucket[5m])) by (model, le))
+
+  # ===========================================================================
+  # GOLDEN PATH METRICS
+  # ===========================================================================
+  - name: golden-path-metrics
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # Template Usage
+      # -----------------------------------------------------------------------
+      - record: goldenpath:templates:created_1h
+        expr: |
+          sum(increase(backstage_scaffolder_task_count{status="completed"}[1h])) by (template_name)
+
+      - record: goldenpath:templates:success_rate
+        expr: |
+          sum(rate(backstage_scaffolder_task_count{status="completed"}[24h])) by (template_name)
+          /
+          sum(rate(backstage_scaffolder_task_count[24h])) by (template_name)
+
+  # ===========================================================================
+  # KUBERNETES WORKLOAD METRICS
+  # ===========================================================================
+  - name: kubernetes-workloads
+    interval: 30s
+    rules:
+      # -----------------------------------------------------------------------
+      # Deployment Health
+      # -----------------------------------------------------------------------
+      - record: deployment:replicas:available_ratio
+        expr: |
+          kube_deployment_status_replicas_available / kube_deployment_spec_replicas
+
+      - record: deployment:replicas:unavailable
+        expr: |
+          kube_deployment_spec_replicas - kube_deployment_status_replicas_available
+
+      # -----------------------------------------------------------------------
+      # Pod Restarts
+      # -----------------------------------------------------------------------
+      - record: pod:restarts:rate_15m
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) * 60 * 15
+
+      # -----------------------------------------------------------------------
+      # Namespace Resource Usage
+      # -----------------------------------------------------------------------
+      - record: namespace:workloads:pod_count
+        expr: |
+          count(kube_pod_info) by (namespace)
+
+      - record: namespace:workloads:deployment_count
+        expr: |
+          count(kube_deployment_labels) by (namespace)
+
+  # ===========================================================================
+  # COST ESTIMATION METRICS
+  # ===========================================================================
+  - name: cost-estimation
+    interval: 300s
+    rules:
+      # -----------------------------------------------------------------------
+      # Resource Cost Estimates (example pricing, adjust for your Azure region)
+      # -----------------------------------------------------------------------
+      - record: namespace:cost:cpu_hourly_estimate
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total[1h])) by (namespace) * 0.05
+
+      - record: namespace:cost:memory_hourly_estimate
+        expr: |
+          sum(avg_over_time(container_memory_working_set_bytes[1h])) by (namespace) / 1024 / 1024 / 1024 * 0.01
+
+      - record: namespace:cost:total_hourly_estimate
+        expr: |
+          namespace:cost:cpu_hourly_estimate + namespace:cost:memory_hourly_estimate
+
+      - record: namespace:cost:total_monthly_estimate
+        expr: |
+          namespace:cost:total_hourly_estimate * 730
+
+  # ===========================================================================
+  # PLATFORM HEALTH AGGREGATIONS
+  # ===========================================================================
+  - name: platform-health
+    interval: 60s
+    rules:
+      # -----------------------------------------------------------------------
+      # Overall Platform Health Score
+      # -----------------------------------------------------------------------
+      - record: platform:health:nodes_ready_ratio
+        expr: |
+          sum(kube_node_status_condition{condition="Ready",status="true"})
+          /
+          count(kube_node_info)
+
+      - record: platform:health:pods_ready_ratio
+        expr: |
+          sum(kube_pod_status_ready{condition="true"})
+          /
+          count(kube_pod_info)
+
+      - record: platform:health:deployments_healthy_ratio
+        expr: |
+          sum(kube_deployment_status_replicas_available)
+          /
+          sum(kube_deployment_spec_replicas)
+
+      # Composite health score (0-100)
+      - record: platform:health:score
+        expr: |
+          (
+            (platform:health:nodes_ready_ratio * 40) +
+            (platform:health:pods_ready_ratio * 30) +
+            (platform:health:deployments_healthy_ratio * 30)
+          )
+
+      # -----------------------------------------------------------------------
+      # Alert Summary
+      # -----------------------------------------------------------------------
+      - record: platform:alerts:critical_count
+        expr: |
+          count(ALERTS{alertstate="firing", severity="critical"}) or vector(0)
+
+      - record: platform:alerts:warning_count
+        expr: |
+          count(ALERTS{alertstate="firing", severity="warning"}) or vector(0)
+
+      - record: platform:alerts:total_count
+        expr: |
+          count(ALERTS{alertstate="firing"}) or vector(0)

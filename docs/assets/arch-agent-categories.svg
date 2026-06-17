@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="h1ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <linearGradient id="h2ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="h3ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="ccag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="820" height="480" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="410" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Agent Architecture</text>
+
+  <!-- H1 -->
+  <rect x="40" y="50" width="740" height="85" rx="10" fill="url(#h1ag)" filter="url(#ds)"/>
+  <text x="60" y="75" font-size="13" font-weight="700" fill="#fff">H1 FOUNDATION AGENTS (Infrastructure)</text>
+  <text x="60" y="97" font-size="9" fill="rgba(255,255,255,0.85)">infrastructure-analyzer · security-scanner · cost-optimizer · compliance-checker · network-diagnostics</text>
+  <text x="60" y="118" font-size="9" fill="rgba(255,255,255,0.6)">Terraform code analysis, vulnerability scanning, cost savings, policy validation, network troubleshooting</text>
+
+  <!-- H2 -->
+  <rect x="40" y="148" width="740" height="85" rx="10" fill="url(#h2ag)" filter="url(#ds)"/>
+  <text x="60" y="173" font-size="13" font-weight="700" fill="#fff">H2 ENHANCEMENT AGENTS (Operations)</text>
+  <text x="60" y="195" font-size="9" fill="rgba(255,255,255,0.85)">deployment-assistant · incident-responder · performance-tuner · log-analyzer · documentation-generator</text>
+  <text x="60" y="216" font-size="9" fill="rgba(255,255,255,0.6)">Deployment help, incident assistance, performance optimization, log analysis, documentation creation</text>
+
+  <!-- H3 -->
+  <rect x="40" y="246" width="740" height="85" rx="10" fill="url(#h3ag)" filter="url(#ds)"/>
+  <text x="60" y="271" font-size="13" font-weight="700" fill="#fff">H3 INNOVATION AGENTS (AI/ML)</text>
+  <text x="60" y="293" font-size="9" fill="rgba(255,255,255,0.85)">code-reviewer · test-generator · api-designer · data-analyst · ml-model-optimizer</text>
+  <text x="60" y="314" font-size="9" fill="rgba(255,255,255,0.6)">Automatic PR reviews, test case generation, API design, data patterns, ML tuning</text>
+
+  <!-- Cross-cutting -->
+  <rect x="40" y="344" width="740" height="85" rx="10" fill="url(#ccag)" filter="url(#ds)"/>
+  <text x="60" y="369" font-size="13" font-weight="700" fill="#fff">CROSS-CUTTING AGENTS (Platform-wide)</text>
+  <text x="60" y="391" font-size="9" fill="rgba(255,255,255,0.85)">platform-orchestrator · knowledge-base · onboarding-assistant</text>
+  <text x="60" y="412" font-size="9" fill="rgba(255,255,255,0.6)">Agent coordination, platform Q&amp;A, new team member guidance</text>
+
+  <!-- Legend -->
+  <rect x="40" y="448" width="14" height="10" rx="2" fill="#27ae60"/>
+  <text x="60" y="457" font-size="9" fill="#555">H1 Infrastructure</text>
+  <rect x="180" y="448" width="14" height="10" rx="2" fill="#3498db"/>
+  <text x="200" y="457" font-size="9" fill="#555">H2 Operations</text>
+  <rect x="310" y="448" width="14" height="10" rx="2" fill="#e74c3c"/>
+  <text x="330" y="457" font-size="9" fill="#555">H3 AI/ML</text>
+  <rect x="410" y="448" width="14" height="10" rx="2" fill="#9b59b6"/>
+  <text x="430" y="457" font-size="9" fill="#555">Cross-cutting</text>
+</svg>

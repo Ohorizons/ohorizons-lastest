@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="760" height="260" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="760" height="36" rx="12" fill="#2c3e50"/>
+  <rect x="0" y="18" width="760" height="18" fill="#2c3e50"/>
+  <text x="380" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">NSG: nsg-aks-nodes</text>
+  <!-- Inbound header -->
+  <text x="20" y="60" font-size="11" font-weight="700" fill="#27ae60">INBOUND RULES</text>
+  <!-- Inbound table header -->
+  <rect x="15" y="68" width="730" height="22" rx="4" fill="#e8f8f5" stroke="#1abc9c"/>
+  <text x="60" y="83" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Priority</text>
+  <text x="190" y="83" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Name</text>
+  <text x="370" y="83" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Source</text>
+  <text x="510" y="83" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Port</text>
+  <text x="650" y="83" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Action</text>
+  <!-- Inbound rows -->
+  <text x="60" y="104" text-anchor="middle" font-size="9" fill="#555">100</text>
+  <text x="190" y="104" text-anchor="middle" font-size="9" fill="#555">AllowAppGateway</text>
+  <text x="370" y="104" text-anchor="middle" font-size="9" fill="#555">AppGw Subnet</text>
+  <text x="510" y="104" text-anchor="middle" font-size="9" fill="#555">443</text>
+  <rect x="610" y="94" width="80" height="18" rx="4" fill="#27ae60"/><text x="650" y="107" text-anchor="middle" font-size="9" fill="#fff">Allow</text>
+  <text x="60" y="121" text-anchor="middle" font-size="9" fill="#555">110</text>
+  <text x="190" y="121" text-anchor="middle" font-size="9" fill="#555">AllowKubeAPI</text>
+  <text x="370" y="121" text-anchor="middle" font-size="9" fill="#555">AzureCloud</text>
+  <text x="510" y="121" text-anchor="middle" font-size="9" fill="#555">443</text>
+  <rect x="610" y="111" width="80" height="18" rx="4" fill="#27ae60"/><text x="650" y="124" text-anchor="middle" font-size="9" fill="#fff">Allow</text>
+  <text x="60" y="138" text-anchor="middle" font-size="9" fill="#555">120</text>
+  <text x="190" y="138" text-anchor="middle" font-size="9" fill="#555">AllowLoadBalancer</text>
+  <text x="370" y="138" text-anchor="middle" font-size="9" fill="#555">AzureLoadBal</text>
+  <text x="510" y="138" text-anchor="middle" font-size="9" fill="#555">*</text>
+  <rect x="610" y="128" width="80" height="18" rx="4" fill="#27ae60"/><text x="650" y="141" text-anchor="middle" font-size="9" fill="#fff">Allow</text>
+  <text x="60" y="155" text-anchor="middle" font-size="9" fill="#555">4096</text>
+  <text x="190" y="155" text-anchor="middle" font-size="9" fill="#555">DenyAllInbound</text>
+  <text x="370" y="155" text-anchor="middle" font-size="9" fill="#555">*</text>
+  <text x="510" y="155" text-anchor="middle" font-size="9" fill="#555">*</text>
+  <rect x="610" y="145" width="80" height="18" rx="4" fill="#e74c3c"/><text x="650" y="158" text-anchor="middle" font-size="9" fill="#fff">Deny</text>
+  <!-- Outbound -->
+  <text x="20" y="182" font-size="11" font-weight="700" fill="#3498db">OUTBOUND RULES</text>
+  <rect x="15" y="190" width="730" height="22" rx="4" fill="#eaf2f8" stroke="#3498db"/>
+  <text x="60" y="205" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Priority</text>
+  <text x="190" y="205" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Name</text>
+  <text x="370" y="205" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Destination</text>
+  <text x="510" y="205" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Port</text>
+  <text x="650" y="205" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="700">Action</text>
+  <text x="60" y="226" text-anchor="middle" font-size="9" fill="#555">100</text>
+  <text x="190" y="226" text-anchor="middle" font-size="9" fill="#555">AllowAzureServices</text>
+  <text x="370" y="226" text-anchor="middle" font-size="9" fill="#555">AzureCloud</text>
+  <text x="510" y="226" text-anchor="middle" font-size="9" fill="#555">443</text>
+  <rect x="610" y="216" width="80" height="18" rx="4" fill="#27ae60"/><text x="650" y="229" text-anchor="middle" font-size="9" fill="#fff">Allow</text>
+  <text x="60" y="243" text-anchor="middle" font-size="9" fill="#555">110</text>
+  <text x="190" y="243" text-anchor="middle" font-size="9" fill="#555">AllowPrivateEndpt</text>
+  <text x="370" y="243" text-anchor="middle" font-size="9" fill="#555">VirtualNetwork</text>
+  <text x="510" y="243" text-anchor="middle" font-size="9" fill="#555">*</text>
+  <rect x="610" y="233" width="80" height="18" rx="4" fill="#27ae60"/><text x="650" y="246" text-anchor="middle" font-size="9" fill="#fff">Allow</text>
+</svg>

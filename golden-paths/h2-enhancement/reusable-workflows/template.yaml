@@ -1,0 +1,408 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H2 REUSABLE WORKFLOWS GOLDEN PATH
+# =============================================================================
+#
+# Backstage Software Template for creating reusable GitHub Actions workflows.
+# Enables standardization of CI/CD patterns across the organization.
+#
+# Horizon: H2 - Enhancement
+# Use Case: Shared workflows, composite actions, organization-wide standards
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h2-reusable-workflows
+  title: "H2: Create Reusable Workflows Library"
+  description: |
+    Create a repository of reusable GitHub Actions workflows and composite actions.
+    Standardize CI/CD patterns across your organization.
+  tags:
+    - h2-enhancement
+    - github-actions
+    - ci-cd
+    - reusable-workflows
+    - devops
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: workflow-library
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # Library Information
+    # -------------------------------------------------------------------------
+    - title: Library Information
+      required:
+        - libraryName
+        - team
+      properties:
+        libraryName:
+          title: Library Name
+          description: Name for this workflow library
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-workflows$'
+          maxLength: 40
+          default: platform-workflows
+
+        team:
+          title: Team
+          description: Team that maintains this library
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          type: string
+          default: Reusable GitHub Actions workflows and composite actions
+
+        scope:
+          title: Library Scope
+          type: string
+          default: organization
+          enum:
+            - organization
+            - team
+            - project
+          enumNames:
+            - Organization-wide
+            - Team-specific
+            - Project-specific
+
+    # -------------------------------------------------------------------------
+    # Workflow Templates
+    # -------------------------------------------------------------------------
+    - title: Workflow Templates to Include
+      properties:
+        includeWorkflows:
+          title: Reusable Workflows
+          type: array
+          items:
+            type: string
+            enum:
+              - build-container
+              - deploy-aks
+              - deploy-container-apps
+              - security-scan
+              - code-quality
+              - test-dotnet
+              - test-node
+              - test-python
+              - release-semantic
+              - notify-teams
+              - terraform-plan-apply
+              - gitops-sync
+          uniqueItems: true
+          default:
+            - build-container
+            - deploy-aks
+            - security-scan
+            - code-quality
+
+        includeCompositeActions:
+          title: Composite Actions
+          type: array
+          items:
+            type: string
+            enum:
+              - setup-dotnet
+              - setup-node
+              - setup-python
+              - setup-go
+              - azure-login
+              - docker-build-push
+              - helm-deploy
+              - slack-notify
+              - teams-notify
+              - create-release
+              - cache-dependencies
+              - run-tests-with-coverage
+          uniqueItems: true
+          default:
+            - azure-login
+            - docker-build-push
+            - helm-deploy
+
+    # -------------------------------------------------------------------------
+    # Build Workflow Configuration
+    # -------------------------------------------------------------------------
+    - title: Build Workflow Configuration
+      properties:
+        containerRegistry:
+          title: Default Container Registry
+          type: string
+          default: acr
+          enum:
+            - acr
+            - ghcr
+            - dockerhub
+          enumNames:
+            - Azure Container Registry
+            - GitHub Container Registry
+            - Docker Hub
+
+        enableMultiArch:
+          title: Enable Multi-Architecture Builds
+          type: boolean
+          default: true
+
+        architectures:
+          title: Target Architectures
+          type: array
+          items:
+            type: string
+            enum:
+              - linux/amd64
+              - linux/arm64
+          default:
+            - linux/amd64
+            - linux/arm64
+
+        enableSBOM:
+          title: Generate SBOM (Software Bill of Materials)
+          type: boolean
+          default: true
+
+        enableSignatures:
+          title: Enable Container Signing
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Security Configuration
+    # -------------------------------------------------------------------------
+    - title: Security Configuration
+      properties:
+        enableGHAS:
+          title: Enable GitHub Advanced Security
+          type: boolean
+          default: true
+
+        securityTools:
+          title: Security Scanning Tools
+          type: array
+          items:
+            type: string
+            enum:
+              - codeql
+              - dependabot
+              - trivy
+              - snyk
+              - checkov
+              - gitleaks
+          default:
+            - codeql
+            - trivy
+            - gitleaks
+
+        failOnHighVulns:
+          title: Fail on High/Critical Vulnerabilities
+          type: boolean
+          default: true
+
+        enableSecretScanning:
+          title: Enable Secret Scanning
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Deployment Configuration
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      properties:
+        deploymentTargets:
+          title: Supported Deployment Targets
+          type: array
+          items:
+            type: string
+            enum:
+              - aks
+              - container-apps
+              - app-service
+              - static-web-apps
+              - functions
+          default:
+            - aks
+            - container-apps
+
+        enableGitOps:
+          title: Enable GitOps Workflows
+          type: boolean
+          default: true
+
+        gitOpsRepo:
+          title: GitOps Repository Pattern
+          type: string
+          default: "{app-name}-gitops"
+
+        environments:
+          title: Standard Environments
+          type: array
+          items:
+            type: string
+          default:
+            - dev
+            - staging
+            - prod
+
+    # -------------------------------------------------------------------------
+    # Notifications
+    # -------------------------------------------------------------------------
+    - title: Notification Configuration
+      properties:
+        enableNotifications:
+          title: Enable Notifications
+          type: boolean
+          default: true
+
+        notificationChannels:
+          title: Default Notification Channels
+          type: array
+          items:
+            type: string
+            enum:
+              - teams
+              - slack
+              - email
+          default:
+            - teams
+
+        notifyOnSuccess:
+          title: Notify on Success
+          type: boolean
+          default: false
+
+        notifyOnFailure:
+          title: Notify on Failure
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Workflow Library Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.libraryName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          libraryName: ${{ parameters.libraryName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          scope: ${{ parameters.scope }}
+
+    - id: generate-workflows
+      name: Generate Reusable Workflows
+      action: fetch:template
+      input:
+        url: ./skeleton/workflows
+        targetPath: ./repo/.github/workflows
+        values:
+          includeWorkflows: ${{ parameters.includeWorkflows }}
+          containerRegistry: ${{ parameters.containerRegistry }}
+          enableMultiArch: ${{ parameters.enableMultiArch }}
+          enableGHAS: ${{ parameters.enableGHAS }}
+          securityTools: ${{ parameters.securityTools }}
+
+    - id: generate-actions
+      name: Generate Composite Actions
+      action: fetch:template
+      input:
+        url: ./skeleton/actions
+        targetPath: ./repo/actions
+        values:
+          includeCompositeActions: ${{ parameters.includeCompositeActions }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./repo
+        values:
+          name: "${{ parameters.libraryName }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h2-reusable-workflows"
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 420" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="rootg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c3e50"/><stop offset="100%" stop-color="#34495e"/></linearGradient>
+    <linearGradient id="w0g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <linearGradient id="w1g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="w2g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="750" height="420" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="375" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">ArgoCD Application Hierarchy</text>
+
+  <!-- Root Application -->
+  <rect x="225" y="50" width="300" height="65" rx="10" fill="url(#rootg)" filter="url(#ds)"/>
+  <text x="375" y="75" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">APP-OF-APPS (Root)</text>
+  <text x="375" y="95" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.7)">Master app that manages all others</text>
+
+  <!-- Connector lines -->
+  <line x1="375" y1="117" x2="375" y2="140" stroke="#bdc3c7" stroke-width="2"/>
+  <line x1="125" y1="140" x2="625" y2="140" stroke="#bdc3c7" stroke-width="2"/>
+  <line x1="125" y1="140" x2="125" y2="160" stroke="#bdc3c7" stroke-width="2"/>
+  <line x1="375" y1="140" x2="375" y2="160" stroke="#bdc3c7" stroke-width="2"/>
+  <line x1="625" y1="140" x2="625" y2="160" stroke="#bdc3c7" stroke-width="2"/>
+
+  <!-- Wave 0 -->
+  <rect x="40" y="165" width="170" height="80" rx="10" fill="url(#w0g)" filter="url(#ds)"/>
+  <text x="125" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Wave 0</text>
+  <text x="125" y="212" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.9)">External Secrets</text>
+  <text x="125" y="230" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Must deploy first!</text>
+
+  <!-- Wave 1 -->
+  <rect x="290" y="165" width="170" height="80" rx="10" fill="url(#w1g)" filter="url(#ds)"/>
+  <text x="375" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Wave 1</text>
+  <text x="375" y="212" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.9)">Gatekeeper</text>
+  <text x="375" y="230" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Depends on Wave 0</text>
+
+  <!-- Wave 2 -->
+  <rect x="540" y="165" width="170" height="80" rx="10" fill="url(#w2g)" filter="url(#ds)"/>
+  <text x="625" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Wave 2</text>
+  <text x="625" y="212" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.9)">Observability</text>
+  <text x="625" y="230" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.7)">Depends on Wave 0,1</text>
+
+  <!-- Why Waves explanation -->
+  <rect x="40" y="275" width="670" height="100" rx="8" fill="#fff" stroke="#dee2e6" filter="url(#ds)"/>
+  <text x="60" y="298" font-size="12" font-weight="700" fill="#2c3e50">Why Sync Waves?</text>
+  <text x="60" y="318" font-size="10" fill="#555">Some applications depend on others. ArgoCD sync waves ensure correct deploy order:</text>
+  <text x="60" y="340" font-size="10" fill="#7f8c8d">&#8226; Gatekeeper can't enforce policies until External Secrets provides the secrets it needs</text>
+  <text x="60" y="358" font-size="10" fill="#7f8c8d">&#8226; Prometheus can't scrape metrics until other apps are running</text>
+
+  <!-- Legend -->
+  <rect x="40" y="390" width="14" height="10" rx="2" fill="#2c3e50"/>
+  <text x="60" y="399" font-size="9" fill="#555">Root App</text>
+  <rect x="130" y="390" width="14" height="10" rx="2" fill="#27ae60"/>
+  <text x="150" y="399" font-size="9" fill="#555">Wave 0 (First)</text>
+  <rect x="250" y="390" width="14" height="10" rx="2" fill="#e67e22"/>
+  <text x="270" y="399" font-size="9" fill="#555">Wave 1</text>
+  <rect x="340" y="390" width="14" height="10" rx="2" fill="#3498db"/>
+  <text x="360" y="399" font-size="9" fill="#555">Wave 2</text>
+</svg>

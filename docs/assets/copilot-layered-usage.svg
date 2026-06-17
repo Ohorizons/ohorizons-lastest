@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="700" height="480" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Layered Usage Pattern</text>
+  <!-- Layer 1 -->
+  <rect x="50" y="48" width="600" height="80" rx="10" fill="#27ae60" filter="url(#ds)"/>
+  <text x="70" y="72" font-size="12" font-weight="700" fill="#fff">LAYER 1: PROJECT-WIDE RULES (Instructions)</text>
+  <text x="70" y="90" font-size="9" fill="rgba(255,255,255,0.8)">.github/copilot-instructions.md</text>
+  <text x="70" y="110" font-size="9" fill="rgba(255,255,255,0.7)">Terraform 1.9+ · AKS 1.29+ · Python 3.11+ · CAF naming · Workload Identity · feature/* → develop → main</text>
+  <text x="350" y="145" text-anchor="middle" font-size="14" fill="#7f8c8d">&#8595;</text>
+  <!-- Layer 2 -->
+  <rect x="50" y="155" width="600" height="80" rx="10" fill="#e67e22" filter="url(#ds)"/>
+  <text x="70" y="179" font-size="12" font-weight="700" fill="#fff">LAYER 2: COMMON TASKS (Prompt Files)</text>
+  <text x="70" y="197" font-size="9" fill="rgba(255,255,255,0.8)">.github/prompts/</text>
+  <text x="70" y="217" font-size="9" fill="rgba(255,255,255,0.7)">/create-service · /generate-tests · /review-terraform · /deploy-app</text>
+  <text x="350" y="252" text-anchor="middle" font-size="14" fill="#7f8c8d">&#8595;</text>
+  <!-- Layer 3 -->
+  <rect x="50" y="262" width="600" height="80" rx="10" fill="#3498db" filter="url(#ds)"/>
+  <text x="70" y="286" font-size="12" font-weight="700" fill="#fff">LAYER 3: COMPLEX WORKFLOWS (Agents)</text>
+  <text x="70" y="304" font-size="9" fill="rgba(255,255,255,0.8)">.github/agents/</text>
+  <text x="70" y="324" font-size="9" fill="rgba(255,255,255,0.7)">@infrastructure · @security · @gitops · @validation</text>
+  <text x="350" y="359" text-anchor="middle" font-size="14" fill="#7f8c8d">&#8595;</text>
+  <!-- Layer 4 -->
+  <rect x="50" y="369" width="600" height="80" rx="10" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="70" y="393" font-size="12" font-weight="700" fill="#fff">LAYER 4: SPECIALIZED CAPABILITIES (Skills)</text>
+  <text x="70" y="411" font-size="9" fill="rgba(255,255,255,0.8)">.github/skills/</text>
+  <text x="70" y="431" font-size="9" fill="rgba(255,255,255,0.7)">terraform-cli · kubectl-cli · azure-cli · validation-scripts</text>
+</svg>

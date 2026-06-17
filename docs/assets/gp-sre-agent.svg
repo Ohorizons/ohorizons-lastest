@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter></defs>
+  <rect width="520" height="200" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="260" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">SRE AI Agent</text>
+  <rect x="40" y="48" width="440" height="108" rx="10" fill="#e74c3c" filter="url(#ds)"/>
+  <text x="260" y="72" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">SRE AI Agent</text>
+  <rect x="60" y="84" width="120" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="120" y="104" text-anchor="middle" font-size="10" fill="#fff">Incident Response</text>
+  <rect x="195" y="84" width="120" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="255" y="104" text-anchor="middle" font-size="10" fill="#fff">RCA Analysis</text>
+  <rect x="330" y="84" width="120" height="30" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="390" y="104" text-anchor="middle" font-size="10" fill="#fff">Self-Heal Actions</text>
+  <rect x="60" y="122" width="390" height="25" rx="5" fill="rgba(0,0,0,0.15)"/>
+  <text x="255" y="140" text-anchor="middle" font-size="10" fill="#fff">Azure Monitor  ·  PagerDuty  ·  ServiceNow</text>
+  <text x="260" y="185" text-anchor="middle" font-size="10" fill="#7f8c8d">Automated incident response, root cause analysis, and self-healing</text>
+</svg>

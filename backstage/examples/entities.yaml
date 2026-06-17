@@ -1,0 +1,198 @@
+---
+# =============================================================================
+# AGENTIC DEVOPS PLATFORM — Platform Entities
+# =============================================================================
+# Components, APIs, and resources shared across Open Horizons and Open Horizons.
+# =============================================================================
+# Real platform components, APIs, and resources for the Service Catalog.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Platform Components
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: argocd
+  title: ArgoCD GitOps
+  description: Continuous deployment engine for Kubernetes workloads using GitOps methodology.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ohorizons-backstage
+    github.com/project-slug: Ohorizons/open-horizons-platform
+  tags:
+    - gitops
+    - argocd
+    - h2-enhancement
+  links:
+    - url: https://localhost:8443
+      title: ArgoCD Dashboard
+      icon: dashboard
+spec:
+  type: service
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: h2-enhancement
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: grafana-stack
+  title: Grafana Observability Stack
+  description: Observability platform — Prometheus metrics, Grafana dashboards, Loki logs, and Alertmanager alerts.
+  annotations:
+    grafana/dashboard-selector: 'tag:open-horizons'
+    github.com/project-slug: Ohorizons/open-horizons-platform
+  tags:
+    - observability
+    - grafana
+    - prometheus
+    - h2-enhancement
+  links:
+    - url: https://localhost:3000
+      title: Grafana Dashboard
+      icon: dashboard
+spec:
+  type: service
+  owner: group:default/sre-team
+  lifecycle: production
+  system: h2-enhancement
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: golden-paths
+  title: Golden Path Templates
+  description: 22 pre-built scaffolder templates spanning H1 Foundation, H2 Enhancement, and H3 Innovation horizons.
+  tags:
+    - golden-paths
+    - scaffolder
+    - templates
+  links:
+    - url: http://devhub.135.18.141.224.nip.io/create
+      title: Browse Templates
+      icon: scaffolder
+spec:
+  type: library
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: developer-platform
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: platform-docs
+  title: Platform Documentation
+  description: Centralized documentation for architecture guides, runbooks, deployment guides, and API references.
+  annotations:
+    lighthouse.com/website-url: 'https://ohorizons.ai'
+  tags:
+    - documentation
+    - techdocs
+  links:
+    - url: http://devhub.135.18.141.224.nip.io/docs
+      title: TechDocs
+      icon: docs
+spec:
+  type: documentation
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: developer-platform
+
+---
+# -----------------------------------------------------------------------------
+# Resources
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: aks-cluster
+  title: Azure Kubernetes Service Cluster
+  description: Production AKS cluster hosting platform services and workloads.
+  tags:
+    - azure
+    - kubernetes
+    - aks
+spec:
+  type: kubernetes-cluster
+  owner: group:default/platform-engineering
+  system: h1-foundation
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: postgresql-database
+  title: PostgreSQL Database
+  description: Azure Database for PostgreSQL Flexible Server for platform services and application data.
+  tags:
+    - database
+    - postgresql
+    - azure
+spec:
+  type: database
+  owner: group:default/platform-engineering
+  system: h1-foundation
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: azure-key-vault
+  title: Azure Key Vault
+  description: Secrets management for platform credentials, certificates, and API keys.
+  tags:
+    - security
+    - keyvault
+    - azure
+spec:
+  type: secret-store
+  owner: group:default/security-team
+  system: h1-foundation
+
+---
+# -----------------------------------------------------------------------------
+# APIs
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: platform-api
+  title: Platform Management API
+  description: REST API for platform operations — provisioning, configuration, and health checks.
+  tags:
+    - rest
+    - platform
+spec:
+  type: openapi
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: developer-platform
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Platform Management API
+      version: "1.0.0"
+      description: API for managing platform resources and configurations.
+    paths:
+      /health:
+        get:
+          summary: Health check
+          responses:
+            "200":
+              description: Platform is healthy
+      /api/v1/templates:
+        get:
+          summary: List available Golden Path templates
+          responses:
+            "200":
+              description: List of templates
+      /api/v1/services:
+        get:
+          summary: List deployed services
+          responses:
+            "200":
+              description: List of services

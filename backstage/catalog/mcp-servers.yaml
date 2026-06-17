@@ -1,0 +1,189 @@
+---
+# =============================================================================
+# MCP SERVER REGISTRY — Catalog Entities
+# =============================================================================
+# Registers all MCP (Model Context Protocol) servers as kind: Resource in the
+# Backstage catalog. Each server provides tools that agents can discover and
+# invoke at runtime for documentation search and reference data.
+# =============================================================================
+
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-ecosystem
+  title: MCP Ecosystem Server
+  description: |
+    Aggregator MCP server exposing 14 tool sources for documentation search,
+    methodology reference, and agent skill discovery. Runs as a sidecar in
+    the ai-services namespace on AKS.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/image: acrohorizonsdev.azurecr.io/mcp-ecosystem:v7.2.4
+  tags:
+    - mcp
+    - ecosystem
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/tree/main/mcp-servers
+      title: MCP Server Source
+      icon: github
+spec:
+  type: mcp-server
+  owner: group:default/platform-engineering
+  system: ai-agents
+
+---
+# Individual MCP tool sources (registered as sub-resources)
+
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-backstage-docs
+  title: "MCP: Backstage Documentation"
+  description: Searches official Backstage (Spotify) documentation for plugin guides, API references, and configuration.
+  tags: [mcp, documentation, backstage]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-spec-kit
+  title: "MCP: Spec-Driven Development"
+  description: Reference data for the Spec-Driven Development (SDD) methodology — phases, artifacts, and validation gates.
+  tags: [mcp, sdd, methodology]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-awesome-copilot
+  title: "MCP: Awesome Copilot"
+  description: Catalog of GitHub Copilot agents, skills, prompts, and instructions from the awesome-copilot community repository.
+  tags: [mcp, copilot, agents, skills]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-gh-aw
+  title: "MCP: GitHub Agentic Workflows"
+  description: Reference patterns for GitHub Agentic Workflows — agent architecture, tool composition, and orchestration.
+  tags: [mcp, github, agentic-workflows]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-agents-md
+  title: "MCP: AGENTS.md Specification"
+  description: AGENTS.md file format specification — agent definition, capability declaration, and context engineering artifacts.
+  tags: [mcp, agents-md, specification]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-agent-framework
+  title: "MCP: Microsoft Agent Framework"
+  description: Microsoft Agent Framework SDK reference — agent creation, tool binding, evaluation, and Foundry deployment.
+  tags: [mcp, microsoft, agent-framework]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-backstage-plugins
+  title: "MCP: Backstage Plugin Ecosystem"
+  description: Backstage plugin catalog — search, installation, configuration, and development guides for community and core plugins.
+  tags: [mcp, backstage, plugins]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-backstage-ui
+  title: "MCP: Backstage UI Components"
+  description: Backstage UI component library — Material UI integration, theming, layout patterns, and custom page creation.
+  tags: [mcp, backstage, ui, components]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-backstage-org
+  title: "MCP: Backstage Org Configuration"
+  description: Backstage organization configuration — catalog entities, groups, users, RBAC, and multi-tenant setup.
+  tags: [mcp, backstage, organization]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-spotify-backstage
+  title: "MCP: Spotify Backstage Upstream"
+  description: Spotify upstream Backstage documentation — core architecture, backend system, and contribution guides.
+  tags: [mcp, backstage, spotify]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mcp-github-copilot-docs
+  title: "MCP: GitHub Copilot Docs"
+  description: GitHub Copilot documentation — customization, instructions, prompts, agents, and extension development.
+  tags: [mcp, github, copilot, documentation]
+spec:
+  type: mcp-tool-source
+  owner: group:default/platform-engineering
+  system: ai-agents
+  dependsOn: [resource:default/mcp-ecosystem]

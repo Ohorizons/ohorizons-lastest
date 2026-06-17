@@ -1,0 +1,10 @@
+{
+  "mcp": {
+    "servers": {
+      "mcp-ecosystem": {
+        "type": "http",
+        "url": "http://localhost:3100/mcp"
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ${{values.name}}
+  tags:
+    - web
+    - frontend
+    - ${{values.framework}}
+    - h1-foundation
+  links:
+    - url: https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+      title: GitHub Repository
+      icon: github
+spec:
+  type: website
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}

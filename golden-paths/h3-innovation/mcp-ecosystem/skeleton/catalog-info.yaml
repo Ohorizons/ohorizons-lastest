@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: ${{ values.description }}
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: Ohorizons/${{ values.name }}
+  tags:
+    - mcp
+    - typescript
+    - ai
+    - ecosystem
+spec:
+  type: service
+  lifecycle: production
+  owner: ${{ values.owner }}
+  providesApis: []

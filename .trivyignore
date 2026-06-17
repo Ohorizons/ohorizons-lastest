@@ -1,0 +1,19 @@
+# Trivy ignore — Open Horizons
+#
+# Suppressions for Trivy findings that are intentional design decisions
+# in this customer-facing template. Each entry must include the rule
+# ID and rationale. Customer forks should review and harden as needed.
+
+# AKS public cluster — default for the template; customers harden
+# via private_cluster=true (Large/XLarge profiles).
+AVD-AZU-0040
+AVD-AZU-0041
+AVD-AZU-0042
+
+# ACR public network access — toggle via install wizard.
+AVD-AZU-0010
+AVD-AZU-0011
+
+# Storage accounts customer-managed keys — environment-specific.
+AVD-AZU-0006
+AVD-AZU-0007

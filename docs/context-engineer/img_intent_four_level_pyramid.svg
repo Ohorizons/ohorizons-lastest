@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
+  <title id="title">Intent Engineering Pyramid</title>
+  <desc id="desc">Four levels from prompts to specifications.</desc>
+  <rect width="900" height="560" fill="#ffffff"/>
+  <g font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">
+    <polygon points="450,80 750,460 150,460" fill="#f7fbff" stroke="#0078d4" stroke-width="3"/>
+    <line x1="250" y1="390" x2="650" y2="390" stroke="#0078d4" stroke-width="2"/>
+    <line x1="315" y1="305" x2="585" y2="305" stroke="#0078d4" stroke-width="2"/>
+    <line x1="382" y1="220" x2="518" y2="220" stroke="#0078d4" stroke-width="2"/>
+    <text x="450" y="175" font-size="20">Specifications</text>
+    <text x="450" y="275" font-size="20">Plans</text>
+    <text x="450" y="360" font-size="20">Patterns</text>
+    <text x="450" y="440" font-size="20">Prompts</text>
+  </g>
+</svg>

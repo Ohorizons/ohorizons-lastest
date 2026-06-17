@@ -1,0 +1,11 @@
+{
+  "name": "Microservice",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
+  "forwardPorts": [
+    8000
+  ]
+}

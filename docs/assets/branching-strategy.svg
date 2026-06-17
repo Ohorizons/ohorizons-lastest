@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrowHead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7f8c8d"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3498db"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#27ae60"/>
+    </marker>
+    <filter id="shadow" x="-2%" y="-4%" width="104%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Branching Strategy</text>
+
+  <!-- Main branch lines -->
+  <!-- main line -->
+  <line x1="520" y1="160" x2="680" y2="160" stroke="#27ae60" stroke-width="3" stroke-linecap="round"/>
+  <g filter="url(#shadow)">
+    <rect x="520" y="140" width="80" height="40" rx="20" fill="#27ae60"/>
+  </g>
+  <text x="560" y="165" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">main</text>
+  <circle cx="680" cy="160" r="5" fill="#27ae60"/>
+
+  <!-- develop line -->
+  <line x1="280" y1="160" x2="500" y2="160" stroke="#3498db" stroke-width="3" stroke-linecap="round"/>
+  <g filter="url(#shadow)">
+    <rect x="280" y="140" width="100" height="40" rx="20" fill="#3498db"/>
+  </g>
+  <text x="330" y="165" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">develop</text>
+
+  <!-- PR arrow from develop to main -->
+  <path d="M 490 155 C 505 130, 515 130, 525 148" stroke="#e67e22" stroke-width="2" fill="none" marker-end="url(#arrowHead)" stroke-dasharray="5,3"/>
+  <text x="508" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#e67e22">PR</text>
+
+  <!-- Feature branches -->
+  <!-- feature/new-feature -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="60" width="190" height="36" rx="18" fill="#fff" stroke="#9b59b6" stroke-width="1.5"/>
+  </g>
+  <text x="125" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#8e44ad">feature/new-feature</text>
+  <line x1="220" y1="78" x2="300" y2="148" stroke="#9b59b6" stroke-width="1.5" marker-end="url(#arrowHead)"/>
+
+  <!-- fix/bug-fix -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="142" width="190" height="36" rx="18" fill="#fff" stroke="#e74c3c" stroke-width="1.5"/>
+  </g>
+  <text x="125" y="165" text-anchor="middle" font-size="12" font-weight="600" fill="#c0392b">fix/bug-fix</text>
+  <line x1="220" y1="160" x2="275" y2="160" stroke="#e74c3c" stroke-width="1.5" marker-end="url(#arrowHead)"/>
+
+  <!-- feature/another -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="224" width="190" height="36" rx="18" fill="#fff" stroke="#9b59b6" stroke-width="1.5"/>
+  </g>
+  <text x="125" y="247" text-anchor="middle" font-size="12" font-weight="600" fill="#8e44ad">feature/another</text>
+  <line x1="220" y1="242" x2="300" y2="172" stroke="#9b59b6" stroke-width="1.5" marker-end="url(#arrowHead)"/>
+
+  <!-- Legend -->
+  <rect x="30" y="280" width="12" height="12" rx="3" fill="#9b59b6"/>
+  <text x="48" y="291" font-size="11" fill="#7f8c8d">Feature branch</text>
+  <rect x="160" y="280" width="12" height="12" rx="3" fill="#e74c3c"/>
+  <text x="178" y="291" font-size="11" fill="#7f8c8d">Fix branch</text>
+  <rect x="260" y="280" width="12" height="12" rx="3" fill="#3498db"/>
+  <text x="278" y="291" font-size="11" fill="#7f8c8d">develop</text>
+  <rect x="340" y="280" width="12" height="12" rx="3" fill="#27ae60"/>
+  <text x="358" y="291" font-size="11" fill="#7f8c8d">main</text>
+  <line x1="420" y1="286" x2="448" y2="286" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="454" y="291" font-size="11" fill="#7f8c8d">Pull Request</text>
+</svg>

@@ -1,0 +1,66 @@
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - DENY LATEST TAG
+# =============================================================================
+#
+# Blocks container images using the :latest tag or no tag at all.
+# Enforces immutable, versioned deployments for reproducibility.
+#
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdenylatesttag
+  annotations:
+    description: "Blocks container images using :latest tag"
+    metadata.gatekeeper.sh/title: "Deny Latest Tag"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDenyLatestTag
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              description: "Images exempt from this constraint"
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdenylatesttag
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not is_exempt(container.image)
+          has_latest_tag(container.image)
+          msg := sprintf("Container %v uses image %v with :latest tag. Use a specific version tag.", [
+            container.name,
+            container.image
+          ])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not is_exempt(container.image)
+          not contains(container.image, ":")
+          msg := sprintf("Container %v uses image %v without a tag. Use a specific version tag.", [
+            container.name,
+            container.image
+          ])
+        }
+
+        has_latest_tag(image) {
+          endswith(image, ":latest")
+        }
+
+        is_exempt(image) {
+          exempt := input.parameters.exemptImages[_]
+          glob.match(exempt, ["/"], image)
+        }

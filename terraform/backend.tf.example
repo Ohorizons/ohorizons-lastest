@@ -1,0 +1,73 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - TERRAFORM BACKEND CONFIGURATION
+# =============================================================================
+#
+# Copy this file to backend.tf and customize for your deployment
+#
+# Prerequisites:
+#   1. Create Azure Storage Account:
+#      az storage account create \
+#        --name tfstate${PROJECT}${ENV} \
+#        --resource-group rg-terraform-state \
+#        --location brazilsouth \
+#        --sku Standard_LRS \
+#        --encryption-services blob
+#
+#   2. Create Storage Container:
+#      az storage container create \
+#        --name tfstate \
+#        --account-name tfstate${PROJECT}${ENV}
+#
+#   3. Get Storage Account Key:
+#      az storage account keys list \
+#        --account-name tfstate${PROJECT}${ENV} \
+#        --query "[0].value" -o tsv
+#
+# =============================================================================
+
+terraform {
+  backend "azurerm" {
+    # Storage account name
+    storage_account_name = "tfstatethreehorizons"
+    
+    # Container name
+    container_name = "tfstate"
+    
+    # State file name (use environment suffix)
+    key = "threehorizons.prod.tfstate"
+    
+    # Resource group containing storage account
+    resource_group_name = "rg-terraform-state"
+    
+    # Optional: Use Managed Identity instead of storage key
+    # use_msi = true
+    
+    # Optional: Use OIDC authentication (for GitHub Actions)
+    # use_oidc = true
+  }
+}
+
+# =============================================================================
+# ALTERNATIVE: Local Backend (for development only)
+# =============================================================================
+
+# terraform {
+#   backend "local" {
+#     path = "terraform.tfstate"
+#   }
+# }
+
+# =============================================================================
+# WORKSPACE CONFIGURATION
+# =============================================================================
+#
+# For multi-environment deployments, use Terraform workspaces:
+#
+#   terraform workspace new dev
+#   terraform workspace new staging
+#   terraform workspace new prod
+#
+#   terraform workspace select prod
+#   terraform apply -var-file=environments/prod.tfvars
+#
+# =============================================================================

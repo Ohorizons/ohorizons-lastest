@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 620" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="h3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/></linearGradient>
+    <linearGradient id="h2g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="h1g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <!-- Background -->
+  <rect width="860" height="620" rx="12" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
+  <text x="430" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Open Horizons Framework</text>
+
+  <!-- H3 Innovation -->
+  <rect x="40" y="55" width="780" height="160" rx="10" fill="url(#h3g)" filter="url(#ds)" opacity="0.9"/>
+  <text x="60" y="82" font-size="15" font-weight="700" fill="#fff">H3: INNOVATION</text>
+  <text x="60" y="102" font-size="12" fill="#fde8e8">PURPOSE: Enable next-generation capabilities</text>
+  <rect x="60" y="115" width="230" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="175" y="137" text-anchor="middle" font-size="11" fill="#fff">AI/ML &amp; Intelligent Automation</text>
+  <rect x="305" y="115" width="230" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="420" y="137" text-anchor="middle" font-size="11" fill="#fff">Experimental Features &amp; PoCs</text>
+  <rect x="550" y="115" width="230" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="665" y="137" text-anchor="middle" font-size="11" fill="#fff">Future Platform Evolution</text>
+  <text x="60" y="175" font-size="10" fill="#fde8e8">&#10003; Optional  &#10003; Experimental  &#10003; High Value</text>
+  <text x="60" y="195" font-size="10" fill="#fde8e8">Not required for basic operation — enables competitive advantages</text>
+
+  <!-- Arrow H3→H2 -->
+  <text x="430" y="228" text-anchor="middle" font-size="11" fill="#7f8c8d">&#9650; Builds upon</text>
+
+  <!-- H2 Enhancement -->
+  <rect x="40" y="240" width="780" height="160" rx="10" fill="url(#h2g)" filter="url(#ds)" opacity="0.9"/>
+  <text x="60" y="267" font-size="15" font-weight="700" fill="#fff">H2: ENHANCEMENT</text>
+  <text x="60" y="287" font-size="12" fill="#d6eaf8">PURPOSE: Improve developer productivity and operations</text>
+  <rect x="60" y="300" width="145" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="132" y="322" text-anchor="middle" font-size="10" fill="#fff">ArgoCD (GitOps)</text>
+  <rect x="215" y="300" width="145" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="287" y="322" text-anchor="middle" font-size="10" fill="#fff">Backstage (Portal)</text>
+  <rect x="370" y="300" width="145" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="442" y="322" text-anchor="middle" font-size="10" fill="#fff">Prometheus/Grafana</text>
+  <rect x="525" y="300" width="145" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="597" y="322" text-anchor="middle" font-size="10" fill="#fff">External Secrets</text>
+  <rect x="680" y="300" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="740" y="322" text-anchor="middle" font-size="10" fill="#fff">Gatekeeper</text>
+  <text x="60" y="360" font-size="10" fill="#d6eaf8">&#10003; Recommended  &#10003; Stable  &#10003; Integrated</text>
+  <text x="60" y="380" font-size="10" fill="#d6eaf8">Significantly improves operations — production-ready components</text>
+
+  <!-- Arrow H2→H1 -->
+  <text x="430" y="413" text-anchor="middle" font-size="11" fill="#7f8c8d">&#9650; Builds upon</text>
+
+  <!-- H1 Foundation -->
+  <rect x="40" y="425" width="780" height="160" rx="10" fill="url(#h1g)" filter="url(#ds)" opacity="0.9"/>
+  <text x="60" y="452" font-size="15" font-weight="700" fill="#fff">H1: FOUNDATION</text>
+  <text x="60" y="472" font-size="12" fill="#d5f5e3">PURPOSE: Provide core infrastructure that everything runs on</text>
+  <rect x="60" y="485" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="120" y="507" text-anchor="middle" font-size="10" fill="#fff">AKS (Compute)</text>
+  <rect x="190" y="485" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="250" y="507" text-anchor="middle" font-size="10" fill="#fff">ACR (Registry)</text>
+  <rect x="320" y="485" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="380" y="507" text-anchor="middle" font-size="10" fill="#fff">Key Vault</text>
+  <rect x="450" y="485" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="510" y="507" text-anchor="middle" font-size="10" fill="#fff">VNet / NSGs</text>
+  <rect x="580" y="485" width="120" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="640" y="507" text-anchor="middle" font-size="10" fill="#fff">Defender/Purview</text>
+  <rect x="710" y="485" width="90" height="35" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="755" y="507" text-anchor="middle" font-size="10" fill="#fff">DB / Redis</text>
+  <text x="60" y="545" font-size="10" fill="#d5f5e3">&#10003; Required  &#10003; Stable  &#10003; Foundational</text>
+  <text x="60" y="565" font-size="10" fill="#d5f5e3">Platform cannot function without it — all other horizons depend on it</text>
+
+  <!-- Legend -->
+  <rect x="40" y="595" width="14" height="14" rx="3" fill="#e74c3c"/>
+  <text x="60" y="607" font-size="10" fill="#555">Optional</text>
+  <rect x="130" y="595" width="14" height="14" rx="3" fill="#3498db"/>
+  <text x="150" y="607" font-size="10" fill="#555">Recommended</text>
+  <rect x="240" y="595" width="14" height="14" rx="3" fill="#27ae60"/>
+  <text x="260" y="607" font-size="10" fill="#555">Required</text>
+</svg>

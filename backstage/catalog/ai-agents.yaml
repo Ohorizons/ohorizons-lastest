@@ -1,0 +1,282 @@
+---
+# =============================================================================
+# AI AGENT SYSTEM — Catalog Entities
+# =============================================================================
+# Registers all AI agents as first-class citizens in the Backstage Software
+# Catalog. Each agent is a Component (type: agent) under the ai-agents System.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# System
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ai-agents
+  title: AI Agent System
+  description: |
+    Multi-agent AI system with 7 specialized agents for CI/CD diagnostics,
+    test coverage, security scanning, planning, observability, infrastructure,
+    and general orchestration. Powered by Azure OpenAI (GPT-5.1) with real
+    GitHub API integration via the Ohorizons org.
+  tags:
+    - h3-innovation
+    - ai
+    - agents
+    - mcp
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/tree/main/backstage/server/agent-api
+      title: Agent API Source
+      icon: github
+spec:
+  owner: group:default/platform-engineering
+  domain: open-horizons-platform
+
+---
+# -----------------------------------------------------------------------------
+# Agent Components
+# -----------------------------------------------------------------------------
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-pipeline
+  title: "Pipeline — CI/CD Diagnostics"
+  description: |
+    Diagnoses GitHub Actions pipeline failures using real workflow run data.
+    Fetches recent runs, drills into failed jobs/steps, and provides actionable
+    remediation. Hands off to @sentinel for test-related failures.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: pipeline
+    ohorizons.ai/rbac-level: deployer
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.3"
+  tags:
+    - agent
+    - ci-cd
+    - github-actions
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/pipeline.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+  dependsOn:
+    - resource:default/mcp-ecosystem
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-sentinel
+  title: "Sentinel — Test & Coverage"
+  description: |
+    Analyzes CI check runs and pull requests to assess test quality and coverage.
+    Shows passing/failing checks with output summaries and recommends improvements.
+    Receives handoffs from @pipeline for test-related failures.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: sentinel
+    ohorizons.ai/rbac-level: contributor
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.3"
+  tags:
+    - agent
+    - testing
+    - coverage
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/sentinel.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-compass
+  title: "Compass — Planning & Stories"
+  description: |
+    Decomposes epics into INVEST user stories and creates GitHub Issues.
+    Analyzes scope, identifies personas, writes acceptance criteria, and
+    checks for duplicate issues before creation.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: compass
+    ohorizons.ai/rbac-level: contributor
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.5"
+  tags:
+    - agent
+    - planning
+    - user-stories
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/compass.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-guardian
+  title: "Guardian — Security & Compliance"
+  description: |
+    Scans repositories for vulnerabilities, secret leaks, code scanning alerts,
+    and Dependabot CVEs via GitHub Advanced Security (GHAS) APIs. Groups findings
+    by severity with actionable remediation steps.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: guardian
+    ohorizons.ai/rbac-level: security
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.3"
+  tags:
+    - agent
+    - security
+    - ghas
+    - compliance
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/guardian.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/security-team
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-lighthouse
+  title: "Lighthouse — Observability & SRE"
+  description: |
+    Monitors deployments, environment health, and deployment status history via
+    GitHub Deployments API. Shows environment protection rules and correlates
+    with the Backstage catalog for service health.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: lighthouse
+    ohorizons.ai/rbac-level: deployer
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.3"
+  tags:
+    - agent
+    - observability
+    - sre
+    - deployments
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/lighthouse.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/sre-team
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-forge
+  title: "Forge — Infrastructure & Cloud"
+  description: |
+    Manages infrastructure visibility — repos, branches, tags, releases, and
+    Backstage catalog entities. Provides insights into repo activity, release
+    cadence, and branch protection status.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: forge
+    ohorizons.ai/rbac-level: deployer
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.3"
+  tags:
+    - agent
+    - infrastructure
+    - repos
+    - releases
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/forge.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-orchestrator
+  title: "Orchestrator — Open Horizons Assistant"
+  description: |
+    Default AI assistant that helps with general platform questions and routes
+    users to specialist agents. Searches the Backstage catalog, lists Golden
+    Path templates, and queries documentation via MCP.
+  annotations:
+    github.com/project-slug: Ohorizons/open-horizons-platform
+    ohorizons.ai/agent-name: orchestrator
+    ohorizons.ai/rbac-level: viewer
+    ohorizons.ai/cost-tier: medium
+    ohorizons.ai/model: gpt-5.1
+    ohorizons.ai/temperature: "0.5"
+  tags:
+    - agent
+    - orchestrator
+    - assistant
+    - h3-innovation
+  links:
+    - url: https://github.com/Ohorizons/open-horizons-platform/blob/main/backstage/server/agent-api/agents/orchestrator.py
+      title: Agent Source
+      icon: github
+spec:
+  type: agent
+  owner: group:default/platform-engineering
+  lifecycle: production
+  system: ai-agents
+  providesApis:
+    - agent-chat-api
+    - agent-info-api
+  dependsOn:
+    - resource:default/mcp-ecosystem

@@ -1,0 +1,46 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ${{values.name}}
+  tags:
+    - api
+    - microservice
+    - ${{values.language}}
+    - h2-enhancement
+  links:
+    - url: https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+      title: GitHub Repository
+      icon: github
+    - url: https://api.${{values.domain}}/${{values.name}}/docs
+      title: API Documentation
+      icon: docs
+spec:
+  type: service
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}
+  dependsOn:
+    - resource:postgresql
+    - resource:redis
+  providesApis:
+    - ${{values.name}}-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{values.name}}-api
+  description: REST API for ${{values.name}}
+  tags:
+    - rest
+    - openapi
+spec:
+  type: openapi
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  definition:
+    $text: ./openapi.yaml

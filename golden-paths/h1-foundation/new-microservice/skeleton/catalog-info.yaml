@@ -1,0 +1,46 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name | dump}}
+  description: ${{values.description | dump}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+    backstage.io/techdocs-ref: dir:.
+    argocd/app-name: ${{values.name}}
+  tags:
+    - microservice
+    - ${{values.language}}
+    - h1-foundation
+  links:
+    - url: https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+      title: GitHub Repository
+      icon: github
+spec:
+  type: service
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  system: ${{values.system}}
+  providesApis:
+    - ${{values.name}}-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{values.name}}-api
+  description: API for ${{values.name}}
+spec:
+  type: openapi
+  lifecycle: ${{values.lifecycle}}
+  owner: ${{values.owner}}
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: ${{values.name}} API
+      version: 1.0.0
+    paths:
+      /health:
+        get:
+          summary: Health check endpoint
+          responses:
+            '200':
+              description: Service is healthy

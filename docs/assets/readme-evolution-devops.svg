@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 304" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAFBFC"/>
+      <stop offset="100%" stop-color="#F0F2F5"/>
+    </linearGradient>
+    <linearGradient id="c1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#F8FBF4"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#F2F9FE"/>
+    </linearGradient>
+    <linearGradient id="c3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#FEF6F3"/>
+    </linearGradient>
+    <filter id="cs">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.07"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="880" height="304" rx="12" fill="url(#bg)"/>
+
+  <!-- ═══ Card 1: DevOps ═══ -->
+  <g filter="url(#cs)">
+    <rect x="46" y="32" width="244" height="228" rx="10" fill="url(#c1)" stroke="#E0EBD2" stroke-width="1"/>
+    <rect x="46" y="32" width="244" height="4" rx="10" fill="#7FBA00"/>
+  </g>
+  <!-- Badge + Title -->
+  <rect x="62" y="54" width="36" height="24" rx="6" fill="#7FBA00"/>
+  <text x="80" y="70" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700">01</text>
+  <text x="108" y="71" fill="#1A1A1A" font-size="16" font-weight="700">DevOps</text>
+  <!-- Separator -->
+  <line x1="62" y1="88" x2="274" y2="88" stroke="#E8F0DA" stroke-width="1"/>
+  <!-- Bullets: 22px line-height -->
+  <circle cx="70" cy="108" r="2.5" fill="#7FBA00"/>
+  <text x="82" y="112" fill="#4A4A4A" font-size="11.5">CI/CD pipelines</text>
+  <circle cx="70" cy="130" r="2.5" fill="#7FBA00"/>
+  <text x="82" y="134" fill="#4A4A4A" font-size="11.5">Infrastructure automation</text>
+  <circle cx="70" cy="152" r="2.5" fill="#7FBA00"/>
+  <text x="82" y="156" fill="#4A4A4A" font-size="11.5">Containers and orchestration</text>
+  <circle cx="70" cy="174" r="2.5" fill="#7FBA00"/>
+  <text x="82" y="178" fill="#4A4A4A" font-size="11.5">Monitoring and alerting</text>
+  <!-- Category pill -->
+  <rect x="62" y="204" width="92" height="26" rx="13" fill="#7FBA00" opacity="0.07" stroke="#7FBA00" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="108" y="221" text-anchor="middle" fill="#5A8A00" font-size="10" font-weight="600">Human-driven</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="300" y1="146" x2="324" y2="146" stroke="#C8D8C0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="322,141 332,146 322,151" fill="#B0C8A0" opacity="0.7"/>
+
+  <!-- ═══ Card 2: DevSecOps ═══ -->
+  <g filter="url(#cs)">
+    <rect x="318" y="32" width="244" height="228" rx="10" fill="url(#c2)" stroke="#D4E4F0" stroke-width="1"/>
+    <rect x="318" y="32" width="244" height="4" rx="10" fill="#00A4EF"/>
+  </g>
+  <rect x="334" y="54" width="36" height="24" rx="6" fill="#00A4EF"/>
+  <text x="352" y="70" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700">02</text>
+  <text x="380" y="71" fill="#1A1A1A" font-size="16" font-weight="700">DevSecOps</text>
+  <line x1="334" y1="88" x2="546" y2="88" stroke="#DAE9F5" stroke-width="1"/>
+  <circle cx="342" cy="108" r="2.5" fill="#00A4EF"/>
+  <text x="354" y="112" fill="#4A4A4A" font-size="11.5">Security in every pipeline</text>
+  <circle cx="342" cy="130" r="2.5" fill="#00A4EF"/>
+  <text x="354" y="134" fill="#4A4A4A" font-size="11.5">Compliance as code</text>
+  <circle cx="342" cy="152" r="2.5" fill="#00A4EF"/>
+  <text x="354" y="156" fill="#4A4A4A" font-size="11.5">Zero-trust by default</text>
+  <circle cx="342" cy="174" r="2.5" fill="#00A4EF"/>
+  <text x="354" y="178" fill="#4A4A4A" font-size="11.5">Supply chain integrity</text>
+  <rect x="334" y="204" width="72" height="26" rx="13" fill="#00A4EF" opacity="0.07" stroke="#00A4EF" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="370" y="221" text-anchor="middle" fill="#0078B5" font-size="10" font-weight="600">Shift-left</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="572" y1="146" x2="596" y2="146" stroke="#D0C8C0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="594,141 604,146 594,151" fill="#E0A898" opacity="0.7"/>
+
+  <!-- ═══ Card 3: Agentic DevOps ═══ -->
+  <g filter="url(#cs)">
+    <rect x="590" y="32" width="244" height="228" rx="10" fill="url(#c3)" stroke="#F0D5CC" stroke-width="1"/>
+    <rect x="590" y="32" width="61" height="4" rx="10" fill="#F25022"/>
+    <rect x="651" y="32" width="61" height="4" fill="#7FBA00"/>
+    <rect x="712" y="32" width="61" height="4" fill="#00A4EF"/>
+    <rect x="773" y="32" width="61" height="4" rx="10" fill="#FFB900"/>
+  </g>
+  <rect x="606" y="54" width="36" height="24" rx="6" fill="#F25022"/>
+  <text x="624" y="70" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700">03</text>
+  <text x="652" y="71" fill="#1A1A1A" font-size="16" font-weight="700">Agentic DevOps</text>
+  <line x1="606" y1="88" x2="818" y2="88" stroke="#F5DDD5" stroke-width="1"/>
+  <circle cx="614" cy="108" r="2.5" fill="#F25022"/>
+  <text x="626" y="112" fill="#4A4A4A" font-size="11.5">AI agents observe and act</text>
+  <circle cx="614" cy="130" r="2.5" fill="#F25022"/>
+  <text x="626" y="134" fill="#4A4A4A" font-size="11.5">Self-healing systems</text>
+  <circle cx="614" cy="152" r="2.5" fill="#F25022"/>
+  <text x="626" y="156" fill="#4A4A4A" font-size="11.5">Context-aware automation</text>
+  <circle cx="614" cy="174" r="2.5" fill="#F25022"/>
+  <text x="626" y="178" fill="#4A4A4A" font-size="11.5">Spec-driven development</text>
+  <rect x="606" y="204" width="116" height="26" rx="13" fill="#F25022" opacity="0.07" stroke="#F25022" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="664" y="221" text-anchor="middle" fill="#C43F1A" font-size="10" font-weight="700">OPEN HORIZONS</text>
+
+  <!-- Bottom bar -->
+  <rect x="46" y="278" width="204" height="3" rx="1.5" fill="#F25022"/>
+  <rect x="250" y="278" width="204" height="3" fill="#7FBA00"/>
+  <rect x="454" y="278" width="204" height="3" fill="#00A4EF"/>
+  <rect x="658" y="278" width="176" height="3" rx="1.5" fill="#FFB900"/>
+</svg>

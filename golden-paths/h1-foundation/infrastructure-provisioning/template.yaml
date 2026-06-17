@@ -1,0 +1,467 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 INFRASTRUCTURE PROVISIONING GOLDEN PATH
+# =============================================================================
+#
+# Backstage Software Template for provisioning Azure infrastructure.
+# Supports Terraform and Bicep with GitOps-driven infrastructure.
+#
+# Horizon: H1 - Foundation
+# Use Case: Self-service infrastructure provisioning with governance
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-infrastructure-provisioning
+  title: "H1: Provision Azure Infrastructure"
+  description: |
+    Self-service infrastructure provisioning for Azure resources.
+    Supports Terraform and Bicep with built-in compliance and cost controls.
+  tags:
+    - h1-foundation
+    - infrastructure
+    - terraform
+    - bicep
+    - azure
+    - iac
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: platform-engineering
+  type: infrastructure
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # Project Information
+    # -------------------------------------------------------------------------
+    - title: Project Information
+      required:
+        - projectName
+        - team
+        - environment
+      properties:
+        projectName:
+          title: Project Name
+          description: Name for this infrastructure project
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 30
+
+        team:
+          title: Team
+          description: Team that owns this infrastructure
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+
+        description:
+          title: Description
+          type: string
+          maxLength: 300
+
+        environment:
+          title: Target Environment
+          type: string
+          default: dev
+          enum:
+            - dev
+            - staging
+            - prod
+          enumNames:
+            - Development
+            - Staging
+            - Production
+
+        costCenter:
+          title: Cost Center
+          description: For billing and chargeback
+          type: string
+          pattern: '^[A-Z]{2}[0-9]{4}$'
+
+    # -------------------------------------------------------------------------
+    # IaC Configuration
+    # -------------------------------------------------------------------------
+    - title: Infrastructure as Code
+      required:
+        - iacTool
+      properties:
+        iacTool:
+          title: IaC Tool
+          type: string
+          default: terraform
+          enum:
+            - terraform
+            - bicep
+            - pulumi
+          enumNames:
+            - Terraform
+            - Bicep (Azure native)
+            - Pulumi
+
+        terraformVersion:
+          title: Terraform Version
+          type: string
+          default: "1.6"
+          enum:
+            - "1.5"
+            - "1.6"
+            - "1.7"
+
+        stateBackend:
+          title: State Backend
+          type: string
+          default: azure
+          enum:
+            - azure
+            - terraform-cloud
+
+        enableDriftDetection:
+          title: Enable Drift Detection
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Azure Resources
+    # -------------------------------------------------------------------------
+    - title: Azure Resources
+      properties:
+        resourceTypes:
+          title: Resources to Provision
+          type: array
+          items:
+            type: string
+            enum:
+              - resource-group
+              - virtual-network
+              - aks-cluster
+              - app-service
+              - container-apps
+              - sql-database
+              - cosmos-db
+              - storage-account
+              - key-vault
+              - redis-cache
+              - service-bus
+              - event-hubs
+              - api-management
+              - application-gateway
+              - front-door
+          uniqueItems: true
+          default:
+            - resource-group
+            - virtual-network
+
+        azureRegion:
+          title: Primary Azure Region
+          type: string
+          default: eastus2
+          enum:
+            - eastus
+            - eastus2
+            - westus2
+            - westus3
+            - centralus
+            - northeurope
+            - westeurope
+            - brazilsouth
+            - southcentralus
+
+        enableMultiRegion:
+          title: Enable Multi-Region
+          type: boolean
+          default: false
+
+        secondaryRegion:
+          title: Secondary Region (DR)
+          type: string
+          enum:
+            - eastus
+            - eastus2
+            - westus2
+            - northeurope
+            - westeurope
+            - brazilsouth
+
+    # -------------------------------------------------------------------------
+    # Networking
+    # -------------------------------------------------------------------------
+    - title: Networking Configuration
+      properties:
+        vnetAddressSpace:
+          title: VNet Address Space
+          type: string
+          default: "10.0.0.0/16"
+          pattern: '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$'
+
+        subnets:
+          title: Subnets
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              addressPrefix:
+                type: string
+              purpose:
+                type: string
+                enum:
+                  - aks
+                  - app-service
+                  - database
+                  - gateway
+                  - private-endpoints
+                  - bastion
+          default:
+            - name: snet-aks
+              addressPrefix: "10.0.0.0/22"
+              purpose: aks
+            - name: snet-pe
+              addressPrefix: "10.0.4.0/24"
+              purpose: private-endpoints
+
+        enablePrivateEndpoints:
+          title: Enable Private Endpoints
+          type: boolean
+          default: true
+
+        enableNSGs:
+          title: Enable Network Security Groups
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Security & Compliance
+    # -------------------------------------------------------------------------
+    - title: Security & Compliance
+      properties:
+        enableDefender:
+          title: Enable Microsoft Defender
+          type: boolean
+          default: true
+
+        defenderPlans:
+          title: Defender Plans
+          type: array
+          items:
+            type: string
+            enum:
+              - servers
+              - app-service
+              - sql
+              - storage
+              - containers
+              - key-vault
+              - dns
+              - arm
+          default:
+            - containers
+            - key-vault
+
+        enablePolicyCompliance:
+          title: Enable Azure Policy
+          type: boolean
+          default: true
+
+        complianceFramework:
+          title: Compliance Framework
+          type: string
+          default: cis
+          enum:
+            - cis
+            - nist
+            - pci-dss
+            - hipaa
+            - iso27001
+            - custom
+
+        enableAuditLogs:
+          title: Enable Audit Logging
+          type: boolean
+          default: true
+
+        logRetentionDays:
+          title: Log Retention (days)
+          type: integer
+          default: 90
+          minimum: 30
+          maximum: 365
+
+    # -------------------------------------------------------------------------
+    # Cost Management
+    # -------------------------------------------------------------------------
+    - title: Cost Management
+      properties:
+        enableBudgetAlerts:
+          title: Enable Budget Alerts
+          type: boolean
+          default: true
+
+        monthlyBudget:
+          title: Monthly Budget (USD)
+          type: integer
+          default: 1000
+          minimum: 100
+
+        alertThresholds:
+          title: Alert Thresholds (%)
+          type: array
+          items:
+            type: integer
+          default:
+            - 50
+            - 75
+            - 90
+            - 100
+
+        enableAutoShutdown:
+          title: Enable Auto-Shutdown (non-prod)
+          type: boolean
+          default: true
+
+        shutdownTime:
+          title: Shutdown Time (UTC)
+          type: string
+          default: "19:00"
+
+    # -------------------------------------------------------------------------
+    # Repository
+    # -------------------------------------------------------------------------
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+  steps:
+    - id: fetch-template
+      name: Fetch Infrastructure Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./repo
+        values:
+          lifecycle: production
+          name: ${{ parameters.projectName }}
+          owner: ${{ parameters.team }}
+          repoUrl: ${{ parameters.repoUrl }}
+          system: default
+          projectName: ${{ parameters.projectName }}
+          team: ${{ parameters.team }}
+          description: ${{ parameters.description }}
+          environment: ${{ parameters.environment }}
+          costCenter: ${{ parameters.costCenter }}
+          iacTool: ${{ parameters.iacTool }}
+          resourceTypes: ${{ parameters.resourceTypes }}
+          azureRegion: ${{ parameters.azureRegion }}
+
+    - id: generate-iac
+      name: Generate IaC Code
+      action: fetch:template
+      input:
+        url: ./skeleton/${{ parameters.iacTool }}
+        targetPath: ./repo/infrastructure
+        values:
+          projectName: ${{ parameters.projectName }}
+          environment: ${{ parameters.environment }}
+          resourceTypes: ${{ parameters.resourceTypes }}
+          azureRegion: ${{ parameters.azureRegion }}
+          vnetAddressSpace: ${{ parameters.vnetAddressSpace }}
+          subnets: ${{ parameters.subnets }}
+
+    - id: generate-pipelines
+      name: Generate CI/CD Pipelines
+      action: fetch:template
+      input:
+        url: ./skeleton/pipelines
+        targetPath: ./repo/.github/workflows
+        values:
+          iacTool: ${{ parameters.iacTool }}
+          environment: ${{ parameters.environment }}
+          enableDriftDetection: ${{ parameters.enableDriftDetection }}
+
+    - id: add-azure-oidc-helper
+      name: Add Azure OIDC Setup Helper
+      action: fetch:plain
+      input:
+        url: ../../common/azure-infrastructure/scripts
+        targetPath: ./repo/scripts
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./repo
+    - id: create-repo
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: "Infrastructure: ${{ parameters.description }}"
+        defaultBranch: main
+        repoVisibility: internal
+        sourcePath: ./repo
+        protectDefaultBranch: true
+        requireCodeOwnerReviews: true
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['create-repo'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['create-repo'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}
+    text:
+      - title: Infrastructure Project Created
+        content: |
+          ## 🏗️ Infrastructure Project Created!
+          
+          **Project:** ${{ parameters.projectName }}
+          **Environment:** ${{ parameters.environment }}
+          **IaC Tool:** ${{ parameters.iacTool }}
+          **Region:** ${{ parameters.azureRegion }}
+          
+          **Resources:**
+          ${{ parameters.resourceTypes | join(', ') }}
+          
+          **Security:**
+          - Defender: ${{ parameters.enableDefender ? '✅' : '⏭️' }}
+          - Policy: ${{ parameters.enablePolicyCompliance ? '✅' : '⏭️' }}
+          - Audit Logs: ${{ parameters.enableAuditLogs ? '✅' : '⏭️' }}
+          
+          **Cost Controls:**
+          - Budget: ${{ parameters.monthlyBudget }} USD/month
+          - Auto-shutdown: ${{ parameters.enableAutoShutdown ? '✅' : '⏭️' }}
+          
+          **Next Steps:**
+          1. Review generated IaC code
+          2. Configure Azure credentials in GitHub
+          3. Create PR to trigger plan
+          4. Merge to apply infrastructure
+

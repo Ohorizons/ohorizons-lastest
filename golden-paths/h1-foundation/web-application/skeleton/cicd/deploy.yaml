@@ -1,0 +1,35 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ values.environments }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: {% raw %}${{ secrets.AZURE_CLIENT_ID }}{% endraw %}
+          tenant-id: {% raw %}${{ secrets.AZURE_TENANT_ID }}{% endraw %}
+          subscription-id: {% raw %}${{ secrets.AZURE_SUBSCRIPTION_ID }}{% endraw %}
+
+      - name: Build and push container image
+        uses: azure/docker-login@v2
+        with:
+          login-server: {% raw %}${{ secrets.ACR_LOGIN_SERVER }}{% endraw %}
+          username: {% raw %}${{ secrets.ACR_USERNAME }}{% endraw %}
+          password: {% raw %}${{ secrets.ACR_PASSWORD }}{% endraw %}
+
+      - run: |
+          docker build -t {% raw %}${{ secrets.ACR_LOGIN_SERVER }}{% endraw %}/${{ values.appName }}:{% raw %}${{ github.sha }}{% endraw %} .
+          docker push {% raw %}${{ secrets.ACR_LOGIN_SERVER }}{% endraw %}/${{ values.appName }}:{% raw %}${{ github.sha }}{% endraw %}

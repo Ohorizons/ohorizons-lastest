@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+  <title id="title">Cognitive Platform Engineering Four-Plane Architecture</title>
+  <desc id="desc">Developer, control, context, and execution planes for the platform.</desc>
+  <rect width="900" height="520" fill="#ffffff"/>
+  <text x="450" y="56" text-anchor="middle" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#1b1b1f">Four-Plane Architecture</text>
+  <g font-family="Segoe UI, Arial" font-size="18" font-weight="700" text-anchor="middle">
+    <rect x="90" y="110" width="310" height="120" rx="8" fill="#e5f4ff" stroke="#00a4ef"/>
+    <text x="245" y="178">Developer Plane</text>
+    <rect x="500" y="110" width="310" height="120" rx="8" fill="#fff8e1" stroke="#ffb900"/>
+    <text x="655" y="178">Control Plane</text>
+    <rect x="90" y="290" width="310" height="120" rx="8" fill="#e8f5e9" stroke="#7fba00"/>
+    <text x="245" y="358">Context Plane</text>
+    <rect x="500" y="290" width="310" height="120" rx="8" fill="#ffebe5" stroke="#f25022"/>
+    <text x="655" y="358">Execution Plane</text>
+  </g>
+  <path d="M400 170 H500 M245 230 V290 M655 230 V290 M400 350 H500" stroke="#425466" stroke-width="2" fill="none"/>
+</svg>

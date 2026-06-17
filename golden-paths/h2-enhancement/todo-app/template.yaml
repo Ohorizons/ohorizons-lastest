@@ -1,0 +1,375 @@
+# yaml-language-server: $schema=https://json.schemastore.org/backstage-template.json
+# =============================================================================
+# OPEN HORIZONS — H2 TODO APP GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for scaffolding a full-stack Todo application.
+# Includes React 18 frontend, Express/Prisma backend, PostgreSQL, Redis,
+# Terraform IaC for Azure, GitHub Codespaces, and 7 Copilot agents.
+#
+# Horizon: H2 - Enhancement
+# Source: https://github.com/Ohorizons/todo-app
+#
+# Fix: No cookiecutterCompat + copyWithoutTemplating conflict.
+#      Uses templateFileExtension: .njk only.
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: todo-app
+  title: "Todo App — Full Stack Golden Path"
+  description: |
+    Scaffold a production-ready full-stack Todo application with React 18,
+    Node.js/Express, Prisma ORM, PostgreSQL, Redis, Azure Terraform IaC,
+    GitHub Codespaces, and 7 specialized Copilot agents.
+    Supports local Docker development or Azure cloud deployment (dev/staging/production).
+  tags:
+    - h2-enhancement
+    - react
+    - nodejs
+    - typescript
+    - terraform
+    - azure
+    - postgresql
+    - redis
+    - playwright
+    - codespaces
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+spec:
+  owner: group:platform-engineering
+  type: service
+
+  parameters:
+    # -------------------------------------------------------------------------
+    # App Details
+    # -------------------------------------------------------------------------
+    - title: App Details
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Application Name
+          type: string
+          description: Lowercase name for your application (3-20 chars, hyphens allowed)
+          pattern: '^[a-z][a-z0-9-]{2,19}$'
+          ui:autofocus: true
+          ui:help: "Example: my-todo-app, team-tasks, project-tracker"
+
+        description:
+          title: Description
+          type: string
+          description: Brief description of your application
+          default: "Full-stack Todo application built with the Open Horizons Golden Path"
+          maxLength: 300
+
+        owner:
+          title: Owner
+          type: string
+          description: Team or user who owns this application
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind:
+                - Group
+                - User
+
+        system:
+          title: System
+          type: string
+          description: System this application belongs to (optional)
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+
+    # -------------------------------------------------------------------------
+    # Deployment Configuration
+    # -------------------------------------------------------------------------
+    - title: Deployment Configuration
+      required:
+        - deploymentMode
+      properties:
+        deploymentMode:
+          title: Deployment Target
+          type: string
+          description: Where will this application run?
+          default: local-docker
+          enum:
+            - local-docker
+            - dev
+            - staging
+            - prod
+          enumNames:
+            - "Local Development — Docker Compose only (no cloud resources)"
+            - "Dev — Azure Cloud with Terraform (App Service + PostgreSQL + Redis)"
+            - "Stage — Azure Cloud with Terraform (pre-production)"
+            - "Prod — Azure Cloud with Terraform (protected branch)"
+
+        triggerInfraPipeline:
+          title: Trigger Terraform Pipeline After Scaffolding
+          type: boolean
+          default: false
+          description: For Azure modes only (dev/staging/prod). If enabled, dispatches infrastructure-deploy.yml automatically.
+
+        azureRegion:
+          title: Azure Region
+          type: string
+          description: Azure region for cloud deployments
+          default: brazilsouth
+          enum:
+            - brazilsouth
+            - eastus
+            - eastus2
+            - westus2
+            - westeurope
+            - northeurope
+          enumNames:
+            - "Brazil South (São Paulo) — LGPD compliant"
+            - "East US (Virginia)"
+            - "East US 2 (Virginia)"
+            - "West US 2 (Washington)"
+            - "West Europe (Amsterdam)"
+            - "North Europe (Dublin)"
+
+        enableRedis:
+          title: Enable Redis Cache
+          type: boolean
+          default: true
+          description: Include Redis caching layer (recommended for staging/production)
+
+        enableMonitoring:
+          title: Enable Azure Application Insights
+          type: boolean
+          default: true
+          description: Enable monitoring, dashboards, and alerting via Azure Monitor
+
+        alertEmail:
+          title: Alert Email
+          type: string
+          format: email
+          description: Email address for infrastructure alerts (cloud deployments)
+          ui:placeholder: "team@ohorizons.io"
+
+    # -------------------------------------------------------------------------
+    # GitHub Repository
+    # -------------------------------------------------------------------------
+    - title: GitHub Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - Ohorizons
+        visibility:
+          title: Repository Visibility
+          type: string
+          description: GitHub repository visibility
+          enum:
+            - private
+            - public
+          default: private
+          enumNames:
+            - "Private"
+            - "Public"
+        branch_protection:
+          title: Branch Protection
+          type: boolean
+          description: Protect main branch (require PR with approval)
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # --------------------------------------------------------------------------
+    # Step 1: Fetch the full todo-app source from GitHub, process .njk templates
+    # Note: templateFileExtension strips .njk from filenames after processing.
+    #       .njk versions override their static counterparts (alphabetical order).
+    #       NO cookiecutterCompat — uses ${{ values.* }} Nunjucks syntax only.
+    # --------------------------------------------------------------------------
+    - id: fetch-template
+      name: Fetch Todo App Template
+      action: fetch:template
+      input:
+        url: https://github.com/Ohorizons/todo-app/tree/main
+        templateFileExtension: .njk
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+          orgName: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+          repoName: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          deploymentMode: ${{ parameters.deploymentMode }}
+          environment: "${{ parameters.deploymentMode === 'local-docker' ? 'dev' : parameters.deploymentMode }}"
+          azure_region: ${{ parameters.azureRegion | default('brazilsouth') }}
+          enable_redis: ${{ parameters.enableRedis | default(true) }}
+          enable_monitoring: ${{ parameters.enableMonitoring | default(true) }}
+          visibility: ${{ parameters.visibility | default('private') }}
+          trigger_infra_plan: ${{ parameters.triggerInfraPipeline | default(false) }}
+          branch_protection: ${{ parameters.branch_protection | default(true) }}
+          alert_email: ${{ parameters.alertEmail | default('alerts@ohorizons.io') }}
+
+    # --------------------------------------------------------------------------
+    # Step 2: Remove template artifacts from generated output
+    # --------------------------------------------------------------------------
+    - id: add-catalog-techdocs
+      name: Add Catalog and TechDocs Metadata
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+          repoUrl: ${{ parameters.repoUrl }}
+          deploymentMode: ${{ parameters.deploymentMode }}
+
+    - id: cleanup
+      name: Remove Template Artifacts
+      action: fs:delete
+      input:
+        files:
+          - template.yaml
+          - .testagent
+
+    # --------------------------------------------------------------------------
+    # Step 3: Inject workflow to create Codespace automatically
+    # --------------------------------------------------------------------------
+    - id: add-codespace-workflow
+      name: Add Codespace Automation Workflow
+      action: fetch:plain
+      input:
+        url: ./codespaces-workflow
+        targetPath: .github/workflows
+
+    # --------------------------------------------------------------------------
+    # Step 4: Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Step 5: Publish to GitHub
+    # --------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "todo-app"
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        description: ${{ parameters.description }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: main
+        repoVisibility: ${{ parameters.visibility }}
+        protectDefaultBranch: ${{ parameters.branch_protection }}
+        topics:
+          - todo-app
+          - golden-path
+          - open-horizons
+          - ${{ parameters.deploymentMode }}
+
+    # --------------------------------------------------------------------------
+    # Step 5: Optionally trigger Terraform workflow for Azure environments only
+    # Note: continueOnError allows catalog registration even if dispatch fails
+    # --------------------------------------------------------------------------
+    - id: trigger-infra
+      name: Trigger Terraform Pipeline
+      if: ${{ parameters.deploymentMode !== 'local-docker' and parameters.triggerInfraPipeline === true }}
+      action: github:actions:dispatch
+      continueOnError: true
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        workflowId: infrastructure-deploy.yml
+        branchOrTagName: main
+        workflowInputs:
+          action: plan
+          environment: ${{ parameters.deploymentMode }}
+
+    # --------------------------------------------------------------------------
+    # Step 6: Register in Backstage Software Catalog
+    # --------------------------------------------------------------------------
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+        icon: github
+
+      - title: Open in GitHub Codespaces
+        url: https://codespaces.new/${{ steps['publish'].output.remoteUrl | replace('https://github.com/', '') }}?quickstart=1
+        icon: github
+
+      - title: Codespaces
+        url: ${{ steps['publish'].output.remoteUrl + '/codespaces' }}
+        icon: github
+
+      - title: View in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}
+
+    text:
+      - title: Your Todo App is Ready
+        content: |
+          ### Environment Setup
+
+          - A GitHub Codespace is being provisioned automatically for this repository.
+          - Click **Open in GitHub Codespaces** to launch your development environment.
+          - The application has been registered in the Software Catalog.
+          - PostgreSQL, Redis, and all dependencies are configured via devcontainer.
+

@@ -1,0 +1,125 @@
+###############################################################################
+# Open Horizons — Agent API Services
+#
+#   agent-api      (Azure OpenAI)        → port 8008
+#   agent-api-sk   (Semantic Kernel)     → port 8009
+#   agent-api-maf  (MS Agent Framework) → port 8010
+#
+# Usage:
+#   docker compose up -d                    # all
+#   docker compose up agent-api-maf -d      # MAF only
+#   docker compose logs -f agent-api-maf    # follow logs
+###############################################################################
+
+services:
+  agent-api:
+    build:
+      context: ./agent-api
+      dockerfile: Dockerfile
+    container_name: ohorizons-agent-api
+    ports:
+      - "127.0.0.1:8008:8008"
+    env_file:
+      - ./agent-api/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8008
+    volumes:
+      - ${HOME}/.azure:/root/.azure:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8008/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - agent-network
+
+  agent-api-sk:
+    build:
+      context: ./agent-api-sk
+      dockerfile: Dockerfile
+    container_name: ohorizons-agent-api-sk
+    ports:
+      - "127.0.0.1:8009:8009"
+    env_file:
+      - ./agent-api-sk/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8009
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8009/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - agent-network
+
+  agent-api-maf:
+    build:
+      context: ./agent-api-maf
+      dockerfile: Dockerfile
+    container_name: ohorizons-agent-api-maf
+    ports:
+      - "127.0.0.1:8010:8010"
+    env_file:
+      - ./agent-api-maf/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8010
+      - BACKSTAGE_URL=http://host.docker.internal:7007
+      - PROMETHEUS_URL=http://host.docker.internal:9090
+      - GRAFANA_URL=http://host.docker.internal:3000
+      - MCP_ECOSYSTEM_URL=http://host.docker.internal:3100/mcp
+      - KUBE_API_URL=http://host.docker.internal:8001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8010/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - agent-network
+
+  agent-api-impact:
+    build:
+      context: ./agent-api-impact
+      dockerfile: Dockerfile
+    container_name: ohorizons-agent-api-impact
+    ports:
+      - "127.0.0.1:8011:8011"
+    env_file:
+      - ./agent-api-impact/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8011
+    volumes:
+      - impact-data:/app/data
+      - ${HOME}/.azure:/root/.azure:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8011/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - agent-network
+
+volumes:
+  impact-data:
+
+networks:
+  agent-network:
+    name: ohorizons-platform
+    external: true

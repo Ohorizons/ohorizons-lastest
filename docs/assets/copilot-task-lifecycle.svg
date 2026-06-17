@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 170" font-family="Segoe UI, sans-serif">
+  <defs>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fff"/></marker>
+  </defs>
+  <rect width="740" height="170" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="370" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Task Lifecycle</text>
+  <!-- States -->
+  <rect x="20" y="50" width="110" height="40" rx="8" fill="#95a5a6" filter="url(#ds)"/>
+  <text x="75" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Created</text>
+  <line x1="132" y1="70" x2="148" y2="70" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="150" y="50" width="110" height="40" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="205" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">In-Queue</text>
+  <line x1="262" y1="70" x2="278" y2="70" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="280" y="50" width="110" height="40" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="335" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Running</text>
+  <line x1="392" y1="70" x2="408" y2="70" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="410" y="50" width="130" height="40" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="475" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Awaiting Feedback</text>
+  <line x1="542" y1="70" x2="558" y2="70" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="560" y="50" width="110" height="40" rx="8" fill="#27ae60" filter="url(#ds)"/>
+  <text x="615" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Complete</text>
+  <!-- Steering loop -->
+  <path d="M 335,92 C 335,130 475,130 475,92" fill="none" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="405" y="142" text-anchor="middle" font-size="10" fill="#e74c3c" font-weight="600">Real-time Steering</text>
+  <text x="405" y="158" text-anchor="middle" font-size="9" fill="#7f8c8d">Provide feedback during execution</text>
+</svg>

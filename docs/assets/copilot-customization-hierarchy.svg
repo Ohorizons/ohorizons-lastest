@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 350" font-family="Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/></linearGradient>
+    <linearGradient id="s2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+    <linearGradient id="s3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e67e22"/><stop offset="100%" stop-color="#d35400"/></linearGradient>
+    <linearGradient id="s4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#27ae60"/><stop offset="100%" stop-color="#229954"/></linearGradient>
+    <filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="700" height="350" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Copilot Customization Hierarchy</text>
+  <rect x="60" y="48" width="580" height="65" rx="10" fill="url(#s1)" filter="url(#ds)"/>
+  <text x="80" y="73" font-size="14" font-weight="700" fill="#fff">SKILLS</text>
+  <text x="80" y="95" font-size="10" fill="rgba(255,255,255,0.8)">Progressive loading — metadata read first, then scripts. Modular capabilities.</text>
+  <rect x="60" y="123" width="580" height="65" rx="10" fill="url(#s2)" filter="url(#ds)"/>
+  <text x="80" y="148" font-size="14" font-weight="700" fill="#fff">AGENTS</text>
+  <text x="80" y="170" font-size="10" fill="rgba(255,255,255,0.8)">"Personalities" with role-based thinking &amp; handoffs. Below Instructions in hierarchy.</text>
+  <rect x="60" y="198" width="580" height="65" rx="10" fill="url(#s3)" filter="url(#ds)"/>
+  <text x="80" y="223" font-size="14" font-weight="700" fill="#fff">PROMPT FILES</text>
+  <text x="80" y="245" font-size="10" fill="rgba(255,255,255,0.8)">Reusable task templates (slash commands). Support tools array for capabilities.</text>
+  <rect x="60" y="273" width="580" height="65" rx="10" fill="url(#s4)" filter="url(#ds)"/>
+  <text x="80" y="298" font-size="14" font-weight="700" fill="#fff">INSTRUCTIONS</text>
+  <text x="80" y="320" font-size="10" fill="rgba(255,255,255,0.8)">Foundation: Repository-wide and path-scoped rules. ALWAYS applied — agents cannot override.</text>
+</svg>

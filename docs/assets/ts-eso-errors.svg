@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 320" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>
+  <rect width="740" height="320" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <rect x="0" y="0" width="740" height="36" rx="12" fill="#3498db"/>
+  <rect x="0" y="18" width="740" height="18" fill="#3498db"/>
+  <text x="370" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">EXTERNAL SECRETS — Error Messages &amp; Solutions</text>
+  <rect x="15" y="46" width="710" height="60" rx="6" fill="#fdedec" stroke="#e74c3c" filter="url(#ds)"/>
+  <text x="25" y="64" font-size="10" font-weight="700" fill="#c0392b">"could not get secret data"</text>
+  <text x="25" y="80" font-size="9" fill="#555">Cause: Secret doesn't exist in Key Vault</text>
+  <text x="25" y="96" font-size="8" fill="#7f8c8d" font-family="monospace">Fix: az keyvault secret show --vault-name kv-XXX --name &lt;secret-name&gt;</text>
+  <rect x="15" y="116" width="710" height="60" rx="6" fill="#fef9e7" stroke="#f39c12" filter="url(#ds)"/>
+  <text x="25" y="134" font-size="10" font-weight="700" fill="#e67e22">"failed to get authentication"</text>
+  <text x="25" y="150" font-size="9" fill="#555">Cause: Workload Identity not configured correctly</text>
+  <text x="25" y="166" font-size="8" fill="#7f8c8d" font-family="monospace">Fix: Check ServiceAccount annotation + federated credential binding</text>
+  <rect x="15" y="186" width="710" height="55" rx="6" fill="#f5eef8" stroke="#9b59b6" filter="url(#ds)"/>
+  <text x="25" y="204" font-size="10" font-weight="700" fill="#8e44ad">"user or principal not found"</text>
+  <text x="25" y="220" font-size="9" fill="#555">Cause: Managed Identity deleted or wrong tenant/subscription</text>
+  <text x="25" y="236" font-size="8" fill="#7f8c8d" font-family="monospace">Fix: Verify: az identity show --name &lt;identity-name&gt; --resource-group &lt;rg&gt;</text>
+  <rect x="15" y="251" width="710" height="55" rx="6" fill="#eaf2f8" stroke="#3498db" filter="url(#ds)"/>
+  <text x="25" y="269" font-size="10" font-weight="700" fill="#2980b9">"403 Forbidden"</text>
+  <text x="25" y="285" font-size="9" fill="#555">Cause: Identity doesn't have Key Vault access</text>
+  <text x="25" y="301" font-size="8" fill="#7f8c8d" font-family="monospace">Fix: az keyvault set-policy --name kv-XXX --object-id &lt;identity-oid&gt; --secret-permissions get list</text>
+</svg>

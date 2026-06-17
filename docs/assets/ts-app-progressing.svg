@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter></defs>
+  <rect width="680" height="260" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="340" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">App Stuck in "Progressing" — Diagnostics</text>
+  <rect x="40" y="48" width="600" height="45" rx="8" fill="#9b59b6" filter="url(#ds)"/>
+  <text x="55" y="68" font-size="11" fill="#fff" font-weight="700">Deployment not completing rollout</text>
+  <text x="55" y="84" font-size="9" fill="rgba(255,255,255,0.8)">Check: kubectl rollout status deployment/my-app → See Pod Issues (§5)</text>
+  <rect x="40" y="100" width="600" height="45" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="55" y="120" font-size="11" fill="#fff" font-weight="700">Service waiting for endpoints</text>
+  <text x="55" y="136" font-size="9" fill="rgba(255,255,255,0.8)">Check: kubectl get endpoints my-app → Fix: Ensure pods have correct labels</text>
+  <rect x="40" y="152" width="600" height="45" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="55" y="172" font-size="11" fill="#fff" font-weight="700">HPA scaling in progress</text>
+  <text x="55" y="188" font-size="9" fill="rgba(255,255,255,0.8)">Check: kubectl get hpa → Fix: Wait or adjust HPA thresholds</text>
+  <rect x="40" y="204" width="600" height="45" rx="8" fill="#e74c3c" filter="url(#ds)"/>
+  <text x="55" y="224" font-size="11" fill="#fff" font-weight="700">Custom health check failing</text>
+  <text x="55" y="240" font-size="9" fill="rgba(255,255,255,0.8)">Check: Application custom health defined → Fix: Review .status of the resource</text>
+</svg>

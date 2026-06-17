@@ -1,0 +1,419 @@
+# T-Shirt Sizing Profiles
+#
+# Overview:
+# Predefined infrastructure configurations based on team size, workload requirements, and budget.
+#
+# Sizing Matrix:
+# | Profile | Team Size | Workloads | Use Case |
+# |---------|-----------|-----------|----------|
+# | Small   | < 10      | Dev/POC   | Proof of concept, development |
+# | Medium  | 10-50     | Standard  | Standard production |
+# | Large   | 50-200    | Enterprise| Enterprise production |
+# | XLarge  | 200+      | Critical  | Mission critical, multi-region |
+
+profiles:
+  small:
+    profile: small
+    description: "Development, POC, Small Teams (< 10 developers)"
+
+    infrastructure:
+      aks:
+        name: "${PROJECT}-${ENV}-aks"
+        kubernetes_version: "1.30"
+        node_pool:
+          name: "system"
+          node_count: 3
+          vm_size: "Standard_D2s_v5"
+          os_disk_size_gb: 50
+          max_pods: 30
+        auto_scaling:
+          enabled: false
+        features:
+          azure_policy: false
+          oidc_issuer: true
+          workload_identity: true
+
+      acr:
+        name: "${PROJECT}${ENV}acr"
+        sku: "Basic"
+        geo_replication: false
+
+      keyvault:
+        name: "${PROJECT}-${ENV}-kv"
+        sku: "standard"
+
+      networking:
+        vnet_cidr: "10.0.0.0/16"
+        aks_subnet: "10.0.0.0/23" # /23 = 512 IPs (enough for 3 nodes)
+
+    databases:
+      postgresql:
+        enabled: true
+        name: "${PROJECT}-${ENV}-postgres"
+        version: "16"
+        sku: "Standard_B1ms"
+        storage_gb: 32
+        ha_enabled: false
+        backup_retention_days: 7
+
+      redis:
+        enabled: true
+        name: "${PROJECT}-${ENV}-redis"
+        sku: "Basic"
+        family: "C"
+        capacity: 0
+
+    ai_foundry:
+      enabled: false # Optional for Small
+      models:
+        gpt4o:
+          capacity_tpm: 10000
+        embedding:
+          capacity_tpm: 30000
+
+    observability:
+      log_analytics:
+        retention_days: 30
+      prometheus:
+        retention_days: 7
+        storage_gb: 10
+
+  medium:
+    profile: medium
+    description: "Standard Production (10-50 developers)"
+
+    infrastructure:
+      aks:
+        name: "${PROJECT}-${ENV}-aks"
+        kubernetes_version: "1.30"
+        node_pool:
+          name: "system"
+          node_count: 5
+          vm_size: "Standard_D4s_v5"
+          os_disk_size_gb: 100
+          max_pods: 50
+        auto_scaling:
+          enabled: true
+          min_nodes: 3
+          max_nodes: 10
+        features:
+          azure_policy: true
+          oidc_issuer: true
+          workload_identity: true
+          azure_monitor: true
+          defender: true
+
+      acr:
+        name: "${PROJECT}${ENV}acr"
+        sku: "Standard"
+        geo_replication: false
+        retention_days: 30
+
+      keyvault:
+        name: "${PROJECT}-${ENV}-kv"
+        sku: "standard"
+        soft_delete_days: 90
+
+      networking:
+        vnet_cidr: "10.0.0.0/16"
+        aks_subnet: "10.0.0.0/22" # /22 = 1024 IPs
+        services_subnet: "10.0.4.0/24"
+        private_endpoints_subnet: "10.0.5.0/24"
+        private_cluster: false
+
+    databases:
+      postgresql:
+        enabled: true
+        name: "${PROJECT}-${ENV}-postgres"
+        version: "16"
+        sku: "Standard_D2ds_v5"
+        storage_gb: 128
+        ha_enabled: false
+        backup_retention_days: 14
+        geo_redundant_backup: false
+
+      redis:
+        enabled: true
+        name: "${PROJECT}-${ENV}-redis"
+        sku: "Standard"
+        family: "C"
+        capacity: 1
+
+    ai_foundry:
+      enabled: true
+      models:
+        gpt4o:
+          capacity_tpm: 50000
+        gpt4o_mini:
+          capacity_tpm: 100000
+        embedding:
+          capacity_tpm: 100000
+      ai_search:
+        sku: "basic"
+        replicas: 1
+        partitions: 1
+
+    observability:
+      log_analytics:
+        retention_days: 60
+      prometheus:
+        retention_days: 15
+        storage_gb: 50
+      grafana:
+        sku: "Standard"
+
+  large:
+    profile: large
+    description: "Enterprise Production (50-200 developers)"
+
+    infrastructure:
+      aks:
+        name: "${PROJECT}-${ENV}-aks"
+        kubernetes_version: "1.30"
+        node_pools:
+          - name: "system"
+            node_count: 3
+            vm_size: "Standard_D4s_v5"
+            os_disk_size_gb: 100
+            mode: "System"
+
+          - name: "workloads"
+            node_count: 5
+            vm_size: "Standard_D8s_v5"
+            os_disk_size_gb: 200
+            max_pods: 100
+            mode: "User"
+            auto_scaling:
+              enabled: true
+              min_nodes: 3
+              max_nodes: 15
+
+          - name: "ai"
+            node_count: 2
+            vm_size: "Standard_NC6s_v3" # GPU
+            os_disk_size_gb: 200
+            max_pods: 30
+            mode: "User"
+            taints:
+              - "workload=ai:NoSchedule"
+
+        features:
+          azure_policy: true
+          oidc_issuer: true
+          workload_identity: true
+          azure_monitor: true
+          defender: true
+          private_cluster: true
+
+      acr:
+        name: "${PROJECT}${ENV}acr"
+        sku: "Premium"
+        geo_replication: true
+        replications:
+          - location: "eastus"
+        retention_days: 90
+        zone_redundancy: true
+
+      keyvault:
+        name: "${PROJECT}-${ENV}-kv"
+        sku: "premium" # HSM support
+        soft_delete_days: 90
+        purge_protection: true
+
+      networking:
+        vnet_cidr: "10.0.0.0/14" # Large CIDR
+        aks_subnet: "10.0.0.0/20" # 4096 IPs
+        services_subnet: "10.0.16.0/22"
+        private_endpoints_subnet: "10.0.20.0/24"
+        appgw_subnet: "10.0.21.0/24"
+        private_cluster: true
+        application_gateway:
+          enabled: true
+          sku: "WAF_v2"
+          capacity: 2
+
+    databases:
+      postgresql:
+        enabled: true
+        name: "${PROJECT}-${ENV}-postgres"
+        version: "16"
+        sku: "Standard_D4ds_v5"
+        storage_gb: 256
+        ha_enabled: true
+        ha_mode: "ZoneRedundant"
+        backup_retention_days: 30
+        geo_redundant_backup: true
+
+      redis:
+        enabled: true
+        name: "${PROJECT}-${ENV}-redis"
+        sku: "Premium"
+        family: "P"
+        capacity: 1
+        zones: ["1", "2", "3"]
+
+    ai_foundry:
+      enabled: true
+      models:
+        gpt4o:
+          capacity_tpm: 150000
+        gpt4o_mini:
+          capacity_tpm: 300000
+        embedding:
+          capacity_tpm: 300000
+      ai_search:
+        sku: "standard"
+        replicas: 2
+        partitions: 1
+      content_safety:
+        enabled: true
+
+    observability:
+      log_analytics:
+        retention_days: 90
+      prometheus:
+        retention_days: 30
+        storage_gb: 100
+        ha_enabled: true
+      grafana:
+        sku: "Standard"
+      alertmanager:
+        pagerduty: true
+
+  xlarge:
+    profile: xlarge
+    description: "Mission Critical (200+ developers, multi-region)"
+    multi_region: true
+
+    regions:
+      primary: "brazilsouth"
+      secondary: "eastus"
+
+    infrastructure:
+      primary:
+        aks:
+          name: "${PROJECT}-${ENV}-aks-primary"
+          kubernetes_version: "1.30"
+          node_pools:
+            - name: "system"
+              node_count: 5
+              vm_size: "Standard_D8s_v5"
+              zones: ["1", "2", "3"]
+
+            - name: "workloads"
+              node_count: 10
+              vm_size: "Standard_D16s_v5"
+              zones: ["1", "2", "3"]
+              auto_scaling:
+                enabled: true
+                min_nodes: 5
+                max_nodes: 30
+
+            - name: "ai"
+              node_count: 4
+              vm_size: "Standard_NC12s_v3"
+              zones: ["1", "2"]
+
+          features:
+            azure_policy: true
+            private_cluster: true
+            defender: true
+            uptime_sla: true # 99.95% SLA
+
+      secondary:
+        aks:
+          name: "${PROJECT}-${ENV}-aks-secondary"
+          node_pools:
+            - name: "system"
+              node_count: 3
+              vm_size: "Standard_D4s_v5"
+
+            - name: "workloads"
+              node_count: 5
+              vm_size: "Standard_D8s_v5"
+              auto_scaling:
+                enabled: true
+                min_nodes: 3
+                max_nodes: 15
+
+      acr:
+        name: "${PROJECT}${ENV}acr"
+        sku: "Premium"
+        geo_replication: true
+        replications:
+          - location: "eastus"
+            zone_redundancy: true
+          - location: "westeurope"
+            zone_redundancy: true
+
+      front_door:
+        enabled: true
+        sku: "Premium"
+        waf_policy: true
+
+    databases:
+      postgresql:
+        primary:
+          name: "${PROJECT}-${ENV}-postgres"
+          sku: "Standard_D8ds_v5"
+          storage_gb: 512
+          ha_enabled: true
+          ha_mode: "ZoneRedundant"
+        read_replicas:
+          - region: "eastus"
+            sku: "Standard_D4ds_v5"
+
+      redis:
+        sku: "Premium"
+        family: "P"
+        capacity: 3
+        geo_replication: true
+
+      cosmos_db:
+        enabled: true
+        api: "sql"
+        multi_region_writes: true
+        regions:
+          - "brazilsouth"
+          - "eastus"
+
+    ai_foundry:
+      multi_region: true
+      regions:
+        primary:
+          models:
+            gpt4o:
+              capacity_tpm: 300000
+            embedding:
+              capacity_tpm: 500000
+        secondary:
+          models:
+            gpt4o:
+              capacity_tpm: 150000
+            embedding:
+              capacity_tpm: 250000
+      ai_search:
+        sku: "standard2"
+        replicas: 3
+        partitions: 2
+
+    disaster_recovery:
+      rpo_minutes: 15
+      rto_minutes: 60
+      backup:
+        cross_region: true
+        retention_days: 90
+
+metadata:
+  version: "1.0.0"
+  usage_in_issue_templates:
+    - type: dropdown
+      id: sizing
+      attributes:
+        label: T-Shirt Size
+        description: Select infrastructure size based on your needs
+        options:
+          - "🟢 Small - Dev/POC"
+          - "🟡 Medium - Standard Production"
+          - "🔴 Large - Enterprise"
+          - "⚫ XLarge - Mission Critical"

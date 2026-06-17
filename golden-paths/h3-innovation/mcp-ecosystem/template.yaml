@@ -1,0 +1,168 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: mcp-ecosystem
+  title: MCP Ecosystem Server (Full)
+  description: |
+    Creates a complete MCP Ecosystem Server with all 13 tool modules:
+    - Agent & AI: spec-kit, awesome-copilot, agent-framework, gh-aw, agents-md
+    - Backstage: backstage-docs, backstage-plugins, backstage-ui, spotify-backstage, backstage-org
+    - Streamable HTTP transport, Docker, Kubernetes-ready
+  tags:
+    - mcp
+    - ai
+    - ecosystem
+    - typescript
+    - h3-innovation
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Server Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Server Name
+          type: string
+          description: Unique name for your MCP ecosystem server (lowercase, hyphens)
+          pattern: '^[a-z0-9-]+$'
+          default: mcp-ecosystem
+          ui:autofocus: true
+        owner:
+          title: Owner Team
+          type: string
+          ui:field: OwnerPicker
+        description:
+          title: Description
+          type: string
+          description: What does this MCP ecosystem server provide?
+          default: Unified MCP server exposing tools from multiple AI and Backstage knowledge sources
+          ui:widget: textarea
+        port:
+          title: Server Port
+          type: integer
+          default: 3100
+          description: HTTP port for the MCP server
+
+    - title: Tool Modules
+      properties:
+        enable_spec_kit:
+          title: Spec-Kit (Spec-Driven Development)
+          type: boolean
+          default: true
+        enable_awesome_copilot:
+          title: Awesome Copilot (agents/skills/prompts)
+          type: boolean
+          default: true
+        enable_agent_framework:
+          title: Microsoft Agent Framework
+          type: boolean
+          default: true
+        enable_gh_aw:
+          title: GitHub Agentic Workflows
+          type: boolean
+          default: true
+        enable_agents_md:
+          title: AGENTS.md Format Reference
+          type: boolean
+          default: true
+        enable_backstage_docs:
+          title: Backstage Docs
+          type: boolean
+          default: true
+        enable_backstage_plugins:
+          title: Backstage Plugins Registry
+          type: boolean
+          default: true
+        enable_backstage_ui:
+          title: Backstage UI Design System
+          type: boolean
+          default: true
+        enable_spotify_backstage:
+          title: Spotify Backstage Docs
+          type: boolean
+          default: true
+        enable_backstage_org:
+          title: Backstage Org Repos
+          type: boolean
+          default: true
+
+    - title: Infrastructure
+      properties:
+        hosting:
+          title: Hosting Platform
+          type: string
+          enum:
+            - docker_compose
+            - kubernetes
+          enumNames:
+            - Docker Compose
+            - Kubernetes (AKS)
+          default: docker_compose
+
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch MCP Ecosystem Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          port: ${{ parameters.port }}
+
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "mcp-ecosystem"
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        repoVisibility: public
+        defaultBranch: main
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

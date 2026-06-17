@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter></defs>
+  <rect width="700" height="420" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="350" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#2c3e50">Cluster Connectivity Diagnostics</text>
+  <text x="350" y="45" text-anchor="middle" font-size="11" fill="#e74c3c">Cannot connect to cluster</text>
+  <rect x="40" y="60" width="620" height="55" rx="8" fill="#3498db" filter="url(#ds)"/>
+  <text x="55" y="82" font-size="11" fill="#fff" font-weight="700">Step 1: Is kubeconfig correct?</text>
+  <text x="55" y="100" font-size="9" fill="rgba(255,255,255,0.8)" font-family="monospace">kubectl config current-context → Wrong? kubectl config use-context &lt;name&gt;</text>
+  <rect x="40" y="125" width="620" height="55" rx="8" fill="#3498db" filter="url(#ds)" opacity="0.9"/>
+  <text x="55" y="147" font-size="11" fill="#fff" font-weight="700">Step 2: Is the cluster running?</text>
+  <text x="55" y="165" font-size="9" fill="rgba(255,255,255,0.8)" font-family="monospace">az aks show ... --query "powerState.code" → Stopped? az aks start ...</text>
+  <rect x="40" y="190" width="620" height="55" rx="8" fill="#3498db" filter="url(#ds)" opacity="0.85"/>
+  <text x="55" y="212" font-size="11" fill="#fff" font-weight="700">Step 3: Are your credentials valid?</text>
+  <text x="55" y="230" font-size="9" fill="rgba(255,255,255,0.8)" font-family="monospace">az aks get-credentials ... --overwrite-existing → Retry kubectl</text>
+  <rect x="40" y="255" width="620" height="65" rx="8" fill="#e67e22" filter="url(#ds)"/>
+  <text x="55" y="277" font-size="11" fill="#fff" font-weight="700">Step 4: Is it a private cluster?</text>
+  <text x="55" y="295" font-size="9" fill="rgba(255,255,255,0.8)">Private? Must connect via: Azure Bastion · VPN to VNet · Authorized IP range</text>
+  <rect x="40" y="330" width="620" height="55" rx="8" fill="#e74c3c" filter="url(#ds)"/>
+  <text x="55" y="352" font-size="11" fill="#fff" font-weight="700">Step 5: Check network</text>
+  <text x="55" y="370" font-size="9" fill="rgba(255,255,255,0.8)">Are you on VPN? · Is your IP in authorized ranges? · Check firewall/proxy settings</text>
+</svg>

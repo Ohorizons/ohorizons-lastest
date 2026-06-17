@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-labelledby="title desc">
+  <title id="title">Integration Flow</title>
+  <desc id="desc">Flow from intent through context and platform engineering to agent execution.</desc>
+  <rect width="960" height="360" fill="#ffffff"/>
+  <g font-family="Segoe UI, Arial" font-size="17" font-weight="700" text-anchor="middle">
+    <rect x="60" y="130" width="180" height="80" rx="8" fill="#fff8e1" stroke="#ffb900" stroke-width="2"/>
+    <text x="150" y="178">Intent</text>
+    <rect x="290" y="130" width="180" height="80" rx="8" fill="#e5f4ff" stroke="#00a4ef" stroke-width="2"/>
+    <text x="380" y="178">Context</text>
+    <rect x="520" y="130" width="180" height="80" rx="8" fill="#e8f5e9" stroke="#7fba00" stroke-width="2"/>
+    <text x="610" y="178">Platform</text>
+    <rect x="750" y="130" width="150" height="80" rx="8" fill="#ffebe5" stroke="#f25022" stroke-width="2"/>
+    <text x="825" y="178">Agents</text>
+  </g>
+  <g stroke="#425466" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M240 170 H290"/>
+    <path d="M470 170 H520"/>
+    <path d="M700 170 H750"/>
+  </g>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#425466"/></marker></defs>
+</svg>

@@ -1,0 +1,246 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ai-evaluation-pipeline
+  title: AI Model Evaluation Pipeline
+  description: |
+    Creates a comprehensive AI model evaluation pipeline with:
+    - Automated model testing and benchmarking
+    - Quality metrics (accuracy, latency, cost)
+    - A/B testing infrastructure
+    - Responsible AI evaluations
+    - Integration with Azure AI Foundry
+  tags:
+    - ai
+    - mlops
+    - evaluation
+    - azure
+    - h3-innovation
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Pipeline Configuration
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Pipeline Name
+          type: string
+          description: Name for your evaluation pipeline
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+        owner:
+          title: Owner Team
+          type: string
+          description: Team responsible for this pipeline
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        description:
+          title: Description
+          type: string
+          description: Brief description of the pipeline purpose
+          
+    - title: Model Configuration
+      required:
+        - model_type
+      properties:
+        model_type:
+          title: Model Type
+          type: string
+          enum:
+            - llm
+            - vision
+            - multimodal
+            - custom
+          enumNames:
+            - Large Language Model
+            - Computer Vision
+            - Multimodal
+            - Custom Model
+        model_endpoints:
+          title: Model Endpoints
+          type: array
+          description: Azure OpenAI or custom model endpoints to evaluate
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              endpoint:
+                type: string
+              model:
+                type: string
+              
+    - title: Evaluation Metrics
+      properties:
+        enable_quality_metrics:
+          title: Enable Quality Metrics
+          type: boolean
+          default: true
+          description: Accuracy, F1, BLEU, ROUGE scores
+        enable_performance_metrics:
+          title: Enable Performance Metrics
+          type: boolean
+          default: true
+          description: Latency, throughput, cost per request
+        enable_safety_metrics:
+          title: Enable Safety Metrics
+          type: boolean
+          default: true
+          description: Toxicity, bias, hallucination detection
+        enable_groundedness:
+          title: Enable Groundedness Check
+          type: boolean
+          default: true
+          description: Check if responses are grounded in context
+        custom_metrics:
+          title: Custom Metrics
+          type: array
+          description: Additional custom evaluation metrics
+          items:
+            type: string
+            
+    - title: Test Data Configuration
+      properties:
+        test_dataset_source:
+          title: Test Dataset Source
+          type: string
+          enum:
+            - azure_blob
+            - huggingface
+            - github
+            - inline
+          default: azure_blob
+        golden_dataset_path:
+          title: Golden Dataset Path
+          type: string
+          description: Path to golden test dataset
+        synthetic_data_generation:
+          title: Enable Synthetic Data Generation
+          type: boolean
+          default: false
+          description: Generate synthetic test cases using AI
+          
+    - title: Infrastructure
+      required:
+        - environment
+      properties:
+        environment:
+          title: Environment
+          type: string
+          enum:
+            - dev
+            - staging
+            - prod
+        azure_region:
+          title: Azure Region
+          type: string
+          enum:
+            - brazilsouth
+            - eastus
+            - westeurope
+          default: brazilsouth
+        schedule:
+          title: Evaluation Schedule
+          type: string
+          enum:
+            - manual
+            - daily
+            - weekly
+            - on_deployment
+          default: on_deployment
+          
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          lifecycle: production
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+          system: default
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          model_type: ${{ parameters.model_type }}
+          model_endpoints: ${{ parameters.model_endpoints }}
+          enable_quality_metrics: ${{ parameters.enable_quality_metrics }}
+          enable_performance_metrics: ${{ parameters.enable_performance_metrics }}
+          enable_safety_metrics: ${{ parameters.enable_safety_metrics }}
+          enable_groundedness: ${{ parameters.enable_groundedness }}
+          custom_metrics: ${{ parameters.custom_metrics }}
+          test_dataset_source: ${{ parameters.test_dataset_source }}
+          golden_dataset_path: ${{ parameters.golden_dataset_path }}
+          synthetic_data_generation: ${{ parameters.synthetic_data_generation }}
+          environment: ${{ parameters.environment }}
+          azure_region: ${{ parameters.azure_region }}
+          schedule: ${{ parameters.schedule }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: .
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: .
+        values:
+          name: "${{ parameters.name }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "ai-evaluation-pipeline"
+    - id: publish-github
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        description: AI Model Evaluation Pipeline - ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: private
+
+    - id: register-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-github'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps['publish-github'].output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-catalog'].output.entityRef }}

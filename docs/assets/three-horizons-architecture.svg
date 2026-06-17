@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="h3Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#e74c3c;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="h2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#3498db;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="h1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#27ae60;stop-opacity:0.08"/>
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+    <filter id="boxShadow" x="-4%" y="-8%" width="108%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="410" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#2c3e50">Open Horizons Architecture</text>
+
+  <!-- H3: INNOVATION -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="56" width="780" height="140" rx="10" fill="url(#h3Grad)" stroke="#e74c3c" stroke-width="1.5"/>
+  </g>
+  <text x="410" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#c0392b" letter-spacing="2">H3: INNOVATION</text>
+
+  <!-- H3 boxes -->
+  <g filter="url(#boxShadow)">
+    <rect x="50" y="96" width="160" height="80" rx="8" fill="#fff" stroke="#e74c3c" stroke-width="1.2"/>
+    <rect x="230" y="96" width="160" height="80" rx="8" fill="#fff" stroke="#e74c3c" stroke-width="1.2"/>
+    <rect x="410" y="96" width="160" height="80" rx="8" fill="#fff" stroke="#e74c3c" stroke-width="1.2"/>
+    <rect x="590" y="96" width="160" height="80" rx="8" fill="#fff" stroke="#e74c3c" stroke-width="1.2"/>
+  </g>
+  <text x="130" y="131" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">AI Foundry</text>
+  <text x="130" y="151" text-anchor="middle" font-size="12" fill="#7f8c8d">Agents</text>
+  <text x="310" y="131" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">SRE Agent</text>
+  <text x="310" y="151" text-anchor="middle" font-size="12" fill="#7f8c8d">Integration</text>
+  <text x="490" y="131" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Multi-Agent</text>
+  <text x="490" y="151" text-anchor="middle" font-size="12" fill="#7f8c8d">Systems</text>
+  <text x="670" y="131" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">MLOps</text>
+  <text x="670" y="151" text-anchor="middle" font-size="12" fill="#7f8c8d">Pipeline</text>
+
+  <!-- H2: ENHANCEMENT -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="210" width="780" height="140" rx="10" fill="url(#h2Grad)" stroke="#3498db" stroke-width="1.5"/>
+  </g>
+  <text x="410" y="236" text-anchor="middle" font-size="14" font-weight="700" fill="#2980b9" letter-spacing="2">H2: ENHANCEMENT</text>
+
+  <!-- H2 boxes -->
+  <g filter="url(#boxShadow)">
+    <rect x="50" y="250" width="160" height="80" rx="8" fill="#fff" stroke="#3498db" stroke-width="1.2"/>
+    <rect x="230" y="250" width="160" height="80" rx="8" fill="#fff" stroke="#3498db" stroke-width="1.2"/>
+    <rect x="410" y="250" width="160" height="80" rx="8" fill="#fff" stroke="#3498db" stroke-width="1.2"/>
+    <rect x="590" y="250" width="160" height="80" rx="8" fill="#fff" stroke="#3498db" stroke-width="1.2"/>
+  </g>
+  <text x="130" y="285" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">ArgoCD</text>
+  <text x="130" y="305" text-anchor="middle" font-size="12" fill="#7f8c8d">GitOps</text>
+  <text x="310" y="285" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Backstage</text>
+  <text x="310" y="305" text-anchor="middle" font-size="12" fill="#7f8c8d">Portal</text>
+  <text x="490" y="285" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Observability</text>
+  <text x="490" y="305" text-anchor="middle" font-size="12" fill="#7f8c8d">Stack</text>
+  <text x="670" y="285" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">GitOps</text>
+  <text x="670" y="305" text-anchor="middle" font-size="12" fill="#7f8c8d">Workflows</text>
+
+  <!-- H1: FOUNDATION -->
+  <g filter="url(#shadow)">
+    <rect x="20" y="364" width="780" height="140" rx="10" fill="url(#h1Grad)" stroke="#27ae60" stroke-width="1.5"/>
+  </g>
+  <text x="410" y="390" text-anchor="middle" font-size="14" font-weight="700" fill="#1e8449" letter-spacing="2">H1: FOUNDATION</text>
+
+  <!-- H1 boxes -->
+  <g filter="url(#boxShadow)">
+    <rect x="50" y="404" width="160" height="80" rx="8" fill="#fff" stroke="#27ae60" stroke-width="1.2"/>
+    <rect x="230" y="404" width="160" height="80" rx="8" fill="#fff" stroke="#27ae60" stroke-width="1.2"/>
+    <rect x="410" y="404" width="160" height="80" rx="8" fill="#fff" stroke="#27ae60" stroke-width="1.2"/>
+    <rect x="590" y="404" width="160" height="80" rx="8" fill="#fff" stroke="#27ae60" stroke-width="1.2"/>
+  </g>
+  <text x="130" y="439" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">AKS</text>
+  <text x="130" y="459" text-anchor="middle" font-size="12" fill="#7f8c8d">Cluster</text>
+  <text x="310" y="439" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Network</text>
+  <text x="310" y="459" text-anchor="middle" font-size="12" fill="#7f8c8d">VNet / NSG</text>
+  <text x="490" y="439" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">Security</text>
+  <text x="490" y="459" text-anchor="middle" font-size="12" fill="#7f8c8d">KeyVault</text>
+  <text x="670" y="439" text-anchor="middle" font-size="13" font-weight="600" fill="#2c3e50">ACR</text>
+  <text x="670" y="459" text-anchor="middle" font-size="12" fill="#7f8c8d">Registry</text>
+</svg>

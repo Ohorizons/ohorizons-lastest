@@ -1,0 +1,12 @@
+    auth:
+      environment: development
+      providers:
+        microsoft:
+          development:
+            clientId: ${ENTRA_CLIENT_ID}
+            clientSecret: ${ENTRA_CLIENT_SECRET}
+            tenantId: ${ENTRA_TENANT_ID}
+            signIn:
+              resolvers:
+                - resolver: emailMatchingUserEntityProfileEmail
+                  dangerouslyAllowSignInWithoutUserInCatalog: true

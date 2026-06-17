@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+  <title id="title">Three-Tier Context Architecture</title>
+  <desc id="desc">Hot, warm, and cold context tiers.</desc>
+  <rect width="900" height="520" fill="#ffffff"/>
+  <text x="450" y="70" text-anchor="middle" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#1b1b1f">Three-Tier Context Architecture</text>
+  <g font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">
+    <rect x="250" y="130" width="400" height="80" rx="8" fill="#ffebe5" stroke="#f25022" stroke-width="2"/>
+    <text x="450" y="178" font-size="22">Hot Context</text>
+    <rect x="190" y="240" width="520" height="80" rx="8" fill="#fff8e1" stroke="#ffb900" stroke-width="2"/>
+    <text x="450" y="288" font-size="22">Warm Context</text>
+    <rect x="130" y="350" width="640" height="80" rx="8" fill="#e5f4ff" stroke="#00a4ef" stroke-width="2"/>
+    <text x="450" y="398" font-size="22">Cold Context Retrieval</text>
+  </g>
+</svg>

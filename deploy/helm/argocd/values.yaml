@@ -1,0 +1,300 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - ARGOCD HELM VALUES
+# =============================================================================
+#
+# ArgoCD configuration for GitOps deployments.
+#
+# Chart: argo/argo-cd
+# Version: 5.x
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Global Settings
+# -----------------------------------------------------------------------------
+
+global:
+  image:
+    repository: quay.io/argoproj/argocd
+    tag: v2.9.3
+
+  logging:
+    format: json
+    level: info
+
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+# -----------------------------------------------------------------------------
+# ArgoCD Server
+# -----------------------------------------------------------------------------
+
+server:
+  replicas: 2
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+    port: 443
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    hosts:
+      - argocd.${DNS_ZONE_NAME}
+    tls:
+      - secretName: argocd-tls
+        hosts:
+          - argocd.${DNS_ZONE_NAME}
+
+  # RBAC Configuration
+  rbacConfig:
+    policy.default: role:readonly
+    policy.csv: |
+      p, role:platform-admin, applications, *, */*, allow
+      p, role:platform-admin, clusters, *, *, allow
+      p, role:platform-admin, repositories, *, *, allow
+      p, role:platform-admin, projects, *, *, allow
+      p, role:developer, applications, get, */*, allow
+      p, role:developer, applications, sync, */*, allow
+      p, role:developer, logs, get, */*, allow
+      g, platform-admins, role:platform-admin
+      g, developers, role:developer
+
+  config:
+    # Enable status badge
+    statusbadge.enabled: "true"
+
+    # Repository credentials
+    repositories: |
+      - url: https://github.com/${GITHUB_ORG}/agentic-devops-platform.git
+        passwordSecret:
+          name: github-credentials
+          key: password
+        usernameSecret:
+          name: github-credentials
+          key: username
+
+    # Resource tracking
+    resource.customizations: |
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          return hs
+
+# -----------------------------------------------------------------------------
+# ArgoCD Repo Server
+# -----------------------------------------------------------------------------
+
+repoServer:
+  replicas: 2
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # Enable Helm
+  serviceAccount:
+    create: true
+
+  env:
+    - name: HELM_CACHE_HOME
+      value: /helm-cache
+    - name: HELM_CONFIG_HOME
+      value: /helm-config
+    - name: HELM_DATA_HOME
+      value: /helm-data
+
+# -----------------------------------------------------------------------------
+# ArgoCD Application Controller
+# -----------------------------------------------------------------------------
+
+controller:
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+  # Processing settings
+  env:
+    - name: ARGOCD_RECONCILIATION_TIMEOUT
+      value: "300s"
+
+# -----------------------------------------------------------------------------
+# ArgoCD ApplicationSet Controller
+# -----------------------------------------------------------------------------
+
+applicationSet:
+  enabled: true
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# -----------------------------------------------------------------------------
+# ArgoCD Notifications
+# -----------------------------------------------------------------------------
+
+notifications:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+  # Teams notification template
+  notifiers:
+    service.teams: |
+      recipientUrls:
+        platform-alerts: $teams-webhook-url
+
+  templates:
+    template.app-deployed: |
+      teams:
+        title: "Application Deployed"
+        text: |
+          Application {{.app.metadata.name}} has been deployed.
+          Revision: {{.app.status.sync.revision}}
+          Environment: {{.app.spec.destination.namespace}}
+
+    template.app-health-degraded: |
+      teams:
+        title: "Application Health Degraded"
+        text: |
+          Application {{.app.metadata.name}} health is degraded.
+          Status: {{.app.status.health.status}}
+
+  triggers:
+    trigger.on-deployed: |
+      - when: app.status.operationState.phase in ['Succeeded']
+        send: [app-deployed]
+
+    trigger.on-health-degraded: |
+      - when: app.status.health.status == 'Degraded'
+        send: [app-health-degraded]
+
+# -----------------------------------------------------------------------------
+# Redis (for ArgoCD)
+# -----------------------------------------------------------------------------
+
+redis:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# -----------------------------------------------------------------------------
+# Dex (SSO)
+# -----------------------------------------------------------------------------
+
+dex:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+  # Entra ID configuration (Azure AD)
+  env:
+    - name: AZURE_TENANT_ID
+      valueFrom:
+        secretKeyRef:
+          name: azure-credentials
+          key: tenant-id
+
+# -----------------------------------------------------------------------------
+# Configs
+# -----------------------------------------------------------------------------
+
+configs:
+  # Cluster credentials secret
+  secret:
+    createSecret: true
+    argocdServerAdminPassword: ""  # Will be auto-generated
+
+  # ConfigMap for ArgoCD
+  cm:
+    # Enable exec feature
+    exec.enabled: "true"
+
+    # Admin account
+    admin.enabled: "true"
+
+    # Timeout settings
+    timeout.reconciliation: 180s
+
+    # Kustomize build options
+    kustomize.buildOptions: --enable-helm
+
+  # RBAC ConfigMap
+  rbac:
+    create: true
+    policy.default: role:readonly
+
+  # Params
+  params:
+    server.insecure: false
+    server.basehref: /
+    server.rootpath: ""
+    controller.status.processors: 20
+    controller.operation.processors: 10
+    controller.self.heal.timeout.seconds: 5
+    reposerver.parallelism.limit: 0

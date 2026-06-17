@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" font-family="Segoe UI, sans-serif">
+  <defs><filter id="ds"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/></filter></defs>
+  <rect width="680" height="520" rx="12" fill="#f8f9fa" stroke="#dee2e6"/>
+  <text x="340" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">Troubleshooting Decision Tree</text>
+  <text x="340" y="50" text-anchor="middle" font-size="12" fill="#7f8c8d">What's the problem?</text>
+  <rect x="40" y="65" width="600" height="33" rx="6" fill="#e74c3c" opacity="0.9"/>
+  <text x="55" y="86" font-size="10" fill="#fff" font-weight="600">"I can't deploy infrastructure"</text>
+  <text x="500" y="86" font-size="10" fill="rgba(255,255,255,0.8)">→ §3 Terraform</text>
+  <rect x="40" y="105" width="600" height="33" rx="6" fill="#3498db" opacity="0.9"/>
+  <text x="55" y="126" font-size="10" fill="#fff" font-weight="600">"I can't connect to the cluster"</text>
+  <text x="500" y="126" font-size="10" fill="rgba(255,255,255,0.8)">→ §4 AKS Cluster</text>
+  <rect x="40" y="145" width="600" height="33" rx="6" fill="#3498db" opacity="0.9"/>
+  <text x="55" y="166" font-size="10" fill="#fff" font-weight="600">"My pods aren't starting/running"</text>
+  <text x="500" y="166" font-size="10" fill="rgba(255,255,255,0.8)">→ §5 Pod Issues</text>
+  <rect x="40" y="185" width="600" height="33" rx="6" fill="#9b59b6" opacity="0.9"/>
+  <text x="55" y="206" font-size="10" fill="#fff" font-weight="600">"My app isn't deploying via GitOps"</text>
+  <text x="500" y="206" font-size="10" fill="rgba(255,255,255,0.8)">→ §6 ArgoCD</text>
+  <rect x="40" y="225" width="600" height="33" rx="6" fill="#e67e22" opacity="0.9"/>
+  <text x="55" y="246" font-size="10" fill="#fff" font-weight="600">"Services can't communicate"</text>
+  <text x="500" y="246" font-size="10" fill="rgba(255,255,255,0.8)">→ §7 Networking</text>
+  <rect x="40" y="265" width="600" height="33" rx="6" fill="#e67e22" opacity="0.9"/>
+  <text x="55" y="286" font-size="10" fill="#fff" font-weight="600">"Secrets aren't syncing from Key Vault"</text>
+  <text x="500" y="286" font-size="10" fill="rgba(255,255,255,0.8)">→ §8 External Secrets</text>
+  <rect x="40" y="305" width="600" height="33" rx="6" fill="#27ae60" opacity="0.9"/>
+  <text x="55" y="326" font-size="10" fill="#fff" font-weight="600">"I can't see metrics/logs"</text>
+  <text x="500" y="326" font-size="10" fill="rgba(255,255,255,0.8)">→ §9 Observability</text>
+  <rect x="40" y="345" width="600" height="33" rx="6" fill="#27ae60" opacity="0.9"/>
+  <text x="55" y="366" font-size="10" fill="#fff" font-weight="600">"AI/OpenAI APIs aren't working"</text>
+  <text x="500" y="366" font-size="10" fill="rgba(255,255,255,0.8)">→ §10 AI Foundry</text>
+  <rect x="40" y="385" width="600" height="33" rx="6" fill="#95a5a6" opacity="0.9"/>
+  <text x="55" y="406" font-size="10" fill="#fff" font-weight="600">"Authentication/permission errors"</text>
+  <text x="500" y="406" font-size="10" fill="rgba(255,255,255,0.8)">→ §11 Auth Issues</text>
+  <rect x="40" y="425" width="600" height="33" rx="6" fill="#95a5a6" opacity="0.9"/>
+  <text x="55" y="446" font-size="10" fill="#fff" font-weight="600">"Things are slow"</text>
+  <text x="500" y="446" font-size="10" fill="rgba(255,255,255,0.8)">→ §12 Performance</text>
+  <!-- Legend -->
+  <rect x="40" y="475" width="12" height="12" rx="2" fill="#e74c3c"/>
+  <text x="58" y="486" font-size="9" fill="#555">Infrastructure</text>
+  <rect x="150" y="475" width="12" height="12" rx="2" fill="#3498db"/>
+  <text x="168" y="486" font-size="9" fill="#555">Cluster/Pods</text>
+  <rect x="260" y="475" width="12" height="12" rx="2" fill="#9b59b6"/>
+  <text x="278" y="486" font-size="9" fill="#555">GitOps</text>
+  <rect x="340" y="475" width="12" height="12" rx="2" fill="#e67e22"/>
+  <text x="358" y="486" font-size="9" fill="#555">Networking/Secrets</text>
+  <rect x="480" y="475" width="12" height="12" rx="2" fill="#27ae60"/>
+  <text x="498" y="486" font-size="9" fill="#555">Observability/AI</text>
+</svg>

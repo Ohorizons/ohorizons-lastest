@@ -1,0 +1,449 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - ARGOCD SYNC POLICIES
+# =============================================================================
+#
+# Sync policy configurations including:
+# - Automated sync options
+# - Sync waves for ordered deployments
+# - Retry policies
+# - Prune/self-heal settings
+#
+# =============================================================================
+
+---
+# =============================================================================
+# SYNC POLICY PRESETS (for reference in Applications)
+# =============================================================================
+
+# ConfigMap containing sync policy presets as templates
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-sync-policy-presets
+  namespace: argocd
+  annotations:
+    description: "Reference sync policies - copy into Application specs"
+data:
+  # ---------------------------------------------------------------------------
+  # DEVELOPMENT ENVIRONMENT
+  # ---------------------------------------------------------------------------
+  dev-auto-sync.yaml: |
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+        allowEmpty: false
+      syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true
+        - ApplyOutOfSyncOnly=true
+      retry:
+        limit: 5
+        backoff:
+          duration: 5s
+          factor: 2
+          maxDuration: 3m
+  
+  # ---------------------------------------------------------------------------
+  # STAGING ENVIRONMENT
+  # ---------------------------------------------------------------------------
+  staging-auto-sync.yaml: |
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+        allowEmpty: false
+      syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true
+        - Validate=true
+        - ServerSideApply=true
+      retry:
+        limit: 3
+        backoff:
+          duration: 10s
+          factor: 2
+          maxDuration: 5m
+  
+  # ---------------------------------------------------------------------------
+  # PRODUCTION ENVIRONMENT - MANUAL SYNC
+  # ---------------------------------------------------------------------------
+  prod-manual-sync.yaml: |
+    syncPolicy:
+      # No automated section = manual sync required
+      syncOptions:
+        - CreateNamespace=false
+        - PruneLast=true
+        - Validate=true
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
+      retry:
+        limit: 2
+        backoff:
+          duration: 30s
+          factor: 2
+          maxDuration: 5m
+  
+  # ---------------------------------------------------------------------------
+  # INFRASTRUCTURE COMPONENTS
+  # ---------------------------------------------------------------------------
+  infra-careful-sync.yaml: |
+    syncPolicy:
+      automated:
+        prune: false  # Never auto-delete infra resources
+        selfHeal: true
+        allowEmpty: false
+      syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+        - FailOnSharedResource=true
+      retry:
+        limit: 10
+        backoff:
+          duration: 30s
+          factor: 2
+          maxDuration: 10m
+  
+  # ---------------------------------------------------------------------------
+  # PREVIEW ENVIRONMENTS
+  # ---------------------------------------------------------------------------
+  preview-aggressive-sync.yaml: |
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+        allowEmpty: true
+      syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true
+        - Replace=true  # Force replace for quick iterations
+      retry:
+        limit: 3
+        backoff:
+          duration: 5s
+          factor: 2
+          maxDuration: 1m
+
+---
+# =============================================================================
+# SYNC WAVE EXAMPLES
+# =============================================================================
+# Sync waves control the order of resource deployment.
+# Lower wave numbers are applied first.
+# Resources in the same wave are synced in parallel.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-sync-wave-examples
+  namespace: argocd
+  annotations:
+    description: "Examples of sync wave annotations"
+data:
+  sync-wave-order.md: |
+    # Sync Wave Order Guide
+    
+    ## Recommended Wave Numbers
+    
+    | Wave | Resources | Description |
+    |------|-----------|-------------|
+    | -10  | CRDs | Custom Resource Definitions |
+    | -5   | Namespaces, RBAC | Cluster-level prerequisites |
+    | -3   | ConfigMaps, Secrets | Configuration |
+    | -1   | PVCs, ServiceAccounts | Storage and identity |
+    | 0    | Deployments, Services | Main application (default) |
+    | 1    | HPA, PDB | Scaling and disruption budgets |
+    | 2    | Ingress, NetworkPolicies | Networking |
+    | 3    | Jobs, CronJobs | Post-deployment tasks |
+    | 5    | Monitoring resources | ServiceMonitors, alerts |
+    | 10   | Cleanup jobs | Post-sync cleanup |
+    
+    ## Example Annotations
+    
+    ```yaml
+    # CRD - deploy first
+    metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "-10"
+    
+    # Main application
+    metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+    
+    # Post-deployment job
+    metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "3"
+        argocd.argoproj.io/hook: PostSync
+    ```
+  
+  # Example: Full application with waves
+  example-app-with-waves.yaml: |
+    ---
+    # Wave -5: Namespace
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "-5"
+    
+    ---
+    # Wave -3: ConfigMap
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-app-config
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "-3"
+    data:
+      config.yaml: |
+        key: value
+    
+    ---
+    # Wave -3: Secret (using ESO)
+    apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    metadata:
+      name: my-app-secrets
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "-3"
+    spec:
+      # ... secret config
+    
+    ---
+    # Wave -1: ServiceAccount
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: my-app
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+    
+    ---
+    # Wave 0: Deployment (default)
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: my-app
+      namespace: my-app
+      # No sync-wave annotation = wave 0
+    spec:
+      # ... deployment spec
+    
+    ---
+    # Wave 0: Service
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: my-app
+      namespace: my-app
+    spec:
+      # ... service spec
+    
+    ---
+    # Wave 1: HPA
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: my-app
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+    spec:
+      # ... HPA spec
+    
+    ---
+    # Wave 2: Ingress
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: my-app
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
+    spec:
+      # ... ingress spec
+    
+    ---
+    # Wave 3: Database migration job
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: my-app-migrate
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "3"
+        argocd.argoproj.io/hook: Sync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    spec:
+      template:
+        spec:
+          containers:
+            - name: migrate
+              image: my-app:latest
+              command: ["./migrate.sh"]
+          restartPolicy: Never
+    
+    ---
+    # Wave 5: ServiceMonitor
+    apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: my-app
+      namespace: my-app
+      annotations:
+        argocd.argoproj.io/sync-wave: "5"
+    spec:
+      # ... monitoring spec
+
+---
+# =============================================================================
+# IGNORE DIFFERENCES CONFIGURATION
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-ignore-differences
+  namespace: argocd
+  annotations:
+    description: "Common ignore difference patterns"
+data:
+  resource-customizations.yaml: |
+    # Add to argocd-cm ConfigMap
+    resource.customizations.ignoreDifferences.all: |
+      jqPathExpressions:
+        - .metadata.generation
+        - .metadata.resourceVersion
+        - .metadata.uid
+        - .metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"]
+    
+    resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
+      jqPathExpressions:
+        - .webhooks[].clientConfig.caBundle
+    
+    resource.customizations.ignoreDifferences.admissionregistration.k8s.io_ValidatingWebhookConfiguration: |
+      jqPathExpressions:
+        - .webhooks[].clientConfig.caBundle
+    
+    resource.customizations.ignoreDifferences.apps_Deployment: |
+      jqPathExpressions:
+        - .spec.template.metadata.annotations["kubectl.kubernetes.io/restartedAt"]
+    
+    resource.customizations.ignoreDifferences.autoscaling_HorizontalPodAutoscaler: |
+      jqPathExpressions:
+        - .status
+
+---
+# =============================================================================
+# RESOURCE HOOKS
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-hooks-examples
+  namespace: argocd
+  annotations:
+    description: "Resource hook examples"
+data:
+  hooks-guide.md: |
+    # ArgoCD Resource Hooks
+    
+    ## Hook Types
+    
+    | Hook | When | Use Case |
+    |------|------|----------|
+    | PreSync | Before sync | Schema migrations, backups |
+    | Sync | During sync | Main deployment |
+    | PostSync | After sync | Notifications, smoke tests |
+    | SyncFail | On failure | Cleanup, alerts |
+    | Skip | Never | Disabled resources |
+    
+    ## Hook Delete Policies
+    
+    | Policy | Behavior |
+    |--------|----------|
+    | HookSucceeded | Delete after success |
+    | HookFailed | Delete after failure |
+    | BeforeHookCreation | Delete before new creation |
+    
+    ## Examples
+    
+    ```yaml
+    # Pre-sync backup job
+    metadata:
+      annotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    
+    # Post-sync smoke test
+    metadata:
+      annotations:
+        argocd.argoproj.io/hook: PostSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    
+    # Cleanup on failure
+    metadata:
+      annotations:
+        argocd.argoproj.io/hook: SyncFail
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    ```
+  
+  # Pre-sync backup job example
+  presync-backup.yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: pre-deploy-backup
+      annotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+        argocd.argoproj.io/sync-wave: "-1"
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: backup-tool:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Creating backup before deployment..."
+                  ./backup.sh --database $DATABASE_URL
+          restartPolicy: Never
+      backoffLimit: 2
+  
+  # Post-sync smoke test
+  postsync-smoketest.yaml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: smoke-test
+      annotations:
+        argocd.argoproj.io/hook: PostSync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          containers:
+            - name: test
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Running smoke tests..."
+                  curl -f http://my-app/health || exit 1
+                  curl -f http://my-app/ready || exit 1
+                  echo "Smoke tests passed!"
+          restartPolicy: Never
+      backoffLimit: 3

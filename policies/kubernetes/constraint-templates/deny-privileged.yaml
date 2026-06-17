@@ -1,0 +1,63 @@
+# =============================================================================
+# GATEKEEPER CONSTRAINT TEMPLATE - DENY PRIVILEGED
+# =============================================================================
+#
+# Blocks containers from running in privileged mode or with privilege escalation.
+# Critical security control for multi-tenant clusters.
+#
+# =============================================================================
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdenyprivileged
+  annotations:
+    description: "Blocks privileged containers and privilege escalation"
+    metadata.gatekeeper.sh/title: "Deny Privileged"
+    metadata.gatekeeper.sh/version: "1.0.0"
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDenyPrivileged
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            exemptImages:
+              type: array
+              description: "Images exempt from this constraint"
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdenyprivileged
+
+        import future.keywords.in
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not is_exempt(container.image)
+          container.securityContext.privileged == true
+          msg := sprintf("Container %v is running in privileged mode, which is not allowed", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not is_exempt(container.image)
+          container.securityContext.allowPrivilegeEscalation == true
+          msg := sprintf("Container %v allows privilege escalation, which is not allowed", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.initContainers[_]
+          not is_exempt(container.image)
+          container.securityContext.privileged == true
+          msg := sprintf("Init container %v is running in privileged mode, which is not allowed", [container.name])
+        }
+
+        is_exempt(image) {
+          exempt := input.parameters.exemptImages[_]
+          glob.match(exempt, ["/"], image)
+        }

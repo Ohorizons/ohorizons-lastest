@@ -1,0 +1,8 @@
+node_modules
+dist
+*.md
+.env
+.git
+.gitignore
+Makefile
+configs/

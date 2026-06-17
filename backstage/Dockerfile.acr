@@ -1,0 +1,50 @@
+# Multi-stage Dockerfile for ACR build (no BuildKit --mount required)
+# Build context: backstage/
+FROM node:24-trixie-slim
+
+ENV PYTHON=/usr/bin/python3
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 g++ build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install sqlite3 dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libsqlite3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install TechDocs dependencies and git
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip3 install --break-system-packages mkdocs-techdocs-core
+
+# Create app dir owned by node, then switch
+RUN mkdir -p /app && chown node:node /app
+USER node
+WORKDIR /app
+
+# Copy Yarn configuration
+COPY --chown=node:node .yarn ./.yarn
+COPY --chown=node:node .yarnrc.yml ./
+COPY --chown=node:node backstage.json ./
+
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--no-node-snapshot"
+
+# Install dependencies from the pre-built skeleton
+COPY --chown=node:node yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
+RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
+
+RUN yarn workspaces focus --all --production; rm -rf "$(yarn cache clean)" /tmp/*
+
+# Copy examples
+COPY --chown=node:node examples ./examples
+
+# Copy the actual backend bundle
+COPY --chown=node:node packages/backend/dist/bundle.tar.gz app-config*.yaml ./
+RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
+
+# Start the backend
+CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]

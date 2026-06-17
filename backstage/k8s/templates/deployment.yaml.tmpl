@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: __PLATFORM_NAME__-backstage
+  namespace: backstage
+  labels:
+    app.kubernetes.io/name: backstage
+    app.kubernetes.io/part-of: __PLATFORM_NAME__
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backstage
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backstage
+        app.kubernetes.io/part-of: __PLATFORM_NAME__
+    spec:
+      containers:
+        - name: backstage
+          image: __BACKSTAGE_IMAGE__:__IMAGE_TAG__
+          imagePullPolicy: IfNotPresent
+          command: ["node", "packages/backend", "--config", "app-config.yaml", "--config", "/app/config/app-config.override.yaml"]
+          ports:
+            - containerPort: 7007
+              name: http
+          envFrom:
+            - secretRef:
+                name: backstage-secrets
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 7007
+            initialDelaySeconds: 90
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 7007
+            initialDelaySeconds: 60
+            periodSeconds: 30
+      volumes:
+        - name: app-config
+          configMap:
+            name: backstage-app-config

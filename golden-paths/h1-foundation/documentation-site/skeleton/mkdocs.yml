@@ -1,0 +1,54 @@
+site_name: ${{values.name}}
+site_description: ${{values.description}}
+site_url: https://${{values.repoUrl | parseRepoUrl | pick('owner') }}.github.io/${{values.name}}
+
+repo_name: ${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+repo_url: https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/${{values.name}}
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - techdocs-core
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture:
+      - Overview: architecture/overview.md
+  - Guides:
+      - User Guide: guides/user-guide.md
+  - Reference:
+      - API: reference/api.md

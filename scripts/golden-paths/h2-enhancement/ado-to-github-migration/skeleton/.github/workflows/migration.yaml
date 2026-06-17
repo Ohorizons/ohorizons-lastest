@@ -1,0 +1,10 @@
+name: Migration
+on:
+  workflow_dispatch:
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x scripts/*.sh
+      - run: ./scripts/migrate-repos.sh

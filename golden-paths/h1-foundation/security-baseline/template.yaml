@@ -1,0 +1,465 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - H1 SECURITY BASELINE GOLDEN PATH TEMPLATE
+# =============================================================================
+#
+# Backstage Software Template for adding security baseline configurations.
+# Adds GHAS, secret scanning, dependency scanning, and security policies.
+#
+# Horizon: H1 - Foundation
+# Use Case: Standardize security across repositories
+#
+# =============================================================================
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-security-baseline
+  title: "H1: Apply Security Baseline to Repository"
+  description: |
+    Apply comprehensive security baseline to an existing repository.
+    Includes GHAS configuration, secret scanning, dependency scanning, 
+    security policies, and vulnerability management.
+  tags:
+    - h1-foundation
+    - security
+    - ghas
+    - devsecops
+    - compliance
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - title: GitHub Security Documentation
+      url: https://docs.github.com/en/code-security
+    - title: GHAS Best Practices
+      url: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning
+
+spec:
+  owner: platform-engineering
+  type: security-config
+
+  # ===========================================================================
+  # PARAMETERS
+  # ===========================================================================
+  
+  parameters:
+    # -------------------------------------------------------------------------
+    # Repository Selection
+    # -------------------------------------------------------------------------
+    - title: Repository Selection
+      description: Select the repository to apply security baseline
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository URL
+          description: The GitHub repository to secure
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        primaryLanguage:
+          title: Primary Language
+          description: Main programming language for CodeQL analysis
+          type: string
+          enum:
+            - python
+            - javascript
+            - typescript
+            - java
+            - csharp
+            - go
+            - ruby
+            - cpp
+            - swift
+          enumNames:
+            - Python
+            - JavaScript
+            - TypeScript
+            - Java/Kotlin
+            - C# (.NET)
+            - Go
+            - Ruby
+            - C/C++
+            - Swift
+
+        additionalLanguages:
+          title: Additional Languages
+          description: Other languages to scan (optional)
+          type: array
+          items:
+            type: string
+            enum:
+              - python
+              - javascript
+              - typescript
+              - java
+              - csharp
+              - go
+              - ruby
+              - cpp
+          uniqueItems: true
+          default: []
+
+    # -------------------------------------------------------------------------
+    # Security Features
+    # -------------------------------------------------------------------------
+    - title: Security Features
+      description: Configure which security features to enable
+      properties:
+        enableCodeScanning:
+          title: Enable Code Scanning (CodeQL)
+          description: Static analysis for security vulnerabilities
+          type: boolean
+          default: true
+
+        enableSecretScanning:
+          title: Enable Secret Scanning
+          description: Detect secrets and credentials in code
+          type: boolean
+          default: true
+
+        enableSecretPushProtection:
+          title: Enable Push Protection
+          description: Block pushes containing secrets
+          type: boolean
+          default: true
+
+        enableDependencyScanning:
+          title: Enable Dependency Scanning
+          description: Scan dependencies for vulnerabilities
+          type: boolean
+          default: true
+
+        enableDependabot:
+          title: Enable Dependabot Updates
+          description: Automated dependency updates
+          type: boolean
+          default: true
+
+        enableDefenderIntegration:
+          title: Enable Defender Integration
+          description: Integrate with Microsoft Defender for Cloud
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Compliance Configuration
+    # -------------------------------------------------------------------------
+    - title: Compliance & Policies
+      description: Configure compliance and policy settings
+      properties:
+        complianceFramework:
+          title: Compliance Framework
+          description: Primary compliance framework
+          type: string
+          default: soc2
+          enum:
+            - soc2
+            - iso27001
+            - pci-dss
+            - hipaa
+            - gdpr
+            - none
+          enumNames:
+            - SOC 2
+            - ISO 27001
+            - PCI DSS
+            - HIPAA
+            - GDPR
+            - None (Custom)
+
+        enableSecurityPolicy:
+          title: Add SECURITY.md
+          description: Add security policy and vulnerability reporting
+          type: boolean
+          default: true
+
+        securityContact:
+          title: Security Contact Email
+          description: Email for security vulnerability reports
+          type: string
+          format: email
+
+        enableBranchProtection:
+          title: Configure Branch Protection
+          description: Require security checks before merge
+          type: boolean
+          default: true
+
+        requiredReviewers:
+          title: Required Reviewers
+          description: Number of required approvals for PRs
+          type: integer
+          default: 2
+          minimum: 1
+          maximum: 6
+
+        requireCodeOwnerReview:
+          title: Require Code Owner Review
+          description: Require review from code owners
+          type: boolean
+          default: true
+
+    # -------------------------------------------------------------------------
+    # Scanning Configuration
+    # -------------------------------------------------------------------------
+    - title: Scanning Configuration
+      description: Configure scanning schedules and severity thresholds
+      properties:
+        scanSchedule:
+          title: Scheduled Scan Frequency
+          description: How often to run scheduled scans
+          type: string
+          default: daily
+          enum:
+            - daily
+            - weekly
+            - twice-weekly
+          enumNames:
+            - Daily (recommended)
+            - Weekly
+            - Twice per week
+
+        severityThreshold:
+          title: Blocking Severity
+          description: Minimum severity to block PRs
+          type: string
+          default: high
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+          enumNames:
+            - Critical only
+            - High and above
+            - Medium and above
+            - All severities
+
+        enableAutofix:
+          title: Enable Copilot Autofix
+          description: Use Copilot to suggest security fixes
+          type: boolean
+          default: true
+
+        dismissStaleReviews:
+          title: Dismiss Stale Reviews
+          description: Dismiss approvals when new commits are pushed
+          type: boolean
+          default: true
+
+  # ===========================================================================
+  # STEPS
+  # ===========================================================================
+  
+    - title: Azure Deployment
+      description: Optional Azure infrastructure baseline
+      properties:
+        deployToAzure:
+          title: Provision Azure Infrastructure
+          description: |
+            When enabled, the generated repository receives a Bicep baseline
+            (Log Analytics, Application Insights, Storage) plus a GitHub Actions
+            workflow that runs what-if or apply via OIDC. Disable for repos that
+            do not deploy to Azure.
+          type: boolean
+          default: true
+
+  steps:
+    # -------------------------------------------------------------------------
+    # Generate CodeQL Workflow
+    # -------------------------------------------------------------------------
+    - id: generate-codeql
+      name: Generate CodeQL Configuration
+      if: ${{ parameters.enableCodeScanning }}
+      action: fetch:template
+      input:
+        url: ./skeleton/codeql
+        targetPath: ./output/.github/workflows
+        values:
+          primaryLanguage: ${{ parameters.primaryLanguage }}
+          additionalLanguages: ${{ parameters.additionalLanguages }}
+          scanSchedule: ${{ parameters.scanSchedule }}
+          enableAutofix: ${{ parameters.enableAutofix }}
+
+    # -------------------------------------------------------------------------
+    # Generate Dependency Review
+    # -------------------------------------------------------------------------
+    - id: generate-dependency-review
+      name: Generate Dependency Review Workflow
+      if: ${{ parameters.enableDependencyScanning }}
+      action: fetch:template
+      input:
+        url: ./skeleton/dependency-review
+        targetPath: ./output/.github/workflows
+        values:
+          severityThreshold: ${{ parameters.severityThreshold }}
+
+    # -------------------------------------------------------------------------
+    # Generate Dependabot Config
+    # -------------------------------------------------------------------------
+    - id: generate-dependabot
+      name: Generate Dependabot Configuration
+      if: ${{ parameters.enableDependabot }}
+      action: fetch:template
+      input:
+        url: ./skeleton/dependabot
+        targetPath: ./output/.github
+        values:
+          primaryLanguage: ${{ parameters.primaryLanguage }}
+
+    # -------------------------------------------------------------------------
+    # Generate Security Policy
+    # -------------------------------------------------------------------------
+    - id: generate-security-policy
+      name: Generate Security Policy
+      if: ${{ parameters.enableSecurityPolicy }}
+      action: fetch:template
+      input:
+        url: ./skeleton/security-policy
+        targetPath: ./output
+        values:
+          securityContact: ${{ parameters.securityContact }}
+          complianceFramework: ${{ parameters.complianceFramework }}
+          orgName: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
+    # -------------------------------------------------------------------------
+    # Generate Secret Scanning Config
+    # -------------------------------------------------------------------------
+    - id: generate-secret-config
+      name: Generate Secret Scanning Configuration
+      if: ${{ parameters.enableSecretScanning }}
+      action: fetch:template
+      input:
+        url: ./skeleton/secret-scanning
+        targetPath: ./output/.github
+        values:
+          enablePushProtection: ${{ parameters.enableSecretPushProtection }}
+
+    # -------------------------------------------------------------------------
+    # Generate CODEOWNERS
+    # -------------------------------------------------------------------------
+    - id: generate-codeowners
+      name: Generate CODEOWNERS for Security
+      action: fetch:template
+      input:
+        url: ./skeleton/codeowners
+        targetPath: ./output/.github
+        values:
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+          requireCodeOwnerReview: ${{ parameters.requireCodeOwnerReview }}
+
+
+    # --------------------------------------------------------------------------
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-agents
+      name: Add Copilot AI Agents
+      action: fetch:plain
+      input:
+        url: ../../common/agents
+        targetPath: ./output
+
+    # --------------------------------------------------------------------------
+    # Generate Azure Infrastructure Baseline
+    # --------------------------------------------------------------------------
+    - id: add-azure-infrastructure
+      name: Add Azure Infrastructure Baseline
+      if: "${{ parameters.deployToAzure }}"
+      action: fetch:template
+      input:
+        url: ../../common/azure-infrastructure
+        targetPath: ./output
+        values:
+          name: "${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}"
+          environment: dev
+          azureRegion: centralus
+          workloadType: "h1-security-baseline"
+    # -------------------------------------------------------------------------
+    # Create Pull Request
+    # -------------------------------------------------------------------------
+    - id: create-pr
+      name: Create Security Baseline PR
+      action: publish:github:pull-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: security-baseline
+        title: "security: Apply comprehensive security baseline"
+        description: |
+          ## 🔒 Security Baseline Configuration
+          
+          This PR applies the Open Horizons H1 Security Baseline to this repository.
+          
+          ### Security Features Enabled
+          
+          **Code Analysis:**
+          ${{ parameters.enableCodeScanning ? '- ✅ CodeQL scanning for ' + parameters.primaryLanguage : '- ⏭️ CodeQL skipped' }}
+          ${{ parameters.enableAutofix ? '- ✅ Copilot Autofix enabled' : '' }}
+          
+          **Secret Protection:**
+          ${{ parameters.enableSecretScanning ? '- ✅ Secret scanning enabled' : '- ⏭️ Secret scanning skipped' }}
+          ${{ parameters.enableSecretPushProtection ? '- ✅ Push protection enabled' : '' }}
+          
+          **Dependency Security:**
+          ${{ parameters.enableDependencyScanning ? '- ✅ Dependency review on PRs' : '- ⏭️ Dependency review skipped' }}
+          ${{ parameters.enableDependabot ? '- ✅ Dependabot automated updates' : '' }}
+          
+          **Compliance:**
+          - 📋 Framework: ${{ parameters.complianceFramework }}
+          ${{ parameters.enableSecurityPolicy ? '- ✅ SECURITY.md policy added' : '' }}
+          ${{ parameters.enableDefenderIntegration ? '- ✅ Defender integration configured' : '' }}
+          
+          ### Configuration Details
+          
+          | Setting | Value |
+          |---------|-------|
+          | Scan Schedule | ${{ parameters.scanSchedule }} |
+          | Severity Threshold | ${{ parameters.severityThreshold }} |
+          | Required Reviewers | ${{ parameters.requiredReviewers }} |
+          | Code Owner Review | ${{ parameters.requireCodeOwnerReview }} |
+          
+          ### Next Steps
+          
+          1. Review the security configurations
+          2. Update `SECURITY.md` with your specific policies
+          3. Merge to enable security features
+          4. Configure branch protection rules manually if needed
+          
+          ---
+          *Generated by Backstage Open Horizons Platform*
+        sourcePath: ./output
+        targetPath: .
+
+  # ===========================================================================
+  # OUTPUT
+  # ===========================================================================
+  
+  output:
+    links:
+      - title: Security PR
+        url: ${{ steps['create-pr'].output.remoteUrl }}
+      - title: Repository Security Tab
+        url: https://github.com/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}/security
+      - title: Code Scanning Alerts
+        url: https://github.com/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}/security/code-scanning
+    text:
+      - title: Security Baseline Applied
+        content: |
+          ## 🔒 Security Baseline Created!
+          
+          A pull request has been created to apply the security baseline.
+          
+          **After merging, enable these GitHub settings:**
+          1. Go to Settings → Code security and analysis
+          2. Enable "Secret scanning" and "Push protection"
+          3. Enable "Dependabot alerts" and "Dependabot security updates"
+          
+          **Configure branch protection:**
+          1. Go to Settings → Branches → Add rule
+          2. Require status checks: `CodeQL`, `Dependency Review`
+          3. Require ${{ parameters.requiredReviewers }} approving reviews
+          ${{ parameters.requireCodeOwnerReview ? '4. Require review from Code Owners' : '' }}
+
