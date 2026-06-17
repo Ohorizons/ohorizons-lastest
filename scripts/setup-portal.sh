@@ -192,7 +192,7 @@ step4_github() {
     warn "Private key file not found: $GITHUB_APP_PRIVATE_KEY_FILE"
   fi
 
-  ask TEMPLATE_REPO "Template repository" "${GITHUB_ORG:+$GITHUB_ORG/agentic-devops-platform}"
+  ask TEMPLATE_REPO "Template repository" "${GITHUB_ORG:+$GITHUB_ORG/ohorizons-lastest}"
   ok "Template repo: $TEMPLATE_REPO"
 }
 
