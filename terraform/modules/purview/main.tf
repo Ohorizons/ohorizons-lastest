@@ -338,7 +338,7 @@ resource "azapi_resource" "data_sources" {
 
 resource "azapi_resource" "scan_rule_set" {
   type                      = "Microsoft.Purview/accounts/scanRuleSets@2022-02-01-preview"
-  name                      = "ThreeHorizonsScanRuleSet"
+  name                      = "OpenHorizonsScanRuleSet"
   parent_id                 = azurerm_purview_account.main.id
   schema_validation_enabled = false
 

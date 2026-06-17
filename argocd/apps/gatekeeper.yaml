@@ -212,7 +212,7 @@ spec:
   project: platform-infrastructure
 
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/agentic-devops-platform.git
+    repoURL: https://github.com/${GITHUB_ORG}/open-horizons-platform.git
     targetRevision: HEAD
     path: policies/kubernetes/constraint-templates
     directory:
@@ -263,7 +263,7 @@ spec:
   project: platform-infrastructure
 
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/agentic-devops-platform.git
+    repoURL: https://github.com/${GITHUB_ORG}/open-horizons-platform.git
     targetRevision: HEAD
     path: policies/kubernetes/constraints
     directory:

@@ -272,7 +272,7 @@ spec:
           title: Container Registry
           description: Azure Container Registry name
           type: string
-          default: ${{ values.acrName | default('acrthreehorizons') }}
+          default: ${{ values.acrName | default('acropenhorizons') }}
 
         dockerfilePath:
           title: Dockerfile Path

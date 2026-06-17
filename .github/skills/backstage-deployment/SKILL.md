@@ -28,22 +28,22 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 
 ---
 
-## Azure MVP Deployment (`rg-backstage-demo`)
+## Azure MVP Deployment (`rg-openhorizons-dev`)
 
 ### Resources
 
 | Resource | Name | Type | Location |
 |----------|------|------|----------|
-| AKS | `aks-backstage-demo` | 2x Standard_B2s | eastus2 |
+| AKS | `aks-openhorizons-dev` | 2x Standard_B2s | eastus2 |
 | ACR | `acrbackstagedemo` | Basic | eastus2 |
-| Key Vault | `kv-backstage-demo` | RBAC-enabled | eastus2 |
+| Key Vault | `kv-openhorizons-dev` | RBAC-enabled | eastus2 |
 | PostgreSQL | `pgbackstagedemo` | Flexible B1ms v16 | centralus |
-| Redis | `redis-backstage-demo` | Azure Managed B0 | eastus2 |
-| AI Services | `ai-backstage-demo` | S0 (GPT-4o + Embeddings) | eastus2 |
-| Log Analytics | `law-backstage-demo` | PerGB2018 | eastus2 |
-| App Insights | `appi-backstage-demo` | Application Insights | eastus2 |
-| Managed Prometheus | `prometheus-backstage-demo` | Azure Monitor Workspace | eastus2 |
-| Managed Grafana | `grafana-backstage-demo` | Standard tier | eastus2 |
+| Redis | `redis-openhorizons-dev` | Azure Managed B0 | eastus2 |
+| AI Services | `ai-openhorizons-dev` | S0 (GPT-4o + Embeddings) | eastus2 |
+| Log Analytics | `law-openhorizons-dev` | PerGB2018 | eastus2 |
+| App Insights | `appi-openhorizons-dev` | Application Insights | eastus2 |
+| Managed Prometheus | `prometheus-openhorizons-dev` | Azure Monitor Workspace | eastus2 |
+| Managed Grafana | `grafana-openhorizons-dev` | Standard tier | eastus2 |
 | Monitor | Container Insights + Metrics | Enabled on AKS | eastus2 |
 | Defender | Containers + KV + OSS DB | Standard tier | subscription |
 | Action Group | `ag-backstage-sre` | Webhook → GitHub | eastus2 |
@@ -53,7 +53,7 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 
 | Name | Roles |
 |------|-------|
-| `sp-backstage-demo` | Contributor (RG), KV Secrets User, AI OpenAI User |
+| `sp-openhorizons-dev` | Contributor (RG), KV Secrets User, AI OpenAI User |
 
 ### Kubernetes Components
 

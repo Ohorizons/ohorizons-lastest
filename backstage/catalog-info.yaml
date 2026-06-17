@@ -5,14 +5,14 @@ metadata:
   title: Open Horizons Developer Portal
   description: Enterprise developer portal powered by Backstage — the Open Horizons Agentic DevOps Platform. Central hub for Golden Path templates, Service Catalog, TechDocs, APIs, and platform services.
   annotations:
-    github.com/project-slug: Ohorizons/agentic-devops-platform
+    github.com/project-slug: Ohorizons/open-horizons-platform
     backstage.io/techdocs-ref: dir:.
   tags:
     - backstage
     - developer-portal
     - platform-engineering
   links:
-    - url: https://github.com/Ohorizons/agentic-devops-platform
+    - url: https://github.com/Ohorizons/open-horizons-platform
       title: GitHub Repository
       icon: github
     - url: http://devhub.135.18.141.224.nip.io/docs

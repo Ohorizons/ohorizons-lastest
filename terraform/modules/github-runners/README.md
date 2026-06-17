@@ -19,7 +19,7 @@ Self-hosted GitHub Actions runners on AKS using Actions Runner Controller (ARC) 
 module "github_runners" {
   source = "./modules/github-runners"
 
-  customer_name = "threehorizons"
+  customer_name = "openhorizons"
   environment   = "prod"
   namespace     = "github-runners"
 

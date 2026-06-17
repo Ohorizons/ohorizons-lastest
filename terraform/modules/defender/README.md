@@ -30,7 +30,7 @@ Microsoft Defender for Cloud with comprehensive security posture management.
 module "defender" {
   source = "./modules/defender"
 
-  customer_name   = "threehorizons"
+  customer_name   = "openhorizons"
   environment     = "prod"
   sizing_profile  = "large"
   subscription_id = data.azurerm_subscription.current.subscription_id

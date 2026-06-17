@@ -232,7 +232,7 @@ spec:
           title: Container Registry
           description: Container registry URL
           type: string
-          default: acrthreehorizons.azurecr.io
+          default: acropenhorizons.azurecr.io
 
         imageName:
           title: Image Name

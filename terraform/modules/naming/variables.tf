@@ -8,7 +8,7 @@
 # =============================================================================
 
 variable "project_name" {
-  description = "Project or workload name (e.g., 'threehorizons')"
+  description = "Project or workload name (e.g., 'openhorizons')"
   type        = string
   validation {
     condition     = can(regex("^[a-z0-9]{2,10}$", var.project_name))

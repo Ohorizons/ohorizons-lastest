@@ -56,7 +56,7 @@ body:
     attributes:
       label: "Azure Resource Group"
       description: "Resource group for RBAC assignment"
-      placeholder: "rg-threehorizons-prod"
+      placeholder: "rg-openhorizons-prod"
     validations:
       required: true
 
@@ -93,7 +93,7 @@ body:
       label: "AKS Workload Identity (if applicable)"
       description: "If configuring Workload Identity, provide details"
       placeholder: |
-        AKS Cluster: aks-threehorizons-prod
+        AKS Cluster: aks-openhorizons-prod
         Namespace: app-namespace
         Service Account: my-service-account
 

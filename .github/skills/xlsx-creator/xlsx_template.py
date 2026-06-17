@@ -1,5 +1,5 @@
 """
-XLSX Template — Adoleta.ai-Branded Excel Dashboard Generator
+XLSX Template — Microsoft-Branded Excel Dashboard Generator
 Uses openpyxl to create professional workbooks with Dashboard + data tabs.
 
 Usage:
@@ -61,7 +61,7 @@ thin_border = Border(
 
 
 def style_header_row(ws, row, max_col):
-    """Apply Adoleta.ai branding to a header row."""
+    """Apply Microsoft enterprise branding to a header row."""
     for col in range(1, max_col + 1):
         cell = ws.cell(row=row, column=col)
         cell.fill = header_fill
@@ -142,7 +142,7 @@ def create_dashboard(wb):
 
     # Footer
     ws.merge_cells('A20:H20')
-    ws['A20'] = f'Microsoft Confidential | Generated {DATE}'
+    ws['A20'] = f'Microsoft Internal | Generated {DATE}'
     ws['A20'].font = Font(name='Segoe UI', size=8, italic=True, color=TEXT_SECONDARY)
     ws['A20'].alignment = Alignment(horizontal='center')
 

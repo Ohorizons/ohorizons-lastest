@@ -59,4 +59,4 @@ Use clear diagrams or decision records when they help. Keep recommendations tied
 ## Operating Rules
 - Do not invent performance, cost, ROI, or market metrics.
 - Prefer Workload Identity, private endpoints, least privilege, and non-root Kubernetes workloads.
-- Keep designs compatible with Backstage OSS on AKS and the Adoleta.ai branding constraints.
+- Keep designs compatible with Backstage OSS on AKS and the Microsoft enterprise branding constraints.

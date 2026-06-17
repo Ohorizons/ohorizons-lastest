@@ -892,11 +892,11 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
         <Typography className={classes.ctaTitle}>Ready to Transform Your SDLC?</Typography>
         <Typography className={classes.ctaSub}>Deploy Open Horizons and bring Agentic DevOps to your organization.</Typography>
         <div className={classes.ctaBtns}>
-          <a href="https://github.com/Ohorizons/agentic-devops-platform" target="_blank" rel="noopener noreferrer"
+          <a href="https://github.com/Ohorizons/open-horizons-platform" target="_blank" rel="noopener noreferrer"
             className={`${classes.ctaBtn} ${classes.ctaPrimary}`}>Deploy Now</a>
-          <a href="https://github.com/Ohorizons/agentic-devops-platform#readme" target="_blank" rel="noopener noreferrer"
+          <a href="https://github.com/Ohorizons/open-horizons-platform#readme" target="_blank" rel="noopener noreferrer"
             className={`${classes.ctaBtn} ${classes.ctaOutline}`}>Documentation</a>
-          <a href="https://github.com/Ohorizons/agentic-devops-platform" target="_blank" rel="noopener noreferrer"
+          <a href="https://github.com/Ohorizons/open-horizons-platform" target="_blank" rel="noopener noreferrer"
             className={`${classes.ctaBtn} ${classes.ctaOutline}`}>GitHub Repository</a>
         </div>
         <div className={classes.footer}>Open Horizons — Agentic DevOps Platform Accelerator · Microsoft · GitHub · Open Source</div>

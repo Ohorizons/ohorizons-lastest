@@ -106,8 +106,8 @@ The 27 skills in the workspace skills folder provide domain-specific knowledge t
 | `codespaces-golden-paths` | GitHub Codespaces devcontainer configs per Golden Path |
 | `database-management` | Database ops and health monitoring |
 | `deploy-orchestration` | End-to-end platform deployment orchestration |
-| `docx-creator` | Word document generation with Adoleta.ai branding |
-| `figjam-diagrams` | FigJam diagrams with Mermaid and Adoleta.ai brand colors |
+| `docx-creator` | Word document generation with Microsoft enterprise branding |
+| `figjam-diagrams` | FigJam diagrams with Mermaid and Microsoft brand colors |
 | `github-cli` | GitHub CLI for repos and workflows |
 | `helm-cli` | Helm CLI for Kubernetes packages |
 | `issue-ops` | GitHub Issue-driven slash command dispatcher |
@@ -116,12 +116,12 @@ The 27 skills in the workspace skills folder provide domain-specific knowledge t
 | `mcp-cli` | Model Context Protocol server reference |
 | `mcp-ecosystem` | 39 tools for live methodology and reference data |
 | `observability-stack` | Prometheus, Grafana, Loki, Alertmanager |
-| `pdf-creator` | Adoleta.ai-branded PDF documents |
-| `pptx-creator` | PowerPoint presentations with Adoleta.ai branding |
+| `pdf-creator` | Microsoft-branded PDF documents |
+| `pptx-creator` | PowerPoint presentations with Microsoft enterprise branding |
 | `prerequisites` | CLI tool validation and setup |
 | `terraform-cli` | Terraform CLI for Azure infra |
 | `validation-scripts` | Validation scripts for deployments |
-| `xlsx-creator` | Excel workbooks with Adoleta.ai branding |
+| `xlsx-creator` | Excel workbooks with Microsoft enterprise branding |
 | `pipeline-diagnostics` | GitHub Actions CI/CD failure analysis and remediation |
 | `story-planning` | INVEST user story decomposition and GitHub Issues creation |
 | `test-coverage` | Test coverage analysis, CI check runs, and quality gates |

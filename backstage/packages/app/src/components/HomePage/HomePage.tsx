@@ -280,7 +280,7 @@ const environments = [
 ];
 
 const activities = [
-  { user: 'Paula Adoleta', action: 'Provisioned AKS Cluster', time: '2m ago', Icon: TerminalIcon },
+  { user: 'Open Horizons', action: 'Provisioned AKS Cluster', time: '2m ago', Icon: TerminalIcon },
   { user: 'System', action: 'Auto-scaled Azure VMSS', time: '15m ago', Icon: TimelineIcon },
   { user: 'John Doe', action: 'Merged PR #452', time: '1h ago', Icon: GitHubIcon },
   { user: 'GitHub Actions', action: 'Pipeline completed', time: '3h ago', Icon: CheckCircleIcon },

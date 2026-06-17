@@ -27,7 +27,7 @@ Azure AI Foundry is a unified hub for building, deploying, and managing AI solut
 module "ai_foundry" {
   source = "./modules/ai-foundry"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location

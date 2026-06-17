@@ -116,7 +116,7 @@ body:
     attributes:
       label: "Azure Key Vault Name"
       description: "Key Vault to store secrets (App ID, Private Key)"
-      placeholder: "kv-threehorizons-prod"
+      placeholder: "kv-openhorizons-prod"
     validations:
       required: true
 

@@ -19,7 +19,7 @@ Managed database services including PostgreSQL Flexible Server and Azure Cache f
 module "databases" {
   source = "./modules/databases"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location

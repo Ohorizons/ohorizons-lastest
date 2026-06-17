@@ -29,7 +29,7 @@ Microsoft Purview for enterprise data governance with LATAM-specific classificat
 module "purview" {
   source = "./modules/purview"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   sizing_profile      = "large"
   resource_group_name = azurerm_resource_group.main.name

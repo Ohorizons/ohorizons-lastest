@@ -18,7 +18,7 @@ External Secrets Operator with Azure Key Vault integration using Workload Identi
 module "external_secrets" {
   source = "./modules/external-secrets"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
@@ -106,7 +106,7 @@ spec:
   refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
-    name: threehorizons-prod-secret-store
+    name: openhorizons-prod-secret-store
   target:
     name: my-secret
     creationPolicy: Owner

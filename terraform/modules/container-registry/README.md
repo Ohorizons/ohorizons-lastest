@@ -20,7 +20,7 @@ Azure Container Registry with enterprise features including geo-replication and 
 module "container_registry" {
   source = "./modules/container-registry"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location

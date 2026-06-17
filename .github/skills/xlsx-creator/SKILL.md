@@ -1,11 +1,11 @@
 ---
 name: xlsx-creator
-description: "Creates professional Microsoft Excel (.xlsx) workbooks with dashboards, charts, connected tabs, conditional formatting, and Adoleta.ai branding. USE FOR: create Excel, generate xlsx, build spreadsheet, dashboard Excel, KPI tracker, financial model, data tracker, project tracker, Adoleta.ai branded Excel, create workbook with charts. DO NOT USE FOR: Word documents (use docx-creator), presentations (use pptx-creator), diagrams (use figjam-diagrams)."
+description: "Creates professional Microsoft Excel (.xlsx) workbooks with dashboards, charts, connected tabs, conditional formatting, and Microsoft enterprise branding. USE FOR: create Excel, generate xlsx, build spreadsheet, dashboard Excel, KPI tracker, financial model, data tracker, project tracker, Microsoft branded Excel, create workbook with charts. DO NOT USE FOR: Word documents (use docx-creator), presentations (use pptx-creator), diagrams (use figjam-diagrams)."
 ---
 
 # XLSX Creator
 
-Create professional Adoleta.ai-branded Excel workbooks (.xlsx) with dashboards, interactive charts, connected tabs, conditional formatting, and enterprise-grade structure using Python and openpyxl.
+Create professional Microsoft-branded Excel workbooks (.xlsx) with dashboards, interactive charts, connected tabs, conditional formatting, and enterprise-grade structure using Python and openpyxl.
 
 ## Technology
 
@@ -80,7 +80,7 @@ Row 26:     Empty spacer
 Row 27-35:  Summary table (top items from data tabs)
             Branded header row, alternating rows, conditional formatting
 
-Row 36:     Footer: "Microsoft Confidential | Generated {{date}}"
+Row 36:     Footer: "Microsoft Internal | Generated {{date}}"
 ```
 
 ### Tab 2-N: Data Tabs (domain-specific)
@@ -200,7 +200,7 @@ chart.x_axis.title = "{{x_axis}}"
 chart.width = 20
 chart.height = 12
 
-# Adoleta.ai brand colors for series
+# Microsoft brand colors for series
 from openpyxl.chart.series import DataPoint
 chart.series[0].graphicalProperties.solidFill = "0078D4"
 ```
@@ -312,7 +312,7 @@ ws.auto_filter.ref = f"A2:{get_column_letter(max_col)}{max_row}"
 - [ ] Conditional formatting on status/priority columns
 - [ ] Column widths set (no truncated content)
 - [ ] Number formats applied (currency, %, dates)
-- [ ] Charts use Adoleta.ai brand colors
+- [ ] Charts use Microsoft brand colors
 - [ ] Cross-tab formulas connect Dashboard to data tabs
 - [ ] Data validation dropdowns on status/priority columns
 - [ ] Freeze panes and auto-filters enabled on data tabs

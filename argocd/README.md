@@ -59,7 +59,7 @@ Before deploying, update the repository URL placeholders:
 
 ```yaml
 # Replace GITHUB_ORG_PLACEHOLDER with your organization
-repoURL: https://github.com/GITHUB_ORG_PLACEHOLDER/agentic-devops-platform.git
+repoURL: https://github.com/GITHUB_ORG_PLACEHOLDER/open-horizons-platform.git
 ```
 
 ### Secret Store

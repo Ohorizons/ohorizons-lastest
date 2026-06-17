@@ -37,14 +37,14 @@ This project follows a standard code of conduct. Please be respectful and constr
 2. Clone your fork:
 
    ```bash
-   git clone https://github.com/YOUR-USERNAME/agentic-devops-platform.git
-   cd agentic-devops-platform
+   git clone https://github.com/YOUR-USERNAME/open-horizons-platform.git
+   cd open-horizons-platform
    ```
 
 3. Add upstream remote:
 
    ```bash
-   git remote add upstream https://github.com/ORIGINAL-OWNER/agentic-devops-platform.git
+   git remote add upstream https://github.com/ORIGINAL-OWNER/open-horizons-platform.git
    ```
 
 ## Development Setup

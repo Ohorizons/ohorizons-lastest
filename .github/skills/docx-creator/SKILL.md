@@ -1,17 +1,17 @@
 ---
 name: docx-creator
 description: >
-  Create vibrant, colorful Microsoft Word documents (.docx) using the 4-color Adoleta.ai color palette
+    Create vibrant, colorful Microsoft Word documents (.docx) using the Microsoft 4-color palette
   (Red, Green, Blue, Yellow). Each section gets a different logo color for headings and tables, with
   decorative 4-color bars between sections. USE FOR: create Word document, generate docx, write report,
-  Adoleta.ai branded document, workshop guide, training material, whitepaper, proposal, colorful document,
-  4 cores, cores do logo, visual, vibrante. DO NOT USE FOR: presentations (use pptx-creator),
+    Microsoft-branded document, workshop guide, training material, whitepaper, proposal, executive document,
+    colorful document, visual handout. DO NOT USE FOR: presentations (use pptx-creator),
   diagrams (use figjam-diagrams), Excel (use xlsx-creator), PDF (use pdf-creator).
 ---
 
 # Microsoft DOCX Colorful Creator
 
-Create **enterprise-grade, professional** Word documents using the **4-color Adoleta.ai color palette** — a visually vibrant alternative to the standard single-blue docx-creator.
+Create **enterprise-grade, professional** Word documents using the **Microsoft 4-color palette** as a visually rich alternative to the standard single-blue `docx-creator` workflow.
 
 ## Core Principles — ALWAYS Follow These
 
@@ -22,8 +22,8 @@ Every document created with this skill MUST include:
 | 1 | **Cover Page** | Modern, themed, with Microsoft+GitHub logo, 4-color bars, title, metadata, confidentiality |
 | 2 | **Table of Contents** | Always generated after cover page — no exceptions |
 | 3 | **Document Properties** | Auto-filled: author=`admin@example.com`, title, subject, keywords matching the theme |
-| 4 | **Header** | `{Title} \| Agentic DevOps Platform` (NEVER "Latam") |
-| 5 | **Footer** | `Microsoft Confidential \| Page X of Y` |
+| 4 | **Header** | `{Title} \| Microsoft Azure & GitHub Accelerator Team` (NEVER "Latam") |
+| 5 | **Footer** | `Microsoft Internal \| Page X of Y` |
 | 6 | **Rich Visual Elements** | Tables, icons, highlights, callouts, diagrams, flows, charts as needed |
 | 7 | **Standard Closing Page** | "Thank You" + Contact info + Next Steps (when applicable) |
 | 8 | **English Only** | All content must be written in English |
@@ -31,7 +31,7 @@ Every document created with this skill MUST include:
 
 ## When to Use This vs docx-creator
 
-| This skill (ms-docx-colorful) | docx-creator |
+| This skill (microsoft-docx-colorful) | docx-creator |
 |-------------------------------|-----------------|
 | Client-facing workshop guides | Internal technical specs |
 | Training materials & participant guides | Architecture documents |
@@ -42,7 +42,7 @@ Every document created with this skill MUST include:
 
 ## Color System
 
-The Adoleta.ai colors rotate across sections:
+The Microsoft colors rotate across sections:
 
 | Color | Hex | RGB | Text Color |
 |-------|-----|-----|------------|
@@ -104,7 +104,7 @@ doc.add_closing_page(
     contact_name="Open Horizons",
     contact_email="admin@example.com",
     contact_role="Senior Software Engineer | Agentic DevOps Platform",
-    contact_team="Agentic DevOps Platform",
+    contact_team="Microsoft Azure & GitHub Accelerator Team",
     github_usernames=["@your-github", "@your-github-alt"],  # Default if omitted
     additional_contacts=[  # Optional
         {"name": "Colleague", "email": "email@microsoft.com", "role": "Role",
@@ -142,7 +142,7 @@ The document properties (File > Properties in Word) MUST be filled:
 | **Subject** | Topic description | "AI-Native DevOps, GitHub Copilot, Azure" |
 | **Keywords** | Relevant keywords | "DevOps, AI, GitHub, Azure, Workshop" |
 | **Category** | Document type | "Workshop Guide", "Assessment Report", etc. |
-| **Comments** | Team attribution | "Created by Agentic DevOps Platform" |
+| **Comments** | Team attribution | "Created by Microsoft Azure & GitHub Accelerator Team" |
 | **Language** | `en-US` | Always English |
 
 ## Visual Elements — Use Generously
@@ -202,11 +202,11 @@ Closing Page (contact + next steps)
 
 ### Header Format
 ```
-Line 1: {Title} | Agentic DevOps Platform
+Line 1: {Title} | Microsoft Azure & GitHub Accelerator Team
 Line 2: Version {x.xx} | admin@example.com
 ```
 
-⚠️ **IMPORTANT**: Always use "Agentic DevOps Platform" — NEVER "Latam", "LATAM", or "Latam Software GBB".
+⚠️ **IMPORTANT**: Always use "Microsoft Azure & GitHub Accelerator Team" — NEVER "Latam", "LATAM", or "Latam Software GBB".
 
 ## Content Rules
 
@@ -258,8 +258,8 @@ All text in the document MUST use Segoe UI and its variations. No other fonts al
 - [ ] Cover page: logo, themed title, subtitle, 4-color bars, metadata, confidentiality
 - [ ] Table of Contents generated
 - [ ] Document properties filled (author, title, subject, keywords, category, language)
-- [ ] Header: `{Title} \| Agentic DevOps Platform` (NOT Latam)
-- [ ] Footer: `Microsoft Confidential \| Page X of Y`
+- [ ] Header: `{Title} \| Microsoft Azure & GitHub Accelerator Team` (NOT Latam)
+- [ ] Footer: `Microsoft Internal \| Page X of Y`
 - [ ] Color bars between major sections
 - [ ] Each section has a distinct logo color (rotating)
 - [ ] Yellow headers have dark text (not white)

@@ -14,7 +14,7 @@ This module generates Azure resource names following **Microsoft Cloud Adoption 
 {resource-type}-{project}-{environment}-{region}-{instance}
 ```
 
-Example: `aks-threehorizons-prd-brs-001`
+Example: `aks-openhorizons-prd-brs-001`
 
 ## Usage
 
@@ -22,7 +22,7 @@ Example: `aks-threehorizons-prd-brs-001`
 module "naming" {
   source = "./modules/naming"
 
-  project_name = "threehorizons"
+  project_name = "openhorizons"
   environment  = "prd"
   location     = "brazilsouth"
   instance     = "001"

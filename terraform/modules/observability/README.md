@@ -20,7 +20,7 @@ Azure Managed Prometheus and Grafana with Container Insights integration.
 module "observability" {
   source = "./modules/observability"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location

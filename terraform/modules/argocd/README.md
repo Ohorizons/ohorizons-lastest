@@ -19,7 +19,7 @@ ArgoCD GitOps deployment on AKS with HA support, GitHub SSO, and notifications.
 module "argocd" {
   source = "./modules/argocd"
 
-  customer_name = "threehorizons"
+  customer_name = "openhorizons"
   environment   = "prod"
   namespace     = "argocd"
   domain_name   = "example.com"

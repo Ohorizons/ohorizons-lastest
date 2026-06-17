@@ -49,7 +49,7 @@ abstract: >
 5. [The CNCF Four Pillars of Platform Control](#5-the-cncf-four-pillars-of-platform-control)
 6. [Failure Modes: What Breaks When the Foundation Is Weak](#6-failure-modes-what-breaks-when-the-foundation-is-weak)
 7. [The 2026 Dual Mandate for Platform Teams](#7-the-2026-dual-mandate-for-platform-teams)
-8. [Open Horizons: The Accelerator for an Agentic DevOps Platform](#8-open-horizons-the-accelerator-for-an-agentic-devops-platform)
+8. [Open Horizons: The Accelerator for an Agentic DevOps Platform](#8-open-horizons-the-accelerator-for-an-open-horizons-platform)
 9. [Platform Engineering Maturity and Measurement](#9-platform-engineering-maturity-and-measurement)
 10. [Implementation Sequence: 90 Days, 6 Months, 12 Months](#10-implementation-sequence-90-days-6-months-12-months)
 11. [Closing Position](#11-closing-position)

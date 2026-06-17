@@ -30,8 +30,8 @@ body:
         ⚠️ **ACR names CANNOT contain hyphens!**
         
         ```
-        ✅ Correct: crthreehorizonsprdbrs
-        ❌ Wrong:   cr-threehorizons-prd-brs
+        ✅ Correct: cropenhorizonsprdbrs
+        ❌ Wrong:   cr-openhorizons-prd-brs
         
         Rules:
         - 5-50 characters
@@ -130,7 +130,7 @@ body:
         
         ```bash
         # Validate ACR naming (no hyphens!)
-        ./scripts/validate-naming.sh acr crthreehorizonsprdbrs
+        ./scripts/validate-naming.sh acr cropenhorizonsprdbrs
         
         # Deploy container registry module
         cd terraform
@@ -138,7 +138,7 @@ body:
         
         # Attach ACR to AKS
         az aks update -n aks-myproject-prd-brs -g rg-myproject-prd-brs \
-          --attach-acr crthreehorizonsprdbrs
+          --attach-acr cropenhorizonsprdbrs
         ```
         
         ## 🔗 Related Issues

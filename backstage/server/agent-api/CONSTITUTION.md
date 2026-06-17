@@ -35,7 +35,7 @@ When trade-offs arise, agents prioritize in this order:
 | agentic-workflows | GitHub Agentic Workflows |
 | awesome-copilot | Copilot customization files |
 | aks-platform-engineering | AKS + OSS platform stack |
-| agentic-devops-platform | Agentic DevOps Platform |
+| open-horizons-platform | Agentic DevOps Platform |
 | litellm | LLM proxy gateway |
 | software-templates | Backstage Software Templates |
 | red-hat-developer-hub-software-templates | RHDH templates |

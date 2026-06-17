@@ -272,7 +272,7 @@ main() {
         --all)
             if [[ $# -lt 4 ]]; then
                 echo "Usage: $0 --all <project> <environment> <region>"
-                echo "Example: $0 --all threehorizons prd brazilsouth"
+                echo "Example: $0 --all openhorizons prd brazilsouth"
                 exit 1
             fi
             validate_all "$2" "$3" "$4"
@@ -315,9 +315,9 @@ main() {
             echo "  rg                Resource Group"
             echo ""
             echo "Examples:"
-            echo "  $0 --all threehorizons prd brazilsouth"
-            echo "  $0 storage stthreehorizonsprd001"
-            echo "  $0 acr crthreehorizonsprd"
+            echo "  $0 --all openhorizons prd brazilsouth"
+            echo "  $0 storage stopenhorizonsprd001"
+            echo "  $0 acr cropenhorizonsprd"
             ;;
     esac
 }

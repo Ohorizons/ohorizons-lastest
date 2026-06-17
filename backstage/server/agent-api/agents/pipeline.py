@@ -34,7 +34,7 @@ AVAILABLE REPOSITORIES in the configured GitHub organization:
 - agentic-workflows — GitHub Agentic Workflows
 - awesome-copilot — Copilot customization files
 - aks-platform-engineering — AKS + OSS platform stack
-- agentic-devops-platform — Agentic DevOps Platform
+- open-horizons-platform — Agentic DevOps Platform
 
 RULES:
 - Always be specific about which step/job failed and why

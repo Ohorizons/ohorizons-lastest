@@ -233,8 +233,8 @@ load_environment_config() {
         # Set defaults
         export AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-$(az account show --query id -o tsv)}"
         export AZURE_REGION="${AZURE_REGION:-eastus2}"
-        export RESOURCE_GROUP_NAME="${RESOURCE_GROUP_NAME:-rg-threehorizons-${ENVIRONMENT}}"
-        export AKS_CLUSTER_NAME="${AKS_CLUSTER_NAME:-aks-threehorizons-${ENVIRONMENT}}"
+        export RESOURCE_GROUP_NAME="${RESOURCE_GROUP_NAME:-rg-openhorizons-${ENVIRONMENT}}"
+        export AKS_CLUSTER_NAME="${AKS_CLUSTER_NAME:-aks-openhorizons-${ENVIRONMENT}}"
         export GITHUB_ORG="${GITHUB_ORG:-your-org}"
     fi
     
@@ -282,7 +282,7 @@ deploy_h1_foundation() {
     az group create \
         --name "$RESOURCE_GROUP_NAME" \
         --location "$AZURE_REGION" \
-        --tags "Environment=${ENVIRONMENT}" "Platform=ThreeHorizons" \
+        --tags "Environment=${ENVIRONMENT}" "Platform=OpenHorizons" \
         --output none
     
     # Deploy H1 Foundation via root module

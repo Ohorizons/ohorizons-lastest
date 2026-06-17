@@ -18,7 +18,7 @@ Azure Cost Management configuration with budgets, alerts, and cost exports.
 module "cost_management" {
   source = "./modules/cost-management"
 
-  customer_name       = "threehorizons"
+  customer_name       = "openhorizons"
   environment         = "prod"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location

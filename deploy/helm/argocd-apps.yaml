@@ -14,7 +14,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    repoURL: https://github.com/Ohorizons/open-horizons-platform
     targetRevision: demo
     path: deploy/helm
   destination:
@@ -36,7 +36,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    repoURL: https://github.com/Ohorizons/open-horizons-platform
     targetRevision: demo
     path: prometheus
   destination:
@@ -58,7 +58,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/agentic-devops-platform
+    repoURL: https://github.com/Ohorizons/open-horizons-platform
     targetRevision: demo
     path: argocd
   destination:

@@ -20,7 +20,7 @@ Azure Disaster Recovery configuration with backup policies and site recovery.
 module "disaster_recovery" {
   source = "./modules/disaster-recovery"
 
-  customer_name               = "threehorizons"
+  customer_name               = "openhorizons"
   environment                 = "prod"
   primary_resource_group_name = azurerm_resource_group.main.name
   primary_location            = "eastus2"

@@ -1,7 +1,7 @@
 ---
 title: "Enterprise API and Tooling Governance Runbook"
 description: "Official guide for enterprise teams to govern, integrate, and distribute APIs, VS Code extensions, plugins, MCP servers, AI agents, and developer tooling artifacts using Azure API Center and the VS Code Private Marketplace as the unified control plane."
-author: "Open Horizons — Microsoft Agentic DevOps Platform"
+author: "Open Horizons — Microsoft Microsoft Azure & GitHub Accelerator Team"
 date: "2026-04-14"
 version: "1.0.0"
 status: "approved"
@@ -29,7 +29,7 @@ tags:
 
 | Version | Date       | Author                                      | Changes         |
 |---------|------------|---------------------------------------------|-----------------|
-| 1.0.0   | 2026-04-14 | Open Horizons, Microsoft Agentic DevOps Platform | Initial release |
+| 1.0.0   | 2026-04-14 | Open Horizons, Microsoft Microsoft Azure & GitHub Accelerator Team | Initial release |
 
 ---
 
