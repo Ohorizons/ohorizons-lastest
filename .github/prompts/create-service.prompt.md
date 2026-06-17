@@ -84,7 +84,7 @@ spec:
     spec:
       containers:
         - name: {{ .serviceName }}
-          image: {{ .acr }}/{{ .serviceName }}:latest
+          image: {{ .acr }}/{{ .serviceName }}:{{ .imageTag }}
           ports:
             - containerPort: 8080
           resources:
@@ -116,7 +116,7 @@ jobs:
       - name: Test
         run: make test
       - name: Security Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.35.0
 ```
 
 ### 4. Configure Observability

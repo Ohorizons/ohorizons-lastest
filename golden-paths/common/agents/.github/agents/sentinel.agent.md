@@ -5,7 +5,7 @@ tools:
   - search
   - read
   - execute
-user-invokable: true
+user-invocable: true
 ---
 
 # Sentinel Agent

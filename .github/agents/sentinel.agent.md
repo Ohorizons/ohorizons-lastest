@@ -5,7 +5,7 @@ tools:
   - search
   - execute
   - read
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Pipeline Diagnostics"
     agent: pipeline

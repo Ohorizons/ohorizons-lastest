@@ -4,7 +4,7 @@ description: "Code quality reviewer — analyzes code for SOLID principles, nami
 tools:
   - search
   - read
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Security Deep Dive"
     agent: security

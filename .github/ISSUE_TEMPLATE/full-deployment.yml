@@ -1,7 +1,7 @@
 name: "🚀 Full Platform Deployment"
 description: "Deploy complete Open Horizons platform (all horizons)"
 title: "[FULL] Platform Deployment - "
-labels: ["full-deployment", "horizon:h1", "horizon:h2", "horizon:h3"]
+labels: ["full-deployment", "workflow:full-deployment", "agent:deploy", "horizon:h1", "horizon:h2", "horizon:h3"]
 body:
   - type: markdown
     attributes:

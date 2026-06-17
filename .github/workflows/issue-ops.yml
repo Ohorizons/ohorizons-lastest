@@ -1,66 +1,70 @@
 name: IssueOps Dispatcher
 
 on:
-    issue_comment:
-        types: [created]
-    issues:
-        types: [opened]
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened]
 
 permissions:
   contents: read
 
 jobs:
-    issue-ops:
-        if: startsWith(github.event.comment.body, '/') || startsWith(github.event.issue.body, '/')
-        runs-on: ubuntu-latest
-        permissions:
-            issues: write
-            pull-requests: write
-            contents: read
-            id-token: write # Required for Azure OIDC
+  issue-ops:
+    if: |
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/')) ||
+      (github.event_name == 'issues' && startsWith(github.event.issue.body, '/'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+      id-token: write # Required for Azure OIDC when /validate is used
 
-        defaults:
-            run:
-                shell: bash
+    defaults:
+      run:
+        shell: bash
 
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.11"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-            - name: Azure Login (OIDC)
-              uses: azure/login@v2
-              with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Azure Login (OIDC)
+        if: |
+          (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/validate')) ||
+          (github.event_name == 'issues' && startsWith(github.event.issue.body, '/validate'))
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            - name: Execute Dispatcher
-              id: dispatch
-              env:
-                  ISSUE_BODY: ${{ github.event.comment.body || github.event.issue.body }}
-                  GITHUB_ORG: ${{ github.repository_owner }}
-                  # Pass Secrets likely needed by scripts
-                  TF_STATE_RG: ${{ secrets.TF_STATE_RG }}
-                  TF_STATE_STORAGE: ${{ secrets.TF_STATE_STORAGE }}
-              run: |
-                  # Capture output to file for commenting
-                  ./.github/scripts/issue-ops/dispatcher.py > command_output.md 2>&1
+      - name: Execute Dispatcher
+        id: dispatch
+        env:
+          ISSUE_BODY: ${{ github.event.comment.body || github.event.issue.body }}
+          GITHUB_ORG: ${{ github.repository_owner }}
+          TF_STATE_RG: ${{ secrets.TF_STATE_RG }}
+          TF_STATE_STORAGE: ${{ secrets.TF_STATE_STORAGE }}
+        run: |
+          set +e
+          python .github/skills/issue-ops/dispatcher.py > command_output.md 2>&1
+          dispatch_status=$?
 
-                  # Check exit code of dispatcher (it propagates script failure)
-                  if [ $? -eq 0 ]; then
-                     echo "status=success" >> $GITHUB_OUTPUT
-                  else
-                     echo "status=failure" >> $GITHUB_OUTPUT
-                  fi
+          if [ "$dispatch_status" -eq 0 ]; then
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+          fi
 
-            - name: Post Result to Issue
-              uses: peter-evans/create-or-update-comment@v4
-              with:
-                  issue-number: ${{ github.event.issue.number }}
-                  body-file: command_output.md
-                  reactions: ${{ steps.dispatch.outputs.status == 'success' && 'rocket' || 'confused' }}
+      - name: Post Result to Issue
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body-file: command_output.md
+          reactions: ${{ steps.dispatch.outputs.status == 'success' && 'rocket' || 'confused' }}

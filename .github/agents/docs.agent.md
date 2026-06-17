@@ -6,7 +6,7 @@ tools:
   - edit
   - read
   - web
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Technical Review"
     agent: architect

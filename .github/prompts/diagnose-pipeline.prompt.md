@@ -1,6 +1,5 @@
 ---
 description: "Diagnose a GitHub Actions pipeline failure — fetches real workflow run data and identifies failed steps with remediation."
-mode: "agent"
 agent: "pipeline"
 ---
 
@@ -9,16 +8,16 @@ agent: "pipeline"
 Analyze the most recent GitHub Actions workflow failures for the specified repository.
 
 ## Input
-- **Repository:** {{repo_name}}
-- **Branch (optional):** {{branch}}
-- **Run ID (optional):** {{run_id}}
+- **Repository:** ${input:repo_name:Repository name}
+- **Branch (optional):** ${input:branch:Branch name or blank}
+- **Run ID (optional):** ${input:run_id:Workflow run ID or blank}
 
 ## Instructions
 
 1. Read the [Pipeline Diagnostics Skill](../skills/pipeline-diagnostics/SKILL.md)
-2. Use `gh run list --repo Ohorizons/{{repo_name}} --status failure --limit 5` to find recent failures
-3. For each failed run, use `gh run view {run_id} --repo Ohorizons/{{repo_name}}` to get details
-4. Use `gh run view {run_id} --repo Ohorizons/{{repo_name}} --log-failed` for failed job logs
+2. Use `gh run list --repo Ohorizons/${input:repo_name} --status failure --limit 5` to find recent failures
+3. For each failed run, use `gh run view {run_id} --repo Ohorizons/${input:repo_name}` to get details
+4. Use `gh run view {run_id} --repo Ohorizons/${input:repo_name} --log-failed` for failed job logs
 5. Provide structured diagnosis with root cause and remediation steps
 
 ## Output Format

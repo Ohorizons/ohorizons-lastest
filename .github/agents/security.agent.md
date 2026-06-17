@@ -4,7 +4,7 @@ description: "Security compliance specialist — audits code and infrastructure 
 tools:
   - search
   - read
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Remediate Findings"
     agent: devops

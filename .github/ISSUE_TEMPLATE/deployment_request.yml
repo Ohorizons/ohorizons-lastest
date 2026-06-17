@@ -1,7 +1,7 @@
 name: Deployment Request
 description: Request a new platform deployment with T-shirt sizing
 title: "[DEPLOY] "
-labels: ["deployment", "agent:orchestrator"]
+labels: ["deployment", "agent:deploy", "workflow:full-deployment"]
 assignees: []
 
 body:

@@ -6,7 +6,7 @@ tools:
   - edit
   - execute
   - read
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Terraform Implementation"
     agent: terraform

@@ -6,7 +6,7 @@ tools:
   - edit
   - execute
   - read
-user-invokable: true
+user-invocable: true
 handoffs:
   - label: "Security Deep Dive"
     agent: security

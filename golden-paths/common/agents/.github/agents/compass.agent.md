@@ -5,7 +5,7 @@ tools:
   - search
   - read
   - edit
-user-invokable: true
+user-invocable: true
 ---
 
 # Compass Agent
