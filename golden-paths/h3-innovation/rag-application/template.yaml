@@ -370,7 +370,7 @@ spec:
         values:
           lifecycle: production
           name: ${{ parameters.appName }}
-          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+          repoUrl: ${{ parameters.repoUrl }}
           system: default
           appName: ${{ parameters.appName }}
           description: ${{ parameters.description }}
@@ -464,7 +464,7 @@ spec:
       name: Create GitHub Repository
       action: publish:github
       input:
-        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+        repoUrl: ${{ parameters.repoUrl }}
         description: ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: ${{ parameters.visibility }}

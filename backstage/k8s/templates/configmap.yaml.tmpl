@@ -7,17 +7,16 @@ data:
   app-config.override.yaml: |
     app:
       title: __ORG_DISPLAY_NAME__ — Agentic DevOps Platform
-      baseUrl: http://localhost:7007
+      baseUrl: https://__DOMAIN__
 
     organization:
       name: __ORG_DISPLAY_NAME__
 
     backend:
-      baseUrl: http://localhost:7007
+      baseUrl: https://__DOMAIN__
       listen:
         port: 7007
       auth:
-        dangerouslyDisableDefaultAuthPolicy: true
         externalAccess:
           - type: static
             options:
@@ -26,13 +25,18 @@ data:
         keys:
           - secret: ${BACKEND_SECRET}
       database:
-        client: better-sqlite3
-        connection: ':memory:'
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT:-5432}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+          database: ${POSTGRES_DATABASE:-backstage}
       csp:
         connect-src: ["'self'", 'http:', 'https:']
         img-src: ["'self'", 'data:', 'https://avatars.githubusercontent.com', 'https://*.githubusercontent.com']
       cors:
-        origin: http://localhost:7007
+        origin: https://__DOMAIN__
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
 
@@ -72,13 +76,13 @@ data:
           allowedMethods: ['GET', 'POST']
           credentials: forward
         '/argocd/api':
-          target: 'https://localhost:8443/api/v1'
+          target: '${ARGOCD_BASE_URL:-https://argocd.__DOMAIN__}/api/v1'
           changeOrigin: true
           secure: false
           headers:
             Cookie: 'argocd.token=${ARGOCD_AUTH_TOKEN}'
         '/grafana/api':
-          target: 'http://localhost:3000'
+          target: '${GRAFANA_BASE_URL:-https://grafana.__DOMAIN__}'
           changeOrigin: true
           headers:
             Authorization: 'Bearer ${GRAFANA_TOKEN}'
@@ -129,20 +133,20 @@ __CATALOG_LOCATIONS__
       clusterLocatorMethods: []
 
     argocd:
-      baseUrl: https://localhost:8443
+      baseUrl: ${ARGOCD_BASE_URL:-https://argocd.__DOMAIN__}
       appLocatorMethods:
         - type: 'config'
           instances:
             - name: local
-              url: https://localhost:8443
+              url: ${ARGOCD_BASE_URL:-https://argocd.__DOMAIN__}
               token: ${ARGOCD_AUTH_TOKEN}
 
     grafana:
-      domain: http://localhost:3000
+      domain: ${GRAFANA_BASE_URL:-https://grafana.__DOMAIN__}
       unifiedAlerting: true
 
     lighthouse:
-      baseUrl: http://localhost:7007/api/lighthouse
+      baseUrl: https://__DOMAIN__/api/lighthouse
 
     copilot:
       host: github.com

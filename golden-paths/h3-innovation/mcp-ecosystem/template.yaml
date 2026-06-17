@@ -103,6 +103,18 @@ spec:
             - Kubernetes (AKS)
           default: docker_compose
 
+    - title: GitHub Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
     - title: Azure Deployment
       description: Optional Azure infrastructure baseline
       properties:
@@ -148,7 +160,7 @@ spec:
       name: Publish to GitHub
       action: publish:github
       input:
-        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
         repoVisibility: public
         defaultBranch: main
 

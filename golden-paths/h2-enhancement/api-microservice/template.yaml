@@ -361,6 +361,18 @@ spec:
   # SCAFFOLDER STEPS
   # ===========================================================================
   
+    - title: GitHub Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
     - title: Azure Deployment
       description: Optional Azure infrastructure baseline
       properties:
@@ -388,7 +400,7 @@ spec:
           domain: application
           language: python
           lifecycle: production
-          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+          repoUrl: ${{ parameters.repoUrl }}
           system: default
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
@@ -494,7 +506,7 @@ spec:
       name: Publish to GitHub
       action: publish:github
       input:
-        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.repoName }}
+        repoUrl: ${{ parameters.repoUrl }}
         description: ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: ${{ parameters.visibility }}

@@ -170,8 +170,6 @@ spec:
           ui:options:
             allowedHosts:
               - github.com
-            allowedOwners:
-              - Ohorizons
         visibility:
           title: Repository Visibility
           type: string

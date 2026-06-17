@@ -138,6 +138,18 @@ spec:
             - westeurope
           default: eastus
           
+    - title: GitHub Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
     - title: Azure Deployment
       description: Optional Azure infrastructure baseline
       properties:
@@ -159,7 +171,7 @@ spec:
         url: ./skeleton
         values:
           lifecycle: production
-          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+          repoUrl: ${{ parameters.repoUrl }}
           system: default
           name: ${{ parameters.name }}
           display_name: ${{ parameters.display_name }}
@@ -204,7 +216,7 @@ spec:
       name: Publish to GitHub
       action: publish:github
       input:
-        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
         description: GitHub Copilot Extension - ${{ parameters.display_name }}
         defaultBranch: main
         repoVisibility: private
