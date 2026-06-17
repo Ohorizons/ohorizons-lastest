@@ -181,23 +181,15 @@ render_templates_to_temp_source() {
   add_replacement "__IMAGE_TAG__" "$image_tag"
   add_replacement "__AZURE_OPENAI_DEPLOYMENT__" "$azure_openai_deployment"
 
-  local tmpl filename output content unresolved
+  local tmpl filename output content unresolved auth_block
+  auth_block="$(cat "$auth_fragment")"
   for tmpl in "$templates_dir"/*.yaml.tmpl; do
     [[ -f "$tmpl" ]] || continue
     filename="$(basename "$tmpl" .tmpl)"
     output="$RENDER_SOURCE_DIR/$filename"
     content="$(sed "$sed_expr" "$tmpl")"
-    content="$(python3 - "$auth_fragment" <<'PY' <<< "$content"
-import sys
-auth_path = sys.argv[1]
-content = sys.stdin.read()
-with open(auth_path) as handle:
-    auth = handle.read()
-content = content.replace('__AUTH_BLOCK__', auth)
-content = content.replace('__CATALOG_LOCATIONS__', '')
-print(content, end='')
-PY
-)"
+    content="${content/__AUTH_BLOCK__/$auth_block}"
+    content="${content//__CATALOG_LOCATIONS__/}"
     unresolved="$(printf '%s' "$content" | grep -oE '__[A-Z0-9_]+__' | sort -u || true)"
     if [[ -n "$unresolved" ]]; then
       log_err "Unresolved template placeholders remain in $filename:"
