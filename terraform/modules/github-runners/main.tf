@@ -26,8 +26,8 @@ locals {
     "app.kubernetes.io/instance"   = local.name_prefix
     "app.kubernetes.io/component"  = "cicd"
     "app.kubernetes.io/managed-by" = "terraform"
-    "open-horizons/customer"      = var.customer_name
-    "open-horizons/environment"   = var.environment
+    "open-horizons/customer"       = var.customer_name
+    "open-horizons/environment"    = var.environment
   }
 }
 

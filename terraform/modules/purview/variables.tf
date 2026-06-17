@@ -110,6 +110,12 @@ variable "data_quality_rules" {
   default = []
 }
 
+variable "log_analytics_workspace_id" {
+  description = "Log Analytics workspace ID for Purview diagnostic settings"
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

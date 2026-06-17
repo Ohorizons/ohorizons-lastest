@@ -25,7 +25,7 @@ locals {
   common_labels = {
     "app.kubernetes.io/managed-by" = "terraform"
     "app.kubernetes.io/part-of"    = "open-horizons-platform"
-    "platform.open-horizons/tier" = "security"
+    "platform.open-horizons/tier"  = "security"
   }
 }
 
@@ -67,6 +67,7 @@ resource "azurerm_federated_identity_credential" "eso" {
 # -----------------------------------------------------------------------------
 
 resource "azurerm_key_vault_access_policy" "eso" {
+  count        = var.use_key_vault_rbac ? 0 : 1
   key_vault_id = var.key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_user_assigned_identity.eso.principal_id

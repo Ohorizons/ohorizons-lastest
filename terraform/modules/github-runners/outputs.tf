@@ -32,6 +32,8 @@ output "github_org" {
 }
 
 output "scale_set_id" {
-  description = "Runner scale set ID"
-  value       = kubernetes_manifest.runner_scale_set.object.metadata.uid
+  description = "Runner scale set Helm release IDs by group"
+  value = {
+    for name, release in helm_release.runner_scale_sets : name => release.id
+  }
 }

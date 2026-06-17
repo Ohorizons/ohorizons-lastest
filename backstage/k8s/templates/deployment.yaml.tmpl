@@ -5,7 +5,11 @@ metadata:
   namespace: backstage
   labels:
     app.kubernetes.io/name: backstage
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/version: __IMAGE_TAG__
+    app.kubernetes.io/component: developer-portal
     app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 1
   selector:
@@ -15,12 +19,30 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: backstage
+        app.kubernetes.io/instance: __PLATFORM_NAME__
+        app.kubernetes.io/version: __IMAGE_TAG__
+        app.kubernetes.io/component: developer-portal
         app.kubernetes.io/part-of: __PLATFORM_NAME__
+        app.kubernetes.io/managed-by: kustomize
     spec:
+      serviceAccountName: backstage
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: backstage
           image: __BACKSTAGE_IMAGE__:__IMAGE_TAG__
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           command: ["node", "packages/backend", "--config", "app-config.yaml", "--config", "/app/config/app-config.override.yaml"]
           ports:
             - containerPort: 7007
@@ -55,3 +77,16 @@ spec:
         - name: app-config
           configMap:
             name: backstage-app-config
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backstage
+  namespace: backstage
+  labels:
+    app.kubernetes.io/name: backstage
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/component: developer-portal
+    app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
+automountServiceAccountToken: false

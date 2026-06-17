@@ -28,7 +28,7 @@ terraform {
       version = ">= 2.45"
     }
     azapi = {
-      source  = "Azure/azapi"
+      source  = "azure/azapi"
       version = ">= 1.9"
     }
     kubernetes = {
@@ -90,26 +90,26 @@ provider "github" {
 }
 
 provider "kubernetes" {
-  host                   = module.aks.kube_config.host
-  client_certificate     = base64decode(module.aks.kube_config.client_certificate)
-  client_key             = base64decode(module.aks.kube_config.client_key)
-  cluster_ca_certificate = base64decode(module.aks.kube_config.cluster_ca_certificate)
+  host                   = module.aks.host
+  client_certificate     = module.aks.client_certificate
+  client_key             = module.aks.client_key
+  cluster_ca_certificate = module.aks.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.aks.kube_config.host
-    client_certificate     = base64decode(module.aks.kube_config.client_certificate)
-    client_key             = base64decode(module.aks.kube_config.client_key)
-    cluster_ca_certificate = base64decode(module.aks.kube_config.cluster_ca_certificate)
+    host                   = module.aks.host
+    client_certificate     = module.aks.client_certificate
+    client_key             = module.aks.client_key
+    cluster_ca_certificate = module.aks.cluster_ca_certificate
   }
 }
 
 provider "kubectl" {
-  host                   = module.aks.kube_config.host
-  client_certificate     = base64decode(module.aks.kube_config.client_certificate)
-  client_key             = base64decode(module.aks.kube_config.client_key)
-  cluster_ca_certificate = base64decode(module.aks.kube_config.cluster_ca_certificate)
+  host                   = module.aks.host
+  client_certificate     = module.aks.client_certificate
+  client_key             = module.aks.client_key
+  cluster_ca_certificate = module.aks.cluster_ca_certificate
   load_config_file       = false
 }
 
@@ -161,6 +161,25 @@ locals {
   }
 
   config = local.deployment_configs[var.deployment_mode]
+
+  region_codes = {
+    brazilsouth     = "brs"
+    brazilsoutheast = "brse"
+    eastus          = "eus"
+    eastus2         = "eus2"
+    westus          = "wus"
+    westus2         = "wus2"
+    westus3         = "wus3"
+    centralus       = "cus"
+    northcentralus  = "ncus"
+    southcentralus  = "scus"
+    westcentralus   = "wcus"
+    westeurope      = "weu"
+    northeurope     = "neu"
+  }
+
+  primary_region_short = lookup(local.region_codes, var.location, substr(var.location, 0, 4))
+  dr_region_short      = lookup(local.region_codes, var.dr_location, substr(var.dr_location, 0, 4))
 }
 
 # =============================================================================
@@ -440,7 +459,7 @@ module "ai_foundry" {
   }
 
   key_vault_id               = module.security.key_vault_id
-  log_analytics_workspace_id = module.observability[0].log_analytics_workspace_id
+  log_analytics_workspace_id = var.enable_observability ? module.observability[0].log_analytics_workspace_id : ""
 
   tags = local.common_tags
 
@@ -522,15 +541,10 @@ module "container_registry" {
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
-  sku                       = var.deployment_mode == "express" ? "Standard" : "Premium"
-  zone_redundancy_enabled   = var.deployment_mode == "enterprise"
-  admin_enabled             = false
-  public_network_access_enabled = var.deployment_mode == "express"
-
-  subnet_id           = module.networking.subnet_ids.private_endpoints
-  private_dns_zone_id = module.networking.private_dns_zone_ids.acr
-
-  aks_kubelet_identity_id = module.aks.kubelet_identity.object_id
+  sku                            = var.deployment_mode == "express" ? "Standard" : "Premium"
+  subnet_id                      = module.networking.subnet_ids.private_endpoints
+  private_dns_zone_id            = module.networking.private_dns_zone_ids.acr
+  aks_kubelet_identity_object_id = module.aks.kubelet_identity
 
   tags = local.common_tags
 
@@ -545,10 +559,17 @@ module "external_secrets" {
   source = "./modules/external-secrets"
   count  = var.enable_external_secrets ? 1 : 0
 
-  namespace        = "external-secrets"
-  chart_version    = "0.9.9"
-  key_vault_name   = module.security.keyvault_name
-  tenant_id        = var.azure_tenant_id
+  customer_name       = var.customer_name
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  aks_cluster_name    = module.aks.cluster_name
+  key_vault_id        = module.security.key_vault_id
+  key_vault_uri       = module.security.key_vault_uri
+
+  namespace          = "external-secrets"
+  eso_chart_version  = "0.9.11"
+  use_key_vault_rbac = true
 
   tags = local.common_tags
 
@@ -563,14 +584,30 @@ module "github_runners" {
   source = "./modules/github-runners"
   count  = var.enable_github_runners ? 1 : 0
 
-  namespace                   = "github-runners"
-  github_org                  = var.github_org
-  github_app_id               = var.github_app_id
-  github_app_installation_id  = var.github_app_installation_id
-  github_app_private_key      = var.github_app_private_key
-  runner_scale_set_name       = "arc-runners"
-  min_runners                 = 1
-  max_runners                 = var.deployment_mode == "enterprise" ? 10 : 5
+  namespace                  = "github-runners"
+  customer_name              = var.customer_name
+  environment                = var.environment
+  github_org                 = var.github_org
+  github_app_id              = var.github_app_id
+  github_app_installation_id = var.github_app_installation_id
+  github_app_private_key     = var.github_app_private_key
+  runner_groups = {
+    default = {
+      min_runners   = 1
+      max_runners   = var.deployment_mode == "enterprise" ? 10 : 5
+      runner_group  = "default"
+      labels        = ["self-hosted", "linux", "x64"]
+      node_selector = {}
+      tolerations   = []
+      resources = {
+        cpu_request    = "500m"
+        cpu_limit      = "2000m"
+        memory_request = "1Gi"
+        memory_limit   = "4Gi"
+      }
+      container_mode = "dind"
+    }
+  }
 
   tags = local.common_tags
 
@@ -585,16 +622,13 @@ module "defender" {
   source = "./modules/defender"
   count  = var.enable_defender ? 1 : 0
 
-  customer_name       = var.customer_name
-  environment         = var.environment
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  enable_container_plan     = true
-  enable_servers_plan       = var.deployment_mode == "enterprise"
-  enable_storage_plan       = var.deployment_mode == "enterprise"
-  enable_key_vault_plan     = true
-  enable_dns_plan           = false
+  customer_name              = var.customer_name
+  environment                = var.environment
+  subscription_id            = var.azure_subscription_id
+  sizing_profile             = var.deployment_mode == "enterprise" ? "large" : var.deployment_mode == "standard" ? "medium" : "small"
+  security_contact_email     = length(var.alert_emails) > 0 ? var.alert_emails[0] : "security@${var.domain_name}"
+  log_analytics_workspace_id = var.enable_observability ? module.observability[0].log_analytics_workspace_id : ""
+  aks_cluster_ids            = [module.aks.cluster_id]
 
   tags = local.common_tags
 }
@@ -612,8 +646,18 @@ module "purview" {
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
-  subnet_id           = module.networking.subnet_ids.private_endpoints
-  admin_group_id      = var.admin_group_id
+  subnet_id                  = module.networking.subnet_ids.private_endpoints
+  admin_group_id             = var.admin_group_id
+  log_analytics_workspace_id = var.enable_observability ? module.observability[0].log_analytics_workspace_id : ""
+
+  private_dns_zone_ids = {
+    purview        = module.networking.private_dns_zone_ids.purview
+    purview_studio = module.networking.private_dns_zone_ids.purview_studio
+    storage_blob   = module.networking.private_dns_zone_ids.blob
+    storage_queue  = module.networking.private_dns_zone_ids.queue
+    servicebus     = module.networking.private_dns_zone_ids.servicebus
+    eventhub       = module.networking.private_dns_zone_ids.eventhub
+  }
 
   tags = local.common_tags
 
@@ -628,11 +672,12 @@ module "cost_management" {
   source = "./modules/cost-management"
   count  = var.enable_cost_management ? 1 : 0
 
-  resource_group_name = azurerm_resource_group.main.name
-  subscription_id     = var.azure_subscription_id
-  budget_amount       = var.budget_amount
-  alert_thresholds    = [50, 75, 90, 100]
-  alert_emails        = var.alert_emails
+  customer_name         = var.customer_name
+  environment           = var.environment
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.main.name
+  monthly_budget        = var.budget_amount
+  alert_email_addresses = length(var.alert_emails) > 0 ? var.alert_emails : ["platform-alerts@${var.domain_name}"]
 
   tags = local.common_tags
 }
@@ -645,16 +690,16 @@ module "disaster_recovery" {
   source = "./modules/disaster-recovery"
   count  = var.enable_disaster_recovery ? 1 : 0
 
-  customer_name       = var.customer_name
-  environment         = var.environment
-  resource_group_name = azurerm_resource_group.main.name
-
-  primary_location   = var.location
-  secondary_location = var.dr_location
-
-  enable_aks_dr               = var.deployment_mode == "enterprise"
-  enable_database_replication = true
-  enable_storage_replication  = true
+  customer_name               = var.customer_name
+  environment                 = var.environment
+  primary_location            = var.location
+  primary_region_short        = local.primary_region_short
+  primary_resource_group_name = azurerm_resource_group.main.name
+  dr_location                 = var.dr_location
+  dr_region_short             = local.dr_region_short
+  enable_site_recovery        = var.deployment_mode == "enterprise"
+  primary_vnet_id             = module.networking.vnet_id
+  log_analytics_workspace_id  = var.enable_observability ? module.observability[0].log_analytics_workspace_id : null
 
   tags = local.common_tags
 }

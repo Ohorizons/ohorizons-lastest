@@ -24,16 +24,20 @@ output "aks_subnet_id" {
 
 output "private_dns_zone_ids" {
   description = "Private DNS zone IDs"
-  value = {
+  value = merge({
     for key, zone in azurerm_private_dns_zone.zones : key => zone.id
-  }
+    }, {
+    eventhub = azurerm_private_dns_zone.zones["servicebus"].id
+  })
 }
 
 output "private_dns_zone_names" {
   description = "Private DNS zone names"
-  value = {
+  value = merge({
     for key, zone in azurerm_private_dns_zone.zones : key => zone.name
-  }
+    }, {
+    eventhub = azurerm_private_dns_zone.zones["servicebus"].name
+  })
 }
 
 output "public_dns_zone_id" {

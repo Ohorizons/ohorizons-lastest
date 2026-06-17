@@ -240,16 +240,17 @@ resource "azurerm_role_assignment" "purview_sql_reader" {
 resource "azapi_resource" "collections" {
   for_each = { for coll in var.collection_hierarchy : coll.name => coll }
 
-  type      = "Microsoft.Purview/accounts/collections@2021-12-01"
-  name      = replace(lower(each.value.name), "-", "")
-  parent_id = each.value.parent == "" ? azurerm_purview_account.main.id : azapi_resource.collections[each.value.parent].id
+  type                      = "Microsoft.Purview/accounts/collections@2021-12-01"
+  name                      = replace(lower(each.value.name), "-", "")
+  parent_id                 = each.value.parent == "" ? azurerm_purview_account.main.id : azapi_resource.collections[each.value.parent].id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     properties = {
       description  = each.value.description
       friendlyName = each.value.name
     }
-  })
+  }
 
   depends_on = [azurerm_purview_account.main]
 }
@@ -258,16 +259,17 @@ resource "azapi_resource" "collections" {
 resource "azapi_resource" "environment_collections" {
   for_each = toset(["Development", "Staging", "Production"])
 
-  type      = "Microsoft.Purview/accounts/collections@2021-12-01"
-  name      = lower(each.value)
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/collections@2021-12-01"
+  name                      = lower(each.value)
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     properties = {
       description  = "${each.value} environment assets"
       friendlyName = each.value
     }
-  })
+  }
 
   depends_on = [azurerm_purview_account.main]
 }
@@ -279,11 +281,12 @@ resource "azapi_resource" "environment_collections" {
 resource "azapi_resource" "latam_classifications" {
   for_each = var.enable_latam_classifications ? local.latam_classifications : {}
 
-  type      = "Microsoft.Purview/accounts/classificationRules@2022-02-01-preview"
-  name      = each.key
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/classificationRules@2022-02-01-preview"
+  name                      = each.key
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     properties = {
       classificationName     = each.value.name
       description            = each.value.description
@@ -298,7 +301,7 @@ resource "azapi_resource" "latam_classifications" {
         }
       ]
     }
-  })
+  }
 
   depends_on = [azurerm_purview_account.main]
 }
@@ -310,11 +313,12 @@ resource "azapi_resource" "latam_classifications" {
 resource "azapi_resource" "data_sources" {
   for_each = { for ds in var.data_sources : ds.name => ds }
 
-  type      = "Microsoft.Purview/accounts/dataSources@2022-02-01-preview"
-  name      = each.value.name
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/dataSources@2022-02-01-preview"
+  name                      = each.value.name
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     kind = each.value.type
     properties = {
       resourceId = each.value.resource_id
@@ -323,7 +327,7 @@ resource "azapi_resource" "data_sources" {
         type          = "CollectionReference"
       }
     }
-  })
+  }
 
   depends_on = [azapi_resource.collections]
 }
@@ -333,11 +337,12 @@ resource "azapi_resource" "data_sources" {
 # =============================================================================
 
 resource "azapi_resource" "scan_rule_set" {
-  type      = "Microsoft.Purview/accounts/scanRuleSets@2022-02-01-preview"
-  name      = "ThreeHorizonsScanRuleSet"
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/scanRuleSets@2022-02-01-preview"
+  name                      = "ThreeHorizonsScanRuleSet"
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     kind = "AzureStorage"
     properties = {
       description                           = "Open Horizons standard scan rule set with LATAM classifications"
@@ -352,7 +357,7 @@ resource "azapi_resource" "scan_rule_set" {
         ]
       }
     }
-  })
+  }
 
   depends_on = [azapi_resource.latam_classifications]
 }
@@ -364,11 +369,12 @@ resource "azapi_resource" "scan_rule_set" {
 resource "azapi_resource" "glossary_terms" {
   for_each = { for term in var.glossary_terms : term.name => term }
 
-  type      = "Microsoft.Purview/accounts/glossaryTerms@2022-02-01-preview"
-  name      = replace(lower(each.value.name), " ", "-")
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/glossaryTerms@2022-02-01-preview"
+  name                      = replace(lower(each.value.name), " ", "-")
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     properties = {
       name            = each.value.name
       longDescription = each.value.definition
@@ -378,7 +384,7 @@ resource "azapi_resource" "glossary_terms" {
         steward = [for steward in each.value.stewards : { id = steward }]
       }
     }
-  })
+  }
 
   depends_on = [azurerm_purview_account.main]
 }
@@ -390,11 +396,12 @@ resource "azapi_resource" "glossary_terms" {
 resource "azapi_resource" "data_quality_rules" {
   for_each = { for rule in var.data_quality_rules : rule.name => rule }
 
-  type      = "Microsoft.Purview/accounts/dataQualityRules@2023-02-01-preview"
-  name      = replace(lower(each.value.name), " ", "-")
-  parent_id = azurerm_purview_account.main.id
+  type                      = "Microsoft.Purview/accounts/dataQualityRules@2023-02-01-preview"
+  name                      = replace(lower(each.value.name), " ", "-")
+  parent_id                 = azurerm_purview_account.main.id
+  schema_validation_enabled = false
 
-  body = jsonencode({
+  body = {
     properties = {
       displayName = each.value.name
       description = each.value.description
@@ -405,7 +412,7 @@ resource "azapi_resource" "data_quality_rules" {
         assetPatterns = each.value.applies_to
       }
     }
-  })
+  }
 
   depends_on = [azurerm_purview_account.main]
 }

@@ -129,7 +129,7 @@ resource "kubernetes_ingress_v1" "backstage" {
     labels    = local.common_labels
     annotations = {
       "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
-      "nginx.ingress.kubernetes.io/ssl-redirect"  = "true"
+      "nginx.ingress.kubernetes.io/ssl-redirect" = "true"
     }
   }
 

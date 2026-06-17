@@ -77,16 +77,17 @@ mcp_microsoft_learn = MCPStreamableHTTPTool(
 # Stdio-based MCPs — disabled by default (slow npx downloads cause init timeouts)
 # Enable individually via env vars when pre-installed in the container.
 ADO_PAT = os.getenv("AZURE_DEVOPS_PAT", "")
+ADO_ORG = os.getenv("AZURE_DEVOPS_ORG", "")
 ENABLE_STDIO_MCPS = os.getenv("ENABLE_STDIO_MCPS", "false").lower() == "true"
 
 mcp_azure_devops = MCPStdioTool(
     name="mcp_azure_devops",
     command="npx",
-    args=["-y", "@azure-devops/mcp@latest", "open-horizonstech",
+    args=["-y", "@azure-devops/mcp@latest", ADO_ORG,
           "-d", "core", "-d", "repositories", "-d", "pipelines",
           "-d", "work-items", "-d", "search", "-d", "wiki"],
-    description="Azure DevOps: repos, pipelines, work items, search, wiki for open-horizonstech org.",
-) if ADO_PAT and ENABLE_STDIO_MCPS else None
+    description="Azure DevOps: repos, pipelines, work items, search, wiki for the configured organization.",
+) if ADO_PAT and ADO_ORG and ENABLE_STDIO_MCPS else None
 
 mcp_playwright = MCPStdioTool(
     name="mcp_playwright",

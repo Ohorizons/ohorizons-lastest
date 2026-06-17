@@ -20,7 +20,7 @@ locals {
 
   common_tags = merge(var.tags, {
     "app.kubernetes.io/managed-by" = "terraform"
-    "platform.open-horizons/tier" = "disaster-recovery"
+    "platform.open-horizons/tier"  = "disaster-recovery"
     "disaster-recovery/rpo"        = var.recovery_point_objective
     "disaster-recovery/rto"        = var.recovery_time_objective
   })
@@ -67,14 +67,6 @@ resource "azurerm_recovery_services_vault" "main" {
 
   # Storage settings
   storage_mode_type = var.storage_redundancy
-
-  # Immutability (for compliance)
-  dynamic "immutability" {
-    for_each = var.enable_immutability ? [1] : []
-    content {
-      state = "Unlocked"
-    }
-  }
 
   # Encryption
   dynamic "encryption" {

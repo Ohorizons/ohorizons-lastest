@@ -40,8 +40,8 @@ load_dotenv()
 
 # ── Config ──────────────────────────────────────────────────────────
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-GITHUB_ORG = os.getenv("GITHUB_ORG", "Ohorizons")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "ohorizons-demo")
+GITHUB_ORG = os.getenv("GITHUB_ORG", "")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2025-04-01-preview")
 AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-5-1")

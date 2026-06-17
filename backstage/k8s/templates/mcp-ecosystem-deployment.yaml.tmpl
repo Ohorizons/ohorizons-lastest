@@ -5,7 +5,11 @@ metadata:
   namespace: ai-services
   labels:
     app.kubernetes.io/name: mcp-ecosystem
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/version: __IMAGE_TAG__
+    app.kubernetes.io/component: mcp-server
     app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
     horizon: h3
 spec:
   replicas: 1
@@ -16,14 +20,34 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: mcp-ecosystem
+        app.kubernetes.io/instance: __PLATFORM_NAME__
+        app.kubernetes.io/version: __IMAGE_TAG__
+        app.kubernetes.io/component: mcp-server
         app.kubernetes.io/part-of: __PLATFORM_NAME__
+        app.kubernetes.io/managed-by: kustomize
     spec:
+      serviceAccountName: mcp-ecosystem
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: mcp-ecosystem
           image: __MCP_ECOSYSTEM_IMAGE__:__IMAGE_TAG__
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 3100
+              name: http
           env:
             - name: PORT
               value: "3100"
@@ -48,6 +72,29 @@ spec:
               port: 3100
             initialDelaySeconds: 10
             periodSeconds: 30
+          volumeMounts:
+            - name: cache
+              mountPath: /app/cache
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mcp-ecosystem
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: mcp-ecosystem
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
+automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: Service

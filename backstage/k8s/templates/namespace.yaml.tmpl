@@ -4,3 +4,12 @@ metadata:
   name: backstage
   labels:
     app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-services
+  labels:
+    app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize

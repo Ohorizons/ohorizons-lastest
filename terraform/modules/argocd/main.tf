@@ -28,8 +28,8 @@ locals {
 
   common_labels = {
     "app.kubernetes.io/managed-by" = "terraform"
-    "open-horizons/customer"      = var.customer_name
-    "open-horizons/environment"   = var.environment
+    "open-horizons/customer"       = var.customer_name
+    "open-horizons/environment"    = var.environment
   }
 }
 

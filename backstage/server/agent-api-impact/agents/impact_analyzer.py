@@ -27,8 +27,8 @@ from analyzers.kpi_engine import calculate_impact_summary
 logger = logging.getLogger("agents.impact_analyzer")
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-GITHUB_ORG = os.getenv("GITHUB_ORG", "Ohorizons")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "ohorizons-demo")
+GITHUB_ORG = os.getenv("GITHUB_ORG", "")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "")
 
 
 # ── MAF Tools ──────────────────────────────────────────────────────

@@ -27,7 +27,7 @@ locals {
 
   common_tags = {
     "app.kubernetes.io/managed-by" = "terraform"
-    "platform.open-horizons/tier" = "operations"
+    "platform.open-horizons/tier"  = "operations"
     "cost-center"                  = var.cost_center
   }
 }

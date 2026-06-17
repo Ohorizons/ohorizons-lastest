@@ -179,6 +179,15 @@ content = content.replace('__CATALOG_LOCATIONS__', catalog)
 print(content, end='')
 " <<< "$content" 2>/dev/null || echo "$content")
 
+  unresolved=$(printf '%s' "$content" | grep -oE '__[A-Z0-9_]+__' | sort -u || true)
+  if [[ -n "$unresolved" ]]; then
+    log_err "Unresolved template placeholders remain in $filename:"
+    while IFS= read -r placeholder; do
+      [[ -n "$placeholder" ]] && log_err "  - $placeholder"
+    done <<< "$unresolved"
+    exit 1
+  fi
+
   if [[ "$DRY_RUN" == true ]]; then
     echo "--- $filename ---"
     echo "$content"

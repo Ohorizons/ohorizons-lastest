@@ -5,7 +5,11 @@ metadata:
   namespace: ai-services
   labels:
     app.kubernetes.io/name: agent-api
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/version: __IMAGE_TAG__
+    app.kubernetes.io/component: ai-agent
     app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 1
   selector:
@@ -15,12 +19,31 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: agent-api
+        app.kubernetes.io/instance: __PLATFORM_NAME__
+        app.kubernetes.io/version: __IMAGE_TAG__
+        app.kubernetes.io/component: ai-agent
         app.kubernetes.io/part-of: __PLATFORM_NAME__
+        app.kubernetes.io/managed-by: kustomize
     spec:
+      serviceAccountName: agent-api-chat
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: agent-api
           image: __AGENT_API_IMAGE__:__IMAGE_TAG__
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 8008
               name: http
@@ -71,3 +94,9 @@ spec:
               port: 8008
             initialDelaySeconds: 15
             periodSeconds: 30
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

@@ -37,7 +37,9 @@ log_err()  { echo -e "${RED}[render]${NC} $*" >&2; }
 SELECTION_FILE="$REPO_ROOT/.openhorizons-selection.yaml"
 SOURCE_DIR="$REPO_ROOT/backstage/k8s"
 OUTPUT_DIR="$SOURCE_DIR/.rendered"
+ENV_FILE="$REPO_ROOT/.env"
 DRY_RUN=false
+RENDER_SOURCE_DIR=""
 
 usage() {
   cat <<EOF
@@ -45,6 +47,7 @@ Usage: scripts/render-manifests.sh [options]
 
 Options:
   --selection <path>   Path to selection manifest (default: .openhorizons-selection.yaml).
+  --env-file <path>    Path to env file for template fallback rendering (default: .env).
   --source <dir>       Source manifests dir (default: backstage/k8s).
   --output <dir>       Render dir (default: backstage/k8s/.rendered).
   --dry-run            Print include/exclude plan, do not write.
@@ -55,6 +58,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --selection) SELECTION_FILE="$2"; shift 2 ;;
+    --env-file)  ENV_FILE="$2"; shift 2 ;;
     --source)    SOURCE_DIR="$2"; shift 2 ;;
     --output)    OUTPUT_DIR="$2"; shift 2 ;;
     --dry-run)   DRY_RUN=true; shift ;;
@@ -67,6 +71,13 @@ if ! command -v yq >/dev/null 2>&1; then
   log_err "yq is required."
   exit 1
 fi
+
+cleanup() {
+  if [[ -n "$RENDER_SOURCE_DIR" && -d "$RENDER_SOURCE_DIR" ]]; then
+    rm -rf "$RENDER_SOURCE_DIR"
+  fi
+}
+trap cleanup EXIT
 
 if [[ ! -d "$SOURCE_DIR" ]]; then
   log_err "Source dir not found: $SOURCE_DIR"
@@ -115,6 +126,99 @@ FILE_FLAGS=(
   "mcp-ecosystem-deployment.yaml=$ENABLE_MCP_ECOSYSTEM"
 )
 
+render_templates_to_temp_source() {
+  local templates_dir="$SOURCE_DIR/templates"
+  if [[ ! -d "$templates_dir" ]]; then
+    return 1
+  fi
+
+  RENDER_SOURCE_DIR="$(mktemp -d)"
+
+  if [[ -f "$ENV_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
+  else
+    log_warn "No env file found at $ENV_FILE; using non-secret smoke-test defaults for template fallback."
+  fi
+
+  local platform_name="${PLATFORM_NAME:-openhorizons}"
+  local github_org="${GITHUB_ORG:-example-org}"
+  local github_repo="${GITHUB_REPO:-$(basename "$REPO_ROOT")}"
+  local domain="${DOMAIN:-backstage.example.com}"
+  local admin_email="${ADMIN_EMAIL:-admin@example.com}"
+  local org_display_name="${ORG_DISPLAY_NAME:-$github_org}"
+  local backstage_image="${BACKSTAGE_IMAGE:-ghcr.io/ohorizons/ohorizons-backstage}"
+  local agent_api_image="${AGENT_API_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api}"
+  local agent_api_impact_image="${AGENT_API_IMPACT_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api-impact}"
+  local mcp_ecosystem_image="${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}"
+  local image_tag="${IMAGE_TAG:-v7.2.4}"
+  local azure_openai_deployment="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
+  local auth_provider="${AUTH_PROVIDER:-guest}"
+  local auth_fragment="$templates_dir/auth-${auth_provider}.yaml.fragment"
+
+  if [[ ! -f "$auth_fragment" ]]; then
+    log_warn "Unknown AUTH_PROVIDER '$auth_provider'; using guest auth fragment for fallback render."
+    auth_fragment="$templates_dir/auth-guest.yaml.fragment"
+  fi
+
+  local sed_expr=""
+  add_replacement() {
+    local key="$1" val="$2" escaped_val
+    escaped_val=$(printf '%s\n' "$val" | sed 's/[&/\]/\\&/g')
+    sed_expr="${sed_expr}s|${key}|${escaped_val}|g;"
+  }
+
+  add_replacement "__PLATFORM_NAME__" "$platform_name"
+  add_replacement "__DOMAIN__" "$domain"
+  add_replacement "__ADMIN_EMAIL__" "$admin_email"
+  add_replacement "__ORG_DISPLAY_NAME__" "$org_display_name"
+  add_replacement "__GITHUB_ORG__" "$github_org"
+  add_replacement "__GITHUB_REPO__" "$github_repo"
+  add_replacement "__BACKSTAGE_IMAGE__" "$backstage_image"
+  add_replacement "__AGENT_API_IMAGE__" "$agent_api_image"
+  add_replacement "__AGENT_API_IMPACT_IMAGE__" "$agent_api_impact_image"
+  add_replacement "__MCP_ECOSYSTEM_IMAGE__" "$mcp_ecosystem_image"
+  add_replacement "__IMAGE_TAG__" "$image_tag"
+  add_replacement "__AZURE_OPENAI_DEPLOYMENT__" "$azure_openai_deployment"
+
+  local tmpl filename output content unresolved
+  for tmpl in "$templates_dir"/*.yaml.tmpl; do
+    [[ -f "$tmpl" ]] || continue
+    filename="$(basename "$tmpl" .tmpl)"
+    output="$RENDER_SOURCE_DIR/$filename"
+    content="$(sed "$sed_expr" "$tmpl")"
+    content="$(python3 - "$auth_fragment" <<'PY' <<< "$content"
+import sys
+auth_path = sys.argv[1]
+content = sys.stdin.read()
+with open(auth_path) as handle:
+    auth = handle.read()
+content = content.replace('__AUTH_BLOCK__', auth)
+content = content.replace('__CATALOG_LOCATIONS__', '')
+print(content, end='')
+PY
+)"
+    unresolved="$(printf '%s' "$content" | grep -oE '__[A-Z0-9_]+__' | sort -u || true)"
+    if [[ -n "$unresolved" ]]; then
+      log_err "Unresolved template placeholders remain in $filename:"
+      printf '%s\n' "$unresolved" >&2
+      return 1
+    fi
+    printf '%s' "$content" > "$output"
+  done
+
+  if [[ -f "$SOURCE_DIR/agent-identity.yaml" ]]; then
+    cp "$SOURCE_DIR/agent-identity.yaml" "$RENDER_SOURCE_DIR/agent-identity.yaml"
+  fi
+
+  SOURCE_DIR="$RENDER_SOURCE_DIR"
+  log_warn "Source manifests missing; rendered fallback source from $templates_dir"
+}
+
+if [[ ! -f "$SOURCE_DIR/namespace.yaml" ]]; then
+  render_templates_to_temp_source || log_warn "Could not render fallback manifests; missing source files will be skipped."
+fi
+
 if ! $DRY_RUN; then
   rm -rf "$OUTPUT_DIR"
   mkdir -p "$OUTPUT_DIR"
@@ -144,7 +248,6 @@ if ! $DRY_RUN; then
   {
     echo "apiVersion: kustomize.config.k8s.io/v1beta1"
     echo "kind: Kustomization"
-    echo "namespace: backstage"
     echo "resources:"
     for f in "${INCLUDED[@]}"; do echo "  - $f"; done
   } > "$OUTPUT_DIR/kustomization.yaml"

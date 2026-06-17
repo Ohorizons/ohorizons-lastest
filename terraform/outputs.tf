@@ -106,13 +106,13 @@ output "deployment_summary" {
     mode        = var.deployment_mode
 
     h1_foundation = {
-      aks            = true
-      networking     = true
-      security       = true
-      databases      = var.enable_databases
-      acr            = var.enable_container_registry
-      defender       = var.enable_defender
-      purview        = var.enable_purview
+      aks        = true
+      networking = true
+      security   = true
+      databases  = var.enable_databases
+      acr        = var.enable_container_registry
+      defender   = var.enable_defender
+      purview    = var.enable_purview
     }
 
     h2_enhancement = {
@@ -127,15 +127,15 @@ output "deployment_summary" {
     }
 
     cross_cutting = {
-      cost_management    = var.enable_cost_management
-      disaster_recovery  = var.enable_disaster_recovery
+      cost_management   = var.enable_cost_management
+      disaster_recovery = var.enable_disaster_recovery
     }
   }
 }
 
 output "next_steps" {
   description = "Post-deployment instructions"
-  value = <<-EOT
+  value       = <<-EOT
 
     OPEN HORIZONS PLATFORM DEPLOYED SUCCESSFULLY!
 

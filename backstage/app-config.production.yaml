@@ -54,14 +54,6 @@ integrations:
 
 proxy:
   endpoints:
-    '/agent-api':
-      target: ${AGENT_API_URL:-http://host.docker.internal:8008}
-      changeOrigin: true
-      allowedMethods: ['GET', 'POST']
-    '/ai-impact':
-      target: ${AI_IMPACT_API_URL:-http://host.docker.internal:8011}
-      changeOrigin: true
-      allowedMethods: ['GET', 'POST']
 
 techdocs:
   builder: local
@@ -81,154 +73,17 @@ catalog:
     # -----------------------------------------------------------------
     # H1 Foundation
     - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/web-application/template.yaml
+      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/golden-paths/h1-foundation/basic-cicd/template.yaml
       rules:
         - allow: [Template]
     - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/new-microservice/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/basic-cicd/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/documentation-site/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/infrastructure-provisioning/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h1-foundation/security-baseline/template.yaml
-      rules:
-        - allow: [Template]
-    # H2 Enhancement
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/todo-app/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/api-microservice/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/microservice/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/api-gateway/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/gitops-deployment/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/event-driven-microservice/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/batch-job/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/data-pipeline/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/reusable-workflows/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h2-enhancement/ado-to-github-migration/template.yaml
-      rules:
-        - allow: [Template]
-    # H3 Innovation
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/rag-application/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/copilot-extension/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/foundry-agent/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/multi-agent-system/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mlops-pipeline/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/ai-evaluation-pipeline/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/sre-agent-integration/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-ecosystem/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-spec-kit/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-awesome-copilot/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-agent-framework/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-gh-aw/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-agents-md/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-backstage-docs/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-backstage-plugins/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-backstage-ui/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-spotify-backstage/template.yaml
-      rules:
-        - allow: [Template]
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/golden-paths/h3-innovation/mcp-backstage-org/template.yaml
-      rules:
-        - allow: [Template]
-    # -----------------------------------------------------------------
-    # Organization Data
-    # -----------------------------------------------------------------
-    - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/backstage/examples/org.yaml
+      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/backstage/examples/org.yaml
       rules:
         - allow: [User, Group, Domain, System]
     - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/backstage/examples/entities.yaml
+      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/backstage/examples/entities.yaml
     - type: url
-      target: https://github.com/Ohorizons/open-horizons-platform/blob/develop/backstage/catalog-info.yaml
+      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/backstage/catalog-info.yaml
 
 permission:
   enabled: true

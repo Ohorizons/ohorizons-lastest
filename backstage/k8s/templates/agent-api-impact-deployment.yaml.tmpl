@@ -5,7 +5,11 @@ metadata:
   namespace: ai-services
   labels:
     app.kubernetes.io/name: agent-api-impact
+    app.kubernetes.io/instance: __PLATFORM_NAME__
+    app.kubernetes.io/version: __IMAGE_TAG__
+    app.kubernetes.io/component: ai-agent
     app.kubernetes.io/part-of: __PLATFORM_NAME__
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 1
   selector:
@@ -15,12 +19,31 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: agent-api-impact
+        app.kubernetes.io/instance: __PLATFORM_NAME__
+        app.kubernetes.io/version: __IMAGE_TAG__
+        app.kubernetes.io/component: ai-agent
         app.kubernetes.io/part-of: __PLATFORM_NAME__
+        app.kubernetes.io/managed-by: kustomize
     spec:
+      serviceAccountName: agent-api-impact
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: agent-api-impact
           image: __AGENT_API_IMPACT_IMAGE__:__IMAGE_TAG__
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 8011
               name: http
@@ -64,6 +87,16 @@ spec:
               port: 8011
             initialDelaySeconds: 20
             periodSeconds: 30
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: impact-data
+              mountPath: /app/data
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: impact-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -46,6 +46,15 @@ jobs:
           - name: ohorizons-agent-api-impact
             context: backstage/server/agent-api-impact
             dockerfile: backstage/server/agent-api-impact/Dockerfile
+          - name: ohorizons-agent-api-maf
+            context: backstage/server/agent-api-maf
+            dockerfile: backstage/server/agent-api-maf/Dockerfile
+          - name: ohorizons-agent-api-sk
+            context: backstage/server/agent-api-sk
+            dockerfile: backstage/server/agent-api-sk/Dockerfile
+          - name: mcp-ecosystem
+            context: mcp-servers
+            dockerfile: mcp-servers/Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -171,7 +180,7 @@ jobs:
             echo ""
             echo "| Image | Pull command |"
             echo "|---|---|"
-            for img in ohorizons-backstage ohorizons-agent-api ohorizons-agent-api-impact; do
+            for img in ohorizons-backstage ohorizons-agent-api ohorizons-agent-api-impact ohorizons-agent-api-maf ohorizons-agent-api-sk mcp-ecosystem; do
               echo "| \`$img\` | \`docker pull ghcr.io/ohorizons/$img:${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}\` |"
             done
           } >> "$GITHUB_STEP_SUMMARY"

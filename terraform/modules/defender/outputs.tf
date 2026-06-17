@@ -38,5 +38,5 @@ output "continuous_export_id" {
 
 output "workspace_id" {
   description = "Log Analytics workspace ID for Defender"
-  value       = azurerm_log_analytics_workspace.defender.id
+  value       = var.log_analytics_workspace_id
 }
