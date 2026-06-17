@@ -2,14 +2,14 @@
 
 ## Overview
 
-The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **18 specialized agents**, **27 skills**, **16 prompts**, and **8 instructions** for deterministic, automated platform operations.
+The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **19 specialized agents**, **27 skills**, **16 prompts**, and **10 instructions** for deterministic, automated platform operations.
 
 ## Architecture
 
 ```text
 .github/
-├── agents/          # 18 role-based chat agents (.agent.md)
-├── instructions/    # 8 code-generation instructions (.instructions.md)
+├── agents/          # 19 role-based chat agents (.agent.md)
+├── instructions/    # 10 code-generation instructions (.instructions.md)
 ├── prompts/         # 16 reusable prompts (.prompt.md)
 ├── skills/          # 27 operational skill sets (SKILL.md)
 └── ISSUE_TEMPLATE/  # Issue templates
@@ -18,20 +18,20 @@ The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based 
 ## Chat Agents
 
 | Agent | File | Role |
-|-------|------|------|
+| --- | --- | --- |
 | **Deploy** | [deploy.agent.md](.github/agents/deploy.agent.md) | Deployment orchestration, end-to-end platform deployment |
 | **Architect** | [architect.agent.md](.github/agents/architect.agent.md) | System architecture, AI Foundry, multi-agent design |
 | **DevOps** | [devops.agent.md](.github/agents/devops.agent.md) | CI/CD, GitOps, MLOps, Golden Paths, pipelines |
 | **Platform** | [platform.agent.md](.github/agents/platform.agent.md) | Backstage portal, platform services, developer experience |
-| **Terraform** | [terraform.agent.md](.github/agents/terraform.agent.md) | Infrastructure as Code, Terraform modules |
+| **Terraform** | [Terraform agent](.github/agents/terraform.agent.md) | Infrastructure as Code, Terraform modules |
 | **Security** | [security.agent.md](.github/agents/security.agent.md) | Security policies, scanning, compliance |
 | **SRE** | [sre.agent.md](.github/agents/sre.agent.md) | Reliability engineering, incident response, monitoring |
 | **Reviewer** | [reviewer.agent.md](.github/agents/reviewer.agent.md) | Code review, PR analysis, quality checks |
 | **Test** | [test.agent.md](.github/agents/test.agent.md) | Test generation, validation, quality assurance |
 | **Docs** | [docs.agent.md](.github/agents/docs.agent.md) | Documentation generation and maintenance |
-| **Backstage Expert** | [backstage-expert.agent.md](.github/agents/backstage-expert.agent.md) | Backstage portal deployment on AKS, GitHub auth, Golden Paths |
-| **Azure Portal Deploy** | [azure-portal-deploy.agent.md](.github/agents/azure-portal-deploy.agent.md) | Azure AKS provisioning, Key Vault, PostgreSQL, ACR |
-| **GitHub Integration** | [github-integration.agent.md](.github/agents/github-integration.agent.md) | GitHub App, org discovery, GHAS, Actions, Packages |
+| **Backstage Expert** | [Backstage Expert agent](.github/agents/backstage-expert.agent.md) | Backstage portal deployment on AKS, GitHub auth, Golden Paths |
+| **Azure Portal Deploy** | [Azure Portal Deploy agent](.github/agents/azure-portal-deploy.agent.md) | Azure AKS provisioning, Key Vault, PostgreSQL, ACR |
+| **GitHub Integration** | [GitHub Integration agent](.github/agents/github-integration.agent.md) | GitHub App, org discovery, GHAS, Actions, Packages |
 | **ADO Integration** | [ado-integration.agent.md](.github/agents/ado-integration.agent.md) | Azure DevOps PAT, repos, pipelines, boards |
 | **Hybrid Scenarios** | [hybrid-scenarios.agent.md](.github/agents/hybrid-scenarios.agent.md) | GitHub + ADO coexistence scenarios |
 | **Prompt Engineer** | [prompt.agent.md](.github/agents/prompt.agent.md) | Production-ready prompt engineering |
@@ -52,39 +52,39 @@ In VS Code with GitHub Copilot Chat, mention an agent by name:
 @sre Create an incident response runbook
 ```
 
-
-
 ## Prompts
 
-The 16 prompts in [.github/prompts/](.github/prompts/) provide one-shot shortcuts (`/name` in chat picker):
+The 16 prompt files in the workspace prompt folder provide one-shot shortcuts (`/name` in chat picker):
 
 | Prompt | Agent | Purpose |
-|--------|-------|---------|
-| `/deploy-platform` | deploy | End-to-end platform deployment |
-| `/terraform` | terraform | Write or validate Terraform modules |
-| `/azure-infra` | azure-portal-deploy | Provision AKS, Key Vault, PostgreSQL, ACR |
-| `/backstage` | backstage-expert | Deploy Backstage portal to AKS |
-| `/security-review` | security | OWASP, RBAC, secrets audit |
-| `/architecture` | architect | Design with WAF + Mermaid diagrams |
-| `/ado-setup` | ado-integration | Configure ADO PAT + pipelines |
-| `/hybrid-setup` | hybrid-scenarios | GitHub + ADO coexistence |
-| `/create-service` | platform | Scaffold a new microservice |
-| `/deploy-service` | devops | Deploy a service to AKS |
-| `/review-code` | reviewer | Comprehensive code review |
-| `/troubleshoot-incident` | sre | Troubleshoot incidents |
+| --- | --- | --- |
+| `/deploy-platform` | Deploy | End-to-end platform deployment |
+| `/terraform` | Terraform | Write or validate Terraform modules |
+| `/azure-infra` | Azure Portal Deploy | Provision AKS, Key Vault, PostgreSQL, ACR |
+| `/backstage` | Backstage Expert | Deploy Backstage portal to AKS |
+| `/security-review` | Security | OWASP, RBAC, secrets audit |
+| `/architecture` | Architect | Design with WAF + Mermaid diagrams |
+| `/ado-setup` | ADO Integration | Configure ADO PAT + pipelines |
+| `/hybrid-setup` | Hybrid Scenarios | GitHub + ADO coexistence |
+| `/create-service` | Platform | Scaffold a new microservice |
+| `/deploy-service` | DevOps | Deploy a service to AKS |
+| `/review-code` | Reviewer | Comprehensive code review |
+| `/troubleshoot-incident` | SRE | Troubleshoot incidents |
 | `/create-mcp-server` | — | Scaffold MCP server |
-| `/analyze-checks` | sentinel | Analyze CI check runs and PR status |
-| `/decompose-epic` | compass | Decompose epics into INVEST user stories |
-| `/diagnose-pipeline` | pipeline | Diagnose GitHub Actions pipeline failures |
+| `/analyze-checks` | Sentinel | Analyze CI check runs and PR status |
+| `/decompose-epic` | Compass | Decompose epics into INVEST user stories |
+| `/diagnose-pipeline` | Pipeline | Diagnose GitHub Actions pipeline failures |
 
 ## Instructions
 
-The 8 instructions in [.github/instructions/](.github/instructions/) auto-apply when editing matching file types:
+The 10 instruction files in the workspace instructions folder auto-apply when editing matching file types:
 
 | Instruction | Applies To |
-|-------------|------------|
+| --- | --- |
 | `agent-files` | `*.agent.md`, `*.prompt.md`, `*.instructions.md`, `SKILL.md` |
-| `kubernetes` | `*.yaml`, `*.yml`, `kubernetes/**`, `helm/**` |
+| `github-actions` | `.github/workflows/**/*.yml`, `.github/workflows/**/*.yaml` |
+| `issue-forms` | `.github/ISSUE_TEMPLATE/**/*.yml`, `.github/ISSUE_TEMPLATE/**/*.yaml` |
+| `kubernetes` | `deploy/**`, `argocd/**`, `backstage/k8s/**`, `kubernetes/**`, `k8s/**`, `helm/**` |
 | `python` | `*.py`, `python/**` |
 | `terraform` | `*.tf`, `terraform/**`, `*.tfvars` |
 | `typescript` | `*.ts` |
@@ -94,10 +94,10 @@ The 8 instructions in [.github/instructions/](.github/instructions/) auto-apply 
 
 ## Skills
 
-The 27 skills in [.github/skills/](.github/skills/) provide domain-specific knowledge that agents load on demand:
+The 27 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
 
 | Skill | Description |
-|-------|-------------|
+| --- | --- |
 | `ai-foundry-operations` | Azure AI Foundry provisioning, model deployment, RAG |
 | `argocd-cli` | ArgoCD CLI for GitOps workflows |
 | `azure-cli` | Azure CLI resource management |
@@ -106,8 +106,8 @@ The 27 skills in [.github/skills/](.github/skills/) provide domain-specific know
 | `codespaces-golden-paths` | GitHub Codespaces devcontainer configs per Golden Path |
 | `database-management` | Database ops and health monitoring |
 | `deploy-orchestration` | End-to-end platform deployment orchestration |
-| `docx-creator` | Microsoft Word document generation |
-| `figjam-diagrams` | FigJam diagrams with Mermaid + Microsoft branded colors |
+| `docx-creator` | Word document generation with Adoleta.ai branding |
+| `figjam-diagrams` | FigJam diagrams with Mermaid and Adoleta.ai brand colors |
 | `github-cli` | GitHub CLI for repos and workflows |
 | `helm-cli` | Helm CLI for Kubernetes packages |
 | `issue-ops` | GitHub Issue-driven slash command dispatcher |
@@ -116,12 +116,12 @@ The 27 skills in [.github/skills/](.github/skills/) provide domain-specific know
 | `mcp-cli` | Model Context Protocol server reference |
 | `mcp-ecosystem` | 39 tools for live methodology and reference data |
 | `observability-stack` | Prometheus, Grafana, Loki, Alertmanager |
-| `pdf-creator` | Microsoft-branded PDF documents |
-| `pptx-creator` | Microsoft PowerPoint presentations |
+| `pdf-creator` | Adoleta.ai-branded PDF documents |
+| `pptx-creator` | PowerPoint presentations with Adoleta.ai branding |
 | `prerequisites` | CLI tool validation and setup |
 | `terraform-cli` | Terraform CLI for Azure infra |
 | `validation-scripts` | Validation scripts for deployments |
-| `xlsx-creator` | Microsoft Excel workbooks |
+| `xlsx-creator` | Excel workbooks with Adoleta.ai branding |
 | `pipeline-diagnostics` | GitHub Actions CI/CD failure analysis and remediation |
 | `story-planning` | INVEST user story decomposition and GitHub Issues creation |
 | `test-coverage` | Test coverage analysis, CI check runs, and quality gates |

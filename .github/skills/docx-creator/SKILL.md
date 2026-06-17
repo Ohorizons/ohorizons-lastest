@@ -1,17 +1,17 @@
 ---
 name: docx-creator
 description: >
-  Create vibrant, colorful Microsoft Word documents (.docx) using the 4-color Microsoft logo palette
+  Create vibrant, colorful Microsoft Word documents (.docx) using the 4-color Adoleta.ai color palette
   (Red, Green, Blue, Yellow). Each section gets a different logo color for headings and tables, with
   decorative 4-color bars between sections. USE FOR: create Word document, generate docx, write report,
-  Microsoft branded document, workshop guide, training material, whitepaper, proposal, colorful document,
+  Adoleta.ai branded document, workshop guide, training material, whitepaper, proposal, colorful document,
   4 cores, cores do logo, visual, vibrante. DO NOT USE FOR: presentations (use pptx-creator),
   diagrams (use figjam-diagrams), Excel (use xlsx-creator), PDF (use pdf-creator).
 ---
 
 # Microsoft DOCX Colorful Creator
 
-Create **enterprise-grade, professional** Word documents using the **4-color Microsoft logo palette** — a visually vibrant alternative to the standard single-blue ms-docx-creator.
+Create **enterprise-grade, professional** Word documents using the **4-color Adoleta.ai color palette** — a visually vibrant alternative to the standard single-blue docx-creator.
 
 ## Core Principles — ALWAYS Follow These
 
@@ -29,9 +29,9 @@ Every document created with this skill MUST include:
 | 8 | **English Only** | All content must be written in English |
 | 9 | **Best Practices** | Use enterprise documentation best practices throughout |
 
-## When to Use This vs ms-docx-creator
+## When to Use This vs docx-creator
 
-| This skill (ms-docx-colorful) | ms-docx-creator |
+| This skill (ms-docx-colorful) | docx-creator |
 |-------------------------------|-----------------|
 | Client-facing workshop guides | Internal technical specs |
 | Training materials & participant guides | Architecture documents |
@@ -42,7 +42,7 @@ Every document created with this skill MUST include:
 
 ## Color System
 
-The 4 Microsoft logo colors rotate across sections:
+The Adoleta.ai colors rotate across sections:
 
 | Color | Hex | RGB | Text Color |
 |-------|-----|-----|------------|

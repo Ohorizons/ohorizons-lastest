@@ -4,7 +4,7 @@
 # =============================================================================
 #
 # Validates all required CLI tools are installed and authenticated
-# for the Open Horizons Platform v4.0.0
+# for the Open Horizons Platform v7.2.4
 #
 # Usage: ./scripts/validate-cli-prerequisites.sh [--install]
 #
@@ -205,7 +205,7 @@ generate_summary() {
 main() {
     echo ""
     echo -e "${PURPLE}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║  OPEN HORIZONS PLATFORM v4.0.0 - CLI VALIDATION        ║${NC}"
+    echo -e "${PURPLE}║  OPEN HORIZONS PLATFORM v7.2.4 - CLI VALIDATION        ║${NC}"
     echo -e "${PURPLE}╚════════════════════════════════════════════════════════════╝${NC}"
     
     local required_missing=0

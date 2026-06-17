@@ -161,27 +161,41 @@ def validate_agents(agent_names: set[str], report: ValidationReport) -> None:
         warn_unknown_fields(path, metadata, VALID_AGENT_FIELDS, report)
         require_string(path, metadata, "name", report)
         require_string(path, metadata, "description", report)
-
-        tools = metadata.get("tools")
-        if tools is not None and not isinstance(tools, (list, str)):
-            report.error(path, "`tools` must be a list or comma-separated string")
-        if "todo" in str(tools).lower():
-            report.error(path, "`tools` includes placeholder `todo`")
-
-        handoffs = metadata.get("handoffs", [])
-        if handoffs is not None and not isinstance(handoffs, list):
-            report.error(path, "`handoffs` must be a list")
-        elif isinstance(handoffs, list):
-            for index, handoff in enumerate(handoffs, start=1):
-                if not isinstance(handoff, dict):
-                    report.error(path, f"handoff #{index} must be a mapping")
-                    continue
-                target = handoff.get("agent")
-                if target not in agent_names:
-                    report.error(path, f"handoff #{index} references unknown agent `{target}`")
+        validate_agent_tools(path, metadata, report)
+        validate_agent_handoffs(path, metadata, agent_names, report)
 
         if not body:
             report.error(path, "empty agent body")
+
+
+def validate_agent_tools(path: Path, metadata: dict[str, Any], report: ValidationReport) -> None:
+    tools = metadata.get("tools")
+    if tools is not None and not isinstance(tools, (list, str)):
+        report.error(path, "`tools` must be a list or comma-separated string")
+    if "todo" in str(tools).lower():
+        report.error(path, "`tools` includes placeholder `todo`")
+
+
+def validate_agent_handoffs(
+    path: Path,
+    metadata: dict[str, Any],
+    agent_names: set[str],
+    report: ValidationReport,
+) -> None:
+    handoffs = metadata.get("handoffs", [])
+    if handoffs is not None and not isinstance(handoffs, list):
+        report.error(path, "`handoffs` must be a list")
+        return
+    if not isinstance(handoffs, list):
+        return
+
+    for index, handoff in enumerate(handoffs, start=1):
+        if not isinstance(handoff, dict):
+            report.error(path, f"handoff #{index} must be a mapping")
+            continue
+        target = handoff.get("agent")
+        if target not in agent_names:
+            report.error(path, f"handoff #{index} references unknown agent `{target}`")
 
 
 def validate_prompts(agent_names: set[str], report: ValidationReport) -> None:

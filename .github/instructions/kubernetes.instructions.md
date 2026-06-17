@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.yaml,**/*.yml,**/kubernetes/**,**/k8s/**,**/helm/**"
+applyTo: "deploy/**/*.yaml,deploy/**/*.yml,argocd/**/*.yaml,argocd/**/*.yml,backstage/k8s/**/*.yaml,backstage/k8s/**/*.yml,**/kubernetes/**,**/k8s/**,**/helm/**"
 description: "Kubernetes manifest standards — resource limits, security contexts, labels, probes, and network policies for AKS deployments."
 ---
 

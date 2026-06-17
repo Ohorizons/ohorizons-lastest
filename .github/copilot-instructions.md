@@ -182,14 +182,13 @@ terraform apply -var-file=environments/dev.tfvars
 
 ## Agent System
 
-The platform uses **18 Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **27 skills** for domain knowledge, **16 prompts** for one-shot shortcuts, and **8 instructions** for auto-applied coding standards.
+The platform uses **19 Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **27 skills** for domain knowledge, **16 prompts** for one-shot shortcuts, and **10 instructions** for auto-applied coding standards.
 
 ### Agent Organization
 - **@deploy**: Deployment orchestration, end-to-end platform deployment
 - **@architect**: System architecture, AI Foundry, multi-agent design
 - **@devops**: CI/CD, GitOps, MLOps, Golden Paths, pipelines
 - **@docs**: Documentation generation and maintenance
-- **@onboarding**: New team member onboarding and guidance
 - **@platform**: Backstage portal, platform services, developer experience
 - **@reviewer**: Code review, PR analysis, quality checks
 - **@security**: Security policies, scanning, compliance
@@ -205,7 +204,7 @@ Agents support handoffs for workflow orchestration. Example: @terraform -> @devo
 
 When generating code for agents:
 - Follow the agent specification format in `.github/agents/`
-- Include proper YAML frontmatter with `tools`, `infer`, `skills`, `handoffs`
+- Include proper YAML frontmatter with `tools`, `user-invocable`, `disable-model-invocation`, and `handoffs` when needed
 - Define three-tier boundaries: ALWAYS / ASK FIRST / NEVER
 - Reference skills for CLI operations
 - Include clarifying questions before proceeding

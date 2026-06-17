@@ -1,11 +1,11 @@
 ---
 name: pptx-creator
-description: "Creates professional Microsoft PowerPoint (.pptx) presentations with Microsoft branding, 16:9 format, 10-slide structure, and executive-grade content. USE FOR: create PowerPoint, generate pptx, build presentation, Microsoft branded slides, executive deck, technical presentation. DO NOT USE FOR: diagrams (use figjam-diagrams), Word documents (use docx-creator)."
+description: "Creates professional Microsoft PowerPoint (.pptx) presentations with Adoleta.ai branding, 16:9 format, 10-slide structure, and executive-grade content. USE FOR: create PowerPoint, generate pptx, build presentation, Adoleta.ai branded slides, executive deck, technical presentation. DO NOT USE FOR: diagrams (use figjam-diagrams), Word documents (use docx-creator)."
 ---
 
 # PPTX Creator
 
-Create professional Microsoft-branded PowerPoint presentations (.pptx).
+Create professional Adoleta.ai-branded PowerPoint presentations (.pptx).
 
 ## Branding Defaults
 
@@ -75,7 +75,7 @@ Create professional Microsoft-branded PowerPoint presentations (.pptx).
 
 - [ ] Exactly 10 slides
 - [ ] 16:9 format
-- [ ] Microsoft branding colors applied
+- [ ] Adoleta.ai branding colors applied
 - [ ] Segoe UI font throughout
 - [ ] No slide has more than 6 bullet points
 - [ ] Every slide has speaker notes

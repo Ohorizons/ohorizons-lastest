@@ -2,8 +2,8 @@
 name: figjam-diagrams
 description: >
   Create professional FigJam diagrams using the Figma MCP connector with Mermaid syntax,
-  Microsoft brand colors, and proven rendering patterns. Encodes hard-won lessons about
-  FigJam's Mermaid renderer quirks and provides Microsoft-branded color palettes.
+  Adoleta.ai brand colors, and proven rendering patterns. Encodes hard-won lessons about
+  FigJam's Mermaid renderer quirks and provides Adoleta.ai-branded color palettes.
   USE FOR: create diagram, FigJam diagram, flowchart, sequence diagram, architecture diagram,
   process flow, Mermaid diagram, agent flow, SDLC diagram, deployment diagram, diagrama,
   fluxo, sequência, system interaction, entity relationship.
@@ -216,7 +216,7 @@ Always use the `Figma:generate_diagram` tool:
 
 Write descriptive intents that help Figma render context:
 
-- ✅ "SDLC end-to-end flow with Microsoft brand colors showing 6 AI agents in the pipeline"
+- ✅ "SDLC end-to-end flow with Adoleta.ai brand colors showing 6 AI agents in the pipeline"
 - ✅ "Sequence diagram with transparent color bands per phase at 15% opacity"
 - ✅ "Deployment hierarchy showing enterprise vs organization level agents"
 - ❌ "diagram"
@@ -271,7 +271,7 @@ Connected with -->|"graduate"| edges
 ## Checklist Before Generating
 
 1. ☐ Using individual `style` per node (NOT `classDef` with `fill`)
-2. ☐ Microsoft brand colors applied correctly
+2. ☐ Adoleta.ai brand colors applied correctly
 3. ☐ Node text in double quotes: `["Node Label"]`
 4. ☐ Edge labels in double quotes: `-->|"label"|`
 5. ☐ Subgraph titles in double quotes: `subgraph ID["Title"]`

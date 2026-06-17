@@ -1,7 +1,7 @@
 name: "🗄️ Database Provisioning"
 description: "Deploy PostgreSQL, Redis, or Cosmos DB"
 title: "[H1] Database - "
-labels: ["agent:database", "horizon:h1"]
+labels: ["agent:deploy", "horizon:h1", "env:dev"]
 body:
   - type: markdown
     attributes:

@@ -1,7 +1,7 @@
 name: "📦 Container Registry Setup"
 description: "Configure Azure Container Registry with scanning and replication"
 title: "[H1] Container Registry - "
-labels: ["agent:container-registry", "horizon:h1"]
+labels: ["agent:deploy", "horizon:h1", "env:dev"]
 body:
   - type: markdown
     attributes:

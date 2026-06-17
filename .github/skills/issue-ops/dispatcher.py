@@ -94,14 +94,14 @@ def main():
     # Format Output for GitHub Comment
     status_icon = "✅" if success else "❌"
     
-    print(f"EOF_OUTPUT<<EOF")
+    print("EOF_OUTPUT<<EOF")
     print(f"## {status_icon} Command Execution Result")
     print(f"**Command:** `{command_line}`")
-    print(f"")
-    print(f"```bash")
+    print("")
+    print("```bash")
     print(output)
-    print(f"```")
-    print(f"EOF")
+    print("```")
+    print("EOF")
     
     if not success:
         sys.exit(1)

@@ -1,7 +1,7 @@
 name: "🏗️ Infrastructure Deployment"
 description: "Deploy H1 Foundation infrastructure (AKS, ACR, Key Vault)"
 title: "[H1] Infrastructure - "
-labels: ["agent:infrastructure", "horizon:h1", "env:dev"]
+labels: ["agent:deploy", "horizon:h1", "env:dev"]
 body:
   - type: markdown
     attributes:

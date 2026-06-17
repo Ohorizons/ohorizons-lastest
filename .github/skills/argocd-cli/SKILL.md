@@ -54,7 +54,7 @@ argocd login argocd.${DNS_ZONE_NAME} --username admin --password <password>
 kubectl apply -f argocd/repo-credentials.yaml
 
 # Or add via CLI
-argocd repo add https://github.com/${GITHUB_ORG}/agentic-devops-platform.git \
+argocd repo add https://github.com/${GITHUB_ORG}/ohorizons-lastest.git \
   --username <username> --password <github-token>
 
 # Verify

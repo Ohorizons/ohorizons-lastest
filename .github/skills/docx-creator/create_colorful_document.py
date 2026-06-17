@@ -31,7 +31,7 @@ import re
 
 
 # =============================================================================
-# MICROSOFT LOGO COLORS (4-color palette)
+# ADOLETA.AI COLORS (4-color palette)
 # =============================================================================
 class MSLogoColors:
     """Microsoft 4-color logo palette + supporting neutrals."""
@@ -148,7 +148,7 @@ class Icons:
 class MSColorfulDocCreator:
     """
     Enterprise-grade Microsoft Word document creator using the 4-color
-    Microsoft logo palette. Produces professional, visually rich documents
+    Adoleta.ai color palette. Produces professional, visually rich documents
     with modern cover page, TOC, color-coded sections, rich visual elements,
     and standard closing page.
 

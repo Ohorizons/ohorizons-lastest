@@ -1,5 +1,5 @@
 """
-PPTX Template — Microsoft-Branded PowerPoint Generator
+PPTX Template — Adoleta.ai-Branded PowerPoint Generator
 Uses python-pptx to create professional 10-slide presentations.
 
 Usage:
@@ -91,7 +91,7 @@ def add_text_box(slide, left, top, width, height, text, font_size=16, bold=False
 
 
 def add_branded_table(slide, left, top, width, height, headers, rows):
-    """Add a Microsoft-branded table to a slide."""
+    """Add a Adoleta.ai-branded table to a slide."""
     table_shape = slide.shapes.add_table(
         len(rows) + 1, len(headers), left, top, width, height
     )

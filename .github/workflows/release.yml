@@ -73,14 +73,13 @@ jobs:
       - name: Create Release Archive
         run: |
           VERSION="${{ needs.validate.outputs.version }}"
-          ARCHIVE_NAME="agentic-devops-platform-${VERSION}"
+          ARCHIVE_NAME="open-horizons-platform-${VERSION}"
 
           # Create distribution folder
           mkdir -p dist
 
           # Copy essential files
           cp -r terraform dist/
-          cp -r agents dist/
           cp -r golden-paths dist/
           cp -r scripts dist/
           cp -r deploy dist/
@@ -191,9 +190,9 @@ jobs:
             ## Highlights
 
             - 18 Terraform modules for Azure infrastructure
-            - 17 Copilot Chat Agents for interactive development
+            - 19 Copilot Chat Agents for interactive development
             - 22 Golden Path templates for Backstage
-            - 28 GitHub Issue templates with T-shirt sizing
+            - 27 GitHub Issue templates with T-shirt sizing
             - Multi-region support (Brazil, US East, US South Central)
 
             ## Installation
@@ -201,18 +200,18 @@ jobs:
             ```bash
             # Clone the repository
             git clone https://github.com/${{ github.repository }}.git
-            cd agentic-devops-platform
+            cd ohorizons-lastest
 
             # Or download the release
-            wget https://github.com/${{ github.repository }}/releases/download/${{ needs.validate.outputs.version }}/agentic-devops-platform-${{ needs.validate.outputs.version }}.tar.gz
-            tar -xzf agentic-devops-platform-${{ needs.validate.outputs.version }}.tar.gz
+            wget https://github.com/${{ github.repository }}/releases/download/${{ needs.validate.outputs.version }}/open-horizons-platform-${{ needs.validate.outputs.version }}.tar.gz
+            tar -xzf open-horizons-platform-${{ needs.validate.outputs.version }}.tar.gz
             ```
 
             ## Documentation
 
             - [Deployment Guide](docs/guides/DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
             - [Architecture Guide](docs/guides/ARCHITECTURE_GUIDE.md) - Open Horizons architecture
-            - [Agent Documentation](agents/README.md) - 17 Copilot Chat Agents
+            - [Agent Documentation](AGENTS.md) - 19 Copilot Chat Agents
 
             ${{ needs.changelog.outputs.changelog }}
           files: |

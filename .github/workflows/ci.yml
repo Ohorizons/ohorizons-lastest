@@ -69,8 +69,14 @@ jobs:
               - 'docs/**'
               - '*.md'
             agents:
-              - 'agents/**'
               - '.github/agents/**'
+              - '.github/prompts/**'
+              - '.github/skills/**/SKILL.md'
+              - '.github/instructions/**'
+              - '.github/ISSUE_TEMPLATE/**'
+              - '.github/workflows/validate-agents.yml'
+              - '.github/skills/validation-scripts/scripts/validate-agents.py'
+              - 'golden-paths/common/agents/**'
               - '.apm/**'
             golden-paths:
               - 'golden-paths/**'
@@ -440,10 +446,10 @@ jobs:
         continue-on-error: true # YAML lint is a soft check for style issues
 
   # ===========================================================================
-  # AGENTS VALIDATION
+  # PRIMITIVES VALIDATION
   # ===========================================================================
-  agents-validate:
-    name: Agents Validate
+  primitives-validate:
+    name: Copilot Primitives Validate
     runs-on: ubuntu-latest
     needs: detect-changes
     if: needs.detect-changes.outputs.agents == 'true'
@@ -452,33 +458,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate Agent Specifications
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: pip install pyyaml
+
+      - name: Validate Copilot Customization Primitives
         run: |
-          echo "## Agent Validation" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          ERRORS=0
-          for agent in $(find agents .github/agents -name "*.md" 2>/dev/null); do
-            if [ -f "$agent" ]; then
-              if head -1 "$agent" | grep -q "^---"; then
-                echo "- OK: $agent" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "- FAIL: $agent - Missing YAML frontmatter" >> $GITHUB_STEP_SUMMARY
-                ERRORS=$((ERRORS+1))
-              fi
-            fi
-          done
-          if [ -f "config/apm.yml" ]; then
-            if python3 -c "import yaml; yaml.safe_load(open('config/apm.yml'))" 2>/dev/null; then
-              echo "- OK: config/apm.yml" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "- FAIL: config/apm.yml - Invalid YAML" >> $GITHUB_STEP_SUMMARY
-              ERRORS=$((ERRORS+1))
-            fi
-          fi
-          if [ $ERRORS -gt 0 ]; then
-            echo "::error::$ERRORS agent specs failed validation"
-            exit 1
-          fi
+          echo "## Copilot Primitives Validation" >> $GITHUB_STEP_SUMMARY
+          ./.github/skills/validation-scripts/scripts/validate-agents.py --strict | tee primitive-validation.txt
+          cat primitive-validation.txt >> $GITHUB_STEP_SUMMARY
 
   # ===========================================================================
   # SECURITY SCANNING
@@ -533,7 +525,7 @@ jobs:
       - scripts-lint
       - docs-lint
       - yaml-lint
-      - agents-validate
+      - primitives-validate
       - security-scan
     if: always()
 
@@ -554,7 +546,7 @@ jobs:
           echo "| Scripts | ${{ needs.scripts-lint.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docs | ${{ needs.docs-lint.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| YAML | ${{ needs.yaml-lint.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Agents | ${{ needs.agents-validate.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Copilot Primitives | ${{ needs.primitives-validate.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY

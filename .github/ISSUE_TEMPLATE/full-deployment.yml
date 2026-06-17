@@ -171,8 +171,8 @@ body:
         
         ```bash
         # 1. Clone and setup
-        git clone https://github.com/myorg/agentic-devops-platform.git
-        cd agentic-devops-platform
+        git clone https://github.com/Ohorizons/ohorizons-lastest.git
+        cd ohorizons-lastest
         
         # 2. Validate prerequisites
         ./scripts/validate-prerequisites.sh

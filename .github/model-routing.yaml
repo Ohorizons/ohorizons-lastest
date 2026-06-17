@@ -8,7 +8,7 @@
 # Ref: Ch. 05 Integration Playbook — Model Routing by SDLC Phase
 
 # Supported models per tier:
-#   high-capability:  Claude Opus 4.6, GPT-5.4
+#   high-capability:  Claude Opus 4.6, GPT-5.1
 #   mid-tier:         Claude Sonnet 4.6, GPT-5.1
 #   cost-optimized:   Claude Haiku 4.5, GPT-5.1
 
@@ -16,7 +16,7 @@ routing:
   specification:
     description: "Vague requirements → structured specs"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.4]
+    model: [claude-opus-4.6, gpt-5.1]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -26,7 +26,7 @@ routing:
   architecture:
     description: "Planning affecting >5 files"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.4]
+    model: [claude-opus-4.6, gpt-5.1]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -66,7 +66,7 @@ routing:
   code_review:
     description: "Quality + security review"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.4]
+    model: [claude-opus-4.6, gpt-5.1]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -84,13 +84,13 @@ routing:
     when: "Content to summarize is available"
 
 # Agentic Deployment — Agent-to-Model Mapping:
-#   @deploy (orchestrator):    claude-opus-4.6 / gpt-5.4
+#   @deploy (orchestrator):    claude-opus-4.6 / gpt-5.1
 #   @azure-portal-deploy:     claude-sonnet-4.6 / gpt-5.1
 #   @terraform:               claude-sonnet-4.6 / gpt-5.1
 #   @backstage-expert:        claude-sonnet-4.6 / gpt-5.1
 #   @github-integration:      claude-sonnet-4.6 / gpt-5.1
 #   @sre (verification):      claude-sonnet-4.6 / gpt-5.1
-#   @security (audit):        claude-opus-4.6 / gpt-5.4
+#   @security (audit):        claude-opus-4.6 / gpt-5.1
 #   @docs (documentation):    claude-haiku-4.5 / gpt-5.1
 
 # Decision tree for developers:

@@ -1,11 +1,11 @@
 ---
 name: pdf-creator
-description: "Creates professional Microsoft-branded PDF documents with cover pages, 4-color palette, tables, charts, headers/footers, and executive formatting using Python and reportlab. USE FOR: create PDF, generate pdf, build PDF report, Microsoft branded PDF, PDF proposal, PDF whitepaper, executive PDF, PDF with charts, PDF with tables. DO NOT USE FOR: Word documents (use docx-creator), presentations (use pptx-creator), Excel (use xlsx-creator), diagrams (use figjam-diagrams)."
+description: "Creates professional Adoleta.ai-branded PDF documents with cover pages, 4-color palette, tables, charts, headers/footers, and executive formatting using Python and reportlab. USE FOR: create PDF, generate pdf, build PDF report, Adoleta.ai branded PDF, PDF proposal, PDF whitepaper, executive PDF, PDF with charts, PDF with tables. DO NOT USE FOR: Word documents (use docx-creator), presentations (use pptx-creator), Excel (use xlsx-creator), diagrams (use figjam-diagrams)."
 ---
 
 # PDF Creator
 
-Create professional Microsoft-branded PDF documents (.pdf) using Python and reportlab with enterprise-grade formatting, cover pages, tables, charts, headers/footers, and the Microsoft 4-color palette.
+Create professional Adoleta.ai-branded PDF documents (.pdf) using Python and reportlab with enterprise-grade formatting, cover pages, tables, charts, headers/footers, and the Microsoft 4-color palette.
 
 ## Technology
 
@@ -64,7 +64,7 @@ def draw_4color_bar(canvas, x, y, width, height=4):
 
 ### Fonts
 
-reportlab includes Helvetica by default. For Microsoft branding, register Segoe UI if available:
+reportlab includes Helvetica by default. For Adoleta.ai branding, register Segoe UI if available:
 
 ```python
 from reportlab.pdfbase import pdfmetrics
@@ -172,7 +172,7 @@ from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
 
 def create_branded_table(data, col_widths=None):
-    """Create a Microsoft-branded table."""
+    """Create a Adoleta.ai-branded table."""
     table = Table(data, colWidths=col_widths)
     style = TableStyle([
         # Header row
@@ -376,7 +376,7 @@ print(f"Created: {filepath}")
 - [ ] Alternating row colors on all tables
 - [ ] Header with 4-color bar and title on every content page
 - [ ] Footer with client name, version, confidentiality, page numbers
-- [ ] KPI cards use Microsoft brand colors with large numbers
+- [ ] KPI cards use Adoleta.ai brand colors with large numbers
 - [ ] Callout boxes use appropriate colors (info/warning/success/critical)
 - [ ] Fonts are consistent throughout (Segoe UI or Helvetica fallback)
 - [ ] No fabricated data — all metrics have source citations

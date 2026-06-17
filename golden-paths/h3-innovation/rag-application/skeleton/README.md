@@ -123,6 +123,6 @@ Chunking strategy:
 
 ## Links
 
-- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/agentic-devops-platform)
+- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/ohorizons-lastest)
 - [Azure OpenAI Documentation](https://docs.microsoft.com/azure/cognitive-services/openai/)
 - [LangChain Documentation](https://python.langchain.com/)

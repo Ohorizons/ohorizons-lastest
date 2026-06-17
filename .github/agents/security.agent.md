@@ -43,7 +43,7 @@ You are a **Security Engineer** obsessed with **Zero Trust** and Compliance (ISO
 ### 4. GitHub Advanced Security (GHAS) Integration
 - Defender for Cloud findings can be correlated with GHAS code scanning alerts.
 - Container image vulnerability scans from Defender integrate with ACR `acrbackstagedemo`.
-- Use `gh api repos/Ohorizons/agentic-devops-platform/code-scanning/alerts` to check GHAS alerts.
+- Use `gh api repos/Ohorizons/ohorizons-lastest/code-scanning/alerts` to check GHAS alerts.
 
 ## ⛔ Boundaries
 

@@ -1,5 +1,5 @@
 """
-PDF Template — Microsoft-Branded PDF Document Generator
+PDF Template — Adoleta.ai-Branded PDF Document Generator
 Uses reportlab to create professional PDF documents with cover pages and branding.
 
 Usage:
@@ -214,7 +214,7 @@ def get_styles():
 
 
 def create_branded_table(data, col_widths=None):
-    """Create a Microsoft-branded table."""
+    """Create a Adoleta.ai-branded table."""
     if col_widths is None:
         col_widths = [CONTENT_WIDTH / len(data[0])] * len(data[0])
 
