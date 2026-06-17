@@ -2,10 +2,12 @@
 set -euo pipefail
 
 # =============================================================================
-# validate-docs.sh — Documentation Link Validator
-# Open Horizons Platform v4
+# validate-docs.sh — Documentation Link and Standards Validator
+# Open Horizons Platform
 #
-# Scans all Markdown files for broken relative links (files and anchors).
+# Scans Markdown files for broken relative links and enterprise documentation
+# standards. Workspace customization files under .github are intentionally
+# excluded from documentation standards checks.
 # Usage: ./scripts/validate-docs.sh [--verbose] [--fix-suggestions]
 # =============================================================================
 
@@ -19,6 +21,7 @@ ERRORS=0
 WARNINGS=0
 CHECKED=0
 FILES_SCANNED=0
+DOC_STANDARD_CHECKS=0
 
 # Colors
 RED='\033[0;31m'
@@ -31,7 +34,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Validates all documentation links in the repository.
+Validates documentation links and enterprise documentation standards.
 
 Options:
     --verbose           Show all checked links (not just broken ones)
@@ -45,6 +48,57 @@ Examples:
     $(basename "$0") --fix-suggestions      # Show fix suggestions
     $(basename "$0") --include-skeletons    # Include Golden Path skeleton docs
 EOF
+}
+
+check_doc_standards() {
+    local source_file="$1"
+    local rel_source="${source_file#$ROOT_DIR/}"
+
+    # .github contains Copilot customization primitives with their own validator.
+    if [[ "$rel_source" == .github/* ]]; then
+        return 0
+    fi
+
+    ((DOC_STANDARD_CHECKS++)) || true
+
+    local content
+    content="$(cat "$source_file")"
+
+    local forbidden_terms=(
+        "Adoleta"
+        "adoleta"
+        "agentic-devops-platform"
+        "threehorizons"
+        "backstage-demo"
+        "Agentic DevOps Platform"
+        "Microsoft Confidential"
+        "Runbook de"
+        "Métricas"
+        "Correlação"
+        "Correlacao"
+    )
+
+    local term
+    for term in "${forbidden_terms[@]}"; do
+        if grep -q "$term" "$source_file"; then
+            log_error "$rel_source → forbidden term '$term'"
+        fi
+    done
+
+    # Allow conventional root files and generated template placeholders.
+    case "$(basename "$source_file")" in
+        README.md|CHANGELOG.md|SECURITY.md|CONTRIBUTING.md|CODE_OF_CONDUCT.md|CODEMAP.md|AGENTS.md|CONSTITUTION.md|SPECIFICATION.md|IMPLEMENTATION_PLAN.md)
+            return 0
+            ;;
+    esac
+
+    if [[ "$rel_source" == *"/skeleton/"* ]]; then
+        return 0
+    fi
+
+    if [[ "$content" != ---$'\n'* ]]; then
+        log_warning "$rel_source → missing YAML frontmatter"
+    fi
 }
 
 log_error() {
@@ -189,6 +243,8 @@ main() {
         local full_path="$ROOT_DIR/${md_file#./}"
         ((FILES_SCANNED++)) || true
 
+        check_doc_standards "$full_path"
+
         # Extract and check links
         local links
         links=$(extract_links "$full_path")
@@ -206,6 +262,7 @@ main() {
     echo "======================================"
     echo -e " Files scanned:  ${BLUE}${FILES_SCANNED}${NC}"
     echo -e " Links checked:  ${BLUE}${CHECKED}${NC}"
+    echo -e " Standards:      ${BLUE}${DOC_STANDARD_CHECKS}${NC}"
     echo -e " Errors:         ${RED}${ERRORS}${NC}"
     echo -e " Warnings:       ${YELLOW}${WARNINGS}${NC}"
     echo "======================================"

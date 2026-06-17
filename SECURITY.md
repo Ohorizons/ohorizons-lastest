@@ -102,7 +102,7 @@ The following security tools are integrated:
 
 This accelerator supports compliance with:
 
-- **LGPD** (Lei Geral de Proteção de Dados)
+- **LGPD** (Brazilian General Data Protection Law)
 - **SOC 2** Type II
 - **PCI-DSS** (when applicable)
 - **CIS Benchmarks** for Azure and Kubernetes

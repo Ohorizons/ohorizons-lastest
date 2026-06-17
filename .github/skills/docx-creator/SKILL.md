@@ -1,11 +1,11 @@
 ---
 name: docx-creator
 description: >
-    Create vibrant, colorful Microsoft Word documents (.docx) using the Microsoft 4-color palette
+  Create vibrant, colorful Microsoft Word documents (.docx) using the Microsoft 4-color palette
   (Red, Green, Blue, Yellow). Each section gets a different logo color for headings and tables, with
   decorative 4-color bars between sections. USE FOR: create Word document, generate docx, write report,
-    Microsoft-branded document, workshop guide, training material, whitepaper, proposal, executive document,
-    colorful document, visual handout. DO NOT USE FOR: presentations (use pptx-creator),
+  Microsoft-branded document, workshop guide, training material, whitepaper, proposal, executive document,
+  colorful document, visual handout. DO NOT USE FOR: presentations (use pptx-creator),
   diagrams (use figjam-diagrams), Excel (use xlsx-creator), PDF (use pdf-creator).
 ---
 

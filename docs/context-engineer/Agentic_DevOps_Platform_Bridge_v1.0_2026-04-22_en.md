@@ -9,7 +9,7 @@ status: "draft"
 language: "en"
 locale: "en-US"
 brand: "Agentic DevOps"
-purpose: "Skeleton for the next deck and playbook. Amarra a tese canônica, o stack de 4 camadas e o Open Horizons como acelerador concreto."
+purpose: "Skeleton for the next deck and playbook. Connects the canonical thesis, the four-layer stack, and Open Horizons as the concrete accelerator."
 companion_documents:
   - "Platform_Engineering_The_Foundation_Layer_for_AI_Native_Enterprise_v1.0_2026-04-22_en.md"
   - "00_Introduction_Context_Platform_Stack_v1.2.0_2026-04-11"
