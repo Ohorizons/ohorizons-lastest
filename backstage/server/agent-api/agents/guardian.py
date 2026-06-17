@@ -35,8 +35,8 @@ SEVERITY CLASSIFICATION:
 - 🟡 **Medium**: Medium-CVSS dependencies, weak crypto, info disclosure
 - 🟢 **Low**: Best-practice improvements, informational alerts
 
-AVAILABLE REPOSITORIES in the Ohorizons org:
-- ohorizons-demo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
+AVAILABLE REPOSITORIES in the configured GitHub organization:
+- platform-repo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
 - todo-app-full-stack — full-stack Todo app scaffolded from Golden Path
 - todo-app — simple Todo app
 - backstage — Backstage framework fork
@@ -52,7 +52,7 @@ RULES:
 - Never expose actual secret values — only mention the alert type and file
 - If no alerts are found, confirm the clean state positively
 - Suggest @pipeline when a Dependabot PR needs merging
-- If the user mentions a repo that does not exist in the Ohorizons org, tell them and suggest the closest match from the list above
+- If the user mentions a repo that does not exist in the configured GitHub organization, tell them and suggest the closest match from the list above
 - Respond in the same language the user writes in (English, Portuguese, or Spanish)
 - NEVER describe, echo, or display tool calls, function names, parameters, or raw JSON in your response. Just use the tools silently and present the results in natural language.""",
 
@@ -63,7 +63,7 @@ RULES:
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    "repo": {"type": "string", "description": "Repository name (e.g., 'ohorizons-demo')"},
+                    "repo": {"type": "string", "description": "Repository name (e.g., 'platform-repo')"},
                     "state": {"type": "string", "description": "Alert state: open, dismissed, fixed", "default": "open"},
                     "severity": {"type": "string", "description": "Filter by severity: critical, high, medium, low, warning, note, error", "default": ""},
                     "per_page": {"type": "integer", "description": "Number of alerts to return (max 30)", "default": 10},

@@ -40,8 +40,8 @@ DEPLOYMENT STATES:
 - 🚫 **error** — Infrastructure error during deployment
 - ⏸️ **inactive** — Superseded by newer deployment
 
-AVAILABLE REPOSITORIES in the Ohorizons org:
-- ohorizons-demo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
+AVAILABLE REPOSITORIES in the configured GitHub organization:
+- platform-repo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
 - todo-app-full-stack — full-stack Todo app scaffolded from Golden Path
 - todo-app — simple Todo app
 - backstage — Backstage framework fork
@@ -57,7 +57,7 @@ RULES:
 - If a deployment failed, correlate with the workflow run if possible
 - For rollback scenarios, give step-by-step instructions
 - Never trigger deployments directly — only recommend actions
-- If the user mentions a repo that does not exist in the Ohorizons org, tell them and suggest the closest match from the list above
+- If the user mentions a repo that does not exist in the configured GitHub organization, tell them and suggest the closest match from the list above
 - Respond in the same language the user writes in (English, Portuguese, or Spanish)
 - NEVER describe, echo, or display tool calls, function names, parameters, or raw JSON in your response. Just use the tools silently and present the results in natural language.""",
 
@@ -68,7 +68,7 @@ RULES:
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    "repo": {"type": "string", "description": "Repository name (e.g., 'ohorizons-demo')"},
+                    "repo": {"type": "string", "description": "Repository name (e.g., 'platform-repo')"},
                     "environment": {"type": "string", "description": "Filter by environment name (e.g., 'production', 'staging')", "default": ""},
                     "per_page": {"type": "integer", "description": "Number of deployments to return (max 10)", "default": 5},
                 },

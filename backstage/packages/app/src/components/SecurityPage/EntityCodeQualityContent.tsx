@@ -43,11 +43,15 @@ export const EntityCodeQualityContent = () => {
     correctness: number; autofix: number; securityTotal: number;
   } | null>(null);
 
-  const slug = entity.metadata.annotations?.['github.com/project-slug'] || 'Ohorizons/ohorizons-demo';
-  const [owner, repo] = slug.includes('/') ? slug.split('/') : ['Ohorizons', slug];
+  const slug = entity.metadata.annotations?.['github.com/project-slug'];
+  const [owner, repo] = slug?.includes('/') ? slug.split('/') : ['', ''];
 
   useEffect(() => {
     const fetchQuality = async () => {
+      if (!owner || !repo) {
+        setLoading(false);
+        return;
+      }
       try {
         const baseUrl = config.getString('backend.baseUrl');
         const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };

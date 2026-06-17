@@ -10,5 +10,5 @@ spec:
         spec:
           containers:
             - name: batch
-              image: batch-job:latest
+              image: batch-job:v0.1.0
           restartPolicy: OnFailure

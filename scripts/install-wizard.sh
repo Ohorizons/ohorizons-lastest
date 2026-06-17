@@ -755,71 +755,86 @@ render_app_config() {
   [[ -n "$i_chat" ]]   && chat_enabled="${BACKSTAGE_VALS[$i_chat]}"
   [[ -n "$i_impact" ]] && impact_enabled="${BACKSTAGE_VALS[$i_impact]}"
 
-  WIZ_CHAT_ENABLED="$chat_enabled" \
-  WIZ_IMPACT_ENABLED="$impact_enabled" \
-    python3 - "$APP_CONFIG" "$tmp" "${SELECTED_PATHS[@]}" <<'PY' || return 1
-  import os, re, sys
-src, dst, *paths = sys.argv[1:]
-allowed = set(paths)
-chat_enabled = os.environ.get('WIZ_CHAT_ENABLED', 'true') == 'true'
-impact_enabled = os.environ.get('WIZ_IMPACT_ENABLED', 'false') == 'true'
-with open(src) as f:
-    lines = f.readlines()
+    WIZ_CHAT_ENABLED="$chat_enabled" WIZ_IMPACT_ENABLED="$impact_enabled" \
+    python3 -c 'import sys, textwrap; exec(textwrap.dedent(sys.stdin.read()))' \
+      "$APP_CONFIG" "$tmp" "${SELECTED_PATHS[@]}" <<'PY' || return 1
+  import os
+  import re
+  import sys
+
+  src, dst, *paths = sys.argv[1:]
+  allowed = set(paths)
+  chat_enabled = os.environ.get("WIZ_CHAT_ENABLED", "true") == "true"
+  impact_enabled = os.environ.get("WIZ_IMPACT_ENABLED", "false") == "true"
+
+  with open(src) as f:
+      lines = f.readlines()
+
 
   def golden_path_blocks(paths):
-    out = ["    # Golden Path Templates (managed by install-wizard.sh)\n"]
-    for path in sorted(paths):
-      out.extend([
-        "    - type: url\n",
-        "      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/golden-paths/%s/template.yaml\n" % path,
-        "      rules:\n",
-        "        - allow: [Template]\n",
-      ])
-    return out
+      out = ["    # Golden Path Templates (managed by install-wizard.sh)\n"]
+      for path in sorted(paths):
+          out.extend([
+              "    - type: url\n",
+              "      target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/golden-paths/%s/template.yaml\n" % path,
+              "      rules:\n",
+              "        - allow: [Template]\n",
+          ])
+      return out
 
-out = []
-i = 0
-n = len(lines)
+
+  out = []
+  i = 0
+  n = len(lines)
   inserted_golden_paths = False
-while i < n:
-    line = lines[i]
-    stripped = line.lstrip()
-    if stripped == 'locations:\n' and not inserted_golden_paths:
+
+  while i < n:
+      line = lines[i]
+      stripped = line.lstrip()
+
+      if "Golden Path Templates" in stripped:
+        i += 1
+        continue
+
+      if stripped == "locations:\n" and not inserted_golden_paths:
+          out.append(line)
+          out.extend(golden_path_blocks(allowed))
+          inserted_golden_paths = True
+          i += 1
+          continue
+
+      if stripped.startswith("- type: url"):
+          block = [line]
+          j = i + 1
+          while j < n and (
+              not lines[j].lstrip().startswith("- ")
+              or lines[j].lstrip().startswith("- allow:")
+          ):
+              block.append(lines[j])
+              j += 1
+          target_line = next((bl for bl in block if "target:" in bl), "")
+          m = re.search(r"golden-paths/(?P<id>[^/]+/[^/]+)/template\.yaml", target_line)
+          if not m:
+              out.extend(block)
+          i = j
+          continue
+
+      if stripped.startswith("'/agent-api'") and not chat_enabled:
+          i += 4
+          continue
+      if stripped.startswith("'/ai-impact'") and not impact_enabled:
+          i += 4
+          continue
+
       out.append(line)
-      out.extend(golden_path_blocks(allowed))
-      inserted_golden_paths = True
       i += 1
-      continue
-    if stripped.startswith('- type: url'):
-        block = [line]
-        j = i + 1
-        while j < n and (not lines[j].lstrip().startswith('- ') or lines[j].lstrip().startswith('- allow:')):
-            block.append(lines[j])
-            j += 1
-        target_line = next((bl for bl in block if 'target:' in bl), '')
-        m = re.search(r'golden-paths/(?P<id>[^/]+/[^/]+)/template\.yaml', target_line)
-        if m:
-        # Golden Path blocks are regenerated from SELECTED_PATHS above.
-        pass
-        else:
-            out.extend(block)
-        i = j
-        continue
-    # Filter proxy endpoints when their backing component is disabled (REQ-PLUGIN-001).
-    if stripped.startswith("'/agent-api'") and not chat_enabled:
-        # Skip this 4-line proxy entry (key, target, changeOrigin, allowedMethods)
-        i += 4
-        continue
-    if stripped.startswith("'/ai-impact'") and not impact_enabled:
-        i += 4
-        continue
-    out.append(line)
-    i += 1
+
   if not inserted_golden_paths:
-    out.extend(["\ncatalog:\n", "  locations:\n"])
-    out.extend(golden_path_blocks(allowed))
-with open(dst, 'w') as f:
-    f.writelines(out)
+      out.extend(["\ncatalog:\n", "  locations:\n"])
+      out.extend(golden_path_blocks(allowed))
+
+  with open(dst, "w") as f:
+      f.writelines(out)
 PY
 
   if diff_and_confirm "$APP_CONFIG" "$tmp"; then

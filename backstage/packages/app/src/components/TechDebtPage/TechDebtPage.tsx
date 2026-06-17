@@ -278,6 +278,8 @@ const TechDebtPage = () => {
       try {
         const baseUrl = config.getString('backend.baseUrl');
         const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+        const repositorySlug = config.getOptionalString('platform.githubRepository') || '';
+        const [repositoryOwner, repositoryName] = repositorySlug.includes('/') ? repositorySlug.split('/') : ['', ''];
 
         // Search for TODO, FIXME, HACK in code (combined query)
         const allItems: TechDebtItem[] = [];
@@ -308,8 +310,11 @@ const TechDebtPage = () => {
         // Fetch tech-debt labeled issues
         let issues: TechDebtIssue[] = [];
         try {
+          if (!repositoryOwner || !repositoryName) {
+            throw new Error('platform.githubRepository is not configured');
+          }
           const issuesRes = await fetch(
-            `${baseUrl}/api/proxy/github-api/repos/Ohorizons/ohorizons-demo/issues?labels=tech-debt&state=open&per_page=50`,
+            `${baseUrl}/api/proxy/github-api/repos/${repositoryOwner}/${repositoryName}/issues?labels=tech-debt&state=open&per_page=50`,
             { headers, credentials: 'include' },
           );
           if (issuesRes.ok) {

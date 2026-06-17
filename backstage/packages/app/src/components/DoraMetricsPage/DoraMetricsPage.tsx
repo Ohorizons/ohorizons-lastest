@@ -105,6 +105,11 @@ function useDoraMetrics(period: Period): DoraMetrics {
       try {
         const baseUrl = config.getString('backend.baseUrl');
         const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+        const repositorySlug = config.getOptionalString('platform.githubRepository') || '';
+        const [repositoryOwner, repositoryName] = repositorySlug.includes('/') ? repositorySlug.split('/') : ['', ''];
+        if (!repositoryOwner || !repositoryName) {
+          throw new Error('platform.githubRepository is not configured');
+        }
         const days = period === '30d' ? 30 : 90;
         const since = new Date();
         since.setDate(since.getDate() - days);
@@ -112,7 +117,7 @@ function useDoraMetrics(period: Period): DoraMetrics {
 
         // Fetch workflow runs (deploy workflows)
         const runsRes = await fetch(
-          `${baseUrl}/api/proxy/github-api/repos/Ohorizons/ohorizons-demo/actions/runs?per_page=100&created=%3E${sinceStr}`,
+          `${baseUrl}/api/proxy/github-api/repos/${repositoryOwner}/${repositoryName}/actions/runs?per_page=100&created=%3E${sinceStr}`,
           { headers, credentials: 'include' },
         );
 
@@ -157,7 +162,7 @@ function useDoraMetrics(period: Period): DoraMetrics {
 
         // Lead Time for Changes (PR merge → next deploy)
         const prRes = await fetch(
-          `${baseUrl}/api/proxy/github-api/repos/Ohorizons/ohorizons-demo/pulls?state=closed&sort=updated&direction=desc&per_page=50`,
+          `${baseUrl}/api/proxy/github-api/repos/${repositoryOwner}/${repositoryName}/pulls?state=closed&sort=updated&direction=desc&per_page=50`,
           { headers, credentials: 'include' },
         );
         let leadTimes: number[] = [];

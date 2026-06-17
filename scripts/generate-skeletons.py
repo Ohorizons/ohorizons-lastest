@@ -68,7 +68,7 @@ print("  H1 security-baseline: OK")
 # H1: basic-cicd
 # =========================================================================
 w("h1-foundation/basic-cicd/skeleton/Makefile",
-  ".PHONY: build test lint\n\nbuild:\n\tdocker build -t app:latest .\n\ntest:\n\techo 'Running tests...'\n\nlint:\n\techo 'Running linter...'\n")
+  ".PHONY: build test lint\n\nbuild:\n\tdocker build -t app:v0.1.0 .\n\ntest:\n\techo 'Running tests...'\n\nlint:\n\techo 'Running linter...'\n")
 w("h1-foundation/basic-cicd/skeleton/Dockerfile",
   "FROM alpine:3.19\nWORKDIR /app\nCOPY . .\nCMD [\"echo\", \"Hello from CI/CD template\"]\n")
 w("h1-foundation/basic-cicd/skeleton/.devcontainer/devcontainer.json",
@@ -148,7 +148,7 @@ w("h2-enhancement/batch-job/skeleton/requirements.txt", "structlog>=23.0\npydant
 w("h2-enhancement/batch-job/skeleton/Dockerfile",
   "FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY src/ ./src/\nUSER 1001\nCMD [\"python\", \"src/main.py\"]\n")
 w("h2-enhancement/batch-job/skeleton/deploy/cronjob.yaml",
-  "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: batch-job\nspec:\n  schedule: '0 2 * * *'\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n            - name: batch\n              image: batch-job:latest\n          restartPolicy: OnFailure\n")
+  "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: batch-job\nspec:\n  schedule: '0 2 * * *'\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n            - name: batch\n              image: batch-job:v0.1.0\n          restartPolicy: OnFailure\n")
 w("h2-enhancement/batch-job/skeleton/.github/workflows/ci.yaml",
   "name: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: '3.11'\n      - run: pip install -r requirements.txt\n      - run: python -m pytest tests/ -v || true\n")
 w("h2-enhancement/batch-job/skeleton/.devcontainer/devcontainer.json",
@@ -196,7 +196,7 @@ print("  H2 event-driven-microservice: OK")
 w("h2-enhancement/gitops-deployment/skeleton/base/kustomization.yaml",
   "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nresources:\n  - deployment.yaml\n  - service.yaml\n")
 w("h2-enhancement/gitops-deployment/skeleton/base/deployment.yaml",
-  "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: app\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: app\n  template:\n    metadata:\n      labels:\n        app: app\n    spec:\n      containers:\n        - name: app\n          image: app:latest\n          ports:\n            - containerPort: 8080\n          resources:\n            requests:\n              cpu: 100m\n              memory: 128Mi\n            limits:\n              cpu: 500m\n              memory: 512Mi\n")
+  "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: app\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: app\n  template:\n    metadata:\n      labels:\n        app: app\n    spec:\n      containers:\n        - name: app\n          image: app:v0.1.0\n          ports:\n            - containerPort: 8080\n          resources:\n            requests:\n              cpu: 100m\n              memory: 128Mi\n            limits:\n              cpu: 500m\n              memory: 512Mi\n")
 w("h2-enhancement/gitops-deployment/skeleton/base/service.yaml",
   "apiVersion: v1\nkind: Service\nmetadata:\n  name: app\nspec:\n  selector:\n    app: app\n  ports:\n    - port: 80\n      targetPort: 8080\n")
 w("h2-enhancement/gitops-deployment/skeleton/overlays/dev/kustomization.yaml",
@@ -223,7 +223,7 @@ w("h2-enhancement/microservice/skeleton/requirements.txt", "fastapi>=0.104\nuvic
 w("h2-enhancement/microservice/skeleton/Dockerfile",
   "FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY src/ ./src/\nUSER 1001\nEXPOSE 8000\nCMD [\"uvicorn\", \"src.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n")
 w("h2-enhancement/microservice/skeleton/deploy/deployment.yaml",
-  "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: microservice\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: microservice\n  template:\n    metadata:\n      labels:\n        app: microservice\n    spec:\n      containers:\n        - name: app\n          image: microservice:latest\n          ports:\n            - containerPort: 8000\n          livenessProbe:\n            httpGet:\n              path: /health\n              port: 8000\n          readinessProbe:\n            httpGet:\n              path: /health\n              port: 8000\n")
+  "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: microservice\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: microservice\n  template:\n    metadata:\n      labels:\n        app: microservice\n    spec:\n      containers:\n        - name: app\n          image: microservice:v0.1.0\n          ports:\n            - containerPort: 8000\n          livenessProbe:\n            httpGet:\n              path: /health\n              port: 8000\n          readinessProbe:\n            httpGet:\n              path: /health\n              port: 8000\n")
 w("h2-enhancement/microservice/skeleton/.github/workflows/ci.yaml",
   "name: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: '3.11'\n      - run: pip install -r requirements.txt\n      - run: python -m pytest tests/ -v || true\n")
 w("h2-enhancement/microservice/skeleton/.devcontainer/devcontainer.json",

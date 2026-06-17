@@ -1,24 +1,26 @@
 # Agentic DevOps Platform — Open Horizons (Backstage) Production Config
 app:
   title: ${PORTAL_NAME:-Open Horizons} — Agentic DevOps Platform
-  baseUrl: ${APP_BASE_URL:-http://localhost:7007}
+  baseUrl: ${APP_BASE_URL}
 
 organization:
   name: ${PORTAL_NAME:-Open Horizons}
 
+platform:
+  githubRepository: ${GITHUB_ORG}/${GITHUB_REPO}
+
 backend:
-  baseUrl: ${APP_BASE_URL:-http://localhost:7007}
+  baseUrl: ${APP_BASE_URL}
   listen:
     port: 7007
   auth:
-    dangerouslyDisableDefaultAuthPolicy: true
     externalAccess:
       - type: static
         options:
-          token: ${BACKEND_SECRET:-supersecret-dev-only}
+          token: ${BACKEND_SECRET}
           subject: external
     keys:
-      - secret: ${BACKEND_SECRET:-supersecret-dev-only}
+      - secret: ${BACKEND_SECRET}
   database:
     client: pg
     connection:
@@ -26,21 +28,22 @@ backend:
       port: ${POSTGRES_PORT}
       user: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
+      database: ${POSTGRES_DATABASE:-backstage}
 
 auth:
-  environment: development
+  environment: production
   providers:
     github:
-      development:
+      production:
         clientId: ${GITHUB_APP_CLIENT_ID}
         clientSecret: ${GITHUB_APP_CLIENT_SECRET}
         scopes:
           - repo
           - codespace
+          - read:org
         signIn:
           resolvers:
             - resolver: usernameMatchingUserEntityName
-              dangerouslyAllowSignInWithoutUserInCatalog: true
 
 integrations:
   github:
@@ -53,7 +56,7 @@ integrations:
           privateKey: ${GITHUB_APP_PRIVATE_KEY}
 
 proxy:
-  endpoints:
+  endpoints: {}
 
 techdocs:
   builder: local
@@ -68,10 +71,7 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
   locations:
-    # -----------------------------------------------------------------
-    # Golden Path Templates from GitHub (all 22)
-    # -----------------------------------------------------------------
-    # H1 Foundation
+    # Golden Path Templates (managed by install-wizard.sh)
     - type: url
       target: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/${GITHUB_BRANCH:-main}/golden-paths/h1-foundation/basic-cicd/template.yaml
       rules:

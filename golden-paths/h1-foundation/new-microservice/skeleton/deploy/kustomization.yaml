@@ -17,4 +17,4 @@ commonLabels:
 images:
   - name: app-image
     newName: ${{values.registry}}/${{values.name}}
-    newTag: latest
+    newTag: ${{values.imageTag | default('v0.1.0')}}

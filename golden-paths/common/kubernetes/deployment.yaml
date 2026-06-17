@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: ${{ values.name }}
-          image: ghcr.io/3horizons/${{ values.name }}:latest
+          image: ${{ values.image | default('app-image:v0.1.0') }}
           ports:
             - containerPort: 8000
               name: http

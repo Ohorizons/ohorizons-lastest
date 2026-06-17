@@ -311,7 +311,7 @@ const tools = [
 ];
 
 const recentDeployments = [
-  { name: 'ohorizons-demo v7.1.0', env: 'Production', status: 'Success', color: '#7FBA00', time: '12m ago' },
+  { name: 'platform-repo v7.1.0', env: 'Production', status: 'Success', color: '#7FBA00', time: '12m ago' },
   { name: 'todo-app-full-stack v1.2.0', env: 'Staging', status: 'Success', color: '#7FBA00', time: '34m ago' },
   { name: 'backstage v1.38.0', env: 'Production', status: 'Success', color: '#7FBA00', time: '1h ago' },
   { name: 'golden-paths v0.9.4', env: 'Development', status: 'Failed', color: '#F25022', time: '2h ago' },
@@ -319,7 +319,7 @@ const recentDeployments = [
 ];
 
 const activePipelines = [
-  { name: 'CI/CD - ohorizons-demo', stage: 'Build', progress: 65, color: '#00A4EF' },
+  { name: 'CI/CD - platform-repo', stage: 'Build', progress: 65, color: '#00A4EF' },
   { name: 'CI/CD - todo-app-full-stack', stage: 'Test', progress: 40, color: '#7FBA00' },
   { name: 'Infrastructure - Terraform', stage: 'Plan', progress: 80, color: '#FFB900' },
   { name: 'Security Scan - Weekly', stage: 'Scanning', progress: 25, color: '#F25022' },

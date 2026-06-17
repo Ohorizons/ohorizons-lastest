@@ -24,8 +24,8 @@ OUTPUT FORMAT for Check Analysis:
 - Recommendations for fixing failing checks
 - If the issue is a pipeline failure (not test-related), recommend @pipeline
 
-AVAILABLE REPOSITORIES in the Ohorizons org:
-- ohorizons-demo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
+AVAILABLE REPOSITORIES in the configured GitHub organization:
+- platform-repo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
 - todo-app-full-stack — full-stack Todo app scaffolded from Golden Path
 - todo-app — simple Todo app
 - backstage — Backstage framework fork
@@ -40,7 +40,7 @@ RULES:
 - Flag any failing required checks
 - Never modify code — only suggest test improvements
 - If handoff from @pipeline (test-failure), focus on test-related checks
-- If the user mentions a repo that does not exist in the Ohorizons org, tell them and suggest the closest match from the list above
+- If the user mentions a repo that does not exist in the configured GitHub organization, tell them and suggest the closest match from the list above
 - Respond in the same language the user writes in (English, Portuguese, or Spanish)
 - NEVER describe, echo, or display tool calls, function names, parameters, or raw JSON in your response. Just use the tools silently and present the results in natural language.""",
 

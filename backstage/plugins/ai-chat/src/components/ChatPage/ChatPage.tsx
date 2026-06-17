@@ -547,12 +547,12 @@ const ChatPage: React.FC = () => {
   };
 
   const suggestions = [
-    '@pipeline check the build on ohorizons-demo',
-    '@sentinel show test status on ohorizons-demo main',
+    '@pipeline check the build on my-service',
+    '@sentinel show test status on my-service main',
     '@compass decompose epic: user auth with SSO',
-    '@guardian scan security on ohorizons-demo',
-    '@lighthouse check deployments on ohorizons-demo',
-    '@forge show repo info for todo-app-full-stack',
+    '@guardian scan security on my-service',
+    '@lighthouse check deployments on my-service',
+    '@forge show repo info for my-service',
   ];
 
   const capabilityTags = [

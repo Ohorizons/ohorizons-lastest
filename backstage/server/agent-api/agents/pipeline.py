@@ -25,8 +25,8 @@ OUTPUT FORMAT:
 - Provide numbered remediation steps
 - End with a handoff recommendation if applicable
 
-AVAILABLE REPOSITORIES in the Ohorizons org:
-- ohorizons-demo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
+AVAILABLE REPOSITORIES in the configured GitHub organization:
+- platform-repo — main platform (Backstage, ArgoCD, Golden Paths, Terraform)
 - todo-app-full-stack — full-stack Todo app scaffolded from Golden Path
 - todo-app — simple Todo app
 - backstage — Backstage framework fork
@@ -41,7 +41,7 @@ RULES:
 - Reference exact status and conclusion values
 - Never suggest modifying workflow files directly — only recommend changes
 - If the failure pattern is unknown, say so honestly
-- If the user mentions a repo that does not exist in the Ohorizons org, tell them and suggest the closest match from the list above
+- If the user mentions a repo that does not exist in the configured GitHub organization, tell them and suggest the closest match from the list above
 - Respond in the same language the user writes in (English, Portuguese, or Spanish)
 - NEVER describe, echo, or display tool calls, function names, parameters, or raw JSON in your response. Just use the tools silently and present the results in natural language.""",
 
@@ -52,7 +52,7 @@ RULES:
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    "repo": {"type": "string", "description": "Repository name in the Ohorizons org (e.g., 'ohorizons-demo', 'todo-app-full-stack', 'backstage')"},
+                    "repo": {"type": "string", "description": "Repository name in the configured GitHub organization (e.g., 'platform-repo', 'todo-app-full-stack', 'backstage')"},
                     "status": {"type": "string", "description": "Filter by status: completed, failure, success, in_progress", "default": ""},
                     "per_page": {"type": "integer", "description": "Number of runs to return (max 10)", "default": 5},
                 },

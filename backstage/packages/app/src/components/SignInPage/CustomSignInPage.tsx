@@ -916,7 +916,7 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
           © 2026 Open Horizons. Developed by{' '}
           <a href="https://github.com/paulanunes85" target="_blank" rel="noopener noreferrer" className={classes.bottomFooterLink}>@paulanunes85</a>
           {' & '}
-          <a href="https://github.com/open-horizonstech" target="_blank" rel="noopener noreferrer" className={classes.bottomFooterLink}>@open-horizonstech</a>
+          <a href="https://github.com/example-org" target="_blank" rel="noopener noreferrer" className={classes.bottomFooterLink}>@example-org</a>
         </div>
        </div>
       </div>

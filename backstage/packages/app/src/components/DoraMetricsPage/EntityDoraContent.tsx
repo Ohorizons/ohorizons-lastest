@@ -83,11 +83,15 @@ export const EntityDoraContent = () => {
     mttr: { hours: number; cls: Classification };
   } | null>(null);
 
-  const slug = entity.metadata.annotations?.['github.com/project-slug'] || 'Ohorizons/ohorizons-demo';
-  const [owner, repo] = slug.includes('/') ? slug.split('/') : ['Ohorizons', slug];
+  const slug = entity.metadata.annotations?.['github.com/project-slug'];
+  const [owner, repo] = slug?.includes('/') ? slug.split('/') : ['', ''];
 
   useEffect(() => {
     const fetchDora = async () => {
+      if (!owner || !repo) {
+        setLoading(false);
+        return;
+      }
       try {
         const baseUrl = config.getString('backend.baseUrl');
         const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };

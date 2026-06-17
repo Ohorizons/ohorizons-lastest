@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: app:latest
+          image: app:v0.1.0
           ports:
             - containerPort: 8080
           resources:

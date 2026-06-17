@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Ohorizons/ohorizons-demo/.openhorizons-selection.schema.json",
+  "$id": "https://ohorizons.ai/schemas/openhorizons-selection.schema.json",
   "title": "Open Horizons Install Wizard Selection Manifest",
   "description": "Schema for .openhorizons-selection.yaml produced by scripts/install-wizard.sh",
   "type": "object",

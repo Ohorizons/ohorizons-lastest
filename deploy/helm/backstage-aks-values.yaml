@@ -1,12 +1,12 @@
 # =============================================================================
-# Backstage AKS Deployment — Clean Install (v1.48.3)
-# GitHub App Auth + Catalog Sync (Ohorizons)
+# Backstage AKS Deployment — Clean Install
+# GitHub App Auth + Catalog Sync
 # =============================================================================
 
 ingress:
   enabled: true
   className: nginx
-  host: backstage.20.62.35.83.sslip.io
+  host: ${BACKSTAGE_HOST}
   path: /
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -16,9 +16,9 @@ backstage:
   replicas: 1
 
   image:
-    registry: acrbackstagedemo.azurecr.io
-    repository: backstage/ohorizons
-    tag: "v1.48.3-r19"
+    registry: ${BACKSTAGE_IMAGE_REGISTRY:-ghcr.io}
+    repository: ${BACKSTAGE_IMAGE_REPOSITORY:-ohorizons/ohorizons-backstage}
+    tag: ${IMAGE_TAG:-v7.2.4}
     pullPolicy: IfNotPresent
 
   resources:
@@ -45,7 +45,7 @@ backstage:
   appConfig:
     app:
       title: Open Horizons | Agentic DevOps Platform
-      baseUrl: https://backstage.20.62.35.83.sslip.io
+      baseUrl: https://${BACKSTAGE_HOST}
       branding:
         fullLogo:
           alt: Open Horizons — Agentic DevOps Platform
@@ -63,7 +63,7 @@ backstage:
     organization:
       name: Open Horizons — Agentic DevOps Platform
     backend:
-      baseUrl: https://backstage.20.62.35.83.sslip.io
+      baseUrl: https://${BACKSTAGE_HOST}
       listen:
         port: 7007
       reading:
@@ -73,7 +73,7 @@ backstage:
         img-src: ["'self'", 'data:', 'https:']
         upgrade-insecure-requests: false
       cors:
-        origin: https://backstage.20.62.35.83.sslip.io
+        origin: https://${BACKSTAGE_HOST}
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
 
@@ -89,16 +89,15 @@ backstage:
 
     # ── Authentication (GitHub only) ────────────────────────────────
     auth:
-      environment: development
+      environment: production
       providers:
         github:
-          development:
+          production:
             clientId: ${GITHUB_APP_CLIENT_ID}
             clientSecret: ${GITHUB_APP_CLIENT_SECRET}
             signIn:
               resolvers:
                 - resolver: usernameMatchingUserEntityName
-                  dangerouslyAllowSignInWithoutUserInCatalog: true
 
     # ── Software Catalog ────────────────────────────────────────────
     catalog:
@@ -106,19 +105,19 @@ backstage:
         - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
       locations:
         - type: url
-          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/catalog-info.yaml
+          target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/catalog-info.yaml
           rules:
             - allow: [Component]
         - type: url
-          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/org.yaml
+          target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/examples/org.yaml
           rules:
             - allow: [User, Group, Domain, System]
         - type: url
-          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/entities.yaml
+          target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/examples/entities.yaml
           rules:
             - allow: [Component, API, System, Resource, Domain]
         - type: url
-          target: https://raw.githubusercontent.com/Ohorizons/agentic-devops-platform/main/backstage/examples/demo-template.yaml
+          target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/examples/demo-template.yaml
           rules:
             - allow: [Template]
 

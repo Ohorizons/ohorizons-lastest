@@ -345,6 +345,8 @@ const complianceData = [
 const SecurityPage = () => {
   const classes = useStyles();
   const config = useApi(configApiRef);
+  const repositorySlug = config.getOptionalString('platform.githubRepository') || '';
+  const securityUrl = repositorySlug ? `https://github.com/${repositorySlug}/security` : '#';
   const [state, setState] = useState<SecurityState>({
     loading: true,
     error: null,
@@ -777,7 +779,7 @@ const SecurityPage = () => {
                       Quick Links
                     </div>
                     <MuiLink
-                      href="https://github.com/Ohorizons/ohorizons-demo/security"
+                      href={securityUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={classes.linkItem}
@@ -785,7 +787,7 @@ const SecurityPage = () => {
                       <ShieldIcon style={{ fontSize: 14 }} /> GitHub Security Tab
                     </MuiLink>
                     <MuiLink
-                      href="https://github.com/Ohorizons/ohorizons-demo/security/dependabot"
+                      href={`${securityUrl}/dependabot`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={classes.linkItem}
@@ -793,7 +795,7 @@ const SecurityPage = () => {
                       <UpdateIcon style={{ fontSize: 14 }} /> Dependabot Alerts
                     </MuiLink>
                     <MuiLink
-                      href="https://github.com/Ohorizons/ohorizons-demo/security/code-scanning"
+                      href={`${securityUrl}/code-scanning`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={classes.linkItem}
@@ -801,7 +803,7 @@ const SecurityPage = () => {
                       <BugReportIcon style={{ fontSize: 14 }} /> Code Scanning Alerts
                     </MuiLink>
                     <MuiLink
-                      href="https://github.com/Ohorizons/ohorizons-demo/security/secret-scanning"
+                      href={`${securityUrl}/secret-scanning`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={classes.linkItem}
