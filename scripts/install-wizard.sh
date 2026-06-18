@@ -52,6 +52,8 @@ GOLDEN_PATHS_DIR="$REPO_ROOT/golden-paths"
 ENVIRONMENT=""
 HORIZON=""
 DEPLOYMENT_MODE=""
+PORTAL_PROFILE="base"      # base | platform | full
+BRANDING_PROFILE="neutral" # neutral | open-horizons | custom
 AUTO=false
 DRY_RUN=false
 NEXT_STEP="nothing"   # nothing | deploy
@@ -96,6 +98,17 @@ BACKSTAGE_KEYS=(
 BACKSTAGE_DEFAULTS=(true true false false false false)
 BACKSTAGE_VALS=()
 
+FEATURE_PACK_KEYS=(
+  enable_branding_pack
+  enable_platform_pages
+  enable_observability_pages
+  enable_ai_chat
+  enable_ai_impact
+  enable_mcp_ecosystem
+)
+FEATURE_PACK_DEFAULTS=(false false false false false false)
+FEATURE_PACK_VALS=()
+
 SELECTED_PATHS=()
 SELECTED_AGENTS=()
 SELECTED_SKILLS=()
@@ -120,6 +133,9 @@ mod_set()      { MODULE_VALS[$1]="$2"; }
 bs_default()   { echo "${BACKSTAGE_DEFAULTS[$1]}"; }
 bs_get()       { echo "${BACKSTAGE_VALS[$1]}"; }
 bs_set()       { BACKSTAGE_VALS[$1]="$2"; }
+fp_default()   { echo "${FEATURE_PACK_DEFAULTS[$1]}"; }
+fp_get()       { echo "${FEATURE_PACK_VALS[$1]}"; }
+fp_set()       { FEATURE_PACK_VALS[$1]="$2"; }
 
 # =============================================================================
 # Helpers
@@ -231,6 +247,8 @@ load_manifest() {
     DEPLOYMENT_MODE="${DEPLOYMENT_MODE:-express}"
     for i in "${!MODULE_KEYS[@]}";    do MODULE_VALS[$i]="${MODULE_DEFAULTS[$i]}"; done
     for i in "${!BACKSTAGE_KEYS[@]}"; do BACKSTAGE_VALS[$i]="${BACKSTAGE_DEFAULTS[$i]}"; done
+    for i in "${!FEATURE_PACK_KEYS[@]}"; do FEATURE_PACK_VALS[$i]="${FEATURE_PACK_DEFAULTS[$i]}"; done
+    apply_portal_profile_defaults
     while IFS= read -r tpl; do SELECTED_PATHS+=("$tpl"); done < <(list_golden_paths)
     return
   fi
@@ -243,6 +261,12 @@ load_manifest() {
   raw="$(yq '.deployment_mode' "$source_file")"
   [[ "$raw" == "null" || -z "$raw" ]] && raw="express"
   DEPLOYMENT_MODE="${DEPLOYMENT_MODE:-$raw}"
+  raw="$(yq '.portal_profile' "$source_file")"
+  [[ "$raw" == "null" || -z "$raw" ]] && raw="base"
+  PORTAL_PROFILE="$raw"
+  raw="$(yq '.branding_profile' "$source_file")"
+  [[ "$raw" == "null" || -z "$raw" ]] && raw="neutral"
+  BRANDING_PROFILE="$raw"
   if [[ -z "$ENVIRONMENT" ]]; then
     raw="$(yq '.environment' "$source_file")"
     [[ "$raw" == "null" || -z "$raw" ]] && raw=""
@@ -265,6 +289,15 @@ load_manifest() {
     fi
     BACKSTAGE_VALS[$i]="$(bool_normalize "$raw")"
   done
+  for i in "${!FEATURE_PACK_KEYS[@]}"; do
+    k="${FEATURE_PACK_KEYS[$i]}"
+    raw="$(yq ".feature_packs.$k" "$source_file")"
+    if [[ "$raw" == "null" || -z "$raw" ]]; then
+      raw="${FEATURE_PACK_DEFAULTS[$i]}"
+    fi
+    FEATURE_PACK_VALS[$i]="$(bool_normalize "$raw")"
+  done
+  apply_portal_profile_defaults
 
   SELECTED_PATHS=()
   while IFS= read -r tpl; do
@@ -344,6 +377,47 @@ prompt_deployment_mode_choice() {
   DEPLOYMENT_MODE="$(prompt_choice "Deployment mode" "$DEPLOYMENT_MODE" express standard enterprise)"
 }
 
+prompt_portal_profile_choice() {
+  PORTAL_PROFILE="$(prompt_choice "Portal profile" "$PORTAL_PROFILE" base platform full)"
+  apply_portal_profile_defaults
+}
+
+prompt_branding_profile_choice() {
+  BRANDING_PROFILE="$(prompt_choice "Branding profile" "$BRANDING_PROFILE" neutral open-horizons custom)"
+}
+
+apply_portal_profile_defaults() {
+  case "$PORTAL_PROFILE" in
+    base)
+      fp_set 0 false; fp_set 1 false; fp_set 2 false; fp_set 3 false; fp_set 4 false; fp_set 5 false
+      ;;
+    platform)
+      fp_set 0 true; fp_set 1 true; fp_set 2 true; fp_set 3 false; fp_set 4 false; fp_set 5 false
+      ;;
+    full)
+      fp_set 0 true; fp_set 1 true; fp_set 2 true; fp_set 3 true; fp_set 4 true; fp_set 5 true
+      ;;
+    *)
+      log_err "Unknown portal_profile: $PORTAL_PROFILE (use base | platform | full)"
+      exit "$EXIT_USAGE"
+      ;;
+  esac
+
+  # Keep legacy component flags aligned with the higher-level feature packs.
+  local i_chat i_api i_impact i_mcp i_aif
+  i_chat=$(index_of enable_ai_chat_plugin "${BACKSTAGE_KEYS[@]}") || true
+  i_api=$(index_of enable_agent_api "${BACKSTAGE_KEYS[@]}") || true
+  i_impact=$(index_of enable_agent_api_impact "${BACKSTAGE_KEYS[@]}") || true
+  i_mcp=$(index_of enable_mcp_ecosystem "${BACKSTAGE_KEYS[@]}") || true
+  i_aif=$(index_of enable_ai_foundry "${MODULE_KEYS[@]}") || true
+
+  [[ -n "$i_chat" ]] && bs_set "$i_chat" "${FEATURE_PACK_VALS[3]}"
+  [[ -n "$i_api" ]] && bs_set "$i_api" "${FEATURE_PACK_VALS[3]}"
+  [[ -n "$i_impact" ]] && bs_set "$i_impact" "${FEATURE_PACK_VALS[4]}"
+  [[ -n "$i_mcp" ]] && bs_set "$i_mcp" "${FEATURE_PACK_VALS[5]}"
+  [[ -n "$i_aif" && ( "${FEATURE_PACK_VALS[3]}" == "true" || "${FEATURE_PACK_VALS[4]}" == "true" ) ]] && mod_set "$i_aif" true
+}
+
 prompt_modules() {
   $AUTO && return
   echo
@@ -363,7 +437,16 @@ prompt_modules() {
 prompt_backstage() {
   $AUTO && return
   echo
-  log "Backstage component toggles:"
+  log "Backstage feature packs:"
+  local i k
+  for i in "${!FEATURE_PACK_KEYS[@]}"; do
+    k="${FEATURE_PACK_KEYS[$i]}"
+    FEATURE_PACK_VALS[$i]="$(prompt_yn "  $k" "${FEATURE_PACK_VALS[$i]}")"
+  done
+  apply_portal_profile_defaults
+
+  echo
+  log "Backstage component toggles (advanced):"
   local i k
   for i in "${!BACKSTAGE_KEYS[@]}"; do
     k="${BACKSTAGE_KEYS[$i]}"
@@ -408,6 +491,8 @@ apply_profile() {
   log "Applying profile: $profile"
   case "$profile" in
     minimal)
+      PORTAL_PROFILE="base"
+      BRANDING_PROFILE="neutral"
       HORIZON="h1"
       DEPLOYMENT_MODE="express"
       mod_set 0 true   # container_registry
@@ -417,6 +502,7 @@ apply_profile() {
       mod_set 7 false; mod_set 8 false; mod_set 9 false; mod_set 10 false
       bs_set 0 false; bs_set 1 false; bs_set 2 false
       bs_set 3 false; bs_set 4 false; bs_set 5 false
+      apply_portal_profile_defaults
       SELECTED_PATHS=(
         h1-foundation/basic-cicd
         h1-foundation/web-application
@@ -424,6 +510,8 @@ apply_profile() {
       )
       ;;
     standard)
+      PORTAL_PROFILE="platform"
+      BRANDING_PROFILE="open-horizons"
       HORIZON="h2"
       DEPLOYMENT_MODE="standard"
       mod_set 0 true; mod_set 1 true
@@ -432,6 +520,7 @@ apply_profile() {
       mod_set 7 false; mod_set 8 true; mod_set 9 false; mod_set 10 false
       bs_set 0 true; bs_set 1 true
       bs_set 2 false; bs_set 3 false; bs_set 4 false; bs_set 5 false
+      apply_portal_profile_defaults
       SELECTED_PATHS=()
       while IFS= read -r tpl; do
         if [[ "$tpl" == h1-foundation/* || "$tpl" == h2-enhancement/* ]]; then
@@ -440,6 +529,8 @@ apply_profile() {
       done < <(list_golden_paths)
       ;;
     full)
+      PORTAL_PROFILE="full"
+      BRANDING_PROFILE="open-horizons"
       HORIZON="all"
       DEPLOYMENT_MODE="enterprise"
       mod_set 0 true; mod_set 1 true
@@ -448,6 +539,7 @@ apply_profile() {
       mod_set 7 true; mod_set 8 true; mod_set 9 true; mod_set 10 true
       bs_set 0 true; bs_set 1 true
       bs_set 2 true; bs_set 3 true; bs_set 4 true; bs_set 5 true
+      apply_portal_profile_defaults
       SELECTED_PATHS=()
       while IFS= read -r tpl; do SELECTED_PATHS+=("$tpl"); done < <(list_golden_paths)
       ;;
@@ -557,6 +649,12 @@ validate_dependencies() {
       err=1
     fi
   fi
+  local i_ai_impact
+  i_ai_impact=$(index_of enable_agent_api_impact "${BACKSTAGE_KEYS[@]}") || true
+  if [[ -n "$i_ai_impact" && "${FEATURE_PACK_VALS[4]}" == "true" && "${BACKSTAGE_VALS[$i_ai_impact]}" != "true" ]]; then
+    log_err "[RULE-005] enable_ai_impact=true requires enable_agent_api_impact=true."
+    err=1
+  fi
   if [[ -n "$i_dr" && "${MODULE_VALS[$i_dr]}" == "true" && "$DEPLOYMENT_MODE" == "express" ]]; then
     log_err "[RULE-004] enable_disaster_recovery=true requires deployment_mode standard or enterprise."
     err=1
@@ -632,6 +730,8 @@ build_manifest_yaml() {
     echo "horizon: $HORIZON"
     echo "environment: $ENVIRONMENT"
     echo "deployment_mode: $DEPLOYMENT_MODE"
+    echo "portal_profile: $PORTAL_PROFILE"
+    echo "branding_profile: $BRANDING_PROFILE"
     echo "modules:"
     local i
     for i in "${!MODULE_KEYS[@]}"; do
@@ -640,6 +740,10 @@ build_manifest_yaml() {
     echo "backstage_components:"
     for i in "${!BACKSTAGE_KEYS[@]}"; do
       echo "  ${BACKSTAGE_KEYS[$i]}: ${BACKSTAGE_VALS[$i]}"
+    done
+    echo "feature_packs:"
+    for i in "${!FEATURE_PACK_KEYS[@]}"; do
+      echo "  ${FEATURE_PACK_KEYS[$i]}: ${FEATURE_PACK_VALS[$i]}"
     done
     echo "golden_paths:"
     if [[ ${#SELECTED_PATHS[@]} -eq 0 ]]; then
