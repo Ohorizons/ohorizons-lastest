@@ -26,7 +26,7 @@ NUMERIC_FIELDS = {
     "tool_calls_count", "tool_results_total_tokens",
 }
 _MODEL_TIER_BY_PREFIX = {
-    "gpt-4o-mini": "CHEAP", "gpt-4.1-mini": "CHEAP", "gpt-4o": "WORKHORSE", "gpt-4.1": "WORKHORSE",
+    "gpt-5.1": "FRONTIER", "gpt-4o-mini": "CHEAP", "gpt-4.1-mini": "CHEAP", "gpt-4o": "WORKHORSE", "gpt-4.1": "WORKHORSE",
     "gpt-5": "PREMIUM", "o1": "PREMIUM", "o3": "PREMIUM",
     "claude-haiku": "CHEAP", "claude-sonnet": "WORKHORSE", "claude-opus": "PREMIUM",
     "gemini": "LONG_CTX", "text-embedding": "BUNDLED",

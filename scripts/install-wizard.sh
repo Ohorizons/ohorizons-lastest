@@ -84,10 +84,11 @@ MODULE_KEYS=(
   enable_github_runners
   enable_cost_management
   enable_ai_foundry
+  enable_foundry_agents
   enable_disaster_recovery
 )
-MODULE_DEFAULTS=(true true false false true true true false false false false)
-MODULE_HORIZONS=(h1 h1 h1 h1 h2 h2 h2 h2 h2 h3 h0)
+MODULE_DEFAULTS=(true true false false true true true false false false false false)
+MODULE_HORIZONS=(h1 h1 h1 h1 h2 h2 h2 h2 h2 h3 h3 h0)
 MODULE_VALS=()
 
 BACKSTAGE_KEYS=(
@@ -676,8 +677,9 @@ PY
 
 validate_dependencies() {
   local err=0
-  local i_aif i_dr i_chat i_api i_mcp
+  local i_aif i_fa i_dr i_chat i_api i_mcp
   i_aif=$(index_of enable_ai_foundry "${MODULE_KEYS[@]}") || true
+  i_fa=$(index_of enable_foundry_agents "${MODULE_KEYS[@]}") || true
   i_dr=$(index_of enable_disaster_recovery "${MODULE_KEYS[@]}") || true
   i_chat=$(index_of enable_ai_chat_plugin "${BACKSTAGE_KEYS[@]}") || true
   i_api=$(index_of enable_agent_api "${BACKSTAGE_KEYS[@]}") || true
@@ -686,6 +688,16 @@ validate_dependencies() {
   if [[ -n "$i_aif" && "${MODULE_VALS[$i_aif]}" == "true" ]]; then
     if [[ "$HORIZON" != "h3" && "$HORIZON" != "all" ]]; then
       log_err "[RULE-001] enable_ai_foundry=true requires --horizon h3 or all."
+      err=1
+    fi
+  fi
+  if [[ -n "$i_fa" && "${MODULE_VALS[$i_fa]}" == "true" ]]; then
+    if [[ "$HORIZON" != "h3" && "$HORIZON" != "all" ]]; then
+      log_err "[RULE-001b] enable_foundry_agents=true requires --horizon h3 or all."
+      err=1
+    fi
+    if [[ -n "$i_aif" && "${MODULE_VALS[$i_aif]}" != "true" ]]; then
+      log_err "[RULE-001c] enable_foundry_agents=true requires enable_ai_foundry=true (the L6 gateway fronts Azure AI Foundry)."
       err=1
     fi
   fi

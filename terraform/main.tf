@@ -421,6 +421,13 @@ module "ai_foundry" {
     sku_name = "S0"
     models = [
       {
+        name          = "gpt-5.1"
+        model_name    = "gpt-5.1"
+        model_version = "2025-11-13"
+        capacity      = var.deployment_mode == "enterprise" ? 60 : 30
+        rai_policy    = "Microsoft.Default"
+      },
+      {
         name          = "gpt-4o"
         model_name    = "gpt-4o"
         model_version = "2024-05-13"
@@ -456,6 +463,19 @@ module "ai_foundry" {
   content_safety_config = {
     enabled  = true
     sku_name = "S0"
+  }
+
+  # L6 Harness — Foundry agents gateway enterprise memory (H3 Innovation).
+  # Gated by enable_foundry_agents so H1/H2 and AI-Foundry-without-agents
+  # deployments provision no Cosmos account and incur no cost.
+  foundry_agents_config = {
+    enabled = var.enable_foundry_agents
+    cosmos_memory = {
+      enabled              = var.enable_foundry_agents
+      consistency_level    = "Session"
+      multi_region_writes  = false
+      total_throughput_max = var.deployment_mode == "enterprise" ? 8000 : 4000
+    }
   }
 
   key_vault_id               = module.security.key_vault_id

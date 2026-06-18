@@ -1,0 +1,62 @@
+# =============================================================================
+# OPEN HORIZONS PLATFORM - FOUNDRY AGENTS GATEWAY (L6 HARNESS)
+# =============================================================================
+#
+# Deploys the Foundry agents gateway, the L6 harness that fronts Azure AI
+# Foundry: semantic prompt cache, A2A v1.0 routing, pre/post tool hooks,
+# 21-field telemetry, and Cosmos enterprise memory.
+#
+# HORIZON: H3 Innovation. Only sync this Application when the H3 agent runtime
+# is adopted (wizard: enable_foundry_agents=true, --horizon h3 or all).
+#
+# Prerequisites:
+#   - enable_ai_foundry=true (Azure AI Foundry resource provisioned)
+#   - Workload Identity client id for the gateway service account
+#   - Set the GITHUB_ORG environment variable before deployment.
+#
+# =============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: foundry-agents
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/component: agent-runtime
+    app.kubernetes.io/part-of: open-horizons-platform
+    platform.open-horizons/tier: h3-innovation
+    platform.open-horizons/layer: l5-agentic-execution
+  annotations:
+    # Sync after platform + AI services are up (wave 6 = H3).
+    argocd.argoproj.io/sync-wave: "6"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+
+  source:
+    repoURL: https://github.com/${GITHUB_ORG}/ohorizons-lastest.git
+    targetRevision: main
+    path: foundry/k8s
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-services
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

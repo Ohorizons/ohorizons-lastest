@@ -33,7 +33,7 @@ Streaming (`stream: true`) is supported and forwarded as SSE.
 |----------------------------------|----------|--------------------------|
 | `AZURE_OPENAI_ENDPOINT`          | yes      | —                        |
 | `AZURE_OPENAI_API_KEY`           | yes      | —                        |
-| `AZURE_OPENAI_DEPLOYMENT`        | no       | `gpt-4o`                 |
+| `AZURE_OPENAI_DEPLOYMENT`        | no       | `gpt-5.1`                |
 | `AZURE_OPENAI_API_VERSION`       | no       | `2024-08-01-preview`     |
 | `AZURE_OPENAI_EMBEDDING_DEPLOYMENT` | no    | `text-embedding-3-large` |
 | `SERVICE_API_KEY`                | no       | unset → no auth          |
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 export AZURE_OPENAI_ENDPOINT="https://oai-openhorizonsdev1215.openai.azure.com"
 export AZURE_OPENAI_API_KEY="..."
-export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
+export AZURE_OPENAI_DEPLOYMENT="gpt-5.1"
 
 uvicorn app.main:app --reload --port 8080
 

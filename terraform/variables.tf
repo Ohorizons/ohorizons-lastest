@@ -168,6 +168,12 @@ variable "ai_foundry_location" {
   default     = "eastus2"
 }
 
+variable "enable_foundry_agents" {
+  description = "Enable the L6 Foundry agents gateway runtime (semantic prompt cache, A2A, 21-field telemetry, Cosmos enterprise memory). Requires enable_ai_foundry. H3 Innovation."
+  type        = bool
+  default     = false
+}
+
 # -----------------------------------------------------------------------------
 # PLATFORM — Disaster Recovery
 # -----------------------------------------------------------------------------

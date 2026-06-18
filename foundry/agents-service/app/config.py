@@ -67,7 +67,7 @@ class Settings:
         return cls(
             azure_openai_endpoint=endpoint,
             azure_openai_deployment=os.environ.get(
-                "AZURE_OPENAI_DEPLOYMENT", "gpt-4o"
+                "AZURE_OPENAI_DEPLOYMENT", "gpt-5.1"
             ),
             azure_openai_api_version=os.environ.get(
                 "AZURE_OPENAI_API_VERSION", "2024-08-01-preview"

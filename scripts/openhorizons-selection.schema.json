@@ -50,6 +50,7 @@
         "enable_github_runners": {"type": "boolean"},
         "enable_cost_management": {"type": "boolean"},
         "enable_ai_foundry": {"type": "boolean"},
+        "enable_foundry_agents": {"type": "boolean"},
         "enable_disaster_recovery": {"type": "boolean"}
       }
     },
