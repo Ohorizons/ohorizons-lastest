@@ -2,8 +2,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
-  name: ohorizons-team
-  description: Open Horizons Platform Team
+  name: platform-team
+  description: Platform engineering team that owns the developer platform
 spec:
   type: team
   children: []
@@ -11,83 +11,51 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: paulanunes85
+  name: platform-admin
   annotations:
-    github.com/user-login: paulanunes85
+    github.com/user-login: platform-admin
 spec:
   profile:
-    displayName: Open Horizons
+    displayName: Platform Admin
+    email: platform-admin@example.com
   memberOf:
-    - ohorizons-team
+    - platform-team
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: andrefontourainvillia
+  name: developer-user
   annotations:
-    github.com/user-login: andrefontourainvillia
+    github.com/user-login: developer-user
 spec:
   profile:
-    displayName: Andre Fontoura
+    displayName: Developer User
+    email: developer-user@example.com
   memberOf:
-    - ohorizons-team
+    - platform-team
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: cody-carlson
+  name: sre-user
   annotations:
-    github.com/user-login: cody-carlson
+    github.com/user-login: sre-user
 spec:
   profile:
-    displayName: Cody Carlson
+    displayName: SRE User
+    email: sre-user@example.com
   memberOf:
-    - ohorizons-team
+    - platform-team
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: jdvcDev
+  name: security-user
   annotations:
-    github.com/user-login: jdvcDev
+    github.com/user-login: security-user
 spec:
   profile:
-    displayName: JDVC Dev
+    displayName: Security User
+    email: security-user@example.com
   memberOf:
-    - ohorizons-team
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: kfolkes
-  annotations:
-    github.com/user-login: kfolkes
-spec:
-  profile:
-    displayName: K Folkes
-  memberOf:
-    - ohorizons-team
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: queuedecay
-  annotations:
-    github.com/user-login: queuedecay
-spec:
-  profile:
-    displayName: Queue Decay
-  memberOf:
-    - ohorizons-team
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: tcardosoMSFT
-  annotations:
-    github.com/user-login: tcardosoMSFT
-spec:
-  profile:
-    displayName: T Cardoso
-  memberOf:
-    - ohorizons-team
+    - platform-team

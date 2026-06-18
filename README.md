@@ -397,6 +397,6 @@ Deploy Open Horizons and bring Agentic DevOps to your organization.
 
 *Open Horizons — Agentic DevOps Platform Accelerator*
 
-*Created by [Open Horizons](https://github.com/open-horizonstech)*
+*An enterprise accelerator for Microsoft Azure, GitHub, and Backstage OSS.*
 
 </div>

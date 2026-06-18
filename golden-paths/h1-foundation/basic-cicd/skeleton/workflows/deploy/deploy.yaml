@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://${{ github.event.repository.name }}.ohorizons.ai
+      url: https://${{ github.event.repository.name }}.openhorizons.example.com
     steps:
       - uses: actions/checkout@v4
 

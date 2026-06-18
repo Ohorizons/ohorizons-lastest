@@ -57,6 +57,20 @@ spec:
             catalogFilter:
               kind: Group
 
+        contactEmail:
+          title: Contact Email
+          description: Contact email for the gateway owner (used in API metadata)
+          type: string
+          format: email
+          default: platform-team@example.com
+
+        domainName:
+          title: Domain Name
+          description: Base domain used to expose gateway hostnames (e.g. openhorizons.example.com)
+          type: string
+          default: openhorizons.example.com
+          pattern: '^[a-z0-9.-]+$'
+
         description:
           title: Description
           type: string
@@ -377,6 +391,8 @@ spec:
           system: default
           gatewayName: ${{ parameters.gatewayName }}
           team: ${{ parameters.team }}
+          contactEmail: ${{ parameters.contactEmail }}
+          domainName: ${{ parameters.domainName }}
           description: ${{ parameters.description }}
           gatewayType: ${{ parameters.gatewayType }}
           apis: ${{ parameters.apis }}
@@ -392,12 +408,13 @@ spec:
         targetPath: ./repo/config
         values:
           gatewayName: ${{ parameters.gatewayName }}
+          domainName: ${{ parameters.domainName }}
           apis: ${{ parameters.apis }}
           rateLimits: ${{ parameters.rateLimits }}
 
 
     # --------------------------------------------------------------------------
-    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
+    # Inject Copilot Agents
     # --------------------------------------------------------------------------
     - id: add-copilot-agents
       name: Add Copilot AI Agents

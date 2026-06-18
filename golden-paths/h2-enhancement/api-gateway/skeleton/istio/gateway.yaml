@@ -21,12 +21,12 @@ spec:
         mode: SIMPLE
         credentialName: ${{ values.gatewayName }}-tls
       hosts:
-        - ${{ values.gatewayName }}.ohorizons.ai
+        - ${{ values.gatewayName }}.${{ values.domainName }}
     - port:
         number: 80
         name: http
         protocol: HTTP
       hosts:
-        - ${{ values.gatewayName }}.ohorizons.ai
+        - ${{ values.gatewayName }}.${{ values.domainName }}
       tls:
         httpsRedirect: true

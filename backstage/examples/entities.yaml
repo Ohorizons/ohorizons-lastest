@@ -71,7 +71,7 @@ metadata:
     - scaffolder
     - templates
   links:
-    - url: http://devhub.135.18.141.224.nip.io/create
+    - url: https://portal.openhorizons.example.com/create
       title: Browse Templates
       icon: scaffolder
 spec:
@@ -88,12 +88,12 @@ metadata:
   title: Platform Documentation
   description: Centralized documentation for architecture guides, runbooks, deployment guides, and API references.
   annotations:
-    lighthouse.com/website-url: 'https://ohorizons.ai'
+    lighthouse.com/website-url: 'https://portal.openhorizons.example.com'
   tags:
     - documentation
     - techdocs
   links:
-    - url: http://devhub.135.18.141.224.nip.io/docs
+    - url: https://portal.openhorizons.example.com/docs
       title: TechDocs
       icon: docs
 spec:

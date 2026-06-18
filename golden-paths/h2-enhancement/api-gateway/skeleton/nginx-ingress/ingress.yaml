@@ -41,10 +41,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - ${{ values.gatewayName }}.ohorizons.ai
+        - ${{ values.gatewayName }}.${{ values.domainName }}
       secretName: ${{ values.gatewayName }}-tls
   rules:
-    - host: ${{ values.gatewayName }}.ohorizons.ai
+    - host: ${{ values.gatewayName }}.${{ values.domainName }}
       http:
         paths:
 {%- for api in values.apis %}

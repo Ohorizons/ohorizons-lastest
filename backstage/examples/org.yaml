@@ -189,13 +189,13 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: open-horizons
-  title: Open Horizons
+  name: platform-admin
+  title: Platform Admin
   annotations:
-    github.com/user-login: Ohorizons
+    github.com/user-login: platform-admin
 spec:
   profile:
-    displayName: Open Horizons
+    displayName: Platform Admin
   memberOf:
     - platform-engineering
 
@@ -203,26 +203,26 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: paulanunes85
-  title: Paula Nunes
+  name: developer-user
+  title: Developer User
   annotations:
-    github.com/user-login: paulanunes85
+    github.com/user-login: developer-user
 spec:
   profile:
-    displayName: Paula Nunes
+    displayName: Developer User
   memberOf:
-    - platform-engineering
+    - dev-team
 
 ---
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: Ohorizons
-  title: Open Horizons (GitHub)
+  name: sre-user
+  title: SRE User
   annotations:
-    github.com/user-login: Ohorizons
+    github.com/user-login: sre-user
 spec:
   profile:
-    displayName: Open Horizons
+    displayName: SRE User
   memberOf:
-    - platform-engineering
+    - sre-team
