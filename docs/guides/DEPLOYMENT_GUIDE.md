@@ -2541,6 +2541,38 @@ The platform includes AI agents that can assist you at every deployment step:
 
 ---
 
-**Document Version:** 2.0.0
-**Last Updated:** March 2026
-**Maintainer:** Platform Engineering Team
+## References
+
+- [Azure Kubernetes Service documentation](https://learn.microsoft.com/azure/aks/)
+- [Terraform on Azure](https://learn.microsoft.com/azure/developer/terraform/)
+- [Configure GitHub Actions OIDC with Azure](https://learn.microsoft.com/azure/developer/github/connect-from-azure-openid-connect)
+- [Helm documentation](https://helm.sh/docs/)
+- [Argo CD documentation](https://argo-cd.readthedocs.io/)
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Client%20Installation-555555?style=for-the-badge)](CLIENT_INSTALLATION.md)
+
+</td>
+<td align="center">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Wizard%20Guide-0078D4?style=for-the-badge)](WIZARD_GUIDE.md)
+
+</td>
+</tr>
+</table>
+
+</div>

@@ -250,3 +250,38 @@ After the wizard finishes, the developer follows three short steps. They are als
 | [`h3-innovation/rag-application`](../../golden-paths/h3-innovation/rag-application/template.yaml) | RAG application; Azure infra is mandatory. |
 
 For the catalog of agents, prompts, and skills the platform exposes inside Backstage, see [`AGENTS.md`](../../AGENTS.md).
+
+## References
+
+- [Backstage Software Templates](https://backstage.io/docs/features/software-templates/)
+- [Backstage Software Catalog](https://backstage.io/docs/features/software-catalog/)
+- [Azure Bicep documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
+- [Configure GitHub Actions OIDC with Azure](https://learn.microsoft.com/azure/developer/github/connect-from-azure-openid-connect)
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Deployment%20Guide-555555?style=for-the-badge)](DEPLOYMENT_GUIDE.md)
+
+</td>
+<td align="center">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Architecture%20Guide-0078D4?style=for-the-badge)](ARCHITECTURE_GUIDE.md)
+
+</td>
+</tr>
+</table>
+
+</div>

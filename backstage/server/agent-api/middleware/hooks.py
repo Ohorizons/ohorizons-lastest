@@ -98,7 +98,7 @@ _DENY_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\bdelete\s+from\b(?!.*\bwhere\b)", re.I), "unscoped SQL DELETE"),
     (re.compile(r"\bterraform\s+destroy\b", re.I), "infrastructure destroy (terraform destroy)"),
     (re.compile(r"\bkubectl\s+delete\b.*\b--all\b", re.I), "bulk Kubernetes delete (--all)"),
-    (re.compile(r"\b--no-verify\b", re.I), "bypass of commit/push verification (--no-verify)"),
+    (re.compile(r"--no-verify\b", re.I), "bypass of commit/push verification (--no-verify)"),
     (re.compile(r"\bchmod\s+777\b", re.I), "insecure permissions (chmod 777)"),
     (re.compile(r"curl\b[^|]*\|\s*(?:ba)?sh\b", re.I), "pipe-to-shell remote execution"),
     # Secret exfiltration: reading well-known secret material into an argument.

@@ -242,7 +242,8 @@ The platform provides agent runtime governance:
 - **Cost Tracking**: Per-agent token usage and budget alerts in `backstage/server/agent-api/middleware/cost_tracker.py`
 - **Agent Identity**: K8s ServiceAccounts, RBAC Roles, NetworkPolicy in `backstage/k8s/agent-identity.yaml`
 - **7 Runtime Agents**: orchestrator, pipeline, sentinel, compass, guardian, lighthouse, forge
-- **Observability APIs**: `/api/agents/trajectories`, `/api/agents/costs`, `/api/agents/context`
+- **Tool-use Governance Hooks**: pre/post tool-use validation in `backstage/server/agent-api/middleware/hooks.py`, wired into the single choke point `BaseAgent._execute_tool` so **every** agent (including the orchestrator) is covered. Pre-hooks classify tools (read-only vs mutating: deploy/integration/infra), block dangerous argument patterns (path traversal, `rm -rf`, force push, `terraform destroy`, `--no-verify`, secret-file access, unscoped SQL), and audit. Post-hooks redact secrets and truncate oversized results before they reach the model. Configurable via `AGENT_HOOKS_ENFORCE` (default `true`; `false` = audited warnings for staged rollout). The foundry gateway enforces the same policy via `foundry/agents-service/app/tool_hooks.py`.
+- **Observability APIs**: `/api/agents/trajectories`, `/api/agents/costs`, `/api/agents/context`, `/api/agents/hooks`, `/api/agents/hooks/audit`
 - **Foundry Agents Gateway (L6 harness, H3)**: standalone service in `foundry/agents-service/` that fronts Azure AI Foundry — semantic prompt cache, A2A v1.0 routing, pre/post tool hooks, 21-field `llm.call.completed` telemetry, and Cosmos enterprise memory. Deployed to the `ai-services` namespace via `foundry/k8s/` and the ArgoCD app `argocd/apps/foundry-agents.yaml`. Gated to H3 (`enable_foundry_agents=true`).
 
 ## Golden Paths

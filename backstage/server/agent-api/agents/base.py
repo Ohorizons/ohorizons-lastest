@@ -15,6 +15,11 @@ from typing import Any, AsyncGenerator
 
 from openai import AzureOpenAI, APIError
 
+try:
+    from middleware.hooks import tool_hooks
+except ImportError:  # pragma: no cover - fallback if middleware not on path
+    tool_hooks = None
+
 logger = logging.getLogger("agents")
 
 
@@ -151,7 +156,32 @@ class BaseAgent:
             yield {"type": "error", "content": "Internal agent error"}
 
     async def _execute_tool(self, name: str, input_data: dict) -> str:
-        """Execute a tool via the injected tool executor."""
-        if self.tool_executor:
-            return await self.tool_executor(name, input_data)
-        return json.dumps({"error": f"No tool executor configured for {name}"})
+        """Execute a tool via the injected executor, wrapped in governance hooks.
+
+        Every tool call from every agent passes through here, so the pre/post
+        hooks give the whole fleet uniform validation: mutating actions (deploy,
+        integration config, infrastructure) are audited, dangerous arguments are
+        blocked, and secrets are redacted from results before they reach the model.
+        """
+        input_data = input_data or {}
+
+        # Pre-tool-use: validate and authorize before execution.
+        if tool_hooks is not None:
+            pre = tool_hooks.pre_tool_use(self.name, name, input_data)
+            if not pre.allowed:
+                return json.dumps({
+                    "error": "blocked_by_hook",
+                    "tool": name,
+                    "reason": pre.reason,
+                })
+            input_data = pre.args
+
+        if not self.tool_executor:
+            return json.dumps({"error": f"No tool executor configured for {name}"})
+
+        raw = await self.tool_executor(name, input_data)
+
+        # Post-tool-use: sanitize the result before it returns to the model.
+        if tool_hooks is not None:
+            return tool_hooks.post_tool_use(self.name, name, raw).result
+        return raw

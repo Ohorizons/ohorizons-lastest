@@ -673,6 +673,38 @@ For implementation details, see the [Deployment Guide](./DEPLOYMENT_GUIDE.md).
 
 ---
 
-**Document Version:** 2.0.0
-**Last Updated:** March 2026
-**Maintainer:** Platform Engineering Team
+## References
+
+- [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
+- [AKS baseline reference architecture](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks/baseline-aks)
+- [Azure Zero Trust guidance](https://learn.microsoft.com/security/zero-trust/)
+- [Microsoft Entra Workload ID on AKS](https://learn.microsoft.com/azure/aks/workload-identity-overview)
+- [Argo CD documentation](https://argo-cd.readthedocs.io/)
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Wizard%20Guide-555555?style=for-the-badge)](WIZARD_GUIDE.md)
+
+</td>
+<td align="center">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Module%20Reference-0078D4?style=for-the-badge)](MODULE_REFERENCE.md)
+
+</td>
+</tr>
+</table>
+
+</div>

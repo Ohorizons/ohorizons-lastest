@@ -41,20 +41,20 @@ The diagrams intentionally split the architecture into **general** and **detail*
 
 ## 2. Diagram Set
 
-All diagram sources live in `../../.github/skills/azure-architecture-diagrams/output/`. Each diagram has an editable `.drawio` source and an exported `.svg` for documents and presentations.
+All diagram sources live in [`docs/assets/architecture/`](../assets/architecture/). Each diagram has an editable `.drawio` source and an exported `.svg` for documents and presentations. The files are stored under `docs/assets` so they are included in enterprise forks and can be embedded in customer-facing documents.
 
 | # | Diagram | Type | Purpose | Artifacts |
 | - | ------- | ---- | ------- | --------- |
-| 1 | Architecture Overview | Executive architecture map | Shows H1, H2, H3, and the operating model at review-board level. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/architecture-overview.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/architecture-overview.svg) |
-| 2 | System Context | System boundary | Shows actors, hybrid engineering systems, platform services, AI services, and Azure runtime. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/system-context.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/system-context.svg) |
-| 3 | H1 Foundation | Deployment view | Shows Azure Landing Zone services: network, identity, data, AKS, observability, and recovery. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h1-foundation.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h1-foundation.svg) |
-| 4 | H1 Network and Security Detail | Security and network flow | Explains private connectivity, Workload Identity, secrets, policy, and telemetry. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h1-network-security-detail.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h1-network-security-detail.svg) |
-| 5 | H2 Enhancement | Platform services view | Shows GitOps, Backstage IDP, Golden Paths, and observability. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h2-enhancement.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h2-enhancement.svg) |
-| 6 | H2 GitOps and Observability Detail | Delivery and feedback flow | Explains how source changes become deployments and how observability feeds governance. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h2-gitops-observability-detail.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h2-gitops-observability-detail.svg) |
-| 7 | H3 Innovation | Agentic AI component view | Shows AI plugins, Agent API, context engineering, governance, and Azure AI Foundry. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h3-innovation.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h3-innovation.svg) |
-| 8 | H3 Agent Flow Detail | Agent request flow | Explains routing, cache, memory, RAG, tools, guardrails, inference, and telemetry. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/h3-agent-flow-detail.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/h3-agent-flow-detail.svg) |
-| 9 | Hybrid Azure DevOps + GitHub | Hybrid platform view | Explains coexistence scenarios A/B/C, dual auth, catalog providers, and shared runtime. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/hybrid-devops-github.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/hybrid-devops-github.svg) |
-| 10 | Critical Path Sequence | Sequence view | Shows developer self-service from scaffold to deployment and AI response. | [.drawio](../../.github/skills/azure-architecture-diagrams/output/sequence-golden-path.drawio) · [.svg](../../.github/skills/azure-architecture-diagrams/output/sequence-golden-path.svg) |
+| 1 | Architecture Overview | Executive architecture map | Shows H1, H2, H3, and the operating model at review-board level. | [.drawio](../assets/architecture/architecture-overview.drawio) · [.svg](../assets/architecture/architecture-overview.svg) |
+| 2 | System Context | System boundary | Shows actors, hybrid engineering systems, platform services, AI services, and Azure runtime. | [.drawio](../assets/architecture/system-context.drawio) · [.svg](../assets/architecture/system-context.svg) |
+| 3 | H1 Foundation | Deployment view | Shows Azure Landing Zone services: network, identity, data, AKS, observability, and recovery. | [.drawio](../assets/architecture/h1-foundation.drawio) · [.svg](../assets/architecture/h1-foundation.svg) |
+| 4 | H1 Network and Security Detail | Security and network flow | Explains private connectivity, Workload Identity, secrets, policy, and telemetry. | [.drawio](../assets/architecture/h1-network-security-detail.drawio) · [.svg](../assets/architecture/h1-network-security-detail.svg) |
+| 5 | H2 Enhancement | Platform services view | Shows GitOps, Backstage IDP, Golden Paths, and observability. | [.drawio](../assets/architecture/h2-enhancement.drawio) · [.svg](../assets/architecture/h2-enhancement.svg) |
+| 6 | H2 GitOps and Observability Detail | Delivery and feedback flow | Explains how source changes become deployments and how observability feeds governance. | [.drawio](../assets/architecture/h2-gitops-observability-detail.drawio) · [.svg](../assets/architecture/h2-gitops-observability-detail.svg) |
+| 7 | H3 Innovation | Agentic AI component view | Shows AI plugins, Agent API, context engineering, governance, and Azure AI Foundry. | [.drawio](../assets/architecture/h3-innovation.drawio) · [.svg](../assets/architecture/h3-innovation.svg) |
+| 8 | H3 Agent Flow Detail | Agent request flow | Explains routing, cache, memory, RAG, tools, guardrails, inference, and telemetry. | [.drawio](../assets/architecture/h3-agent-flow-detail.drawio) · [.svg](../assets/architecture/h3-agent-flow-detail.svg) |
+| 9 | Hybrid Azure DevOps + GitHub | Hybrid platform view | Explains coexistence scenarios A/B/C, dual auth, catalog providers, and shared runtime. | [.drawio](../assets/architecture/hybrid-devops-github.drawio) · [.svg](../assets/architecture/hybrid-devops-github.svg) |
+| 10 | Critical Path Sequence | Sequence view | Shows developer self-service from scaffold to deployment and AI response. | [.drawio](../assets/architecture/sequence-golden-path.drawio) · [.svg](../assets/architecture/sequence-golden-path.svg) |
 
 ## 3. Architecture Model
 
@@ -376,7 +376,7 @@ python3 .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py \
   --require-icon --require-edge
 ```
 
-All 10 `.drawio` files pass XML, icon, and connector checks. All 10 SVG files were rendered to PNG with `rsvg-convert` for visual QA. The draw.io MCP server is configured in `.vscode/mcp.json`, and the MCP SDK imports successfully from the skill-local virtual environment.
+All 10 `.drawio` files pass XML, icon, and connector checks. All 10 SVG files were rendered to PNG with `rsvg-convert` for visual QA. The draw.io MCP server is configured in [../../.vscode/mcp.json](../../.vscode/mcp.json), and the MCP SDK imports successfully from the skill-local virtual environment.
 
 ## References
 

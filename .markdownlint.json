@@ -48,6 +48,7 @@
   "MD033": {
     "allowed_elements": [
       "br",
+      "div",
       "details",
       "summary",
       "img",

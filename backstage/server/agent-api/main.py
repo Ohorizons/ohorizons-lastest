@@ -26,6 +26,7 @@ from agents.router import detect_agent, strip_mention, AGENT_DISPLAY_NAMES
 from tools import execute_tool as unified_execute_tool
 from middleware.trajectory import trajectory_logger
 from middleware.cost_tracker import cost_tracker
+from middleware.hooks import tool_hooks
 from memory.context_store import shared_context
 
 load_dotenv()
@@ -163,6 +164,18 @@ async def get_agent_costs(agent_name: str):
 async def get_context():
     """Return shared context store summary."""
     return shared_context.summary()
+
+
+@app.get("/api/agents/hooks")
+async def get_hooks():
+    """Return tool-hook governance summary (allow/deny/warn/sanitize counters)."""
+    return tool_hooks.summary()
+
+
+@app.get("/api/agents/hooks/audit")
+async def get_hooks_audit(limit: int = 100, agent: str | None = None):
+    """Return recent pre/post tool-use hook decisions (newest first)."""
+    return {"entries": tool_hooks.recent(limit=limit, agent=agent)}
 
 
 # ── Streaming Chat Endpoint ─────────────────────────────────────────

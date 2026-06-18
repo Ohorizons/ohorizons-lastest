@@ -34,12 +34,20 @@ POST /api/agents/chat
   → CostTracker.start()             # begin token counting
   → BaseAgent.handle(message)        # agentic loop
     → Azure OpenAI chat.completions  # with tool definitions
-    → tool_call? → execute_tool()    # GitHub API, Backstage MCP, etc.
+    → tool_call? → _execute_tool()   # GitHub API, Backstage MCP, etc.
+      → tool_hooks.pre_tool_use()    # classify, block dangerous args, audit
+      → tool_executor(name, args)    # run only if pre-hook allows
+      → tool_hooks.post_tool_use()   # redact secrets, truncate result
     → loop until no tool_calls       # multi-step reasoning
   → CostTracker.finish()            # record token totals per agent
   → TrajectoryMiddleware.after()    # log outcome + trajectory
   → SSE stream to frontend          # type: agent|text|tool_use|tool_result|done
 ```
+
+Tool-use governance (`middleware/hooks.py`) wraps the single choke point
+`BaseAgent._execute_tool`, so every agent — orchestrator included — gets uniform
+pre/post validation. Mirrors `foundry/agents-service/app/tool_hooks.py`.
+Audit via `/api/agents/hooks` and `/api/agents/hooks/audit`.
 
 ## Runtime Agents (7)
 
