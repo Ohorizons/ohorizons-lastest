@@ -2,20 +2,23 @@
 name: mcp-ecosystem
 description: >-
   Access 79 tools across 17 modules from the local MCP Ecosystem server to fetch
-  live methodology, templates, components, and reference data for spec-kit,
-  anthropics-skills, awesome-copilot, agent-framework, gh-aw, agents-md,
-  github-copilot-docs, backstage-docs, backstage-plugins, backstage-ui,
-  spotify-backstage, and backstage-org. USE FOR: Spec-Driven Development phases
-  and commands, Microsoft Agent Framework patterns, GitHub Agentic Workflows
-  (gh-aw), AGENTS.md format and section templates, awesome-copilot
-  skills/agents/prompts lookup, GitHub Copilot documentation and customization,
-  Anthropic skills catalog, Backstage documentation, Software Catalog, Software
-  Templates, plugin directory (core + community), Backstage UI components and
-  Storybook, Spotify Portal docs, and github.com/backstage repositories. Also
-  USE FOR wiring the AI Chat (agent-api) to the ecosystem so agents can ground
-  answers in real upstream docs. DO NOT USE FOR general web search, infra MCP
-  servers (azure/github/terraform/kubernetes — see mcp-config.json), or
-  non-reference queries.
+  live methodology, templates, components, and complete OFFICIAL DOCUMENTATION
+  for spec-kit, anthropics-skills, agent-framework, gh-aw, agents-md,
+  github-copilot-docs, the five Backstage modules, plus full official docs:
+  Microsoft Learn (federated — all of Azure/AKS/AI Foundry/CAF/WAF), VS Code,
+  GitHub (docs.github.com), Anthropic/Claude, Azure Cloud Adoption Framework
+  (CAF) and Well-Architected Framework (WAF). USE FOR: Spec-Driven Development
+  phases and commands, Microsoft Agent Framework patterns, GitHub Agentic
+  Workflows (gh-aw), AGENTS.md format and section templates, GitHub Copilot
+  documentation and customization, Anthropic docs, Backstage documentation,
+  Software Catalog, Software Templates, plugin directory, Backstage UI and
+  Storybook, searching all of Microsoft Learn (Azure, AKS, AI Foundry, CAF,
+  WAF), VS Code docs, GitHub docs (Actions, GHAS, OIDC, Packages), and the
+  Claude developer docs — to support agents during the whole installation and
+  at runtime. Also USE FOR wiring the AI Chat (agent-api) to the ecosystem so
+  agents can ground answers in real upstream docs. DO NOT USE FOR general web
+  search, infra MCP servers (azure/github/terraform/kubernetes — see
+  mcp-config.json), or non-reference queries.
 ---
 
 # MCP Ecosystem
@@ -42,13 +45,18 @@ Load this skill when you need to:
 - Look up **Microsoft Agent Framework** patterns, samples, declarative agents.
 - Get **GitHub Agentic Workflows** (gh-aw) patterns and security guidelines.
 - Fetch the **AGENTS.md** format spec and section templates.
-- Search **awesome-copilot** skills, agents, prompts, instructions.
 - Read **GitHub Copilot** docs, customization, and extensions.
 - Search the **Anthropic skills** catalog and specs.
 - Query **Backstage** docs, Software Catalog, Software Templates, API reference.
 - Browse the **Backstage plugin** directory (core + community).
 - Inspect **Backstage UI** components and Storybook stories.
 - Read **Spotify Portal** docs and discover **github.com/backstage** repos.
+- Search **all of Microsoft Learn** (Azure, AKS, AI Foundry, **CAF**, **WAF**)
+  via federation (`mslearn_*`), and fetch full Learn articles by URL.
+- Search **VS Code** docs (`vscode_*`) and **GitHub** docs (`ghdocs_*` — Actions,
+  GHAS, OIDC, Packages) — essential during installation.
+- Search the complete **Anthropic/Claude** documentation (`anthropicdocs_*`).
+- Search **CAF** (`caf_*`) and **WAF** (`waf_*`) for adoption + design guidance.
 - Wire the **AI Chat / agent-api** so agents can call the ecosystem.
 
 Do **not** use it for general web search, for infra/operational MCP servers, or
@@ -106,13 +114,12 @@ Environment variables (all optional): `PORT` (3100), `CACHE_DIR`,
 
 ## Tool catalog (17 modules · 79 tools)
 
-### Group A — Agent & AI frameworks (7 modules · 30 tools)
+### Group A — Agent & AI frameworks (6 modules · 26 tools)
 
 | Module | Prefix | Tools |
 | --- | --- | --- |
 | spec-kit (5) | `speckit_` | `get_phases`, `get_commands`, `get_methodology`, `get_philosophy`, `search` |
 | anthropics-skills (5) | `anthropics_` | `list_skills`, `get_skill`, `get_skill_template`, `search_skills`, `get_spec` |
-| awesome-copilot (4) | `awesome_` | `list_items`, `get_item`, `search`, `get_readme` |
 | agent-framework (4) | `agentfw_` | `get_patterns`, `get_sample`, `search_docs`, `get_declarative_agents` |
 | gh-aw (4) | `ghaw_` | `get_workflow_patterns`, `get_security_guidelines`, `get_contributing`, `get_agents_md` |
 | agents-md (3) | `agentsmd_` | `get_format_spec`, `get_readme`, `get_section_templates` |
@@ -128,8 +135,24 @@ Environment variables (all optional): `PORT` (3100), `CACHE_DIR`,
 | spotify-backstage (6) | `spotifybackstage_` | `list_sections`, `get_page`, `get_portal_docs`, `get_plugins_docs`, `get_core_features`, `discover_links` |
 | backstage-org (4) | `backstageorg_` | `list_repos`, `get_repo_readme`, `search_repos`, `get_backstage_plugins` |
 
+### Group C — Official documentation (6 modules · 22 tools)
+
+| Module | Prefix | Tools |
+| --- | --- | --- |
+| microsoft-learn (3, federated) | `mslearn_` | `search`, `code_search`, `fetch` — ALL of Microsoft Learn incl. CAF/WAF |
+| vscode-docs (4) | `vscode_` | `list_sections`, `list_pages`, `get_page`, `search` |
+| github-docs (4) | `ghdocs_` | `list_sections`, `list_pages`, `get_page`, `search` (Actions, GHAS, OIDC, Packages) |
+| anthropic-docs (3) | `anthropicdocs_` | `index`, `get_page`, `search` (complete Claude docs) |
+| azure-caf (4) | `caf_` | `list_sections`, `list_pages`, `get_page`, `search` |
+| azure-waf (4) | `waf_` | `list_sections`, `list_pages`, `get_page`, `search` |
+
+> `microsoft-learn` **federates** the official Microsoft Learn MCP
+> (`learn.microsoft.com/api/mcp`) for complete, always-current coverage of every
+> Microsoft product. `azure-caf`/`azure-waf` additionally cache the framework
+> docs for offline use during the local installation phase.
+
 > Tool names are the prefix + the suffix shown, e.g. `speckit_get_phases`,
-> `backstagedocs_search`, `backstageui_storybook_search`.
+> `mslearn_search`, `backstageui_storybook_search`.
 
 ## How the AI Chat uses the ecosystem
 
@@ -140,10 +163,16 @@ small, curated set of ecosystem tools to the model so agents can ground answers:
 - Advertised to the model (orchestrator, sentinel, lighthouse, guardian, forge, pipeline):
   - `ecosystem_list_tools` — discover everything the server exposes.
   - `ecosystem_call_tool(name, args)` — call any of the 79 tools directly.
+  - `search_microsoft_learn(query)` → `mslearn_search` (federated, all of Learn)
+  - `fetch_microsoft_learn(url)` → `mslearn_fetch`
   - `search_backstage_docs(query)` → `backstagedocs_search`
-  - `get_spec_kit_methodology()` → `speckit_get_methodology`
   - `search_copilot_docs(query)` → `copilotdocs_search`
-  - `search_anthropic_docs(query)` → `anthropics_search_skills`
+  - `search_github_docs(query, section)` → `ghdocs_search`
+  - `search_vscode_docs(query, section)` → `vscode_search`
+  - `search_anthropic_docs(query)` → `anthropicdocs_search`
+  - `search_caf(query, section)` → `caf_search`
+  - `search_waf(query, section)` → `waf_search`
+  - `get_spec_kit_methodology()` → `speckit_get_methodology`
 
 The client targets `MCP_ECOSYSTEM_URL` (default `http://localhost:3100/mcp`).
 In-cluster, point it at the `mcp-ecosystem` Service. If the server is

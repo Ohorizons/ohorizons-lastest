@@ -23,7 +23,7 @@
 | Agent API (AI Impact) | backstage/server/agent-api-impact/main.py | 8011 |
 | Agent API (MAF) | backstage/server/agent-api-maf/main.py | 8012 |
 | Agent API (SK) | backstage/server/agent-api-sk/main.py | 8013 |
-| MCP Ecosystem Server | mcp-servers/src/index.ts | stdio |
+| MCP Ecosystem Server | mcp-servers/src/index.ts | 3100 |
 
 ## Agent API Core Flow
 

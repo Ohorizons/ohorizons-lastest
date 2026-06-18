@@ -74,7 +74,7 @@ Platform Engineering (foundation)
 
 - **9 Copilot Chat Agents** — deploy-managed AI assistants
 - **7 Runtime Agents** — across 4 Agent API services
-- **MCP Ecosystem** — 12 tool modules, 61 tools
+- **MCP Ecosystem** — 17 tool modules, 79 tools
 - **Trajectory Logging** — every decision recorded
 - **Per-Agent Cost Tracking** — budget governance
 

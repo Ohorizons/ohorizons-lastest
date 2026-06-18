@@ -54,7 +54,7 @@ The accelerator covers:
 - The **Internal Developer Platform (IDP)** that developers use day to day - Backstage on AKS with Software Catalog, TechDocs, Software Templates, and DORA / Cost dashboards.
 - The **Agent IDP** - 4 agent runtime APIs, trajectory and cost middleware, agent identity, and a Backstage AI Chat plugin.
 - The **scaffolder** that creates new repositories on demand via wizard - 34 Golden Paths, all aligned to the same agents, TechDocs, CI/CD, and an opt-in Azure baseline.
-- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 28 skills, and 12 MCP tool modules (61 tools).
+- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 28 skills, and 17 MCP tool modules (79 tools).
 - The **infrastructure** to run all of the above - 16 Terraform modules covering AKS, networking, registries, databases, secrets, security, observability, AI Foundry, GitHub runners, ArgoCD, Backstage, Defender, Purview, disaster recovery, cost management, and naming.
 - The **governance and policy** stack - OPA/Gatekeeper rules for Kubernetes and Terraform, CONSTITUTION + SPECIFICATION + IMPLEMENTATION_PLAN templates, scope-guard hooks, and intent-drift measurement.
 - The **observability** stack - Prometheus rules, Grafana dashboards, Alertmanager wiring, plus per-agent trajectory and cost telemetry.
@@ -65,7 +65,7 @@ The accelerator covers:
 |-------|---------|------------|
 | L1 - Cloud Infrastructure | Compute and security baseline | 16 Terraform modules in [`terraform/modules/`](../../terraform/modules/) covering AKS, networking, ACR, databases (Postgres + Redis), Key Vault and external secrets, Defender, Purview, observability, cost management, GitHub runners, AI Foundry, ArgoCD, Backstage, naming, disaster recovery, security baseline. Environment tfvars in [`terraform/environments/`](../../terraform/environments/). |
 | L2 - Platform Engineering | Golden paths, GitOps, governance | Backstage portal in [`backstage/`](../../backstage/) (catalog, TechDocs, software templates, AI Chat plugin), 34 Golden Paths in [`golden-paths/`](../../golden-paths/), ArgoCD app-of-apps in [`argocd/`](../../argocd/), 7 Kubernetes OPA policies and 1 Terraform OPA policy in [`policies/`](../../policies/), 5 Grafana dashboards in [`grafana/dashboards/`](../../grafana/dashboards/), Prometheus recording and alerting rules in [`prometheus/`](../../prometheus/), 9 GitHub Actions workflows in [`.github/workflows/`](../../.github/workflows/), 22 automation scripts in [`scripts/`](../../scripts/). |
-| L3 - Context Engineering | Agent context and tools | 28 skills in [`.github/skills/`](../../.github/skills/), the MCP Ecosystem server (12 tool modules, 61 tools) in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
+| L3 - Context Engineering | Agent context and tools | 28 skills in [`.github/skills/`](../../.github/skills/), the MCP Ecosystem server (17 tool modules, 79 tools) in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
 | L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), workspace guardrails in [`.github/hooks/`](../../.github/hooks/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
 | L5 - Agentic Execution | Runtime agents and identity | 9 deploy-managed Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 9 prompts in [`.github/prompts/`](../../.github/prompts/), 8 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
 
@@ -82,7 +82,7 @@ The accelerator covers:
 | Prompts | 9 |
 | Instructions | 8 |
 | Skills | 28 |
-| MCP servers | 12 |
+| MCP servers | 17 |
 | GitHub Actions workflows | 9 |
 | ArgoCD applications | 2 |
 | OPA policies (Kubernetes) | 7 |
@@ -104,7 +104,7 @@ flowchart TD
     BS --> API["Agent APIs<br/>4 runtimes (L5)"]
     BS --> DASH["DORA + Cost<br/>Dashboards (L2)"]
     SCAF --> REPO["GitHub repos<br/>agents + TechDocs + optional Azure infra"]
-    API --> MCP["MCP servers (12)<br/>L3 context"]
+    API --> MCP["MCP servers (17)<br/>L3 context"]
     REPO --> AZ["Azure (L1) provisioned by Terraform<br/>AKS · ACR · Key Vault · PostgreSQL · Redis<br/>AI Foundry · Defender · Log Analytics · Managed Grafana"]
     MCP --> AZ
 
@@ -162,7 +162,7 @@ The install wizard at [`scripts/install-wizard.sh`](../../scripts/install-wizard
 | Chat agents (9) | optional allowlist of agent ids in `agents:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/agents/` |
 | Skills (28) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
 | Prompts (9) | optional allowlist of prompt ids in `prompts:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/prompts/` |
-| MCP servers (12) | optional allowlist of MCP ids in `mcp_servers:` | empty list = include all | `golden-paths/common/agents/.rendered/mcp-servers/enabled.txt` |
+| MCP servers (17) | optional allowlist of MCP ids in `mcp_servers:` | empty list = include all | `golden-paths/common/agents/.rendered/mcp-servers/enabled.txt` |
 
 ### Outputs
 
@@ -328,7 +328,7 @@ Once Terraform finishes:
 L3 is what makes the agents productive in this codebase rather than generic. It is mostly already wired in the repo, but the client needs to know it is there:
 
 - **28 skills** in [`.github/skills/`](../../.github/skills/) cover Azure CLI, Terraform CLI, kubectl, Helm, ArgoCD, GitHub CLI, Backstage deployment, observability stack, validation scripts, planning and requirements, test and pipeline diagnostics, Codespaces golden paths, IssueOps, MCP ecosystem, Azure AI Foundry, architecture, and document generation.
-- **12 MCP servers** in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) (the **MCP Ecosystem**, 61 tools) expose live reference data for spec-kit, Microsoft Agent Framework, Anthropic skills, AGENTS.md, awesome-copilot, GitHub Copilot docs, gh-aw, Backstage docs / org / plugins / UI, and Spotify Backstage. The MCP Ecosystem is used in **two phases**: (1) **locally during installation** via [`mcp-servers/docker-compose.yml`](../../mcp-servers/docker-compose.yml) (`make up` → `:3100`), so the Copilot agents can ground build-time decisions in real upstream docs; and (2) **at runtime on AKS** in the `ai-services` namespace (gated to `enable_mcp_ecosystem`), where the Backstage **AI Chat** calls it to ground developer answers. The AI Chat (`agent-api`, same namespace) reaches it at `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp`, and a `NetworkPolicy` restricts `:3100` to the `agent-api` pod. Manifests default to the public GHCR image; to use a private ACR run `az acr import` and set `MCP_ECOSYSTEM_IMAGE`. Full detail: [`mcp-servers/ARCHITECTURE.md`](../../mcp-servers/ARCHITECTURE.md). This is distinct from the operational MCP servers (`azure`, `github`, `terraform`, …) in [`mcp-servers/mcp-config.json`](../../mcp-servers/mcp-config.json), which are local-only and not deployed to AKS.
+- **17 MCP server modules** in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) (the **MCP Ecosystem**, 79 tools) expose live reference data and complete **official documentation**: spec-kit, Microsoft Agent Framework, Anthropic skills, AGENTS.md, GitHub Copilot docs, gh-aw, the five Backstage modules, plus full official docs — **Microsoft Learn** (federated: all of Azure/AKS/AI Foundry/CAF/WAF), **VS Code**, **GitHub** (Actions/GHAS/OIDC/Packages), **Anthropic/Claude**, **Azure CAF** and **WAF**. The MCP Ecosystem is used in **two phases**: (1) **locally during installation** via [`mcp-servers/docker-compose.yml`](../../mcp-servers/docker-compose.yml) (`make up` → `:3100`), so the Copilot agents can ground build-time decisions in real upstream docs; and (2) **at runtime on AKS** in the `ai-services` namespace (gated to `enable_mcp_ecosystem`), where the Backstage **AI Chat** calls it to ground developer answers. The AI Chat (`agent-api`, same namespace) reaches it at `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp`; a `NetworkPolicy` restricts ingress to the `agent-api` pod and (in production) closes egress to a hardened allowlist. Manifests default to the public GHCR image; to use a private ACR run `az acr import` and set `MCP_ECOSYSTEM_IMAGE`. Full detail: [`mcp-servers/ARCHITECTURE.md`](../../mcp-servers/ARCHITECTURE.md). This is distinct from the operational MCP servers (`azure`, `github`, `terraform`, …) in [`mcp-servers/mcp-config.json`](../../mcp-servers/mcp-config.json), which are local-only and not deployed to AKS.
 - **Three-tier memory** (Hot, Warm, Cold) lives under [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/) along with the Shared Context Store.
 - **CODEMAP** at [`CODEMAP.md`](../../CODEMAP.md) is the program skeleton that agents read before navigating the codebase.
 

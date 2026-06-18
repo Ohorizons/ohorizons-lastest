@@ -25,13 +25,12 @@ separate, local-only surface and are not deployed to AKS. See
 
 ## Sources
 
-### Group A — Agent & AI frameworks (7 modules · 30 tools)
+### Group A — Agent & AI frameworks (6 modules · 26 tools)
 
 | Source | Tools | Upstream |
 | --- | --- | --- |
 | **Spec-Kit** (5) | `speckit_get_phases`, `speckit_get_commands`, `speckit_get_methodology`, `speckit_get_philosophy`, `speckit_search` | [`github/spec-kit`](https://github.com/github/spec-kit) |
 | **Anthropics Skills** (5) | `anthropics_list_skills`, `anthropics_get_skill`, `anthropics_get_skill_template`, `anthropics_search_skills`, `anthropics_get_spec` | [anthropics/skills](https://github.com/anthropics/skills) |
-| **Awesome Copilot** (4) | `awesome_list_items`, `awesome_get_item`, `awesome_search`, `awesome_get_readme` | [`github/awesome-copilot`](https://github.com/github/awesome-copilot) |
 | **Agent Framework** (4) | `agentfw_get_patterns`, `agentfw_get_sample`, `agentfw_search_docs`, `agentfw_get_declarative_agents` | [microsoft/agent-framework](https://github.com/microsoft/agent-framework) |
 | **GitHub Agentic Workflows** (4) | `ghaw_get_workflow_patterns`, `ghaw_get_security_guidelines`, `ghaw_get_contributing`, `ghaw_get_agents_md` | [`github/gh-aw`](https://github.com/github/gh-aw) |
 | **AGENTS.md** (3) | `agentsmd_get_format_spec`, `agentsmd_get_readme`, `agentsmd_get_section_templates` | [agentsmd/agents.md](https://github.com/agentsmd/agents.md) |
@@ -46,6 +45,21 @@ separate, local-only surface and are not deployed to AKS. See
 | **Backstage UI** (8) | `backstageui_list_components`, `backstageui_get_component`, `backstageui_get_api_report`, `backstageui_get_readme`, `backstageui_get_changelog`, `backstageui_storybook_list_stories`, `backstageui_storybook_get_story`, `backstageui_storybook_search` | [`backstage/backstage` (ui)](https://github.com/backstage/backstage) |
 | **Spotify Backstage** (6) | `spotifybackstage_list_sections`, `spotifybackstage_get_page`, `spotifybackstage_get_portal_docs`, `spotifybackstage_get_plugins_docs`, `spotifybackstage_get_core_features`, `spotifybackstage_discover_links` | [`backstage.spotify.com`](https://backstage.spotify.com) |
 | **Backstage Org** (4) | `backstageorg_list_repos`, `backstageorg_get_repo_readme`, `backstageorg_search_repos`, `backstageorg_get_backstage_plugins` | [`github.com/backstage`](https://github.com/backstage) |
+
+### Group C — Official documentation (6 modules · 22 tools)
+
+Complete official documentation coverage for the whole implementation +
+runtime. `microsoft-learn` **federates** the official Microsoft Learn MCP
+(covers all of Learn incl. CAF/WAF); the rest scrape official upstreams (cached).
+
+| Source | Tools | Upstream |
+| --- | --- | --- |
+| **Microsoft Learn** (3, federated) | `mslearn_search`, `mslearn_code_search`, `mslearn_fetch` | [`learn.microsoft.com/api/mcp`](https://learn.microsoft.com/api/mcp) |
+| **VS Code Docs** (4) | `vscode_list_sections`, `vscode_list_pages`, `vscode_get_page`, `vscode_search` | [`microsoft/vscode-docs`](https://github.com/microsoft/vscode-docs) |
+| **GitHub Docs** (4) | `ghdocs_list_sections`, `ghdocs_list_pages`, `ghdocs_get_page`, `ghdocs_search` | [`github/docs`](https://github.com/github/docs) |
+| **Anthropic Docs** (3) | `anthropicdocs_index`, `anthropicdocs_get_page`, `anthropicdocs_search` | [`docs.claude.com`](https://docs.claude.com/llms.txt) |
+| **Azure CAF** (4) | `caf_list_sections`, `caf_list_pages`, `caf_get_page`, `caf_search` | [`MicrosoftDocs/cloud-adoption-framework`](https://github.com/MicrosoftDocs/cloud-adoption-framework) |
+| **Azure WAF** (4) | `waf_list_sections`, `waf_list_pages`, `waf_get_page`, `waf_search` | [`MicrosoftDocs/well-architected`](https://github.com/MicrosoftDocs/well-architected) |
 
 **Total:** 79 tools across 17 modules
 
