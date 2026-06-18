@@ -1678,17 +1678,14 @@ AADSTS7000215: Invalid client secret provided
 **Fix:**
 
 ```bash
-# Step 1: Create new credential
-az ad sp credential reset --name $SP_NAME --credential-description "New secret"
+# GitHub Actions uses OIDC. Recreate or verify federation instead of rotating secrets.
+./scripts/setup-identity-federation.sh \
+  --github-org "$GITHUB_ORG" \
+  --github-repo "$GITHUB_REPO" \
+  --resource-group "$RESOURCE_GROUP" \
+  --dry-run
 
-# Step 2: Update wherever it's used
-# - GitHub Actions secrets
-# - Azure DevOps
-# - Terraform variables
-# - Key Vault (if stored there)
-
-# Step 3: Update in GitHub
-gh secret set ARM_CLIENT_SECRET --body "new-secret-value"
+# If the dry run is correct, rerun without --dry-run.
 ```
 
 ---

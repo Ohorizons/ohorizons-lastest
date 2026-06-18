@@ -7,6 +7,7 @@ version: "1.0.0"
 status: "approved"
 tags: ["backstage", "demo", "helm", "enterprise-readiness"]
 ---
+<!-- markdownlint-disable MD025 -->
 
 # Backstage Demo Manifests
 
@@ -15,7 +16,7 @@ tags: ["backstage", "demo", "helm", "enterprise-readiness"]
 ## Change Log
 
 | Version | Date | Author | Changes |
-|---------|------|--------|---------|
+| ------- | ---- | ------ | ------- |
 | 1.0.0 | 2026-06-18 | Open Horizons | Moved demo manifests out of the deployment path |
 
 ## Table of Contents
@@ -32,7 +33,7 @@ These examples show an ad hoc Backstage proof-of-concept shape that can be usefu
 ## 2. Files
 
 | File | Purpose | Production Status |
-|------|---------|-------------------|
+| ---- | ------- | ----------------- |
 | `backstage-v1.48.0-clean-values.yaml` | Minimal Backstage Helm values for a demo endpoint | Demo only |
 | `ingress-all.yaml` | Demo ingress resources for Prometheus and Alertmanager | Demo only |
 | `argocd-apps.yaml` | Demo ArgoCD Application bundle | Demo only |

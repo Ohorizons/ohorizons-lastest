@@ -8,6 +8,8 @@
 
 This directory contains Helm values and deployment configurations used to install platform services on AKS clusters.
 
+Demo-only manifests are intentionally kept outside this directory under [`docs/examples/backstage-demo`](../docs/examples/backstage-demo/README.md). Enterprise validation and deployment automation should treat only `deploy/helm/argocd/` and `deploy/helm/monitoring/` as active Helm values.
+
 ## Structure
 
 ```text
@@ -36,10 +38,11 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 ## 📚 Related Documentation
 
 | Document | Description |
-|----------|-------------|
+| -------- | ----------- |
 | [Deployment Guide](../docs/guides/DEPLOYMENT_GUIDE.md) | Step-by-step platform deployment |
 | [ArgoCD Configuration](../argocd/README.md) | GitOps application definitions |
 | [Architecture Guide](../docs/guides/ARCHITECTURE_GUIDE.md) | Platform architecture overview |
+| [Demo Backstage Manifests](../docs/examples/backstage-demo/README.md) | Non-production reference manifests |
 
 ---
 

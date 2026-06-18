@@ -63,7 +63,7 @@ module "github_runners" {
     }
   }
 
-  # Azure credentials for Workload Identity
+  # Azure OIDC identity metadata for Workload Identity
   azure_credentials = {
     client_id       = module.security.runner_identity_client_id
     tenant_id       = data.azurerm_client_config.current.tenant_id
@@ -98,7 +98,7 @@ module "github_runners" {
 | github_app_private_key | GitHub App private key | `string` | n/a | yes |
 | controller_replicas | ARC controller replicas | `number` | `2` | no |
 | runner_groups | Runner group configurations | `map(object)` | n/a | yes |
-| azure_credentials | Azure credentials for Workload Identity | `object` | `null` | no |
+| azure_credentials | Azure OIDC identity metadata for Workload Identity | `object` | `null` | no |
 | custom_runner_image | Custom runner image | `string` | `""` | no |
 
 ## Outputs

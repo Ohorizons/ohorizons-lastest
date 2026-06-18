@@ -7,6 +7,7 @@ version: "1.0.0"
 status: "approved"
 tags: ["enterprise-readiness", "fork", "azure", "github", "backstage"]
 ---
+<!-- markdownlint-disable MD025 -->
 
 # Open Horizons Enterprise Readiness
 
@@ -15,7 +16,7 @@ tags: ["enterprise-readiness", "fork", "azure", "github", "backstage"]
 ## Change Log
 
 | Version | Date | Author | Changes |
-|---------|------|--------|---------|
+| ------- | ---- | ------ | ------- |
 | 1.0.0 | 2026-06-18 | Open Horizons | Initial enterprise readiness checklist |
 
 ## Table of Contents
@@ -57,7 +58,7 @@ Do not use `AZURE_CREDENTIALS`, `ARM_CLIENT_SECRET`, or checked-in service princ
 Production Backstage config uses external TechDocs publishing with Azure Blob Storage. Operators must provide these values through Key Vault, External Secrets, or repository secrets depending on the deployment mode:
 
 | Variable | Purpose |
-|----------|---------|
+| -------- | ------- |
 | `TECHDOCS_AZURE_STORAGE_ACCOUNT` | Azure Storage account that hosts generated docs |
 | `TECHDOCS_AZURE_STORAGE_ACCOUNT_KEY` | Storage access key or secret sourced from Key Vault |
 | `TECHDOCS_AZURE_BLOB_CONTAINER` | Blob container, default `techdocs` |

@@ -396,7 +396,7 @@ Functional smoke tests:
 | Add or change a Copilot agent | [`AGENTS.md`](../../AGENTS.md), [`.github/agents/`](../../.github/agents/) |
 | Add a skill | [`.github/skills/`](../../.github/skills/) (companion `SKILL.md`) |
 | Add an MCP server | [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) plus rendered manifests under [`backstage/k8s/`](../../backstage/k8s/) |
-| Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr) and the `cd.yml` workflow |
+| Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr) and the [`release-images.yml`](../../.github/workflows/release-images.yml) workflow |
 | Update Helm releases | [`deploy/helm/`](../../deploy/helm/) |
 | Apply Kubernetes policies | [`policies/kubernetes/`](../../policies/kubernetes/) |
 | Validate Terraform changes | `bash scripts/setup-pre-commit.sh` then `terraform fmt`, `terraform validate`, `tflint`, `tfsec` |

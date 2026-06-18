@@ -45,13 +45,13 @@ jobs:
           fi
 
           # Validate semantic versioning
-          if ! [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+          if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
             echo "Error: Invalid version format: $VERSION"
             exit 1
           fi
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "## Release Version: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "## Release Version: $VERSION" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Check Version Consistency
         run: |
@@ -94,7 +94,7 @@ jobs:
           cd dist && zip -r "../${ARCHIVE_NAME}.zip" . && cd ..
 
           echo "Created release archives"
-          ls -la *.tar.gz *.zip
+          ls -la ./*.tar.gz ./*.zip
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -135,19 +135,19 @@ jobs:
           ## What's Changed in $VERSION
 
           ### Features
-          $(git log $RANGE --pretty=format:"- %s" --grep="feat" || echo "- No new features")
+          $(git log "$RANGE" --pretty=format:"- %s" --grep="feat" || echo "- No new features")
 
           ### Bug Fixes
-          $(git log $RANGE --pretty=format:"- %s" --grep="fix" || echo "- No bug fixes")
+          $(git log "$RANGE" --pretty=format:"- %s" --grep="fix" || echo "- No bug fixes")
 
           ### Infrastructure
-          $(git log $RANGE --pretty=format:"- %s" --grep="infra\|terraform" || echo "- No infrastructure changes")
+          $(git log "$RANGE" --pretty=format:"- %s" --grep="infra\|terraform" || echo "- No infrastructure changes")
 
           ### Documentation
-          $(git log $RANGE --pretty=format:"- %s" --grep="doc" || echo "- No documentation changes")
+          $(git log "$RANGE" --pretty=format:"- %s" --grep="doc" || echo "- No documentation changes")
 
           ### Other Changes
-          $(git log $RANGE --pretty=format:"- %s" --grep -v "feat\|fix\|doc\|infra" | head -10 || echo "- No other changes")
+          $(git log "$RANGE" --pretty=format:"- %s" --grep -v "feat\|fix\|doc\|infra" | head -10 || echo "- No other changes")
 
           ---
 
@@ -160,9 +160,11 @@ jobs:
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
 
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changelog<<EOF"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
   # Job 4: Create GitHub Release
   release:
@@ -234,24 +236,30 @@ jobs:
         run: |
           VERSION="${{ needs.validate.outputs.version }}"
           STATUS="${{ needs.release.result }}"
+          ACTOR="${{ github.actor }}"
+          REPOSITORY="${{ github.repository }}"
           COLOR=$([ "$STATUS" == "success" ] && echo "00FF00" || echo "FF0000")
 
-          curl -H "Content-Type: application/json" -d '{
+          cat > teams-payload.json <<JSON
+          {
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
-            "themeColor": "'$COLOR'",
-            "summary": "Release '$VERSION'",
+            "themeColor": "$COLOR",
+            "summary": "Release $VERSION",
             "sections": [{
-              "activityTitle": "📦 New Release Published",
+              "activityTitle": "New Release Published",
               "facts": [
-                {"name": "Version", "value": "'$VERSION'"},
-                {"name": "Status", "value": "'$STATUS'"},
-                {"name": "Actor", "value": "${{ github.actor }}"}
+                {"name": "Version", "value": "$VERSION"},
+                {"name": "Status", "value": "$STATUS"},
+                {"name": "Actor", "value": "$ACTOR"}
               ]
             }],
             "potentialAction": [{
               "@type": "OpenUri",
               "name": "View Release",
-              "targets": [{"os": "default", "uri": "https://github.com/${{ github.repository }}/releases/tag/'$VERSION'"}]
+              "targets": [{"os": "default", "uri": "https://github.com/$REPOSITORY/releases/tag/$VERSION"}]
             }]
-          }' "$TEAMS_WEBHOOK"
+          }
+          JSON
+
+          curl -H "Content-Type: application/json" --data @teams-payload.json "$TEAMS_WEBHOOK"

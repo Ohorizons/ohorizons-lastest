@@ -63,14 +63,14 @@ go test -v -tags=unit ./...
 
 ### Integration Tests
 
-Integration tests create real Azure resources (requires Azure credentials).
+Integration tests create real Azure resources. Use GitHub Actions OIDC or a local Azure CLI login instead of long-lived service principal secrets.
 
 ```bash
 # Set required environment variables
 export ARM_SUBSCRIPTION_ID="your-subscription-id"
 export ARM_CLIENT_ID="your-client-id"
-export ARM_CLIENT_SECRET="your-client-secret"
 export ARM_TENANT_ID="your-tenant-id"
+export ARM_USE_OIDC=true
 
 go test -v -tags=integration -timeout 60m ./...
 ```

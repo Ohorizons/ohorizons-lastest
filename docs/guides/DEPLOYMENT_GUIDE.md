@@ -7,6 +7,7 @@ version: "4.0.0"
 status: "review"
 tags: ["deployment", "azure", "aks", "terraform", "gitops"]
 ---
+<!-- markdownlint-disable MD025 MD028 MD036 MD040 MD044 MD060 -->
 
 # Open Horizons Platform - Complete Deployment Guide
 
@@ -84,9 +85,11 @@ There are **three ways** to deploy the Open Horizons platform. Choose the one th
 ### Option A: Agent-Guided (Easiest — Interactive)
 
 In VS Code with GitHub Copilot Chat, simply type:
+
 ```
 @deploy Deploy the platform to dev environment
 ```
+
 The `@deploy` agent walks you through each step interactively, running commands, validating results, and fixing issues along the way.
 
 **Best for:** First-time deployments, learning the platform.
@@ -113,7 +116,7 @@ The `@deploy` agent walks you through each step interactively, running commands,
 |------|-------------|
 | `--environment`, `-e` | **Required:** dev, staging, or prod |
 | `--horizon`, `-h` | h1, h2, h3, or all (default: all) |
-| `--dry-run` | Only terraform plan, no apply |
+| `--dry-run` | Only Terraform plan, no apply |
 | `--auto-approve` | Skip prompts (for CI/CD) |
 | `--destroy` | Teardown in reverse order |
 | `--resume` | Resume from last checkpoint |
@@ -528,7 +531,7 @@ Microsoft.Security              Registered
 > Open Horizons uses this keyless model for enterprise deployments instead of storing
 > long-lived service principal secrets in GitHub.
 
-**Step 1: Set up variables**
+#### Step 1: Set up variables
 
 ```bash
 # Get your subscription ID automatically
@@ -547,7 +550,7 @@ echo "GitHub repository: $GITHUB_ORG/$GITHUB_REPO"
 echo "Resource group scope: $RESOURCE_GROUP"
 ```
 
-**Step 2: Create or reuse the federated identity**
+#### Step 2: Create or reuse the federated identity
 
 ```bash
 ./scripts/setup-identity-federation.sh \
@@ -560,10 +563,10 @@ The helper creates or reuses an Entra app registration, adds federated credentia
 for `main` and pull requests, grants Azure RBAC on the requested scope, and writes
 the GitHub repository secrets used by the workflows.
 
-**Understanding the OIDC setup:**
+#### Understanding the OIDC setup
 
 | Parameter | Value | Explanation |
-|-----------|-------|-------------|
+| --------- | ----- | ----------- |
 | `--github-org` | YOUR_ORG_NAME | GitHub organization that owns the fork |
 | `--github-repo` | open-horizons-platform | Repository receiving Azure federation |
 | `--resource-group` | rg-openhorizons-dev | Azure RBAC scope for initial deployment |
@@ -582,14 +585,19 @@ the GitHub repository secrets used by the workflows.
 
 ```bash
 gh secret list | grep -E 'AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID'
-az ad app federated-credential list --id "$(gh secret list >/dev/null && echo "$AZURE_CLIENT_ID")" 2>/dev/null || \
+
+# Optional deeper check if the setup helper exported AZURE_CLIENT_ID locally.
+if [[ -n "${AZURE_CLIENT_ID:-}" ]]; then
+  az ad app federated-credential list --id "$AZURE_CLIENT_ID" -o table
+else
   echo "Use Azure Portal > App registrations to inspect federated credentials."
+fi
 ```
 
 The deploy identity needs enough permission to create resource groups and assign
 managed identity roles. Use subscription `Owner`, or `Contributor` plus `User Access Administrator`.
 
-**If federation is missing:**
+#### If federation is missing
 
 ```bash
 ./scripts/setup-identity-federation.sh \
@@ -726,7 +734,7 @@ cd open-horizons-platform
 > sensitive identifiers as secrets so they're never exposed in logs
 > or code.
 
-**First, make sure you're in the repository directory:**
+#### First, make sure you're in the repository directory
 
 ```bash
 # Confirm you're in the right folder
@@ -737,7 +745,7 @@ pwd
 gh secret list | grep -E 'AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID'
 ```
 
-**Set all required secrets:**
+#### Set all required secrets
 
 ```bash
 # Most Azure secrets are written by setup-identity-federation.sh.
@@ -749,7 +757,7 @@ echo ""
 echo "All secrets configured!"
 ```
 
-**Verify secrets were created:**
+#### Verify secrets were created
 
 ```bash
 gh secret list
@@ -757,7 +765,7 @@ gh secret list
 
 **Expected output:**
 
-```
+```text
 NAME                 UPDATED
 AZURE_CLIENT_ID      now
 AZURE_SUBSCRIPTION_ID now
@@ -928,6 +936,7 @@ The wizard will ask for:
 The wizard writes a `.env` file and optionally runs `scripts/render-k8s.sh` to generate all K8s manifests from templates in `backstage/k8s/templates/`.
 
 > 💡 **Alternatively**, you can configure manually:
+>
 > ```bash
 > cp .env.example .env
 > # Edit .env with your values
@@ -1012,11 +1021,11 @@ environment = "dev"
 # Choose the region closest to your users
 location = "brazilsouth"
 
-# Your Azure subscription ID (from azure-credentials.json)
+# Your Azure subscription ID (from az account show or setup-identity-federation.sh)
 # Format: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 subscription_id = "PASTE_YOUR_SUBSCRIPTION_ID_HERE"
 
-# Your Azure tenant ID (from azure-credentials.json)
+# Your Azure tenant ID (from az account show or setup-identity-federation.sh)
 tenant_id = "PASTE_YOUR_TENANT_ID_HERE"
 
 # Your GitHub organization name
@@ -2432,17 +2441,17 @@ az keyvault show --name <kv-name> --query "properties.accessPolicies"
 ### Required for Terraform
 
 | Variable | Description | Where to Get It |
-|----------|-------------|-----------------|
-| AZURE_CLIENT_ID | Federated Entra app client ID | `setup-identity-federation.sh` |
-| AZURE_SUBSCRIPTION_ID | Azure subscription ID | `az account show` / setup helper |
-| AZURE_TENANT_ID | Azure tenant ID | `az account show` / setup helper |
-| AZURE_ADMIN_GROUP_ID | Entra group object ID for admins | Entra admin group |
+| -------- | ----------- | --------------- |
+| Azure_CLIENT_ID | Federated Entra app client ID | `setup-identity-federation.sh` |
+| Azure_SUBSCRIPTION_ID | Azure subscription ID | `az account show` / setup helper |
+| Azure_TENANT_ID | Azure tenant ID | `az account show` / setup helper |
+| Azure_ADMIN_GROUP_ID | Entra group object ID for admins | Entra admin group |
 | GH_PAT | Fine-grained GitHub token for repo automation | GitHub token settings |
 
 ### Optional Configuration
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| -------- | ------- | ----------- |
 | PROJECT_NAME | openhorizons | Used in all resource names |
 | ENVIRONMENT | dev | Environment (dev/staging/prod) |
 | Azure_LOCATION | brazilsouth | Azure region |

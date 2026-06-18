@@ -68,7 +68,7 @@ Generated repositories that opted into Azure deployment ship a copy of [`scripts
 |------|-----------|
 | Add a new Golden Path | [`golden-paths/README.md`](../../golden-paths/README.md) |
 | Add or update a Copilot agent or skill | [`AGENTS.md`](../../AGENTS.md), [`.github/agents/`](../../.github/agents/) |
-| Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr), `cd.yml` workflow |
+| Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr), [`release-images.yml`](../../.github/workflows/release-images.yml) workflow |
 | Validate templates and links | `bash scripts/validate-scaffolder-templates.sh golden-paths`, `bash scripts/validate-docs.sh --include-skeletons` |
 | Audit drift between intent and code | `bash scripts/measure-intent-drift.sh` |
 | Troubleshoot a deployment | [TROUBLESHOOTING_GUIDE.md](TROUBLESHOOTING_GUIDE.md) |
