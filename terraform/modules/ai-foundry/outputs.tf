@@ -68,3 +68,13 @@ output "key_vault_secrets" {
     content_safety_key      = var.content_safety_config.enabled ? azurerm_key_vault_secret.content_safety_key[0].name : null
   }
 }
+
+output "foundry_memory_endpoint" {
+  description = "Cosmos DB endpoint for Foundry enterprise memory (L6)"
+  value       = var.foundry_agents_config.enabled && var.foundry_agents_config.cosmos_memory.enabled ? azurerm_cosmosdb_account.foundry_memory[0].endpoint : null
+}
+
+output "foundry_memory_account_name" {
+  description = "Cosmos DB account name for Foundry enterprise memory (L6)"
+  value       = var.foundry_agents_config.enabled && var.foundry_agents_config.cosmos_memory.enabled ? azurerm_cosmosdb_account.foundry_memory[0].name : null
+}

@@ -55,6 +55,9 @@ jobs:
           - name: mcp-ecosystem
             context: mcp-servers
             dockerfile: mcp-servers/Dockerfile
+          - name: ohorizons-foundry-agents
+            context: foundry/agents-service
+            dockerfile: foundry/agents-service/Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@v4

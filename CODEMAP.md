@@ -11,7 +11,7 @@
   L2 Platform Eng     → backstage/ + argocd/ + policies/ + golden-paths/
   L3 Context Eng      → mcp-servers/ + .github/skills/ + .github/agents/
   L4 Intent Eng       → CONSTITUTION.md + golden-paths/common/templates/
-  L5 Agentic Exec     → backstage/server/agent-api*/ + .github/agents/
+  L5 Agentic Exec     → backstage/server/agent-api*/ + foundry/ (L6 harness) + .github/agents/
 ```
 
 ## Entry Points

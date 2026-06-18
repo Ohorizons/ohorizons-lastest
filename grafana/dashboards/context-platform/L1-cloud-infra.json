@@ -152,7 +152,7 @@
       "id": 3,
       "type": "stat",
       "title": "Pods Ready",
-      "description": "Pods Ready across namespaces (rhdh, ai-services, …). Real: `count(kube_pod_status_phase{phase=\"Running\"})`.",
+      "description": "Pods Ready across namespaces (backstage, ai-services, …). Real: `count(kube_pod_status_phase{phase=\"Running\"})`.",
       "datasource": {
         "type": "grafana-testdata-datasource",
         "uid": "${DS_TESTDATA}"
@@ -583,7 +583,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-1",
+          "alias": "aks-node-1",
           "min": 28,
           "max": 71,
           "spread": 8,
@@ -597,7 +597,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-2",
+          "alias": "aks-node-2",
           "min": 22,
           "max": 64,
           "spread": 7,
@@ -611,7 +611,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-3",
+          "alias": "aks-node-3",
           "min": 31,
           "max": 78,
           "spread": 9,
@@ -682,7 +682,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-1",
+          "alias": "aks-node-1",
           "min": 41,
           "max": 73,
           "spread": 4,
@@ -695,7 +695,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-2",
+          "alias": "aks-node-2",
           "min": 38,
           "max": 69,
           "spread": 4,
@@ -708,7 +708,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "aro-worker-3",
+          "alias": "aks-node-3",
           "min": 44,
           "max": 81,
           "spread": 5,
@@ -778,7 +778,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "rhdh",
+          "alias": "backstage",
           "min": 2,
           "max": 3,
           "spread": 0.2,
@@ -804,7 +804,7 @@
             "uid": "${DS_TESTDATA}"
           },
           "scenarioId": "random_walk",
-          "alias": "openshift-*",
+          "alias": "kube-system",
           "min": 28,
           "max": 34,
           "spread": 1.5,

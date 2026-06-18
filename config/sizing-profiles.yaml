@@ -64,12 +64,22 @@ profiles:
         capacity: 0
 
     ai_foundry:
-      enabled: false # Optional for Small
+      enabled: false # Optional for Small (H3 Innovation)
       models:
+        gpt51:
+          capacity_tpm: 10000
         gpt4o:
           capacity_tpm: 10000
         embedding:
           capacity_tpm: 30000
+      # L6 Harness — Foundry agents gateway (semantic cache, A2A, 21-field telemetry)
+      foundry_agents:
+        enabled: false # H3 Innovation; enable when adopting the agent runtime
+        replicas: 1
+        prompt_cache:
+          enabled: false # needs Redis with RediSearch for semantic tier
+        cosmos_memory:
+          enabled: false
 
     observability:
       log_analytics:
@@ -142,6 +152,8 @@ profiles:
     ai_foundry:
       enabled: true
       models:
+        gpt51:
+          capacity_tpm: 50000
         gpt4o:
           capacity_tpm: 50000
         gpt4o_mini:
@@ -152,6 +164,18 @@ profiles:
         sku: "basic"
         replicas: 1
         partitions: 1
+      # L6 Harness — Foundry agents gateway (H3 Innovation)
+      foundry_agents:
+        enabled: true
+        replicas: 2
+        prompt_cache:
+          enabled: true
+          backend: "redis"
+          similarity_threshold: 0.93
+        cosmos_memory:
+          enabled: true
+        telemetry:
+          app_insights: true # 21-field llm.call.completed event
 
     observability:
       log_analytics:
@@ -252,9 +276,16 @@ profiles:
         capacity: 1
         zones: ["1", "2", "3"]
 
+      cosmos_db:
+        enabled: true
+        api: "sql"
+        multi_region_writes: false
+
     ai_foundry:
       enabled: true
       models:
+        gpt51:
+          capacity_tpm: 150000
         gpt4o:
           capacity_tpm: 150000
         gpt4o_mini:
@@ -267,6 +298,20 @@ profiles:
         partitions: 1
       content_safety:
         enabled: true
+      # L6 Harness — Foundry agents gateway (H3 Innovation)
+      foundry_agents:
+        enabled: true
+        replicas: 3
+        prompt_cache:
+          enabled: true
+          backend: "redis"
+          similarity_threshold: 0.93
+        cosmos_memory:
+          enabled: true
+        telemetry:
+          app_insights: true
+        purview_audit:
+          enabled: true
 
     observability:
       log_analytics:
@@ -382,12 +427,16 @@ profiles:
       regions:
         primary:
           models:
+            gpt51:
+              capacity_tpm: 300000
             gpt4o:
               capacity_tpm: 300000
             embedding:
               capacity_tpm: 500000
         secondary:
           models:
+            gpt51:
+              capacity_tpm: 150000
             gpt4o:
               capacity_tpm: 150000
             embedding:
@@ -396,6 +445,20 @@ profiles:
         sku: "standard2"
         replicas: 3
         partitions: 2
+      # L6 Harness — Foundry agents gateway (H3 Innovation, multi-region)
+      foundry_agents:
+        enabled: true
+        replicas: 4
+        prompt_cache:
+          enabled: true
+          backend: "redis"
+          similarity_threshold: 0.93
+        cosmos_memory:
+          enabled: true
+        telemetry:
+          app_insights: true
+        purview_audit:
+          enabled: true
 
     disaster_recovery:
       rpo_minutes: 15

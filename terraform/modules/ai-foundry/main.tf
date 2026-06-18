@@ -344,3 +344,55 @@ resource "azurerm_monitor_diagnostic_setting" "search" {
 }
 
 # NOTE: Outputs are defined in outputs.tf
+
+# ─────────────────────────────────────────────────────────────────────────────
+# L6 Harness — Foundry agents enterprise memory (Cosmos DB)
+# Backs cosmos_memory.py in the foundry-agents gateway. AAD-only auth
+# (disableLocalAuth) so the gateway uses Workload Identity, never keys.
+# ─────────────────────────────────────────────────────────────────────────────
+resource "azurerm_cosmosdb_account" "foundry_memory" {
+  count = var.foundry_agents_config.enabled && var.foundry_agents_config.cosmos_memory.enabled ? 1 : 0
+
+  name                = "cosmos-${local.name_prefix}-foundry"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  local_authentication_disabled = true # AAD-only; gateway uses Workload Identity
+
+  consistency_policy {
+    consistency_level = var.foundry_agents_config.cosmos_memory.consistency_level
+  }
+
+  geo_location {
+    location          = var.location
+    failover_priority = 0
+  }
+
+  capabilities {
+    name = "EnableServerless"
+  }
+
+  public_network_access_enabled = false
+
+  tags = local.common_tags
+}
+
+resource "azurerm_cosmosdb_sql_database" "foundry_memory" {
+  count = var.foundry_agents_config.enabled && var.foundry_agents_config.cosmos_memory.enabled ? 1 : 0
+
+  name                = "enterprise_memory"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.foundry_memory[0].name
+}
+
+resource "azurerm_cosmosdb_sql_container" "foundry_memory" {
+  count = var.foundry_agents_config.enabled && var.foundry_agents_config.cosmos_memory.enabled ? 1 : 0
+
+  name                = "agent_memory"
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.foundry_memory[0].name
+  database_name       = azurerm_cosmosdb_sql_database.foundry_memory[0].name
+  partition_key_paths = ["/agent_id"]
+}

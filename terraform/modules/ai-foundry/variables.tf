@@ -54,6 +54,13 @@ variable "openai_config" {
     sku_name = "S0"
     models = [
       {
+        name          = "gpt-5.1"
+        model_name    = "gpt-5.1"
+        model_version = "2025-11-13"
+        capacity      = 50
+        rai_policy    = "Microsoft.Default"
+      },
+      {
         name          = "gpt-4o"
         model_name    = "gpt-4o"
         model_version = "2024-05-13"
@@ -107,6 +114,31 @@ variable "content_safety_config" {
   default = {
     enabled  = true
     sku_name = "S0"
+  }
+}
+
+# L6 Harness — Foundry agents gateway (semantic prompt cache, A2A, 21-field telemetry,
+# Cosmos enterprise memory). Deployed to AKS via foundry/k8s manifests; this config
+# drives the backing Cosmos DB account used by cosmos_memory.
+variable "foundry_agents_config" {
+  description = "H3 L6 Foundry agents gateway configuration (Cosmos enterprise memory + cache backend)"
+  type = object({
+    enabled = bool
+    cosmos_memory = object({
+      enabled              = bool
+      consistency_level    = string
+      multi_region_writes  = bool
+      total_throughput_max = number
+    })
+  })
+  default = {
+    enabled = false # H3 Innovation; enable when adopting the agent runtime
+    cosmos_memory = {
+      enabled              = false
+      consistency_level    = "Session"
+      multi_region_writes  = false
+      total_throughput_max = 4000
+    }
   }
 }
 
