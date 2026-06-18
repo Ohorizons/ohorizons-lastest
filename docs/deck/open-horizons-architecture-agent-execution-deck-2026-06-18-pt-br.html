@@ -76,13 +76,19 @@ code, pre { font-family: var(--ps-font-mono); }
 .deck-brand__squares span:nth-child(3) { background: var(--ps-color-ms-blue-500); }
 .deck-brand__squares span:nth-child(4) { background: var(--ps-color-ms-yellow-500); }
 .deck-brand__text { font-family: var(--ps-font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-2); }
-.deck-meta { position: fixed; top: 22px; right: 22px; z-index: 100; padding: 7px 10px; border: 1px solid var(--ps-color-rule); border-radius: 4px; background: var(--ps-color-paper); font-family: var(--ps-font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.deck-meta { position: fixed; top: 22px; right: 168px; z-index: 100; padding: 7px 10px; border: 1px solid var(--ps-color-rule); border-radius: 4px; background: var(--ps-color-paper); font-family: var(--ps-font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.lang-switcher { position: fixed; top: 22px; right: 22px; z-index: 100; display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--ps-color-rule); border-radius: 4px; background: var(--ps-color-paper); font-family: var(--ps-font-mono); }
+.lang-switcher__btn { min-width: 38px; padding: 5px 8px; border: 0; border-radius: 3px; background: transparent; color: var(--ps-color-ink-3); cursor: pointer; font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.lang-switcher__btn[aria-current="true"] { background: var(--ps-color-ms-blue-700); color: var(--ps-color-paper); }
+.lang-switcher__btn:focus-visible { outline: 2px solid var(--ps-color-ms-blue-500); outline-offset: 2px; }
 .deck-controls { position: fixed; bottom: 22px; right: 22px; display: flex; gap: 6px; z-index: 100; font-family: var(--ps-font-mono); }
 .deck-controls__btn { width: 38px; height: 38px; border: 1px solid var(--ps-color-rule-2); border-radius: 4px; background: var(--ps-color-paper); color: var(--ps-color-ink); font-size: 16px; cursor: pointer; }
 .deck-controls__btn:hover { background: var(--ps-color-ink); color: var(--ps-color-paper); }
 .deck-controls__counter { display: inline-flex; align-items: center; padding: 0 14px; border: 1px solid var(--ps-color-rule-2); border-radius: 4px; background: var(--ps-color-paper); color: var(--ps-color-ink-2); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; }
 body[data-slide-theme="dark"] .deck-brand__text { color: var(--ps-color-dark-ink-2); }
-body[data-slide-theme="dark"] .deck-meta, body[data-slide-theme="dark"] .deck-controls__btn, body[data-slide-theme="dark"] .deck-controls__counter { background: var(--ps-color-dark-surface); border-color: var(--ps-color-dark-rule); color: var(--ps-color-dark-ink-2); }
+body[data-slide-theme="dark"] .deck-meta, body[data-slide-theme="dark"] .lang-switcher, body[data-slide-theme="dark"] .deck-controls__btn, body[data-slide-theme="dark"] .deck-controls__counter { background: var(--ps-color-dark-surface); border-color: var(--ps-color-dark-rule); color: var(--ps-color-dark-ink-2); }
+body[data-slide-theme="dark"] .lang-switcher__btn { color: var(--ps-color-dark-ink-3); }
+body[data-slide-theme="dark"] .lang-switcher__btn[aria-current="true"] { background: var(--ps-color-ms-blue-500); color: var(--ps-color-dark-bg); }
 body[data-slide-theme="dark"] .deck-controls__btn:hover { background: var(--ps-color-dark-ink); color: var(--ps-color-dark-bg); }
 
 .eyebrow { margin-bottom: 18px; font-family: var(--ps-font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent, var(--ps-color-ms-blue-700)); }
@@ -181,8 +187,8 @@ body[data-slide-theme="dark"] .deck-controls__btn:hover { background: var(--ps-c
 .table tr:last-child td { border-bottom: none; }
 .table b { color: var(--ps-color-ink); }
 
-.notes-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 95; max-height: 32vh; overflow-y: auto; transform: translatéY(100%); transition: transform 0.25s ease; background: rgba(20, 20, 20, 0.97); border-top: 2px solid var(--ps-color-ms-blue-500); padding: 18px 48px 22px; }
-body[data-notes-open="true"] .notes-panel { transform: translatéY(0); }
+.notes-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 95; max-height: 32vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.25s ease; background: rgba(20, 20, 20, 0.97); border-top: 2px solid var(--ps-color-ms-blue-500); padding: 18px 48px 22px; }
+body[data-notes-open="true"] .notes-panel { transform: translateY(0); }
 body[data-notes-open="true"] .deck-controls { bottom: calc(32vh + 16px); }
 .notes-panel__label { margin-bottom: 8px; color: var(--ps-color-ms-blue-500); font-family: var(--ps-font-mono); font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
 .notes-panel__body { max-width: 1120px; color: var(--ps-color-dark-ink-2); font-size: 15px; line-height: 1.6; }
@@ -203,7 +209,7 @@ body[data-notes-open="true"] .deck-controls { bottom: calc(32vh + 16px); }
 .overview-card__num { display: inline-block; margin-bottom: 10px; font-family: var(--ps-font-mono); font-size: 10px; font-weight: 800; color: var(--ps-color-ms-blue-700); }
 .overview-card__eyebrow { display: block; margin-bottom: 8px; font-family: var(--ps-font-mono); font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ps-color-ink-3); }
 .overview-card__title { font-size: 14px; line-height: 1.25; font-weight: 700; }
-body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .deck-meta, body[data-overview-open="true"] .deck-progress, body[data-overview-open="true"] .deck-controls, body[data-overview-open="true"] .kbd-hint { display: none; }
+body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .deck-meta, body[data-overview-open="true"] .lang-switcher, body[data-overview-open="true"] .deck-progress, body[data-overview-open="true"] .deck-controls, body[data-overview-open="true"] .kbd-hint { display: none; }
 
 .references { margin-top: 20px; max-width: 1280px; columns: 2; column-gap: 28px; }
 .references li { break-inside: avoid; margin: 0 0 10px; color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.45; }
@@ -223,14 +229,14 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
   .slide[data-active="true"] { display: flex; }
   .meta-grid, .grid--2, .grid--3, .grid--4, .grid--5 { grid-template-columns: 1fr; }
   .flow { flex-direction: column; }
-  .flow-arrow { justify-content: center; transform: rotaté(90deg); }
-  .deck-brand__text, .deck-meta { display: none; }
+  .flow-arrow { justify-content: center; transform: rotate(90deg); }
+  .deck-brand__text, .deck-meta, .lang-switcher { display: none; }
   .references { columns: 1; }
 }
 @media print {
   html, body { overflow: visible; }
   .slide { position: relative; visibility: visible; opacity: 1; page-break-after: always; min-height: 100vh; }
-  .deck-brand, .deck-meta, .deck-progress, .deck-controls, .notes-panel, .overview, .kbd-hint { display: none !important; }
+  .deck-brand, .deck-meta, .lang-switcher, .deck-progress, .deck-controls, .notes-panel, .overview, .kbd-hint { display: none !important; }
 }
 </style>
 </head>
@@ -241,12 +247,17 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
   <span class="deck-brand__text">Open Horizons | Agentic DevOps Platform</span>
 </div>
 <div class="deck-meta">PT-BR · Arquitetura</div>
+<div class="lang-switcher" aria-label="Idioma / Language">
+  <button class="lang-switcher__btn" type="button" data-locale="pt-BR" aria-current="true">PT</button>
+  <button class="lang-switcher__btn" type="button" data-locale="en" aria-current="false">EN</button>
+  <button class="lang-switcher__btn" type="button" data-locale="es" aria-current="false">ES</button>
+</div>
 
 <main class="deck" id="deck">
   <section class="slide slide--light" data-active="true" data-accent="blue-700" data-notes="Abra posicionando o deck como uma revisão técnica. A promessa aqui não é vender o conceito; é mostrar como o Open Horizons é implementado, onde cada capacidade mora, e como a execução dos agentes é governada.">
     <div class="eyebrow">Open Horizons · Deep dive técnico</div>
     <h1 class="title">Arquitetura e <span class="accent-blue">execução dos agentes</span>.</h1>
-    <p class="subtitle">Como o acelerador matérializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails e observabilidade em uma plataforma operável.</p>
+    <p class="subtitle">Como o acelerador materializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails e observabilidade em uma plataforma operável.</p>
     <div class="meta-grid">
       <div class="meta-item"><span class="meta-label">Autora</span><span class="meta-value">Open Horizons</span></div>
       <div class="meta-item"><span class="meta-label">Audiência</span><span class="meta-value">Arquitetura, plataforma, SRE, segurança e AI engineering</span></div>
@@ -255,7 +266,7 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="blue-700" data-notes="Mostre a estrutura. Este deck acompanhá o template visual do deck principal, mas troca a narrativa comercial por uma revisão técnica orientada a implementação.">
+  <section class="slide slide--paper" data-accent="blue-700" data-notes="Mostre a estrutura. Este deck acompanha o template visual do deck principal, mas troca a narrativa comercial por uma revisão técnica orientada a implementação.">
     <div class="eyebrow">Mapa do deep dive</div>
     <h2 class="title title--small">Quatro atos. Um objetivo: sair sabendo <span class="accent-green">como a plataforma funciona por dentro</span>.</h2>
     <div class="grid grid--4">
@@ -266,19 +277,19 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
     </div>
   </section>
 
-  <section class="slide slide--light" data-accent="green" data-notes="Este slide define o criterio de sucesso. Arquitetura boa aqui significa controle operacional sobre infraestrutura, plataforma, contexto, intenção e execução agêntica.">
+  <section class="slide slide--light" data-accent="green" data-notes="Este slide define o critério de sucesso. Arquitetura boa aqui significa controle operacional sobre infraestrutura, plataforma, contexto, intenção e execução agêntica.">
     <div class="eyebrow">Tese de arquitetura</div>
     <h2 class="title title--small">Open Horizons é uma arquitetura para tornar agentes <span class="accent-green">executáveis, governados e auditáveis</span>.</h2>
     <div class="grid grid--5">
       <div class="card" data-card="blue"><div class="card__kicker">01</div><h3 class="card__title">Fundação segura</h3><p class="card__text">AKS, rede privada, identidade, Key Vault, políticas e observabilidade desde H1.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">02</div><h3 class="card__title">IDP operável</h3><p class="card__text">Backstage OSS como produto interno: catálogo, Golden Paths, TechDocs e status.</p></div>
       <div class="card" data-card="yellow"><div class="card__kicker">03</div><h3 class="card__title">Contexto controlado</h3><p class="card__text">MCP, memória, cache, skills e RAG com budget de contexto e fronteiras claras.</p></div>
-      <div class="card" data-card="red"><div class="card__kicker">04</div><h3 class="card__title">Intencao explicita</h3><p class="card__text">SDD, CONSTITUTION.md, model routing e scope guard antes da implementação.</p></div>
-      <div class="card" data-card="blue-700"><div class="card__kicker">05</div><h3 class="card__title">Execução rastreavel</h3><p class="card__text">Trajetoria, custos, hooks, telemetria GenAI e evidencia para revisão.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">04</div><h3 class="card__title">Intenção explícita</h3><p class="card__text">SDD, CONSTITUTION.md, model routing e scope guard antes da implementação.</p></div>
+      <div class="card" data-card="blue-700"><div class="card__kicker">05</div><h3 class="card__title">Execução rastreável</h3><p class="card__text">Trajetória, custos, hooks, telemetria GenAI e evidência para revisão.</p></div>
     </div>
   </section>
 
-  <section class="slide slide--dark" data-accent="blue" data-notes="Transicao para o modelo. Use este bloco para alinhár linguagem antes de entrar nos diagramas.">
+  <section class="slide slide--dark" data-accent="blue" data-notes="Transição para o modelo. Use este bloco para alinhar linguagem antes de entrar nos diagramas.">
     <div class="eyebrow">Ato 1</div>
     <div class="section-number">01</div>
     <h1 class="section-title">Modelo de referência.</h1>
@@ -287,7 +298,7 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
 
   <section class="slide slide--paper" data-accent="blue-700" data-notes="Explique que H1/H2/H3 são estágios de adoção e as camadas são responsabilidades arquiteturais. L6 é o harness operacional que torna chamadas de modelo governáveis.">
     <div class="eyebrow">Horizons e camadas</div>
-    <h2 class="title title--small">Tres horizontes de adoção. Seis responsabilidades operacionais.</h2>
+    <h2 class="title title--small">Três horizontes de adoção. Seis responsabilidades operacionais.</h2>
     <div class="layer-stack">
       <div class="layer-row" data-layer="red"><div class="layer-row__num">L6</div><div class="layer-row__name">Harness</div><div class="layer-row__desc">Gateway Foundry, cache semântico, A2A, telemetria, memória enterprise e controle de custo por chamada.</div><div class="layer-row__owner">H3 · SRE/FinOps/Sec</div></div>
       <div class="layer-row" data-layer="yellow"><div class="layer-row__num">L5</div><div class="layer-row__name">Agentic Execution</div><div class="layer-row__desc">Agent API, agentes runtime, tool loop, trajetórias, cost tracker e hooks no choke point.</div><div class="layer-row__owner">H3 · AI Platform</div></div>
@@ -309,14 +320,14 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
 
   <section class="slide slide--light" data-accent="green" data-notes="Mostre quem conversa com o sistema: desenvolvedores, platform engineers, agentes runtime, GitHub, ADO, Backstage, ArgoCD, AKS e Foundry.">
     <div class="eyebrow">Diagrama 2 · System Context</div>
-    <h2 class="title title--small">A fronteira do sistema inclui pessoas, agentes, sistemas de engenhária e runtime Azure.</h2>
+    <h2 class="title title--small">A fronteira do sistema inclui pessoas, agentes, sistemas de engenharia e runtime Azure.</h2>
     <div class="diagram-layout">
       <div class="diagram-stage"><img src="../assets/architecture/system-context.svg" alt="Open Horizons system context diagram" /></div>
       <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Checks arquiteturais</h3><ul><li>GitHub e Azure DevOps são integrações de primeira classe.</li><li>Backstage é o plano de experiência.</li><li>ArgoCD é o plano de reconciliação.</li><li>Telemetria e governança agêntica estão dentro da fronteira.</li></ul></aside>
     </div>
   </section>
 
-  <section class="slide slide--dark" data-accent="green" data-notes="Transicao para a implementação das camadas H1 e H2. Agora o discurso sai do modelo e entra no que e provisionado e operado.">
+  <section class="slide slide--dark" data-accent="green" data-notes="Transição para a implementação das camadas H1 e H2. Agora o discurso sai do modelo e entra no que é provisionado e operado.">
     <div class="eyebrow">Ato 2</div>
     <div class="section-number">02</div>
     <h1 class="section-title">Implementação da plataforma.</h1>
@@ -332,9 +343,9 @@ body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .de
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="blue" data-notes="Conecte o diagrama ao repositorio. Estes são os modulos reais que implementam H1 e os modulos de suporte H2.">
+  <section class="slide slide--paper" data-accent="blue" data-notes="Conecte o diagrama ao repositório. Estes são os módulos reais que implementam H1 e os módulos de suporte H2.">
     <div class="eyebrow">H1 em código</div>
-    <h2 class="title title--small">Terraform e o contrato de infraestrutura reproduzivel.</h2>
+    <h2 class="title title--small">Terraform e o contrato de infraestrutura reproduzível.</h2>
     <div class="grid grid--4">
       <div class="card" data-card="blue"><div class="card__kicker">Runtime</div><h3 class="card__title">AKS + ACR</h3><p class="card__text">`aks-cluster` e `container-registry` criam o plano de execução, identidade e imagens aprovadas.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">Rede</div><h3 class="card__title">Networking</h3><p class="card__text">VNet, subnets, NSGs, private endpoints e caminho de egress controlado.</p></div>
@@ -369,13 +380,13 @@ defender · disaster-recovery · external-secrets · github-runners · naming ·
     <h2 class="title title--small">A entrega é declarativa: source muda, CI valida, ArgoCD reconcilia, observabilidade fecha o loop.</h2>
     <div class="diagram-layout">
       <div class="diagram-stage"><img src="../assets/architecture/h2-gitops-observability-detail.svg" alt="H2 GitOps and observability detail diagram" /></div>
-      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Fluxo</h3><ul><li>Build, teste e scan antes de atualizar estádo desejado.</li><li>Imagem imutável por digest no manifesto ou Helm values.</li><li>Sync waves aplicam recursos na ordem correta.</li><li>Prometheus, Loki, Grafana e Alertmanager criam a evidencia operacional.</li></ul></aside>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Fluxo</h3><ul><li>Build, teste e scan antes de atualizar estado desejado.</li><li>Imagem imutável por digest no manifesto ou Helm values.</li><li>Sync waves aplicam recursos na ordem correta.</li><li>Prometheus, Loki, Grafana e Alertmanager criam a evidência operacional.</li></ul></aside>
     </div>
   </section>
 
   <section class="slide slide--paper" data-accent="green" data-notes="Use este mapa para ajudar arquitetos a encontrar o código depois da apresentação. É também uma defesa de separação de responsabilidades no repo.">
     <div class="eyebrow">Mapa de implementação</div>
-    <h2 class="title title--small">Cada responsabilidade arquitetural tem um endereco no repositorio.</h2>
+    <h2 class="title title--small">Cada responsabilidade arquitetural tem um endereço no repositório.</h2>
     <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>repo map</div><pre><code>terraform/modules/                 <span class="code-comment"># L1 Azure infrastructure modules</span>
 backstage/                         <span class="code-comment"># L2 Backstage OSS portal, plugins, k8s manifests</span>
 argocd/                            <span class="code-comment"># L2 GitOps apps, sync policies, app-of-apps</span>
@@ -388,7 +399,7 @@ foundry/agents-service/            <span class="code-comment"># L6 Foundry gatew
 grafana/ prometheus/               <span class="code-comment"># observability and alerting</span></code></pre></div>
   </section>
 
-  <section class="slide slide--dark" data-accent="yellow" data-notes="Agora entramos no motor agêntico. Prepare a audiencia para olhár o runtime como sistema distribuído, não como prompt solto.">
+  <section class="slide slide--dark" data-accent="yellow" data-notes="Agora entramos no motor agêntico. Prepare a audiência para olhar o runtime como sistema distribuído, não como prompt solto.">
     <div class="eyebrow">Ato 3</div>
     <div class="section-number">03</div>
     <h1 class="section-title">Runtime dos agentes.</h1>
@@ -399,64 +410,64 @@ grafana/ prometheus/               <span class="code-comment"># observability an
     <div class="eyebrow">Entry points reais</div>
     <h2 class="title title--small">O runtime agêntico é exposto por APIs especializadas e um gateway Foundry.</h2>
     <table class="table" aria-label="Open Horizons runtime entry points">
-      <thead><tr><th>Superficie</th><th>Entrada</th><th>Porta / protocolo</th><th>Funcao</th></tr></thead>
+      <thead><tr><th>Superfície</th><th>Entrada</th><th>Porta / protocolo</th><th>Função</th></tr></thead>
       <tbody>
         <tr><td><b>Backstage portal</b></td><td>backstage/packages/app/</td><td>7007</td><td>Experiência do usuário: catálogo, TechDocs, AI Chat, AI Impact e operação.</td></tr>
-        <tr><td><b>Agent API</b></td><td>backstage/server/agent-api/main.py</td><td>8008</td><td>Multi-agent chat, router, SSE, trajetoria, custo e hooks.</td></tr>
-        <tr><td><b>Agent API Impact</b></td><td>backstage/server/agent-api-impact/main.py</td><td>8011</td><td>Analise de impacto e experiências AI Impact.</td></tr>
-        <tr><td><b>MAF / SK APIs</b></td><td>backstage/server/agent-api-maf/ · agent-api-sk/</td><td>8012 / 8013</td><td>Superficies para Microsoft Agent Framework e Semantic Kernel.</td></tr>
-        <tr><td><b>MCP Ecosystem</b></td><td>mcp-servers/src/index.ts</td><td>stdio</td><td>Ferramentas de documentacao, catálogo, Backstage, GitHub e referência.</td></tr>
+        <tr><td><b>Agent API</b></td><td>backstage/server/agent-api/main.py</td><td>8008</td><td>Multi-agent chat, router, SSE, trajetória, custo e hooks.</td></tr>
+        <tr><td><b>Agent API Impact</b></td><td>backstage/server/agent-api-impact/main.py</td><td>8011</td><td>Análise de impacto e experiências AI Impact.</td></tr>
+        <tr><td><b>MAF / SK APIs</b></td><td>backstage/server/agent-api-maf/ · agent-api-sk/</td><td>8012 / 8013</td><td>Superfícies para Microsoft Agent Framework e Semantic Kernel.</td></tr>
+        <tr><td><b>MCP Ecosystem</b></td><td>mcp-servers/src/index.ts</td><td>stdio</td><td>Ferramentas de documentação, catálogo, Backstage, GitHub e referência.</td></tr>
         <tr><td><b>Foundry gateway</b></td><td>foundry/agents-service/app/main.py</td><td>OpenAI-compatible API</td><td>Harness L6 para chamadas Foundry, cache, A2A, toolbox, memória e telemetria.</td></tr>
       </tbody>
     </table>
   </section>
 
-  <section class="slide slide--paper" data-accent="yellow" data-notes="Este e o fluxo central do Agent API. Leia de cima para baixo e enfatize os pontos de governança: trajectory before, cost start, execute tool com hook, cost finish, trajectory after.">
+  <section class="slide slide--paper" data-accent="yellow" data-notes="Este é o fluxo central do Agent API. Leia de cima para baixo e enfatize os pontos de governança: trajectory before, cost start, execute tool com hook, cost finish, trajectory after.">
     <div class="eyebrow">Fluxo real · Agent API</div>
     <h2 class="title title--small">`POST /api/agents/chat` executa roteamento, loop agêntico, hooks e streaming SSE.</h2>
     <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>Agent API core flow</div><pre><code>POST /api/agents/chat
   -&gt; router.detect_agent(message)       <span class="code-comment"># @mention &gt; keyword &gt; orchestrator</span>
   -&gt; TrajectoryMiddleware.before()      <span class="code-comment"># intent + context snapshot</span>
   -&gt; CostTracker.start()                <span class="code-comment"># begin token accounting</span>
-  -&gt; BaseAgent.hándle(message)          <span class="code-comment"># agentic loop</span>
+  -&gt; BaseAgent.handle(message)          <span class="code-comment"># agentic loop</span>
       -&gt; Azure OpenAI chat.completions
       -&gt; tool_call? -&gt; _execute_tool()
           -&gt; tool_hooks.pre_tool_use()  <span class="code-comment"># classify, block, audit</span>
           -&gt; tool_executor(name, args)
-          -&gt; tool_hooks.post_tool_use() <span class="code-comment"># redact, truncaté</span>
+          -&gt; tool_hooks.post_tool_use() <span class="code-comment"># redact, truncate</span>
       -&gt; loop until no tool_calls
   -&gt; CostTracker.finish()
   -&gt; TrajectoryMiddleware.after()
   -&gt; SSE stream to frontend             <span class="code-comment"># agent | text | tool_use | tool_result | done</span></code></pre></div>
   </section>
 
-  <section class="slide slide--light" data-accent="blue" data-notes="Explique que o roteador evita um agente universal para tudo. A escolhá pode vir explicita por request.agent, por @mention, por keyword, ou cair no orchestrator.">
+  <section class="slide slide--light" data-accent="blue" data-notes="Explique que o roteador evita um agente universal para tudo. A escolha pode vir explícita por request.agent, por @mention, por keyword, ou cair no orchestrator.">
     <div class="eyebrow">Roteamento</div>
     <h2 class="title title--small">O router escolhe o agente antes do modelo receber o contexto.</h2>
     <div class="flow">
-      <div class="flow-step" data-step="blue"><div class="flow-step__num">01</div><div class="flow-step__title">Override explicito</div><div class="flow-step__text">Se a request traz `agent` valido, o backend usa esse agente.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="blue"><div class="flow-step__num">01</div><div class="flow-step__title">Override explícito</div><div class="flow-step__text">Se a request traz `agent` válido, o backend usa esse agente.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="green"><div class="flow-step__num">02</div><div class="flow-step__title">@mention</div><div class="flow-step__text">`@pipeline`, `@security`, `@sre` e outros nomes direcionam a conversa.</div></div><div class="flow-arrow">→</div>
-      <div class="flow-step" data-step="yellow"><div class="flow-step__num">03</div><div class="flow-step__title">Keyword match</div><div class="flow-step__text">O router detecta intenção por palavras-cháve do `AgentConfig`.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="yellow"><div class="flow-step__num">03</div><div class="flow-step__title">Keyword match</div><div class="flow-step__text">O router detecta intenção por palavras-chave do `AgentConfig`.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="red"><div class="flow-step__num">04</div><div class="flow-step__title">Fallback</div><div class="flow-step__text">Sem match, o `orchestrator` assume a conversa.</div></div>
     </div>
     <div class="grid grid--4">
       <div class="card" data-card="blue"><div class="card__kicker">pipeline</div><p class="card__text">Diagnóstico de CI/CD via GitHub workflow runs e jobs.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">sentinel</div><p class="card__text">Quality gates, checks, cobertura e status de PR.</p></div>
       <div class="card" data-card="red"><div class="card__kicker">guardian</div><p class="card__text">Segurança, advisories, Dependabot e postura.</p></div>
-      <div class="card" data-card="yellow"><div class="card__kicker">forge</div><p class="card__text">Infraestrutura, repositorios, branches e automação.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">forge</div><p class="card__text">Infraestrutura, repositórios, branches e automação.</p></div>
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="green" data-notes="Mostre o BaseAgent como mecanismo comum. Todos os agentes herdam a mesma logica e por isso o choke point de tool execution funciona para a frota inteira.">
+  <section class="slide slide--paper" data-accent="green" data-notes="Mostre o BaseAgent como mecanismo comum. Todos os agentes herdam a mesma lógica e por isso o choke point de tool execution funciona para a frota inteira.">
     <div class="eyebrow">Loop agêntico</div>
-    <h2 class="title title--small">`BaseAgent.hándle()` executa um ciclo: prompt, modelo, tools, resultado, repeticao.</h2>
+    <h2 class="title title--small">`BaseAgent.handle()` executa um ciclo: prompt, modelo, tools, resultado, repetição.</h2>
     <div class="flow">
       <div class="flow-step" data-step="blue"><div class="flow-step__num">Sistema</div><div class="flow-step__title">System prompt</div><div class="flow-step__text">O `AgentConfig` injeta persona, limites e ferramentas.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="yellow"><div class="flow-step__num">Modelo</div><div class="flow-step__title">Chat completion</div><div class="flow-step__text">A chamada inclui histórico, temperatura, budget e tool definitions.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="red"><div class="flow-step__num">Tools</div><div class="flow-step__title">Tool calls</div><div class="flow-step__text">Cada chamada passa por `_execute_tool()` antes de chegar no executor.</div></div><div class="flow-arrow">→</div>
-      <div class="flow-step" data-step="green"><div class="flow-step__num">Final</div><div class="flow-step__title">No more tools</div><div class="flow-step__text">Quando não há tool calls, a resposta final e enviada ao frontend.</div></div>
+      <div class="flow-step" data-step="green"><div class="flow-step__num">Final</div><div class="flow-step__title">No more tools</div><div class="flow-step__text">Quando não há tool calls, a resposta final é enviada ao frontend.</div></div>
     </div>
-    <p class="caption">A propriedade arquitetural importante: o loop e comum para a frota. Isso permite hooks, auditoria e sanitização uniformes.</p>
+    <p class="caption">A propriedade arquitetural importante: o loop é comum para a frota. Isso permite hooks, auditoria e sanitização uniformes.</p>
   </section>
 
   <section class="slide slide--light" data-accent="red" data-notes="Este é um dos slides mais importantes. A governança não depende de cada agente lembrar de se comportar bem; ela está no caminho único de execução de ferramenta.">
@@ -468,8 +479,8 @@ grafana/ prometheus/               <span class="code-comment"># observability an
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="yellow" data-notes="Trajetoria e custo são o black box recorder. Sem isso, não existe revisão confiavel de comportamento agêntico.">
-    <div class="eyebrow">Trajetoria, custo e SSE</div>
+  <section class="slide slide--paper" data-accent="yellow" data-notes="Trajetória e custo são o black box recorder. Sem isso, não existe revisão confiável de comportamento agêntico.">
+    <div class="eyebrow">Trajetória, custo e SSE</div>
     <h2 class="title title--small">A resposta do agente é também um registro operacional.</h2>
     <div class="grid grid--3">
       <div class="card" data-card="green"><div class="card__kicker">Trajectory</div><h3 class="card__title">O que aconteceu</h3><p class="card__text">`trajectory_logger.start`, tool calls, tool results, outcome e snapshot de contexto.</p></div>
@@ -485,7 +496,7 @@ GET /api/agents/hooks
 GET /api/agents/hooks/audit</code></pre></div>
   </section>
 
-  <section class="slide slide--dark" data-accent="yellow" data-notes="Transicao para contexto e Foundry. Esta parte explica como o agente sabe, lembra, chama ferramentas e passa pelo harness.">
+  <section class="slide slide--dark" data-accent="yellow" data-notes="Transição para contexto e Foundry. Esta parte explica como o agente sabe, lembra, chama ferramentas e passa pelo harness.">
     <div class="eyebrow">Ato 4</div>
     <div class="section-number">04</div>
     <h1 class="section-title">Contexto, MCP e Foundry.</h1>
@@ -496,26 +507,26 @@ GET /api/agents/hooks/audit</code></pre></div>
     <div class="eyebrow">Context engineering</div>
     <h2 class="title title--small">O agente não recebe contexto infinito. Ele recebe contexto curado.</h2>
     <div class="grid grid--4">
-      <div class="card" data-card="blue"><div class="card__kicker">Hot</div><h3 class="card__title">Instrucoes sempre carregadas</h3><p class="card__text">Copilot instructions, AGENTS.md, CODEMAP e contratos de execução.</p></div>
+      <div class="card" data-card="blue"><div class="card__kicker">Hot</div><h3 class="card__title">Instruções sempre carregadas</h3><p class="card__text">Copilot instructions, AGENTS.md, CODEMAP e contratos de execução.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">Warm</div><h3 class="card__title">Skill e memória de sessão</h3><p class="card__text">Skills carregadas sob demanda e Shared Context Store com TTL.</p></div>
-      <div class="card" data-card="yellow"><div class="card__kicker">Cold</div><h3 class="card__title">RAG e memória duravel</h3><p class="card__text">AI Search, Redis, Cosmos memory e stores classificados.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Cold</div><h3 class="card__title">RAG e memória durável</h3><p class="card__text">AI Search, Redis, Cosmos memory e stores classificados.</p></div>
       <div class="card" data-card="red"><div class="card__kicker">Bounded</div><h3 class="card__title">Budget de janela</h3><p class="card__text">Recupera, ranqueia, compacta e evita tool/context sprawl.</p></div>
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="blue" data-notes="O toolbox agrega capacidades. A política de aprovacao e auth mode vira metadado do catálogo de ferramentas, não memória tribal.">
+  <section class="slide slide--paper" data-accent="blue" data-notes="O toolbox agrega capacidades. A política de aprovação e auth mode vira metadado do catálogo de ferramentas, não memória tribal.">
     <div class="eyebrow">MCP e Toolbox</div>
-    <h2 class="title title--small">Ferramentas são catalogadas, catégorizadas é governadas antes de chegar ao agente.</h2>
+    <h2 class="title title--small">Ferramentas são catalogadas, categorizadas e governadas antes de chegar ao agente.</h2>
     <div class="grid grid--4">
       <div class="card" data-card="blue"><div class="card__kicker">mcp</div><h3 class="card__title">Servidores MCP</h3><p class="card__text">Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem e outros.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">builtin</div><h3 class="card__title">Foundry built-ins</h3><p class="card__text">Web Search, File Search, Azure AI Search e Code Interpreter.</p></div>
-      <div class="card" data-card="yellow"><div class="card__kicker">openapi</div><h3 class="card__title">Wrappers OpenAPI</h3><p class="card__text">Catégoria pronta para contratos de API descritos e versionados.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">openapi</div><h3 class="card__title">Wrappers OpenAPI</h3><p class="card__text">Categoria pronta para contratos de API descritos e versionados.</p></div>
       <div class="card" data-card="red"><div class="card__kicker">a2a</div><h3 class="card__title">Agent-to-Agent</h3><p class="card__text">Especialistas acessíveis por protocolo A2A v1.0 com contexto de trace.</p></div>
     </div>
-    <p class="caption">Cada tool carrega `require_approval` e `auth`: managed identity, OAuth passthrough, key ou local. Key-based auth exige dono de rotacao.</p>
+    <p class="caption">Cada tool carrega `require_approval` e `auth`: managed identity, OAuth passthrough, key ou local. Key-based auth exige dono de rotação.</p>
   </section>
 
-  <section class="slide slide--light" data-accent="yellow" data-notes="Este e o diagrama H3 principal. Mostre que H3 não e so modelo: tem portal, runtime, contexto, governança e Foundry.">
+  <section class="slide slide--light" data-accent="yellow" data-notes="Este é o diagrama H3 principal. Mostre que H3 não é só modelo: tem portal, runtime, contexto, governança e Foundry.">
     <div class="eyebrow">Diagrama 7 · H3 Innovation</div>
     <h2 class="title title--small">H3 adiciona runtime agêntico, contexto, governança e Azure AI Foundry.</h2>
     <div class="diagram-layout">
@@ -524,12 +535,12 @@ GET /api/agents/hooks/audit</code></pre></div>
     </div>
   </section>
 
-  <section class="slide slide--light" data-accent="red" data-notes="Este e o fluxo mais importante para entender execução de agente. Leia os passos de controle: identity, routing, cache, context, safety, model, telemetry, response.">
+  <section class="slide slide--light" data-accent="red" data-notes="Este é o fluxo mais importante para entender execução de agente. Leia os passos de controle: identity, routing, cache, context, safety, model, telemetry, response.">
     <div class="eyebrow">Diagrama 8 · H3 Agent Flow Detail</div>
     <h2 class="title title--small">Uma request agêntica passa por roteamento, cache, memória, RAG, tools, guardrails, inferência e telemetria.</h2>
     <div class="diagram-layout">
       <div class="diagram-stage"><img src="../assets/architecture/h3-agent-flow-detail.svg" alt="H3 agent flow detail diagram" /></div>
-      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Sequência</h3><ul><li>Valida request e identidade.</li><li>Seleciona modelo por tarefa.</li><li>Consulta cache semântico e estádo curto.</li><li>Curadoria via AI Search e MCP.</li><li>Aplica safety e scope antes de tool/model.</li><li>Persiste trajetoria, custo e OpenTelemetry.</li></ul></aside>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Sequência</h3><ul><li>Valida request e identidade.</li><li>Seleciona modelo por tarefa.</li><li>Consulta cache semântico e estado curto.</li><li>Curadoria via AI Search e MCP.</li><li>Aplica safety e scope antes de tool/model.</li><li>Persiste trajetória, custo e OpenTelemetry.</li></ul></aside>
     </div>
   </section>
 
@@ -539,9 +550,9 @@ GET /api/agents/hooks/audit</code></pre></div>
     <div class="grid grid--3">
       <div class="card" data-card="blue"><div class="card__kicker">API</div><h3 class="card__title">OpenAI-compatible</h3><p class="card__text">`/v1/chat/completions`, `/v1/agents/{agent_id}/chat`, `/v1/models`, `/v1/agents`.</p></div>
       <div class="card" data-card="green"><div class="card__kicker">Cache</div><h3 class="card__title">Hierarchical cache</h3><p class="card__text">Cache exato e semântico com escopo por tenant, projeto, sessão e modelo.</p></div>
-      <div class="card" data-card="yellow"><div class="card__kicker">A2A</div><h3 class="card__title">Agent hándoff</h3><p class="card__text">Headers de trace, cadeia de agentes, lineage Purview e profundidade do hop.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">A2A</div><h3 class="card__title">Agent handoff</h3><p class="card__text">Headers de trace, cadeia de agentes, lineage Purview e profundidade do hop.</p></div>
       <div class="card" data-card="red"><div class="card__kicker">Tool hooks</div><h3 class="card__title">pre/postToolUse</h3><p class="card__text">Aprovação humana, budget gate, validação de argumentos, cache hit e audit.</p></div>
-      <div class="card" data-card="blue-700"><div class="card__kicker">Telemetry</div><h3 class="card__title">llm.call.completed</h3><p class="card__text">Atributos GenAI para App Insights, incluindo token usage, laténcia, agent id e tool calls.</p></div>
+      <div class="card" data-card="blue-700"><div class="card__kicker">Telemetry</div><h3 class="card__title">llm.call.completed</h3><p class="card__text">Atributos GenAI para App Insights, incluindo token usage, latência, agent id e tool calls.</p></div>
       <div class="card" data-card="green-700"><div class="card__kicker">Memory</div><h3 class="card__title">Enterprise memory</h3><p class="card__text">Cosmos memory, AAD-only, probe operacional e auditoria de acesso classificado.</p></div>
     </div>
     <p class="caption">ADR-0002: o harness standalone escala, é auditado e pode ser protegido por NetworkPolicy separada do backend de agente.</p>
@@ -550,21 +561,21 @@ GET /api/agents/hooks/audit</code></pre></div>
   <section class="slide slide--light" data-accent="blue-700" data-notes="Roteamento de modelo e custo deve ser decisão arquitetural, não preferência manual do operador. Aqui mostramos a política declarativa em .github/model-routing.yaml.">
     <div class="eyebrow">Model routing por SDLC</div>
     <h2 class="title title--small">O modelo certo depende da fase, do risco e da clareza do escopo.</h2>
-    <table class="table" aria-label="Model routing policy by SDLC pháse">
+    <table class="table" aria-label="Model routing policy by SDLC phase">
       <thead><tr><th>Fase</th><th>Modo</th><th>Tier</th><th>Quando usar</th></tr></thead>
       <tbody>
-        <tr><td><b>specification</b></td><td>ask</td><td>high-capability</td><td>Requisitos ambiguos, incompletos ou contraditorios.</td></tr>
+        <tr><td><b>specification</b></td><td>ask</td><td>high-capability</td><td>Requisitos ambíguos, incompletos ou contraditórios.</td></tr>
         <tr><td><b>architecture</b></td><td>ask</td><td>high-capability</td><td>Planejamento multi-arquivo, desenho de sistema e ADR.</td></tr>
-        <tr><td><b>tdd_spec</b></td><td>edit</td><td>mid-tier</td><td>Casos de teste a partir de especificacao clara.</td></tr>
+        <tr><td><b>tdd_spec</b></td><td>edit</td><td>mid-tier</td><td>Casos de teste a partir de especificação clara.</td></tr>
         <tr><td><b>implementation</b></td><td>agent</td><td>mid-tier</td><td>Feature code com plano aprovado e escopo claro.</td></tr>
         <tr><td><b>docstrings / summarization</b></td><td>ask</td><td>cost-optimized</td><td>Tarefas pequenas, repetitivas e bem definidas.</td></tr>
         <tr><td><b>code_review</b></td><td>ask</td><td>high-capability</td><td>Revisão de qualidade e segurança em PR pronto.</td></tr>
       </tbody>
     </table>
-    <p class="caption">Fonte local: `.github/model-routing.yaml`. A política registra fase, modo, modelos candidatos, tier, custo relativo e criterio de uso.</p>
+    <p class="caption">Fonte local: `.github/model-routing.yaml`. A política registra fase, modo, modelos candidatos, tier, custo relativo e critério de uso.</p>
   </section>
 
-  <section class="slide slide--dark" data-accent="green" data-notes="Transicao para o caminho ponta a ponta. Aqui juntamos plataforma, runtime agêntico e operação.">
+  <section class="slide slide--dark" data-accent="green" data-notes="Transição para o caminho ponta a ponta. Aqui juntamos plataforma, runtime agêntico e operação.">
     <div class="eyebrow">Ato 5</div>
     <div class="section-number">05</div>
     <h1 class="section-title">Execução ponta a ponta.</h1>
@@ -580,49 +591,49 @@ GET /api/agents/hooks/audit</code></pre></div>
     </div>
   </section>
 
-  <section class="slide slide--light" data-accent="blue-700" data-notes="Este slide ajuda em clientes hibridos. O ponto e que Open Horizons não assume que todos ja migraram para GitHub-only.">
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Este slide ajuda em clientes híbridos. O ponto é que Open Horizons não assume que todos já migraram para GitHub-only.">
     <div class="eyebrow">Diagrama 10 · Hybrid Azure DevOps + GitHub</div>
-    <h2 class="title title--small">A arquitetura suporta coexistencia GitHub + Azure DevOps sem quebrar catálogo e operação.</h2>
+    <h2 class="title title--small">A arquitetura suporta coexistência GitHub + Azure DevOps sem quebrar catálogo e operação.</h2>
     <div class="diagram-layout">
       <div class="diagram-stage"><img src="../assets/architecture/hybrid-devops-github.svg" alt="Hybrid Azure DevOps and GitHub diagram" /></div>
       <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Cenários</h3><ul><li>A: GitHub Repos + Azure Pipelines + Azure Boards.</li><li>B: Azure Repos + Azure Pipelines + Azure Boards.</li><li>C: GitHub Repos + GitHub Actions + GitHub Issues ou tracker externo.</li><li>Backstage normaliza metadados para o catálogo.</li></ul></aside>
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="green" data-notes="Fale sobre rollback e sincronismo. Nem tudo e sincrono, e isso precisa estár explicito na arquitetura.">
+  <section class="slide slide--paper" data-accent="green" data-notes="Fale sobre rollback e sincronismo. Nem tudo é síncrono, e isso precisa estar explícito na arquitetura.">
     <div class="eyebrow">Entrega e rollback</div>
-    <h2 class="title title--small">A execução de deploy é controlada por desired state, health checks e evidencias.</h2>
+    <h2 class="title title--small">A execução de deploy é controlada por desired state, health checks e evidências.</h2>
     <div class="flow">
       <div class="flow-step" data-step="blue"><div class="flow-step__num">01</div><div class="flow-step__title">Change</div><div class="flow-step__text">Código, chart, manifesto, plugin ou template muda via PR.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="green"><div class="flow-step__num">02</div><div class="flow-step__title">Validate</div><div class="flow-step__text">CI executa build, testes, scans e policy gates.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="yellow"><div class="flow-step__num">03</div><div class="flow-step__title">Desired state</div><div class="flow-step__text">Imagem imutável e manifests versionados entram no GitOps repo.</div></div><div class="flow-arrow">→</div>
       <div class="flow-step" data-step="red"><div class="flow-step__num">04</div><div class="flow-step__title">Reconcile</div><div class="flow-step__text">ArgoCD aplica sync waves, health checks, drift e rollback operacional.</div></div>
     </div>
-    <p class="caption">A decisão arquitetural: laptops não aplicam `kubectl` em produção. O cluster converge para o estádo desejado revisado.</p>
+    <p class="caption">A decisão arquitetural: laptops não aplicam `kubectl` em produção. O cluster converge para o estado desejado revisado.</p>
   </section>
 
   <section class="slide slide--light" data-accent="red" data-notes="Este slide vira checklist de governança. Ajuda a decidir se H3 pode ser ligado ou se ainda falta base operacional.">
     <div class="eyebrow">Gates de rollout</div>
-    <h2 class="title title--small">H3 so deve ser habilitado quando H1 e H2 conseguem sustentar agentes em produção.</h2>
+    <h2 class="title title--small">H3 só deve ser habilitado quando H1 e H2 conseguem sustentar agentes em produção.</h2>
     <div class="grid grid--3">
       <div class="card card--soft" data-card="blue"><div class="card__kicker">H1 gate</div><h3 class="card__title">Fundação pronta</h3><ul class="card__list"><li>Private endpoints e DNS validados.</li><li>Workload Identity sem segredo estático.</li><li>ACR, Key Vault, banco e Storage protegidos.</li><li>Logs, alerts e recovery configurados.</li></ul></div>
       <div class="card card--soft" data-card="green"><div class="card__kicker">H2 gate</div><h3 class="card__title">Plataforma pronta</h3><ul class="card__list"><li>Backstage autenticado e persistente.</li><li>ArgoCD com sync policies por ambiente.</li><li>Golden Paths gerando catalog-info e SDD.</li><li>Dashboards e alertas com dono.</li></ul></div>
-      <div class="card card--soft" data-card="red"><div class="card__kicker">H3 gate</div><h3 class="card__title">Agentes prontos</h3><ul class="card__list"><li>Model routing aprovado.</li><li>Tool approvals e hooks ativos.</li><li>Budget e cost endpoints visíveis.</li><li>Trajetorias, evals e incident runbooks definidos.</li></ul></div>
+      <div class="card card--soft" data-card="red"><div class="card__kicker">H3 gate</div><h3 class="card__title">Agentes prontos</h3><ul class="card__list"><li>Model routing aprovado.</li><li>Tool approvals e hooks ativos.</li><li>Budget e cost endpoints visíveis.</li><li>Trajetórias, evals e incident runbooks definidos.</li></ul></div>
     </div>
   </section>
 
-  <section class="slide slide--paper" data-accent="blue-700" data-notes="Feche com perguntas objetivas. A meta e sair da reuniao com decisões, não com admiracao pelo diagrama.">
+  <section class="slide slide--paper" data-accent="blue-700" data-notes="Feche com perguntas objetivas. A meta é sair da reunião com decisões, não com admiração pelo diagrama.">
     <div class="eyebrow">Checklist de revisão arquitetural</div>
     <h2 class="title title--small">Perguntas que a arquitetura precisa responder antes de operar agentes.</h2>
     <div class="grid grid--2">
       <div class="card" data-card="blue"><div class="card__kicker">Runtime</div><ul class="card__list"><li>Qual SLO vale para portal, Agent API e Foundry gateway?</li><li>Quais workloads escalam de forma independente?</li><li>Qual trace id correlaciona portal, CI/CD, ArgoCD, Agent API e Foundry?</li></ul></div>
-      <div class="card" data-card="red"><div class="card__kicker">Segurança</div><ul class="card__list"><li>Existe algum caminho publico para dados ou dependências stateful?</li><li>Quais tools exigem aprovacao humana?</li><li>Como auditoria prova quem mudou o que, por que e com qual agente?</li></ul></div>
-      <div class="card" data-card="yellow"><div class="card__kicker">Custo</div><ul class="card__list"><li>Quais budgets existem por agente, equipe e rota?</li><li>Quando cache e routing são obrigatorios?</li><li>Como alertas de custo chegam ao owner correto?</li></ul></div>
-      <div class="card" data-card="green"><div class="card__kicker">Operação</div><ul class="card__list"><li>Quem e dono de dashboard, alerta e runbook?</li><li>Qual rollback existe para cada servico crítico?</li><li>Quais evidencias ficam retidas para revisão?</li></ul></div>
+      <div class="card" data-card="red"><div class="card__kicker">Segurança</div><ul class="card__list"><li>Existe algum caminho público para dados ou dependências stateful?</li><li>Quais tools exigem aprovação humana?</li><li>Como auditoria prova quem mudou o que, por que e com qual agente?</li></ul></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Custo</div><ul class="card__list"><li>Quais budgets existem por agente, equipe e rota?</li><li>Quando cache e routing são obrigatórios?</li><li>Como alertas de custo chegam ao owner correto?</li></ul></div>
+      <div class="card" data-card="green"><div class="card__kicker">Operação</div><ul class="card__list"><li>Quem é dono de dashboard, alerta e runbook?</li><li>Qual rollback existe para cada serviço crítico?</li><li>Quais evidências ficam retidas para revisão?</li></ul></div>
     </div>
   </section>
 
-  <section class="slide slide--light" data-accent="blue-700" data-notes="Slide final de referências. Ele aténde o criterio de integridade factual: fatos de arquitetura do repo e links oficiais para as tecnologias citadas.">
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Slide final de referências. Ele atende o critério de integridade factual: fatos de arquitetura do repo e links oficiais para as tecnologias citadas.">
     <div class="eyebrow">Referências</div>
     <h2 class="title title--small">Fontes usadas para o deck.</h2>
     <ol class="references">
@@ -674,6 +685,829 @@ const overview = document.getElementById('overview');
 const overviewGrid = document.getElementById('overviewGrid');
 let index = 0;
 let overviewOpen = false;
+let currentLocale = 'pt-BR';
+let textNodeSources = [];
+let slideNoteSources = [];
+
+const I18N = {
+  'pt-BR': {
+    lang: 'pt-BR',
+    title: 'Open Horizons · Arquitetura e Execução dos Agentes',
+    description: 'Deck técnico de arquitetura e execução dos agentes do Open Horizons, com foco em implementação, runtime agêntico, governança, MCP, Azure AI Foundry e operação.',
+    ui: {
+      deckMeta: 'PT-BR · Arquitetura',
+      languageLabel: 'Idioma',
+      overviewTitle: 'Visão geral',
+      overviewHint: 'Clique em um slide · Esc para fechar',
+      keyboardHint: 'Use <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> overview · <kbd>N</kbd> notas',
+      emptyNote: 'Sem notas para este slide.',
+      prev: 'Slide anterior',
+      next: 'Próximo slide',
+      overview: 'Visão geral',
+      notes: 'Notas do apresentador',
+      controls: 'Controles do deck'
+    },
+    text: {
+      'PT-BR · Arquitetura': 'PT-BR · Arquitetura',
+      'Speaker notes': 'Notas do apresentador'
+    }
+  },
+  en: {
+    lang: 'en',
+    title: 'Open Horizons · Architecture and Agent Execution',
+    description: 'Technical architecture and agent execution deck for Open Horizons, focused on implementation, agentic runtime, governance, MCP, Azure AI Foundry, and operations.',
+    ui: {
+      deckMeta: 'EN · Architecture',
+      languageLabel: 'Language',
+      overviewTitle: 'Overview',
+      overviewHint: 'Click a slide · Esc to close',
+      keyboardHint: 'Use <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> overview · <kbd>N</kbd> notes',
+      emptyNote: 'No notes for this slide.',
+      prev: 'Previous slide',
+      next: 'Next slide',
+      overview: 'Overview',
+      notes: 'Speaker notes',
+      controls: 'Deck controls'
+    },
+    text: {
+      'PT-BR · Arquitetura': 'EN · Architecture',
+      'Speaker notes': 'Speaker notes',
+      'Open Horizons · Deep dive técnico': 'Open Horizons · Technical Deep Dive',
+      'Arquitetura e': 'Architecture and',
+      'execução dos agentes': 'agent execution',
+      'Como o acelerador materializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails e observabilidade em uma plataforma operável.': 'How the accelerator turns Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails, and observability into an operable platform.',
+      'Autora': 'Author',
+      'Audiência': 'Audience',
+      'Arquitetura, plataforma, SRE, segurança e AI engineering': 'Architecture, platform, SRE, security, and AI engineering',
+      'Duração': 'Duration',
+      '45 a 60 minutos': '45 to 60 minutes',
+      'Data': 'Date',
+      'Mapa do deep dive': 'Deep Dive Map',
+      'Quatro atos. Um objetivo: sair sabendo': 'Four acts. One goal: leave knowing',
+      'como a plataforma funciona por dentro': 'how the platform works inside',
+      'Ato 1': 'Act 1',
+      'Ato 2': 'Act 2',
+      'Ato 3': 'Act 3',
+      'Ato 4': 'Act 4',
+      'Ato 5': 'Act 5',
+      'Modelo de referência': 'Reference model',
+      'Horizons, camadas, fronteiras do sistema e diagramas oficiais de arquitetura.': 'Horizons, layers, system boundaries, and official architecture diagrams.',
+      'Implementação da plataforma': 'Platform implementation',
+      'Terraform, AKS, Backstage, ArgoCD, observabilidade, políticas e repo map.': 'Terraform, AKS, Backstage, ArgoCD, observability, policies, and repo map.',
+      'Runtime agêntico': 'Agentic runtime',
+      'Agent API, roteamento, loop de tool calls, hooks, trajetórias, custos, MCP e Foundry.': 'Agent API, routing, tool-call loop, hooks, trajectories, costs, MCP, and Foundry.',
+      'Operação e revisão': 'Operations and review',
+      'Fluxo ponta a ponta, rollout H1/H2/H3, segurança, observabilidade e checklist de arquitetura.': 'End-to-end flow, H1/H2/H3 rollout, security, observability, and architecture checklist.',
+      'Tese de arquitetura': 'Architecture thesis',
+      'Open Horizons é uma arquitetura para tornar agentes': 'Open Horizons is an architecture for making agents',
+      'executáveis, governados e auditáveis': 'executable, governed, and auditable',
+      'Fundação segura': 'Secure foundation',
+      'AKS, rede privada, identidade, Key Vault, políticas e observabilidade desde H1.': 'AKS, private networking, identity, Key Vault, policies, and observability from H1.',
+      'IDP operável': 'Operable IDP',
+      'Backstage OSS como produto interno: catálogo, Golden Paths, TechDocs e status.': 'Backstage OSS as an internal product: catalog, Golden Paths, TechDocs, and status.',
+      'Contexto controlado': 'Controlled context',
+      'MCP, memória, cache, skills e RAG com budget de contexto e fronteiras claras.': 'MCP, memory, cache, skills, and RAG with context budget and clear boundaries.',
+      'Intenção explícita': 'Explicit intent',
+      'SDD, CONSTITUTION.md, model routing e scope guard antes da implementação.': 'SDD, CONSTITUTION.md, model routing, and scope guard before implementation.',
+      'Execução rastreável': 'Traceable execution',
+      'Trajetória, custos, hooks, telemetria GenAI e evidência para revisão.': 'Trajectory, costs, hooks, GenAI telemetry, and evidence for review.',
+      'Modelo de referência.': 'Reference model.',
+      'Horizons, camadas, atores e fronteiras do sistema antes de discutir qualquer implementação.': 'Horizons, layers, actors, and system boundaries before discussing any implementation.',
+      'Horizons e camadas': 'Horizons and layers',
+      'Três horizontes de adoção. Seis responsabilidades operacionais.': 'Three adoption horizons. Six operational responsibilities.',
+      'Gateway Foundry, cache semântico, A2A, telemetria, memória enterprise e controle de custo por chamada.': 'Foundry gateway, semantic cache, A2A, telemetry, enterprise memory, and per-call cost control.',
+      'Agent API, agentes runtime, tool loop, trajetórias, cost tracker e hooks no choke point.': 'Agent API, runtime agents, tool loop, trajectories, cost tracker, and hooks at the choke point.',
+      'CONSTITUTION.md, SDD, EARS, scope guard e model routing por fase do SDLC.': 'CONSTITUTION.md, SDD, EARS, scope guard, and model routing by SDLC phase.',
+      'MCP servers, skills, memória, cache, RAG, Shared Context Store e curadoria de contexto.': 'MCP servers, skills, memory, cache, RAG, Shared Context Store, and context curation.',
+      'Backstage, Golden Paths, ArgoCD, observabilidade, políticas, workflows e experiência do desenvolvedor.': 'Backstage, Golden Paths, ArgoCD, observability, policies, workflows, and developer experience.',
+      'Terraform, AKS, rede, identidade, ACR, Key Vault, banco, storage, monitoramento e recovery.': 'Terraform, AKS, networking, identity, ACR, Key Vault, database, storage, monitoring, and recovery.',
+      'Diagrama 1 · Architecture Overview': 'Diagram 1 · Architecture Overview',
+      'A arquitetura separa fundação, plataforma, inovação agêntica e modelo operacional.': 'The architecture separates foundation, platform, agentic innovation, and operating model.',
+      'Como apresentar': 'How to present',
+      'H3 depende de H2 e H1, mas é habilitado por gate.': 'H3 depends on H2 and H1, but is enabled by a gate.',
+      'H2 é a camada de produto interno: Backstage, GitOps, Golden Paths e operação.': 'H2 is the internal product layer: Backstage, GitOps, Golden Paths, and operations.',
+      'H1 é a fundação segura em Azure.': 'H1 is the secure Azure foundation.',
+      'O modelo operacional faz parte da arquitetura, não é apêndice.': 'The operating model is part of the architecture, not an appendix.',
+      'Diagrama 2 · System Context': 'Diagram 2 · System Context',
+      'A fronteira do sistema inclui pessoas, agentes, sistemas de engenharia e runtime Azure.': 'The system boundary includes people, agents, engineering systems, and Azure runtime.',
+      'Checks arquiteturais': 'Architecture checks',
+      'GitHub e Azure DevOps são integrações de primeira classe.': 'GitHub and Azure DevOps are first-class integrations.',
+      'Backstage é o plano de experiência.': 'Backstage is the experience plane.',
+      'ArgoCD é o plano de reconciliação.': 'ArgoCD is the reconciliation plane.',
+      'Telemetria e governança agêntica estão dentro da fronteira.': 'Telemetry and agentic governance are inside the boundary.',
+      'Implementação da plataforma.': 'Platform implementation.',
+      'Como H1 e H2 saem do desenho para Terraform, Kubernetes, GitOps, Backstage e observabilidade.': 'How H1 and H2 move from design into Terraform, Kubernetes, GitOps, Backstage, and observability.',
+      'Diagrama 3 · H1 Foundation': 'Diagram 3 · H1 Foundation',
+      'A fundação H1 entrega o runtime Azure seguro para o resto da plataforma.': 'The H1 foundation delivers the secure Azure runtime for the rest of the platform.',
+      'Planos H1': 'H1 planes',
+      'Network edge, hub-spoke, firewall e private endpoints.': 'Network edge, hub-spoke, firewall, and private endpoints.',
+      'Entra ID, Key Vault, Managed Identity e Defender.': 'Entra ID, Key Vault, Managed Identity, and Defender.',
+      'ACR, PostgreSQL, Storage e Purview.': 'ACR, PostgreSQL, Storage, and Purview.',
+      'AKS, runners, External Secrets, Policy e OPA.': 'AKS, runners, External Secrets, Policy, and OPA.',
+      'Azure Monitor, Log Analytics, App Insights e recovery.': 'Azure Monitor, Log Analytics, App Insights, and recovery.',
+      'H1 em código': 'H1 in code',
+      'Terraform e o contrato de infraestrutura reproduzível.': 'Terraform and the reproducible infrastructure contract.',
+      'Runtime': 'Runtime',
+      'AKS + ACR': 'AKS + ACR',
+      '`aks-cluster` e `container-registry` criam o plano de execução, identidade e imagens aprovadas.': '`aks-cluster` and `container-registry` create the execution plane, identity, and approved images.',
+      'Rede': 'Network',
+      'Networking': 'Networking',
+      'VNet, subnets, NSGs, private endpoints e caminho de egress controlado.': 'VNet, subnets, NSGs, private endpoints, and controlled egress path.',
+      'Segurança': 'Security',
+      'Key Vault + identity': 'Key Vault + identity',
+      'Managed Identity e Workload Identity substituem segredo estático em pod.': 'Managed Identity and Workload Identity replace static pod secrets.',
+      'Dados': 'Data',
+      'PostgreSQL + Storage': 'PostgreSQL + Storage',
+      'Estado do Backstage, artefatos, catálogo e integrações persistentes.': 'Backstage state, artifacts, catalog, and persistent integrations.',
+      'Diagrama 4 · H1 Network and Security Detail': 'Diagram 4 · H1 Network and Security Detail',
+      'Rede privada, identidade federada e política preventiva reduzem a superfície de ataque.': 'Private networking, federated identity, and preventive policy reduce the attack surface.',
+      'Validar na revisão': 'Validate in review',
+      'Private DNS para Key Vault, ACR, PostgreSQL, Storage e AI services.': 'Private DNS for Key Vault, ACR, PostgreSQL, Storage, and AI services.',
+      'Egress via Azure Firewall para runners e workloads agênticos.': 'Egress via Azure Firewall for runners and agentic workloads.',
+      'NetworkPolicy por namespace, inclusive tráfego MCP/tool.': 'NetworkPolicy per namespace, including MCP/tool traffic.',
+      'RBAC de Key Vault estreito e auditável.': 'Narrow and auditable Key Vault RBAC.',
+      'Diagrama 5 · H2 Enhancement': 'Diagram 5 · H2 Enhancement',
+      'H2 transforma infraestrutura em produto interno: portal, GitOps, Golden Paths e operação.': 'H2 turns infrastructure into an internal product: portal, GitOps, Golden Paths, and operations.',
+      'Planos H2': 'H2 planes',
+      'Source e CI/CD: GitHub, Actions, GHCR e security scanning.': 'Source and CI/CD: GitHub, Actions, GHCR, and security scanning.',
+      'GitOps: ArgoCD, sync waves, drift e health.': 'GitOps: ArgoCD, sync waves, drift, and health.',
+      'Portal: Backstage OSS, catálogo, TechDocs e Golden Paths.': 'Portal: Backstage OSS, catalog, TechDocs, and Golden Paths.',
+      'Observabilidade: Prometheus, Grafana, Loki e Alertmanager.': 'Observability: Prometheus, Grafana, Loki, and Alertmanager.',
+      'Diagrama 6 · H2 GitOps and Observability': 'Diagram 6 · H2 GitOps and Observability',
+      'A entrega é declarativa: source muda, CI valida, ArgoCD reconcilia, observabilidade fecha o loop.': 'Delivery is declarative: source changes, CI validates, ArgoCD reconciles, observability closes the loop.',
+      'Fluxo': 'Flow',
+      'Build, teste e scan antes de atualizar estado desejado.': 'Build, test, and scan before updating desired state.',
+      'Imagem imutável por digest no manifesto ou Helm values.': 'Immutable image by digest in the manifest or Helm values.',
+      'Sync waves aplicam recursos na ordem correta.': 'Sync waves apply resources in the correct order.',
+      'Prometheus, Loki, Grafana e Alertmanager criam a evidência operacional.': 'Prometheus, Loki, Grafana, and Alertmanager create operational evidence.',
+      'Mapa de implementação': 'Implementation map',
+      'Cada responsabilidade arquitetural tem um endereço no repositório.': 'Every architectural responsibility has an address in the repository.',
+      'repo map': 'repo map',
+      'Runtime dos agentes.': 'Agent runtime.',
+      'Do clique no portal até a chamada de modelo, tool call, governança, telemetria e resposta em streaming.': 'From the portal click to model call, tool call, governance, telemetry, and streaming response.',
+      'Entry points reais': 'Real entry points',
+      'O runtime agêntico é exposto por APIs especializadas e um gateway Foundry.': 'The agentic runtime is exposed through specialized APIs and a Foundry gateway.',
+      'Superfície': 'Surface',
+      'Entrada': 'Entry',
+      'Porta / protocolo': 'Port / protocol',
+      'Função': 'Function',
+      'Experiência do usuário: catálogo, TechDocs, AI Chat, AI Impact e operação.': 'User experience: catalog, TechDocs, AI Chat, AI Impact, and operations.',
+      'Multi-agent chat, router, SSE, trajetória, custo e hooks.': 'Multi-agent chat, router, SSE, trajectory, cost, and hooks.',
+      'Análise de impacto e experiências AI Impact.': 'Impact analysis and AI Impact experiences.',
+      'Superfícies para Microsoft Agent Framework e Semantic Kernel.': 'Surfaces for Microsoft Agent Framework and Semantic Kernel.',
+      'Ferramentas de documentação, catálogo, Backstage, GitHub e referência.': 'Documentation, catalog, Backstage, GitHub, and reference tools.',
+      'Harness L6 para chamadas Foundry, cache, A2A, toolbox, memória e telemetria.': 'L6 harness for Foundry calls, cache, A2A, toolbox, memory, and telemetry.',
+      'Fluxo real · Agent API': 'Real flow · Agent API',
+      '`POST /api/agents/chat` executa roteamento, loop agêntico, hooks e streaming SSE.': '`POST /api/agents/chat` runs routing, agentic loop, hooks, and SSE streaming.',
+      'Roteamento': 'Routing',
+      'O router escolhe o agente antes do modelo receber o contexto.': 'The router chooses the agent before the model receives context.',
+      'Override explícito': 'Explicit override',
+      'Se a request traz `agent` válido, o backend usa esse agente.': 'If the request carries a valid `agent`, the backend uses that agent.',
+      '`@pipeline`, `@security`, `@sre` e outros nomes direcionam a conversa.': '`@pipeline`, `@security`, `@sre`, and other names route the conversation.',
+      'O router detecta intenção por palavras-chave do `AgentConfig`.': 'The router detects intent from `AgentConfig` keywords.',
+      'Fallback': 'Fallback',
+      'Sem match, o `orchestrator` assume a conversa.': 'Without a match, the `orchestrator` takes the conversation.',
+      'Diagnóstico de CI/CD via GitHub workflow runs e jobs.': 'CI/CD diagnostics via GitHub workflow runs and jobs.',
+      'Quality gates, checks, cobertura e status de PR.': 'Quality gates, checks, coverage, and PR status.',
+      'Segurança, advisories, Dependabot e postura.': 'Security, advisories, Dependabot, and posture.',
+      'Infraestrutura, repositórios, branches e automação.': 'Infrastructure, repositories, branches, and automation.',
+      'Loop agêntico': 'Agentic loop',
+      '`BaseAgent.handle()` executa um ciclo: prompt, modelo, tools, resultado, repetição.': '`BaseAgent.handle()` runs a cycle: prompt, model, tools, result, repeat.',
+      'Sistema': 'System',
+      'O `AgentConfig` injeta persona, limites e ferramentas.': 'The `AgentConfig` injects persona, boundaries, and tools.',
+      'Modelo': 'Model',
+      'A chamada inclui histórico, temperatura, budget e tool definitions.': 'The call includes history, temperature, budget, and tool definitions.',
+      'Cada chamada passa por `_execute_tool()` antes de chegar no executor.': 'Each call passes through `_execute_tool()` before reaching the executor.',
+      'Quando não há tool calls, a resposta final é enviada ao frontend.': 'When there are no tool calls, the final response is sent to the frontend.',
+      'A propriedade arquitetural importante: o loop é comum para a frota. Isso permite hooks, auditoria e sanitização uniformes.': 'The important architectural property: the loop is common across the fleet. That enables uniform hooks, audit, and sanitization.',
+      'Governança de tool use': 'Tool-use governance',
+      'Todo tool call passa pelo mesmo choke point: `BaseAgent._execute_tool()`.': 'Every tool call passes through the same choke point: `BaseAgent._execute_tool()`.',
+      'Antes de executar': 'Before execution',
+      'Classifica tool como read-only, mutating ou unknown.': 'Classifies the tool as read-only, mutating, or unknown.',
+      'Bloqueia padrões perigosos: path traversal, `rm -rf`, force push, `terraform destroy`, `kubectl delete --all`, SQL destrutivo.': 'Blocks dangerous patterns: path traversal, `rm -rf`, force push, `terraform destroy`, `kubectl delete --all`, destructive SQL.',
+      'Audita mutações e decisões de risco.': 'Audits mutations and risk decisions.',
+      '`AGENT_HOOKS_ENFORCE=false` permite rollout em modo warning.': '`AGENT_HOOKS_ENFORCE=false` enables rollout in warning mode.',
+      'Depois de executar': 'After execution',
+      'Redige tokens, chaves, JWTs, private keys e connection strings.': 'Redacts tokens, keys, JWTs, private keys, and connection strings.',
+      'Trunca payloads grandes antes de voltarem ao modelo.': 'Truncates large payloads before they return to the model.',
+      'Registra eventos de sanitização.': 'Records sanitization events.',
+      'Espelha a política do gateway Foundry.': 'Mirrors the Foundry gateway policy.',
+      'Trajetória, custo e SSE': 'Trajectory, cost, and SSE',
+      'A resposta do agente é também um registro operacional.': 'The agent response is also an operational record.',
+      'O que aconteceu': 'What happened',
+      '`trajectory_logger.start`, tool calls, tool results, outcome e snapshot de contexto.': '`trajectory_logger.start`, tool calls, tool results, outcome, and context snapshot.',
+      'Quanto custou': 'What it cost',
+      'Tokens de entrada e saída por agente, modelo e trajectory id.': 'Input and output tokens by agent, model, and trajectory id.',
+      'Como chega no portal': 'How it reaches the portal',
+      'Chunks `agent`, `text`, `tool_use`, `tool_result`, `done` e `error` via `text/event-stream`.': 'Chunks `agent`, `text`, `tool_use`, `tool_result`, `done`, and `error` through `text/event-stream`.',
+      'Contexto, MCP e Foundry.': 'Context, MCP, and Foundry.',
+      'Como a plataforma controla o que o agente pode saber, chamar, lembrar e gastar.': 'How the platform controls what the agent can know, call, remember, and spend.',
+      'Context engineering': 'Context engineering',
+      'O agente não recebe contexto infinito. Ele recebe contexto curado.': 'The agent does not receive infinite context. It receives curated context.',
+      'Instruções sempre carregadas': 'Always-loaded instructions',
+      'Copilot instructions, AGENTS.md, CODEMAP e contratos de execução.': 'Copilot instructions, AGENTS.md, CODEMAP, and execution contracts.',
+      'Skill e memória de sessão': 'Skill and session memory',
+      'Skills carregadas sob demanda e Shared Context Store com TTL.': 'Skills loaded on demand and Shared Context Store with TTL.',
+      'RAG e memória durável': 'RAG and durable memory',
+      'AI Search, Redis, Cosmos memory e stores classificados.': 'AI Search, Redis, Cosmos memory, and classified stores.',
+      'Budget de janela': 'Window budget',
+      'Recupera, ranqueia, compacta e evita tool/context sprawl.': 'Retrieves, ranks, compacts, and avoids tool/context sprawl.',
+      'MCP e Toolbox': 'MCP and Toolbox',
+      'Ferramentas são catalogadas, categorizadas e governadas antes de chegar ao agente.': 'Tools are cataloged, categorized, and governed before reaching the agent.',
+      'Servidores MCP': 'MCP servers',
+      'Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem e outros.': 'Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem, and others.',
+      'Foundry built-ins': 'Foundry built-ins',
+      'Web Search, File Search, Azure AI Search e Code Interpreter.': 'Web Search, File Search, Azure AI Search, and Code Interpreter.',
+      'Wrappers OpenAPI': 'OpenAPI wrappers',
+      'Categoria pronta para contratos de API descritos e versionados.': 'Ready category for described and versioned API contracts.',
+      'Especialistas acessíveis por protocolo A2A v1.0 com contexto de trace.': 'Specialists accessible through A2A v1.0 protocol with trace context.',
+      'Cada tool carrega `require_approval` e `auth`: managed identity, OAuth passthrough, key ou local. Key-based auth exige dono de rotação.': 'Each tool carries `require_approval` and `auth`: managed identity, OAuth passthrough, key, or local. Key-based auth requires a rotation owner.',
+      'Diagrama 7 · H3 Innovation': 'Diagram 7 · H3 Innovation',
+      'H3 adiciona runtime agêntico, contexto, governança e Azure AI Foundry.': 'H3 adds agentic runtime, context, governance, and Azure AI Foundry.',
+      'Planos H3': 'H3 planes',
+      'Experiência: AI Chat, AI Impact e GitHub Copilot.': 'Experience: AI Chat, AI Impact, and GitHub Copilot.',
+      'Runtime: Agent API, model router, orchestrator e MCP.': 'Runtime: Agent API, model router, orchestrator, and MCP.',
+      'Contexto: Shared Context Store, memory tiers, Redis e skills.': 'Context: Shared Context Store, memory tiers, Redis, and skills.',
+      'Governança: trajetórias, custo, identidade e safety.': 'Governance: trajectories, cost, identity, and safety.',
+      'Foundry: Azure OpenAI, AI Search e App Insights.': 'Foundry: Azure OpenAI, AI Search, and App Insights.',
+      'Diagrama 8 · H3 Agent Flow Detail': 'Diagram 8 · H3 Agent Flow Detail',
+      'Uma request agêntica passa por roteamento, cache, memória, RAG, tools, guardrails, inferência e telemetria.': 'An agentic request goes through routing, cache, memory, RAG, tools, guardrails, inference, and telemetry.',
+      'Sequência': 'Sequence',
+      'Valida request e identidade.': 'Validates request and identity.',
+      'Seleciona modelo por tarefa.': 'Selects the model by task.',
+      'Consulta cache semântico e estado curto.': 'Checks semantic cache and short state.',
+      'Curadoria via AI Search e MCP.': 'Curates via AI Search and MCP.',
+      'Aplica safety e scope antes de tool/model.': 'Applies safety and scope before tool/model.',
+      'Persiste trajetória, custo e OpenTelemetry.': 'Persists trajectory, cost, and OpenTelemetry.',
+      'O `foundry-agents` gateway é o controle operacional das chamadas Foundry.': 'The `foundry-agents` gateway is the operational control for Foundry calls.',
+      'Cache exato e semântico com escopo por tenant, projeto, sessão e modelo.': 'Exact and semantic cache scoped by tenant, project, session, and model.',
+      'Agent handoff': 'Agent handoff',
+      'Headers de trace, cadeia de agentes, lineage Purview e profundidade do hop.': 'Trace headers, agent chain, Purview lineage, and hop depth.',
+      'Aprovação humana, budget gate, validação de argumentos, cache hit e audit.': 'Human approval, budget gate, argument validation, cache hit, and audit.',
+      'Atributos GenAI para App Insights, incluindo token usage, latência, agent id e tool calls.': 'GenAI attributes for App Insights, including token usage, latency, agent id, and tool calls.',
+      'Cosmos memory, AAD-only, probe operacional e auditoria de acesso classificado.': 'Cosmos memory, AAD-only, operational probe, and classified access audit.',
+      'ADR-0002: o harness standalone escala, é auditado e pode ser protegido por NetworkPolicy separada do backend de agente.': 'ADR-0002: the standalone harness scales, is audited, and can be protected by NetworkPolicy separate from the agent backend.',
+      'Model routing por SDLC': 'Model routing by SDLC',
+      'O modelo certo depende da fase, do risco e da clareza do escopo.': 'The right model depends on phase, risk, and scope clarity.',
+      'Fase': 'Phase',
+      'Modo': 'Mode',
+      'Quando usar': 'When to use',
+      'Requisitos ambíguos, incompletos ou contraditórios.': 'Ambiguous, incomplete, or contradictory requirements.',
+      'Planejamento multi-arquivo, desenho de sistema e ADR.': 'Multi-file planning, system design, and ADR.',
+      'Casos de teste a partir de especificação clara.': 'Test cases from a clear specification.',
+      'Feature code com plano aprovado e escopo claro.': 'Feature code with approved plan and clear scope.',
+      'Tarefas pequenas, repetitivas e bem definidas.': 'Small, repetitive, and well-defined tasks.',
+      'Revisão de qualidade e segurança em PR pronto.': 'Quality and security review on a ready PR.',
+      'Fonte local: `.github/model-routing.yaml`. A política registra fase, modo, modelos candidatos, tier, custo relativo e critério de uso.': 'Local source: `.github/model-routing.yaml`. The policy records phase, mode, candidate models, tier, relative cost, and usage criteria.',
+      'Execução ponta a ponta.': 'End-to-end execution.',
+      'Do Golden Path ao deploy, do deploy ao AI Chat, do AI Chat a telemetria e governança.': 'From Golden Path to deploy, from deploy to AI Chat, from AI Chat to telemetry and governance.',
+      'Diagrama 9 · Critical Path Sequence': 'Diagram 9 · Critical Path Sequence',
+      'O caminho crítico conecta scaffold, CI/CD, GitOps, runtime e resposta agêntica.': 'The critical path connects scaffold, CI/CD, GitOps, runtime, and agentic response.',
+      'Developer abre um Golden Path.': 'Developer opens a Golden Path.',
+      'Backstage cria repo e metadados.': 'Backstage creates repo and metadata.',
+      'GitHub ou ADO executa CI/CD.': 'GitHub or ADO runs CI/CD.',
+      'ArgoCD reconcilia para AKS.': 'ArgoCD reconciles to AKS.',
+      'Status volta ao Backstage.': 'Status returns to Backstage.',
+      'AI Chat chama Agent API e Foundry.': 'AI Chat calls Agent API and Foundry.',
+      'Resposta e telemetria retornam ao usuário.': 'Response and telemetry return to the user.',
+      'Diagrama 10 · Hybrid Azure DevOps + GitHub': 'Diagram 10 · Hybrid Azure DevOps + GitHub',
+      'A arquitetura suporta coexistência GitHub + Azure DevOps sem quebrar catálogo e operação.': 'The architecture supports GitHub + Azure DevOps coexistence without breaking catalog and operations.',
+      'Cenários': 'Scenarios',
+      'A: GitHub Repos + Azure Pipelines + Azure Boards.': 'A: GitHub Repos + Azure Pipelines + Azure Boards.',
+      'B: Azure Repos + Azure Pipelines + Azure Boards.': 'B: Azure Repos + Azure Pipelines + Azure Boards.',
+      'C: GitHub Repos + GitHub Actions + GitHub Issues ou tracker externo.': 'C: GitHub Repos + GitHub Actions + GitHub Issues or external tracker.',
+      'Backstage normaliza metadados para o catálogo.': 'Backstage normalizes metadata for the catalog.',
+      'Entrega e rollback': 'Delivery and rollback',
+      'A execução de deploy é controlada por desired state, health checks e evidências.': 'Deploy execution is controlled by desired state, health checks, and evidence.',
+      'Código, chart, manifesto, plugin ou template muda via PR.': 'Code, chart, manifest, plugin, or template changes through PR.',
+      'CI executa build, testes, scans e policy gates.': 'CI runs build, tests, scans, and policy gates.',
+      'Imagem imutável e manifests versionados entram no GitOps repo.': 'Immutable image and versioned manifests enter the GitOps repo.',
+      'ArgoCD aplica sync waves, health checks, drift e rollback operacional.': 'ArgoCD applies sync waves, health checks, drift, and operational rollback.',
+      'A decisão arquitetural: laptops não aplicam `kubectl` em produção. O cluster converge para o estado desejado revisado.': 'Architectural decision: laptops do not run `kubectl` in production. The cluster converges to reviewed desired state.',
+      'Gates de rollout': 'Rollout gates',
+      'H3 só deve ser habilitado quando H1 e H2 conseguem sustentar agentes em produção.': 'H3 should only be enabled when H1 and H2 can sustain agents in production.',
+      'H1 gate': 'H1 gate',
+      'Fundação pronta': 'Foundation ready',
+      'Private endpoints e DNS validados.': 'Private endpoints and DNS validated.',
+      'Workload Identity sem segredo estático.': 'Workload Identity without static secret.',
+      'ACR, Key Vault, banco e Storage protegidos.': 'ACR, Key Vault, database, and Storage protected.',
+      'Logs, alerts e recovery configurados.': 'Logs, alerts, and recovery configured.',
+      'H2 gate': 'H2 gate',
+      'Plataforma pronta': 'Platform ready',
+      'Backstage autenticado e persistente.': 'Backstage authenticated and persistent.',
+      'ArgoCD com sync policies por ambiente.': 'ArgoCD with sync policies per environment.',
+      'Golden Paths gerando catalog-info e SDD.': 'Golden Paths generating catalog-info and SDD.',
+      'Dashboards e alertas com dono.': 'Dashboards and alerts with owners.',
+      'H3 gate': 'H3 gate',
+      'Agentes prontos': 'Agents ready',
+      'Model routing aprovado.': 'Model routing approved.',
+      'Tool approvals e hooks ativos.': 'Tool approvals and hooks active.',
+      'Budget e cost endpoints visíveis.': 'Budget and cost endpoints visible.',
+      'Trajetórias, evals e incident runbooks definidos.': 'Trajectories, evals, and incident runbooks defined.',
+      'Checklist de revisão arquitetural': 'Architecture review checklist',
+      'Perguntas que a arquitetura precisa responder antes de operar agentes.': 'Questions the architecture must answer before operating agents.',
+      'Qual SLO vale para portal, Agent API e Foundry gateway?': 'Which SLO applies to portal, Agent API, and Foundry gateway?',
+      'Quais workloads escalam de forma independente?': 'Which workloads scale independently?',
+      'Qual trace id correlaciona portal, CI/CD, ArgoCD, Agent API e Foundry?': 'Which trace id correlates portal, CI/CD, ArgoCD, Agent API, and Foundry?',
+      'Existe algum caminho público para dados ou dependências stateful?': 'Is there any public path to data or stateful dependencies?',
+      'Quais tools exigem aprovação humana?': 'Which tools require human approval?',
+      'Como auditoria prova quem mudou o que, por que e com qual agente?': 'How does audit prove who changed what, why, and with which agent?',
+      'Custo': 'Cost',
+      'Quais budgets existem por agente, equipe e rota?': 'Which budgets exist by agent, team, and route?',
+      'Quando cache e routing são obrigatórios?': 'When are cache and routing mandatory?',
+      'Como alertas de custo chegam ao owner correto?': 'How do cost alerts reach the right owner?',
+      'Operação': 'Operations',
+      'Quem é dono de dashboard, alerta e runbook?': 'Who owns dashboard, alert, and runbook?',
+      'Qual rollback existe para cada serviço crítico?': 'What rollback exists for each critical service?',
+      'Quais evidências ficam retidas para revisão?': 'Which evidence is retained for review?',
+      'Referências': 'References',
+      'Fontes usadas para o deck.': 'Sources used for the deck.',
+      'Open Horizons local:': 'Local Open Horizons:',
+      'Open Horizons ADR:': 'Open Horizons ADR:',
+      'Azure AI Foundry documentation:': 'Azure AI Foundry documentation:',
+      'Backstage architecture overview:': 'Backstage architecture overview:',
+      'Azure architecture icons:': 'Azure architecture icons:'
+    },
+    notes: [
+      'Open by positioning the deck as a technical review. The promise here is not to sell the concept; it is to show how Open Horizons is implemented, where each capability lives, and how agent execution is governed.',
+      'Show the structure. This deck follows the visual template of the main deck, but swaps the commercial narrative for a technical, implementation-oriented review.',
+      'This slide defines the success criterion. Good architecture here means operational control over infrastructure, platform, context, intent, and agentic execution.',
+      'Transition into the model. Use this block to align vocabulary before entering the diagrams.',
+      'Explain that H1/H2/H3 are adoption stages and the layers are architectural responsibilities. L6 is the operational harness that makes model calls governable.',
+      'Use the overview diagram to orient the conversation. Do not go deep yet; this slide shows H1/H2/H3 separation and the operating model.',
+      'Show who talks to the system: developers, platform engineers, runtime agents, GitHub, ADO, Backstage, ArgoCD, AKS, and Foundry.',
+      'Transition into implementation of the H1 and H2 layers. The conversation now moves from the model into what is provisioned and operated.',
+      'H1 is the slide for cloud, security, and network. Highlight that these are the dependencies that let everything above operate safely.',
+      'Connect the diagram to the repository. These are the real modules that implement H1 and the H2 support modules.',
+      'This slide is for security and networking. Highlight identity flow and the absence of long-lived secrets in the target path.',
+      'H2 is where the platform becomes a product for developers and operators. Show that Backstage is not alone; it orchestrates catalog, templates, docs, status, and integrations.',
+      'Focus on the delivery cycle. The important point is desired state, sync waves, health checks, and operational feedback.',
+      'Use this map to help architects find the code after the presentation. It also defends separation of responsibilities in the repo.',
+      'Now we enter the agentic engine. Prepare the audience to look at runtime as a distributed system, not as a loose prompt.',
+      'Show that there are multiple entry points. The portal is one surface; the agentic backends are services with clear ports and contracts.',
+      'This is the central Agent API flow. Read from top to bottom and emphasize governance points: trajectory before, cost start, execute tool with hook, cost finish, trajectory after.',
+      'Explain that the router avoids a universal agent for everything. The choice can be explicit through request.agent, by @mention, by keyword, or fall back to orchestrator.',
+      'Show BaseAgent as the shared mechanism. All agents inherit the same logic, which is why the tool execution choke point works for the whole fleet.',
+      'This is one of the most important slides. Governance does not depend on each agent remembering to behave; it sits on the single tool execution path.',
+      'Trajectory and cost are the black box recorder. Without them, there is no reliable review of agentic behavior.',
+      'Transition to context and Foundry. This part explains how the agent knows, remembers, calls tools, and passes through the harness.',
+      'Context engineering is the difference between a demo and an operable system. Reinforce the separation between facts, short memory, long memory, and tools.',
+      'The toolbox aggregates capabilities. Approval policy and auth mode become tool catalog metadata, not tribal memory.',
+      'This is the main H3 diagram. Show that H3 is not just a model: it has portal, runtime, context, governance, and Foundry.',
+      'This is the most important flow for understanding agent execution. Read the control steps: identity, routing, cache, context, safety, model, telemetry, response.',
+      'Use ADR-0002 as justification: the standalone harness makes model calls governable and scalable outside a specific backend.',
+      'Model routing and cost should be architectural decisions, not operator preference. Here we show the declarative policy in .github/model-routing.yaml.',
+      'Transition into the end-to-end path. Here we join platform, agentic runtime, and operations.',
+      'This is the critical-path slide. It shows what has to work together for a complete experience.',
+      'This slide helps hybrid customers. The point is that Open Horizons does not assume everyone has already moved to GitHub-only.',
+      'Talk about rollback and synchronization. Not everything is synchronous, and that must be explicit in the architecture.',
+      'This slide becomes a governance checklist. It helps decide whether H3 can be enabled or whether operational foundations are still missing.',
+      'Close with objective questions. The goal is to leave the meeting with decisions, not admiration for the diagram.',
+      'Final references slide. It satisfies the factual integrity criterion: repository architecture facts and official links for the cited technologies.'
+    ]
+  },
+  es: {
+    lang: 'es',
+    title: 'Open Horizons · Arquitectura y Ejecución de Agentes',
+    description: 'Deck técnico de arquitectura y ejecución de agentes de Open Horizons, enfocado en implementación, runtime agéntico, gobernanza, MCP, Azure AI Foundry y operación.',
+    ui: {
+      deckMeta: 'ES · Arquitectura',
+      languageLabel: 'Idioma',
+      overviewTitle: 'Vista general',
+      overviewHint: 'Haz clic en un slide · Esc para cerrar',
+      keyboardHint: 'Usa <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> vista general · <kbd>N</kbd> notas',
+      emptyNote: 'No hay notas para este slide.',
+      prev: 'Slide anterior',
+      next: 'Siguiente slide',
+      overview: 'Vista general',
+      notes: 'Notas del presentador',
+      controls: 'Controles del deck'
+    },
+    text: {
+      'PT-BR · Arquitetura': 'ES · Arquitectura',
+      'Speaker notes': 'Notas del presentador',
+      'Open Horizons · Deep dive técnico': 'Open Horizons · Deep dive técnico',
+      'Arquitetura e': 'Arquitectura y',
+      'execução dos agentes': 'ejecución de agentes',
+      'Como o acelerador materializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails e observabilidade em uma plataforma operável.': 'Cómo el acelerador materializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails y observabilidad en una plataforma operable.',
+      'Autora': 'Autora',
+      'Audiência': 'Audiencia',
+      'Arquitetura, plataforma, SRE, segurança e AI engineering': 'Arquitectura, plataforma, SRE, seguridad e AI engineering',
+      'Duração': 'Duración',
+      '45 a 60 minutos': '45 a 60 minutos',
+      'Data': 'Fecha',
+      'Mapa do deep dive': 'Mapa del deep dive',
+      'Quatro atos. Um objetivo: sair sabendo': 'Cuatro actos. Un objetivo: salir sabiendo',
+      'como a plataforma funciona por dentro': 'cómo funciona la plataforma por dentro',
+      'Ato 1': 'Acto 1',
+      'Ato 2': 'Acto 2',
+      'Ato 3': 'Acto 3',
+      'Ato 4': 'Acto 4',
+      'Ato 5': 'Acto 5',
+      'Modelo de referência': 'Modelo de referencia',
+      'Horizons, camadas, fronteiras do sistema e diagramas oficiais de arquitetura.': 'Horizons, capas, fronteras del sistema y diagramas oficiales de arquitectura.',
+      'Implementação da plataforma': 'Implementación de la plataforma',
+      'Terraform, AKS, Backstage, ArgoCD, observabilidade, políticas e repo map.': 'Terraform, AKS, Backstage, ArgoCD, observabilidad, políticas y mapa del repo.',
+      'Runtime agêntico': 'Runtime agéntico',
+      'Agent API, roteamento, loop de tool calls, hooks, trajetórias, custos, MCP e Foundry.': 'Agent API, ruteo, loop de tool calls, hooks, trayectorias, costos, MCP y Foundry.',
+      'Operação e revisão': 'Operación y revisión',
+      'Fluxo ponta a ponta, rollout H1/H2/H3, segurança, observabilidade e checklist de arquitetura.': 'Flujo de punta a punta, rollout H1/H2/H3, seguridad, observabilidad y checklist de arquitectura.',
+      'Tese de arquitetura': 'Tesis de arquitectura',
+      'Open Horizons é uma arquitetura para tornar agentes': 'Open Horizons es una arquitectura para hacer que los agentes sean',
+      'executáveis, governados e auditáveis': 'ejecutables, gobernados y auditables',
+      'Fundação segura': 'Fundación segura',
+      'AKS, rede privada, identidade, Key Vault, políticas e observabilidade desde H1.': 'AKS, red privada, identidad, Key Vault, políticas y observabilidad desde H1.',
+      'IDP operável': 'IDP operable',
+      'Backstage OSS como produto interno: catálogo, Golden Paths, TechDocs e status.': 'Backstage OSS como producto interno: catálogo, Golden Paths, TechDocs y estado.',
+      'Contexto controlado': 'Contexto controlado',
+      'MCP, memória, cache, skills e RAG com budget de contexto e fronteiras claras.': 'MCP, memoria, caché, skills y RAG con presupuesto de contexto y fronteras claras.',
+      'Intenção explícita': 'Intención explícita',
+      'SDD, CONSTITUTION.md, model routing e scope guard antes da implementação.': 'SDD, CONSTITUTION.md, model routing y scope guard antes de la implementación.',
+      'Execução rastreável': 'Ejecución trazable',
+      'Trajetória, custos, hooks, telemetria GenAI e evidência para revisão.': 'Trayectoria, costos, hooks, telemetría GenAI y evidencia para revisión.',
+      'Modelo de referência.': 'Modelo de referencia.',
+      'Horizons, camadas, atores e fronteiras do sistema antes de discutir qualquer implementação.': 'Horizons, capas, actores y fronteras del sistema antes de discutir cualquier implementación.',
+      'Horizons e camadas': 'Horizons y capas',
+      'Três horizontes de adoção. Seis responsabilidades operacionais.': 'Tres horizontes de adopción. Seis responsabilidades operacionales.',
+      'Gateway Foundry, cache semântico, A2A, telemetria, memória enterprise e controle de custo por chamada.': 'Gateway Foundry, caché semántico, A2A, telemetría, memoria enterprise y control de costo por llamada.',
+      'Agent API, agentes runtime, tool loop, trajetórias, cost tracker e hooks no choke point.': 'Agent API, agentes runtime, tool loop, trayectorias, cost tracker y hooks en el choke point.',
+      'CONSTITUTION.md, SDD, EARS, scope guard e model routing por fase do SDLC.': 'CONSTITUTION.md, SDD, EARS, scope guard y model routing por fase del SDLC.',
+      'MCP servers, skills, memória, cache, RAG, Shared Context Store e curadoria de contexto.': 'MCP servers, skills, memoria, caché, RAG, Shared Context Store y curaduría de contexto.',
+      'Backstage, Golden Paths, ArgoCD, observabilidade, políticas, workflows e experiência do desenvolvedor.': 'Backstage, Golden Paths, ArgoCD, observabilidad, políticas, workflows y experiencia del desarrollador.',
+      'Terraform, AKS, rede, identidade, ACR, Key Vault, banco, storage, monitoramento e recovery.': 'Terraform, AKS, red, identidad, ACR, Key Vault, base de datos, storage, monitoreo y recovery.',
+      'Diagrama 1 · Architecture Overview': 'Diagrama 1 · Architecture Overview',
+      'A arquitetura separa fundação, plataforma, inovação agêntica e modelo operacional.': 'La arquitectura separa fundación, plataforma, innovación agéntica y modelo operativo.',
+      'Como apresentar': 'Cómo presentar',
+      'H3 depende de H2 e H1, mas é habilitado por gate.': 'H3 depende de H2 y H1, pero se habilita mediante un gate.',
+      'H2 é a camada de produto interno: Backstage, GitOps, Golden Paths e operação.': 'H2 es la capa de producto interno: Backstage, GitOps, Golden Paths y operación.',
+      'H1 é a fundação segura em Azure.': 'H1 es la fundación segura en Azure.',
+      'O modelo operacional faz parte da arquitetura, não é apêndice.': 'El modelo operativo es parte de la arquitectura, no un apéndice.',
+      'Diagrama 2 · System Context': 'Diagrama 2 · System Context',
+      'A fronteira do sistema inclui pessoas, agentes, sistemas de engenharia e runtime Azure.': 'La frontera del sistema incluye personas, agentes, sistemas de ingeniería y runtime Azure.',
+      'Checks arquiteturais': 'Checks arquitecturales',
+      'GitHub e Azure DevOps são integrações de primeira classe.': 'GitHub y Azure DevOps son integraciones de primera clase.',
+      'Backstage é o plano de experiência.': 'Backstage es el plano de experiencia.',
+      'ArgoCD é o plano de reconciliação.': 'ArgoCD es el plano de reconciliación.',
+      'Telemetria e governança agêntica estão dentro da fronteira.': 'La telemetría y la gobernanza agéntica están dentro de la frontera.',
+      'Implementação da plataforma.': 'Implementación de la plataforma.',
+      'Como H1 e H2 saem do desenho para Terraform, Kubernetes, GitOps, Backstage e observabilidade.': 'Cómo H1 y H2 salen del diseño hacia Terraform, Kubernetes, GitOps, Backstage y observabilidad.',
+      'Diagrama 3 · H1 Foundation': 'Diagrama 3 · H1 Foundation',
+      'A fundação H1 entrega o runtime Azure seguro para o resto da plataforma.': 'La fundación H1 entrega el runtime Azure seguro para el resto de la plataforma.',
+      'Planos H1': 'Planos H1',
+      'Network edge, hub-spoke, firewall e private endpoints.': 'Network edge, hub-spoke, firewall y private endpoints.',
+      'Entra ID, Key Vault, Managed Identity e Defender.': 'Entra ID, Key Vault, Managed Identity y Defender.',
+      'ACR, PostgreSQL, Storage e Purview.': 'ACR, PostgreSQL, Storage y Purview.',
+      'AKS, runners, External Secrets, Policy e OPA.': 'AKS, runners, External Secrets, Policy y OPA.',
+      'Azure Monitor, Log Analytics, App Insights e recovery.': 'Azure Monitor, Log Analytics, App Insights y recovery.',
+      'H1 em código': 'H1 en código',
+      'Terraform e o contrato de infraestrutura reproduzível.': 'Terraform y el contrato de infraestructura reproducible.',
+      'Runtime': 'Runtime',
+      'AKS + ACR': 'AKS + ACR',
+      '`aks-cluster` e `container-registry` criam o plano de execução, identidade e imagens aprovadas.': '`aks-cluster` y `container-registry` crean el plano de ejecución, identidad e imágenes aprobadas.',
+      'Rede': 'Red',
+      'Networking': 'Networking',
+      'VNet, subnets, NSGs, private endpoints e caminho de egress controlado.': 'VNet, subnets, NSGs, private endpoints y ruta de egress controlada.',
+      'Segurança': 'Seguridad',
+      'Key Vault + identity': 'Key Vault + identity',
+      'Managed Identity e Workload Identity substituem segredo estático em pod.': 'Managed Identity y Workload Identity reemplazan secretos estáticos en pods.',
+      'Dados': 'Datos',
+      'PostgreSQL + Storage': 'PostgreSQL + Storage',
+      'Estado do Backstage, artefatos, catálogo e integrações persistentes.': 'Estado de Backstage, artefactos, catálogo e integraciones persistentes.',
+      'Diagrama 4 · H1 Network and Security Detail': 'Diagrama 4 · H1 Network and Security Detail',
+      'Rede privada, identidade federada e política preventiva reduzem a superfície de ataque.': 'Red privada, identidad federada y política preventiva reducen la superficie de ataque.',
+      'Validar na revisão': 'Validar en la revisión',
+      'Private DNS para Key Vault, ACR, PostgreSQL, Storage e AI services.': 'Private DNS para Key Vault, ACR, PostgreSQL, Storage y AI services.',
+      'Egress via Azure Firewall para runners e workloads agênticos.': 'Egress vía Azure Firewall para runners y workloads agénticos.',
+      'NetworkPolicy por namespace, inclusive tráfego MCP/tool.': 'NetworkPolicy por namespace, incluido tráfico MCP/tool.',
+      'RBAC de Key Vault estreito e auditável.': 'RBAC de Key Vault acotado y auditable.',
+      'Diagrama 5 · H2 Enhancement': 'Diagrama 5 · H2 Enhancement',
+      'H2 transforma infraestrutura em produto interno: portal, GitOps, Golden Paths e operação.': 'H2 transforma infraestructura en producto interno: portal, GitOps, Golden Paths y operación.',
+      'Planos H2': 'Planos H2',
+      'Source e CI/CD: GitHub, Actions, GHCR e security scanning.': 'Source y CI/CD: GitHub, Actions, GHCR y security scanning.',
+      'GitOps: ArgoCD, sync waves, drift e health.': 'GitOps: ArgoCD, sync waves, drift y health.',
+      'Portal: Backstage OSS, catálogo, TechDocs e Golden Paths.': 'Portal: Backstage OSS, catálogo, TechDocs y Golden Paths.',
+      'Observabilidade: Prometheus, Grafana, Loki e Alertmanager.': 'Observabilidad: Prometheus, Grafana, Loki y Alertmanager.',
+      'Diagrama 6 · H2 GitOps and Observability': 'Diagrama 6 · H2 GitOps and Observability',
+      'A entrega é declarativa: source muda, CI valida, ArgoCD reconcilia, observabilidade fecha o loop.': 'La entrega es declarativa: source cambia, CI valida, ArgoCD reconcilia y observabilidad cierra el loop.',
+      'Fluxo': 'Flujo',
+      'Build, teste e scan antes de atualizar estado desejado.': 'Build, test y scan antes de actualizar el desired state.',
+      'Imagem imutável por digest no manifesto ou Helm values.': 'Imagen inmutable por digest en el manifiesto o Helm values.',
+      'Sync waves aplicam recursos na ordem correta.': 'Sync waves aplican recursos en el orden correcto.',
+      'Prometheus, Loki, Grafana e Alertmanager criam a evidência operacional.': 'Prometheus, Loki, Grafana y Alertmanager crean la evidencia operacional.',
+      'Mapa de implementação': 'Mapa de implementación',
+      'Cada responsabilidade arquitetural tem um endereço no repositório.': 'Cada responsabilidad arquitectural tiene una dirección en el repositorio.',
+      'repo map': 'mapa del repo',
+      'Runtime dos agentes.': 'Runtime de agentes.',
+      'Do clique no portal até a chamada de modelo, tool call, governança, telemetria e resposta em streaming.': 'Desde el clic en el portal hasta la llamada al modelo, tool call, gobernanza, telemetría y respuesta en streaming.',
+      'Entry points reais': 'Entry points reales',
+      'O runtime agêntico é exposto por APIs especializadas e um gateway Foundry.': 'El runtime agéntico se expone mediante APIs especializadas y un gateway Foundry.',
+      'Superfície': 'Superficie',
+      'Entrada': 'Entrada',
+      'Porta / protocolo': 'Puerto / protocolo',
+      'Função': 'Función',
+      'Experiência do usuário: catálogo, TechDocs, AI Chat, AI Impact e operação.': 'Experiencia de usuario: catálogo, TechDocs, AI Chat, AI Impact y operación.',
+      'Multi-agent chat, router, SSE, trajetória, custo e hooks.': 'Multi-agent chat, router, SSE, trayectoria, costo y hooks.',
+      'Análise de impacto e experiências AI Impact.': 'Análisis de impacto y experiencias AI Impact.',
+      'Superfícies para Microsoft Agent Framework e Semantic Kernel.': 'Superficies para Microsoft Agent Framework y Semantic Kernel.',
+      'Ferramentas de documentação, catálogo, Backstage, GitHub e referência.': 'Herramientas de documentación, catálogo, Backstage, GitHub y referencia.',
+      'Harness L6 para chamadas Foundry, cache, A2A, toolbox, memória e telemetria.': 'Harness L6 para llamadas Foundry, caché, A2A, toolbox, memoria y telemetría.',
+      'Fluxo real · Agent API': 'Flujo real · Agent API',
+      '`POST /api/agents/chat` executa roteamento, loop agêntico, hooks e streaming SSE.': '`POST /api/agents/chat` ejecuta ruteo, loop agéntico, hooks y streaming SSE.',
+      'Roteamento': 'Ruteo',
+      'O router escolhe o agente antes do modelo receber o contexto.': 'El router elige el agente antes de que el modelo reciba el contexto.',
+      'Override explícito': 'Override explícito',
+      'Se a request traz `agent` válido, o backend usa esse agente.': 'Si la request trae un `agent` válido, el backend usa ese agente.',
+      '`@pipeline`, `@security`, `@sre` e outros nomes direcionam a conversa.': '`@pipeline`, `@security`, `@sre` y otros nombres direccionan la conversación.',
+      'O router detecta intenção por palavras-chave do `AgentConfig`.': 'El router detecta intención por palabras clave del `AgentConfig`.',
+      'Fallback': 'Fallback',
+      'Sem match, o `orchestrator` assume a conversa.': 'Sin match, el `orchestrator` asume la conversación.',
+      'Diagnóstico de CI/CD via GitHub workflow runs e jobs.': 'Diagnóstico de CI/CD vía GitHub workflow runs y jobs.',
+      'Quality gates, checks, cobertura e status de PR.': 'Quality gates, checks, cobertura y estado de PR.',
+      'Segurança, advisories, Dependabot e postura.': 'Seguridad, advisories, Dependabot y postura.',
+      'Infraestrutura, repositórios, branches e automação.': 'Infraestructura, repositorios, branches y automatización.',
+      'Loop agêntico': 'Loop agéntico',
+      '`BaseAgent.handle()` executa um ciclo: prompt, modelo, tools, resultado, repetição.': '`BaseAgent.handle()` ejecuta un ciclo: prompt, modelo, tools, resultado y repetición.',
+      'Sistema': 'Sistema',
+      'O `AgentConfig` injeta persona, limites e ferramentas.': 'El `AgentConfig` inyecta persona, límites y herramientas.',
+      'Modelo': 'Modelo',
+      'A chamada inclui histórico, temperatura, budget e tool definitions.': 'La llamada incluye historial, temperatura, budget y tool definitions.',
+      'Cada chamada passa por `_execute_tool()` antes de chegar no executor.': 'Cada llamada pasa por `_execute_tool()` antes de llegar al ejecutor.',
+      'Quando não há tool calls, a resposta final é enviada ao frontend.': 'Cuando no hay tool calls, la respuesta final se envía al frontend.',
+      'A propriedade arquitetural importante: o loop é comum para a frota. Isso permite hooks, auditoria e sanitização uniformes.': 'La propiedad arquitectural importante: el loop es común para toda la flota. Eso permite hooks, auditoría y sanitización uniformes.',
+      'Governança de tool use': 'Gobernanza de tool use',
+      'Todo tool call passa pelo mesmo choke point: `BaseAgent._execute_tool()`.': 'Todo tool call pasa por el mismo choke point: `BaseAgent._execute_tool()`.',
+      'Antes de executar': 'Antes de ejecutar',
+      'Classifica tool como read-only, mutating ou unknown.': 'Clasifica la tool como read-only, mutating o unknown.',
+      'Bloqueia padrões perigosos: path traversal, `rm -rf`, force push, `terraform destroy`, `kubectl delete --all`, SQL destrutivo.': 'Bloquea patrones peligrosos: path traversal, `rm -rf`, force push, `terraform destroy`, `kubectl delete --all`, SQL destructivo.',
+      'Audita mutações e decisões de risco.': 'Audita mutaciones y decisiones de riesgo.',
+      '`AGENT_HOOKS_ENFORCE=false` permite rollout em modo warning.': '`AGENT_HOOKS_ENFORCE=false` permite rollout en modo warning.',
+      'Depois de executar': 'Después de ejecutar',
+      'Redige tokens, chaves, JWTs, private keys e connection strings.': 'Redacta tokens, claves, JWTs, private keys y connection strings.',
+      'Trunca payloads grandes antes de voltarem ao modelo.': 'Trunca payloads grandes antes de volver al modelo.',
+      'Registra eventos de sanitização.': 'Registra eventos de sanitización.',
+      'Espelha a política do gateway Foundry.': 'Replica la política del gateway Foundry.',
+      'Trajetória, custo e SSE': 'Trayectoria, costo y SSE',
+      'A resposta do agente é também um registro operacional.': 'La respuesta del agente también es un registro operacional.',
+      'O que aconteceu': 'Qué pasó',
+      '`trajectory_logger.start`, tool calls, tool results, outcome e snapshot de contexto.': '`trajectory_logger.start`, tool calls, tool results, outcome y snapshot de contexto.',
+      'Quanto custou': 'Cuánto costó',
+      'Tokens de entrada e saída por agente, modelo e trajectory id.': 'Tokens de entrada y salida por agente, modelo y trajectory id.',
+      'Como chega no portal': 'Cómo llega al portal',
+      'Chunks `agent`, `text`, `tool_use`, `tool_result`, `done` e `error` via `text/event-stream`.': 'Chunks `agent`, `text`, `tool_use`, `tool_result`, `done` y `error` vía `text/event-stream`.',
+      'Contexto, MCP e Foundry.': 'Contexto, MCP y Foundry.',
+      'Como a plataforma controla o que o agente pode saber, chamar, lembrar e gastar.': 'Cómo la plataforma controla lo que el agente puede saber, llamar, recordar y gastar.',
+      'Context engineering': 'Context engineering',
+      'O agente não recebe contexto infinito. Ele recebe contexto curado.': 'El agente no recibe contexto infinito. Recibe contexto curado.',
+      'Instruções sempre carregadas': 'Instrucciones siempre cargadas',
+      'Copilot instructions, AGENTS.md, CODEMAP e contratos de execução.': 'Copilot instructions, AGENTS.md, CODEMAP y contratos de ejecución.',
+      'Skill e memória de sessão': 'Skill y memoria de sesión',
+      'Skills carregadas sob demanda e Shared Context Store com TTL.': 'Skills cargadas bajo demanda y Shared Context Store con TTL.',
+      'RAG e memória durável': 'RAG y memoria durable',
+      'AI Search, Redis, Cosmos memory e stores classificados.': 'AI Search, Redis, Cosmos memory y stores clasificados.',
+      'Budget de janela': 'Budget de ventana',
+      'Recupera, ranqueia, compacta e evita tool/context sprawl.': 'Recupera, rankea, compacta y evita tool/context sprawl.',
+      'MCP e Toolbox': 'MCP y Toolbox',
+      'Ferramentas são catalogadas, categorizadas e governadas antes de chegar ao agente.': 'Las herramientas se catalogan, categorizan y gobiernan antes de llegar al agente.',
+      'Servidores MCP': 'Servidores MCP',
+      'Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem e outros.': 'Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem y otros.',
+      'Foundry built-ins': 'Foundry built-ins',
+      'Web Search, File Search, Azure AI Search e Code Interpreter.': 'Web Search, File Search, Azure AI Search y Code Interpreter.',
+      'Wrappers OpenAPI': 'Wrappers OpenAPI',
+      'Categoria pronta para contratos de API descritos e versionados.': 'Categoría lista para contratos de API descritos y versionados.',
+      'Especialistas acessíveis por protocolo A2A v1.0 com contexto de trace.': 'Especialistas accesibles por protocolo A2A v1.0 con contexto de trace.',
+      'Cada tool carrega `require_approval` e `auth`: managed identity, OAuth passthrough, key ou local. Key-based auth exige dono de rotação.': 'Cada tool lleva `require_approval` y `auth`: managed identity, OAuth passthrough, key o local. Key-based auth exige dueño de rotación.',
+      'Diagrama 7 · H3 Innovation': 'Diagrama 7 · H3 Innovation',
+      'H3 adiciona runtime agêntico, contexto, governança e Azure AI Foundry.': 'H3 agrega runtime agéntico, contexto, gobernanza y Azure AI Foundry.',
+      'Planos H3': 'Planos H3',
+      'Experiência: AI Chat, AI Impact e GitHub Copilot.': 'Experiencia: AI Chat, AI Impact y GitHub Copilot.',
+      'Runtime: Agent API, model router, orchestrator e MCP.': 'Runtime: Agent API, model router, orchestrator y MCP.',
+      'Contexto: Shared Context Store, memory tiers, Redis e skills.': 'Contexto: Shared Context Store, memory tiers, Redis y skills.',
+      'Governança: trajetórias, custo, identidade e safety.': 'Gobernanza: trayectorias, costo, identidad y safety.',
+      'Foundry: Azure OpenAI, AI Search e App Insights.': 'Foundry: Azure OpenAI, AI Search y App Insights.',
+      'Diagrama 8 · H3 Agent Flow Detail': 'Diagrama 8 · H3 Agent Flow Detail',
+      'Uma request agêntica passa por roteamento, cache, memória, RAG, tools, guardrails, inferência e telemetria.': 'Una request agéntica pasa por ruteo, caché, memoria, RAG, tools, guardrails, inferencia y telemetría.',
+      'Sequência': 'Secuencia',
+      'Valida request e identidade.': 'Valida request e identidad.',
+      'Seleciona modelo por tarefa.': 'Selecciona modelo por tarea.',
+      'Consulta cache semântico e estado curto.': 'Consulta caché semántico y estado corto.',
+      'Curadoria via AI Search e MCP.': 'Curaduría vía AI Search y MCP.',
+      'Aplica safety e scope antes de tool/model.': 'Aplica safety y scope antes de tool/model.',
+      'Persiste trajetória, custo e OpenTelemetry.': 'Persiste trayectoria, costo y OpenTelemetry.',
+      'O `foundry-agents` gateway é o controle operacional das chamadas Foundry.': 'El gateway `foundry-agents` es el control operacional de las llamadas Foundry.',
+      'Cache exato e semântico com escopo por tenant, projeto, sessão e modelo.': 'Caché exacto y semántico con alcance por tenant, proyecto, sesión y modelo.',
+      'Agent handoff': 'Agent handoff',
+      'Headers de trace, cadeia de agentes, lineage Purview e profundidade do hop.': 'Headers de trace, cadena de agentes, lineage Purview y profundidad del hop.',
+      'Aprovação humana, budget gate, validação de argumentos, cache hit e audit.': 'Aprobación humana, budget gate, validación de argumentos, cache hit y audit.',
+      'Atributos GenAI para App Insights, incluindo token usage, latência, agent id e tool calls.': 'Atributos GenAI para App Insights, incluyendo token usage, latencia, agent id y tool calls.',
+      'Cosmos memory, AAD-only, probe operacional e auditoria de acesso classificado.': 'Cosmos memory, AAD-only, probe operacional y auditoría de acceso clasificado.',
+      'ADR-0002: o harness standalone escala, é auditado e pode ser protegido por NetworkPolicy separada do backend de agente.': 'ADR-0002: el harness standalone escala, se audita y puede protegerse con NetworkPolicy separada del backend de agente.',
+      'Model routing por SDLC': 'Model routing por SDLC',
+      'O modelo certo depende da fase, do risco e da clareza do escopo.': 'El modelo correcto depende de la fase, el riesgo y la claridad del alcance.',
+      'Fase': 'Fase',
+      'Modo': 'Modo',
+      'Quando usar': 'Cuándo usar',
+      'Requisitos ambíguos, incompletos ou contraditórios.': 'Requisitos ambiguos, incompletos o contradictorios.',
+      'Planejamento multi-arquivo, desenho de sistema e ADR.': 'Planificación multiarchivo, diseño de sistema y ADR.',
+      'Casos de teste a partir de especificação clara.': 'Casos de prueba a partir de especificación clara.',
+      'Feature code com plano aprovado e escopo claro.': 'Feature code con plan aprobado y alcance claro.',
+      'Tarefas pequenas, repetitivas e bem definidas.': 'Tareas pequeñas, repetitivas y bien definidas.',
+      'Revisão de qualidade e segurança em PR pronto.': 'Revisión de calidad y seguridad en PR listo.',
+      'Fonte local: `.github/model-routing.yaml`. A política registra fase, modo, modelos candidatos, tier, custo relativo e critério de uso.': 'Fuente local: `.github/model-routing.yaml`. La política registra fase, modo, modelos candidatos, tier, costo relativo y criterio de uso.',
+      'Execução ponta a ponta.': 'Ejecución de punta a punta.',
+      'Do Golden Path ao deploy, do deploy ao AI Chat, do AI Chat a telemetria e governança.': 'Del Golden Path al deploy, del deploy al AI Chat, del AI Chat a telemetría y gobernanza.',
+      'Diagrama 9 · Critical Path Sequence': 'Diagrama 9 · Critical Path Sequence',
+      'O caminho crítico conecta scaffold, CI/CD, GitOps, runtime e resposta agêntica.': 'El camino crítico conecta scaffold, CI/CD, GitOps, runtime y respuesta agéntica.',
+      'Developer abre um Golden Path.': 'El developer abre un Golden Path.',
+      'Backstage cria repo e metadados.': 'Backstage crea repo y metadatos.',
+      'GitHub ou ADO executa CI/CD.': 'GitHub o ADO ejecuta CI/CD.',
+      'ArgoCD reconcilia para AKS.': 'ArgoCD reconcilia hacia AKS.',
+      'Status volta ao Backstage.': 'El estado vuelve a Backstage.',
+      'AI Chat chama Agent API e Foundry.': 'AI Chat llama a Agent API y Foundry.',
+      'Resposta e telemetria retornam ao usuário.': 'Respuesta y telemetría vuelven al usuario.',
+      'Diagrama 10 · Hybrid Azure DevOps + GitHub': 'Diagrama 10 · Hybrid Azure DevOps + GitHub',
+      'A arquitetura suporta coexistência GitHub + Azure DevOps sem quebrar catálogo e operação.': 'La arquitectura soporta coexistencia GitHub + Azure DevOps sin romper catálogo ni operación.',
+      'Cenários': 'Escenarios',
+      'A: GitHub Repos + Azure Pipelines + Azure Boards.': 'A: GitHub Repos + Azure Pipelines + Azure Boards.',
+      'B: Azure Repos + Azure Pipelines + Azure Boards.': 'B: Azure Repos + Azure Pipelines + Azure Boards.',
+      'C: GitHub Repos + GitHub Actions + GitHub Issues ou tracker externo.': 'C: GitHub Repos + GitHub Actions + GitHub Issues o tracker externo.',
+      'Backstage normaliza metadados para o catálogo.': 'Backstage normaliza metadatos para el catálogo.',
+      'Entrega e rollback': 'Entrega y rollback',
+      'A execução de deploy é controlada por desired state, health checks e evidências.': 'La ejecución de deploy se controla por desired state, health checks y evidencias.',
+      'Código, chart, manifesto, plugin ou template muda via PR.': 'Código, chart, manifiesto, plugin o template cambia vía PR.',
+      'CI executa build, testes, scans e policy gates.': 'CI ejecuta build, pruebas, scans y policy gates.',
+      'Imagem imutável e manifests versionados entram no GitOps repo.': 'Imagen inmutable y manifests versionados entran al repo GitOps.',
+      'ArgoCD aplica sync waves, health checks, drift e rollback operacional.': 'ArgoCD aplica sync waves, health checks, drift y rollback operacional.',
+      'A decisão arquitetural: laptops não aplicam `kubectl` em produção. O cluster converge para o estado desejado revisado.': 'Decisión arquitectural: las laptops no aplican `kubectl` en producción. El cluster converge al estado deseado revisado.',
+      'Gates de rollout': 'Gates de rollout',
+      'H3 só deve ser habilitado quando H1 e H2 conseguem sustentar agentes em produção.': 'H3 solo debe habilitarse cuando H1 y H2 pueden sostener agentes en producción.',
+      'H1 gate': 'H1 gate',
+      'Fundação pronta': 'Fundación lista',
+      'Private endpoints e DNS validados.': 'Private endpoints y DNS validados.',
+      'Workload Identity sem segredo estático.': 'Workload Identity sin secreto estático.',
+      'ACR, Key Vault, banco e Storage protegidos.': 'ACR, Key Vault, base de datos y Storage protegidos.',
+      'Logs, alerts e recovery configurados.': 'Logs, alerts y recovery configurados.',
+      'H2 gate': 'H2 gate',
+      'Plataforma pronta': 'Plataforma lista',
+      'Backstage autenticado e persistente.': 'Backstage autenticado y persistente.',
+      'ArgoCD com sync policies por ambiente.': 'ArgoCD con sync policies por ambiente.',
+      'Golden Paths gerando catalog-info e SDD.': 'Golden Paths generando catalog-info y SDD.',
+      'Dashboards e alertas com dono.': 'Dashboards y alertas con dueño.',
+      'H3 gate': 'H3 gate',
+      'Agentes prontos': 'Agentes listos',
+      'Model routing aprovado.': 'Model routing aprobado.',
+      'Tool approvals e hooks ativos.': 'Tool approvals y hooks activos.',
+      'Budget e cost endpoints visíveis.': 'Budget y cost endpoints visibles.',
+      'Trajetórias, evals e incident runbooks definidos.': 'Trayectorias, evals e incident runbooks definidos.',
+      'Checklist de revisão arquitetural': 'Checklist de revisión arquitectural',
+      'Perguntas que a arquitetura precisa responder antes de operar agentes.': 'Preguntas que la arquitectura debe responder antes de operar agentes.',
+      'Qual SLO vale para portal, Agent API e Foundry gateway?': 'Qué SLO aplica para portal, Agent API y Foundry gateway?',
+      'Quais workloads escalam de forma independente?': 'Qué workloads escalan de forma independiente?',
+      'Qual trace id correlaciona portal, CI/CD, ArgoCD, Agent API e Foundry?': 'Qué trace id correlaciona portal, CI/CD, ArgoCD, Agent API y Foundry?',
+      'Existe algum caminho público para dados ou dependências stateful?': 'Existe algún camino público hacia datos o dependencias stateful?',
+      'Quais tools exigem aprovação humana?': 'Qué tools exigen aprobación humana?',
+      'Como auditoria prova quem mudou o que, por que e com qual agente?': 'Cómo la auditoría prueba quién cambió qué, por qué y con qué agente?',
+      'Custo': 'Costo',
+      'Quais budgets existem por agente, equipe e rota?': 'Qué budgets existen por agente, equipo y ruta?',
+      'Quando cache e routing são obrigatórios?': 'Cuándo cache y routing son obligatorios?',
+      'Como alertas de custo chegam ao owner correto?': 'Cómo llegan las alertas de costo al owner correcto?',
+      'Operação': 'Operación',
+      'Quem é dono de dashboard, alerta e runbook?': 'Quién es dueño de dashboard, alerta y runbook?',
+      'Qual rollback existe para cada serviço crítico?': 'Qué rollback existe para cada servicio crítico?',
+      'Quais evidências ficam retidas para revisão?': 'Qué evidencias quedan retenidas para revisión?',
+      'Referências': 'Referencias',
+      'Fontes usadas para o deck.': 'Fuentes usadas para el deck.',
+      'Open Horizons local:': 'Open Horizons local:',
+      'Open Horizons ADR:': 'Open Horizons ADR:',
+      'Azure AI Foundry documentation:': 'Documentación de Azure AI Foundry:',
+      'Backstage architecture overview:': 'Overview de arquitectura de Backstage:',
+      'Azure architecture icons:': 'Iconos de arquitectura de Azure:'
+    },
+    notes: [
+      'Abra posicionando el deck como una revisión técnica. La promesa aquí no es vender el concepto; es mostrar cómo Open Horizons se implementa, dónde vive cada capacidad y cómo se gobierna la ejecución de agentes.',
+      'Muestre la estructura. Este deck sigue el template visual del deck principal, pero cambia la narrativa comercial por una revisión técnica orientada a implementación.',
+      'Este slide define el criterio de éxito. Buena arquitectura aquí significa control operacional sobre infraestructura, plataforma, contexto, intención y ejecución agéntica.',
+      'Transición al modelo. Use este bloque para alinear lenguaje antes de entrar en los diagramas.',
+      'Explique que H1/H2/H3 son etapas de adopción y las capas son responsabilidades arquitecturales. L6 es el harness operacional que vuelve gobernables las llamadas al modelo.',
+      'Use el diagrama de overview para orientar la conversación. No entre en detalles todavía; la función de este slide es mostrar la separación H1/H2/H3 y el modelo operativo.',
+      'Muestre quién conversa con el sistema: developers, platform engineers, agentes runtime, GitHub, ADO, Backstage, ArgoCD, AKS y Foundry.',
+      'Transición hacia la implementación de las capas H1 y H2. Ahora el discurso sale del modelo y entra en lo que se provisiona y opera.',
+      'H1 es el slide para cloud, seguridad y red. Destaque que aquí viven las dependencias para que todo lo superior funcione con seguridad.',
+      'Conecte el diagrama con el repositorio. Estos son los módulos reales que implementan H1 y los módulos de soporte H2.',
+      'Este slide es para seguridad y red. Destaque el flujo de identidad y la ausencia de secretos de larga duración en el camino objetivo.',
+      'H2 es la capa donde la plataforma se vuelve producto para developers y operadores. Muestre que Backstage no está solo; orquesta catálogo, templates, docs, status e integraciones.',
+      'El foco aquí es el ciclo de entrega. Lo importante es mostrar desired state, sync waves, health checks y feedback operacional.',
+      'Use este mapa para ayudar a arquitectos a encontrar el código después de la presentación. También defiende la separación de responsabilidades en el repo.',
+      'Ahora entramos en el motor agéntico. Prepare a la audiencia para mirar el runtime como sistema distribuido, no como prompt suelto.',
+      'Muestre que hay múltiples entry points. El portal es una superficie; los backends agénticos son servicios con puertos y contratos claros.',
+      'Este es el flujo central del Agent API. Lea de arriba hacia abajo y enfatice los puntos de gobernanza: trajectory before, cost start, execute tool con hook, cost finish, trajectory after.',
+      'Explique que el router evita un agente universal para todo. La elección puede venir explícita por request.agent, por @mention, por keyword o caer en orchestrator.',
+      'Muestre BaseAgent como mecanismo común. Todos los agentes heredan la misma lógica, y por eso el choke point de tool execution funciona para toda la flota.',
+      'Este es uno de los slides más importantes. La gobernanza no depende de que cada agente recuerde portarse bien; está en el camino único de ejecución de herramienta.',
+      'Trayectoria y costo son el black box recorder. Sin eso, no existe revisión confiable de comportamiento agéntico.',
+      'Transición para contexto y Foundry. Esta parte explica cómo el agente sabe, recuerda, llama herramientas y pasa por el harness.',
+      'Context engineering es la diferencia entre una demo y un sistema operable. Refuerce la separación entre hechos, memoria corta, memoria larga y herramientas.',
+      'El toolbox agrega capacidades. La política de aprobación y auth mode se vuelve metadato del catálogo de herramientas, no memoria tribal.',
+      'Este es el diagrama H3 principal. Muestre que H3 no es solo modelo: tiene portal, runtime, contexto, gobernanza y Foundry.',
+      'Este es el flujo más importante para entender ejecución de agente. Lea los pasos de control: identity, routing, cache, context, safety, model, telemetry, response.',
+      'Use ADR-0002 como justificativa: el harness standalone vuelve gobernables y escalables las llamadas al modelo fuera de un backend específico.',
+      'Model routing y costo deben ser decisión arquitectural, no preferencia manual del operador. Aquí mostramos la política declarativa en .github/model-routing.yaml.',
+      'Transición hacia el camino de punta a punta. Aquí juntamos plataforma, runtime agéntico y operación.',
+      'Este es el slide de camino crítico. Muestra lo que necesita funcionar en conjunto para una experiencia completa.',
+      'Este slide ayuda en clientes híbridos. El punto es que Open Horizons no asume que todos ya migraron a GitHub-only.',
+      'Hable sobre rollback y sincronismo. No todo es síncrono, y eso debe estar explícito en la arquitectura.',
+      'Este slide se vuelve checklist de gobernanza. Ayuda a decidir si H3 puede activarse o si todavía falta base operacional.',
+      'Cierre con preguntas objetivas. La meta es salir de la reunión con decisiones, no con admiración por el diagrama.',
+      'Slide final de referencias. Atiende el criterio de integridad factual: hechos de arquitectura del repo y links oficiales para las tecnologías citadas.'
+    ]
+  }
+};
+
+function isTranslatableNode(node) {
+  if (!node.nodeValue.trim()) return false;
+  const parent = node.parentElement;
+  return Boolean(parent && !parent.closest('script, style, pre, .lang-switcher'));
+}
+
+function captureI18nSources() {
+  const roots = [
+    document.querySelector('.deck-meta'),
+    document.getElementById('deck'),
+    document.getElementById('overview'),
+    document.getElementById('kbdHint'),
+    document.getElementById('notesPanel'),
+    document.querySelector('.deck-controls')
+  ].filter(Boolean);
+  textNodeSources = [];
+  roots.forEach((root) => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node) {
+      if (isTranslatableNode(node)) textNodeSources.push({ node, source: node.nodeValue });
+      node = walker.nextNode();
+    }
+  });
+  slideNoteSources = slides.map((slide) => slide.dataset.notes || '');
+}
+
+function translateTextNodes(locale) {
+  const translations = I18N[locale]?.text || {};
+  textNodeSources.forEach(({ node, source }) => {
+    const key = source.trim();
+    const leading = source.match(/^\s*/)?.[0] || '';
+    const trailing = source.match(/\s*$/)?.[0] || '';
+    node.nodeValue = `${leading}${translations[key] ?? key}${trailing}`;
+  });
+}
+
+function setMeta(name, value) {
+  const meta = document.querySelector(`meta[name="${name}"], meta[property="${name}"]`);
+  if (meta) meta.setAttribute('content', value);
+}
+
+function setLocale(locale) {
+  if (!I18N[locale]) return;
+  currentLocale = locale;
+  const bundle = I18N[locale];
+  try {
+    localStorage.setItem('openhorizons-architecture-deck-locale', locale);
+  } catch (error) {
+    console.warn('Unable to persist deck locale preference.', error);
+  }
+  document.documentElement.setAttribute('lang', bundle.lang);
+  document.title = bundle.title;
+  setMeta('description', bundle.description);
+  setMeta('og:title', bundle.title);
+  setMeta('og:description', bundle.description);
+  translateTextNodes(locale);
+  slides.forEach((slide, slideIndex) => {
+    slide.dataset.notes = bundle.notes?.[slideIndex] || slideNoteSources[slideIndex] || '';
+  });
+  document.querySelector('.deck-meta').textContent = bundle.ui.deckMeta;
+  document.querySelector('.lang-switcher')?.setAttribute('aria-label', bundle.ui.languageLabel);
+  document.querySelectorAll('.lang-switcher__btn').forEach((button) => {
+    button.setAttribute('aria-current', button.dataset.locale === locale ? 'true' : 'false');
+  });
+  document.querySelector('.overview__title').textContent = bundle.ui.overviewTitle;
+  document.querySelector('.overview__hint').textContent = bundle.ui.overviewHint;
+  kbdHint.innerHTML = bundle.ui.keyboardHint;
+  document.querySelector('.deck-controls')?.setAttribute('aria-label', bundle.ui.controls);
+  document.getElementById('prevBtn')?.setAttribute('aria-label', bundle.ui.prev);
+  document.getElementById('nextBtn')?.setAttribute('aria-label', bundle.ui.next);
+  document.getElementById('overviewBtn')?.setAttribute('aria-label', bundle.ui.overview);
+  document.getElementById('notesBtn')?.setAttribute('aria-label', bundle.ui.notes);
+  if (overviewGrid.children.length) buildOverview();
+  updateNotes();
+}
+
+function initialLocale() {
+  try {
+    const saved = localStorage.getItem('openhorizons-architecture-deck-locale');
+    if (saved && I18N[saved]) return saved;
+  } catch (error) {
+    console.warn('Unable to read deck locale preference.', error);
+  }
+  return 'pt-BR';
+}
 
 totalSlides.textContent = String(slides.length).padStart(2, '0');
 
@@ -684,13 +1518,14 @@ function setActiveSlide(nextIndex) {
   document.body.dataset.slideTheme = active.classList.contains('slide--dark') ? 'dark' : 'light';
   currentSlide.textContent = String(index + 1).padStart(2, '0');
   progress.style.width = `${((index + 1) / slides.length) * 100}%`;
-  updatéNotes();
-  updatéOverviewCurrent();
+  updateNotes();
+  updateOverviewCurrent();
 }
 
-function updatéNotes() {
+function updateNotes() {
   const note = slides[index].dataset.notes || '';
-  notesPanel.querySelector('.notes-panel__body').innerHTML = note || '<span class="notes-panel__empty">Sem notas para este slide.</span>';
+  const emptyNote = I18N[currentLocale]?.ui.emptyNote || I18N['pt-BR'].ui.emptyNote;
+  notesPanel.querySelector('.notes-panel__body').innerHTML = note || `<span class="notes-panel__empty">${emptyNote}</span>`;
 }
 
 function next() { setActiveSlide(index + 1); }
@@ -699,7 +1534,7 @@ function prev() { setActiveSlide(index - 1); }
 function buildOverview() {
   overviewGrid.innerHTML = '';
   slides.forEach((slide, i) => {
-    const card = document.creatéElement('button');
+    const card = document.createElement('button');
     card.type = 'button';
     card.className = 'overview-card';
     if (slide.classList.contains('slide--dark')) card.classList.add('overview-card--dark');
@@ -710,10 +1545,10 @@ function buildOverview() {
     card.addEventListener('click', () => { closeOverview(); setActiveSlide(i); });
     overviewGrid.appendChild(card);
   });
-  updatéOverviewCurrent();
+  updateOverviewCurrent();
 }
 
-function updatéOverviewCurrent() {
+function updateOverviewCurrent() {
   if (!overviewGrid.children.length) return;
   Array.from(overviewGrid.children).forEach((card, i) => card.dataset.current = i === index ? 'true' : 'false');
 }
@@ -745,6 +1580,9 @@ document.getElementById('prevBtn').addEventListener('click', prev);
 document.getElementById('nextBtn').addEventListener('click', next);
 document.getElementById('overviewBtn').addEventListener('click', toggleOverview);
 document.getElementById('notesBtn').addEventListener('click', toggleNotes);
+document.querySelectorAll('.lang-switcher__btn').forEach((button) => {
+  button.addEventListener('click', () => setLocale(button.dataset.locale));
+});
 
 document.addEventListener('keydown', (e) => {
   if (overviewOpen) {
@@ -760,6 +1598,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key.toLowerCase() === 'n') toggleNotes();
 });
 
+captureI18nSources();
+setLocale(initialLocale());
 setActiveSlide(0);
 setTimeout(() => { kbdHint.dataset.visible = 'true'; }, 400);
 setTimeout(() => { kbdHint.dataset.visible = 'false'; }, 5000);
