@@ -2,7 +2,7 @@
 
 This directory contains skills that extend GitHub Copilot agent capabilities. Skills use **progressive loading** - Copilot reads metadata first and loads scripts only when relevant.
 
-## Available Skills (31)
+## Available Skills (28)
 
 | Skill | Description | Used By |
 | ----- | ----------- | ------- |
@@ -27,22 +27,19 @@ This directory contains skills that extend GitHub Copilot agent capabilities. Sk
 | [MCP Ecosystem](./mcp-ecosystem/) | MCP ecosystem reference lookup | `@backstage-expert`, `@deploy` |
 | [Observability Stack](./observability-stack/) | Monitoring operations | `@sre`, `@deploy` |
 | [Pipeline Diagnostics](./pipeline-diagnostics/) | CI/CD diagnostics reference | `@deploy` |
-| [Playbook PDF Builder](./playbook-pdf-builder/) | Consolidated PDF generation | `@deploy` |
 | [Prerequisites](./prerequisites/) | CLI tool validation | `@deploy` |
-| [Prompt Architect](./prompt-architect/) | Prompt and customization design | `@deploy` |
 | [Requirements Engineer](./requirements-engineer/) | Requirements engineering | `@deploy` |
 | [SDD Spec Engineer](./sdd-spec-engineer/) | Spec-driven development artifacts | `@deploy` |
 | [Story Planning](./story-planning/) | User story planning | `@deploy` |
 | [Terraform CLI](./terraform-cli/) | Terraform CLI operations | `@terraform`, `@security`, `@deploy` |
 | [Test Coverage](./test-coverage/) | Test coverage and quality gates | `@deploy` |
 | [Validation Scripts](./validation-scripts/) | Deployment validation | `@deploy`, `@sre`, `@security` |
-| [XLSX Creator](./xlsx-creator/) | Excel workbook creation | `@deploy` |
 
 ## Skill Structure
 
 Each skill follows this directory structure:
 
-```
+```text
 skill-name/
 ├── SKILL.md          # Main skill definition (required)
 ├── scripts/          # Executable scripts

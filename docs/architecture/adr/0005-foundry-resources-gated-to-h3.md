@@ -1,3 +1,12 @@
+---
+title: "ADR-0005 · Foundry resources gated to the H3 Horizon"
+description: "Decision record for gating Foundry runtime resources to H3 Innovation adoption."
+author: "Open Horizons"
+date: "2026-06-18"
+status: "accepted"
+tags: ["adr", "h3", "azure-ai-foundry", "finops"]
+---
+
 # ADR-0005: Foundry resources gated to the H3 Horizon
 
 - Status: Accepted

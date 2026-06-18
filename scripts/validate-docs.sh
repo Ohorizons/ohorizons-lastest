@@ -231,6 +231,8 @@ main() {
         -not -path './.git/*'
         -not -path './vendor/*'
         -not -path '*/.terraform/*'
+        -not -path '*/.venv/*'
+        -not -path '*/golden-paths/common/agents/.rendered/*'
     )
 
     if [[ "$INCLUDE_SKELETONS" != true ]]; then

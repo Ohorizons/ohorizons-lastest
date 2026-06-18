@@ -1,3 +1,12 @@
+---
+title: "ADR-0001 · Five-layer Context Platform Stack"
+description: "Decision record for using the five-layer Context Platform Stack as the authoritative Open Horizons operating model."
+author: "Open Horizons"
+date: "2026-06-18"
+status: "accepted"
+tags: ["adr", "architecture", "context-platform-stack"]
+---
+
 # ADR-0001: Five-layer Context Platform Stack
 
 - Status: Accepted

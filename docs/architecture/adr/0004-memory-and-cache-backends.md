@@ -1,3 +1,12 @@
+---
+title: "ADR-0004 · Cosmos DB for enterprise memory, Redis for semantic cache"
+description: "Decision record for separating durable enterprise memory from low-latency semantic cache backends."
+author: "Open Horizons"
+date: "2026-06-18"
+status: "accepted"
+tags: ["adr", "memory", "redis", "cosmos-db", "agentic-ai"]
+---
+
 # ADR-0004: Cosmos DB for enterprise memory, Redis for semantic cache
 
 - Status: Accepted

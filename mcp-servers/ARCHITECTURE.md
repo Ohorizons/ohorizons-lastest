@@ -1,3 +1,13 @@
+---
+title: "MCP Ecosystem · Architecture"
+description: "Architecture reference for the Open Horizons MCP Ecosystem server, its transport, modules, cache, and AI Chat integration."
+author: "Open Horizons"
+date: "2026-06-18"
+version: "1.0.0"
+status: "current"
+tags: ["mcp", "context-engineering", "backstage", "agentic-devops"]
+---
+
 # MCP Ecosystem — Architecture
 
 > Status: current · Scope: `mcp-servers/` · Layer: **L3 Context Engineering**

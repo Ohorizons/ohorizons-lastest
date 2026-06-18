@@ -31,7 +31,7 @@ tags: ["enterprise-readiness", "fork", "azure", "github", "backstage"]
 
 ## 1. Readiness Baseline
 
-The enterprise path is the install wizard, OIDC-enabled GitHub Actions, Terraform modules, rendered Kubernetes manifests, and Backstage production configuration. Demo manifests are kept under `docs/examples/backstage-demo/` and are not part of deployment automation.
+The enterprise path is the install wizard, OIDC-enabled GitHub Actions, Terraform modules, rendered Kubernetes manifests, and Backstage production configuration. Non-production examples are kept under `docs/examples/` and are not part of deployment automation.
 
 ## 2. Fork Branding
 

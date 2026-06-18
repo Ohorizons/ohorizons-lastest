@@ -1,3 +1,13 @@
+---
+title: "Open Horizons Platform Architecture"
+description: "Authoritative C4 architecture reference for Open Horizons, covering system context, components, deployment, data flow, and sequence views."
+author: "Open Horizons"
+date: "2026-06-18"
+version: "1.0.0"
+status: "accepted"
+tags: ["architecture", "c4", "azure", "github", "backstage", "agentic-devops"]
+---
+
 # Open Horizons Platform Architecture
 
 > Agentic DevOps Platform: Backstage OSS on Azure AKS, the five-layer Context Platform Stack, and the H1/H2/H3 Horizons adoption arc. This document is the authoritative architecture reference and the C4 model for the platform.

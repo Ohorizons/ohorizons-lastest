@@ -1,3 +1,12 @@
+---
+title: "ADR-0002 · Foundry agents gateway as the L6 harness service"
+description: "Decision record for implementing the Foundry agents harness as a standalone gateway service."
+author: "Open Horizons"
+date: "2026-06-18"
+status: "accepted"
+tags: ["adr", "azure-ai-foundry", "agentic-execution", "gateway"]
+---
+
 # ADR-0002: Foundry agents gateway as the L6 harness service
 
 - Status: Accepted

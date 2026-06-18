@@ -1,3 +1,12 @@
+---
+title: "ADR-0003 · Backstage OSS and ai-chat instead of RHDH and Lightspeed"
+description: "Decision record for using Backstage OSS and the Open Horizons ai-chat plugin instead of Red Hat Developer Hub and Lightspeed."
+author: "Open Horizons"
+date: "2026-06-18"
+status: "accepted"
+tags: ["adr", "backstage", "ai-chat", "open-source"]
+---
+
 # ADR-0003: Backstage OSS and ai-chat instead of RHDH and Lightspeed
 
 - Status: Accepted
