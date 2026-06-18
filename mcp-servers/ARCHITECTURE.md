@@ -210,106 +210,33 @@ sequenceDiagram
 
 ---
 
-## 7. Deployment & lifecycle
+## 7. Deployment
 
-The MCP Ecosystem has **two distinct roles** in the platform lifecycle. The same
-server image is used in both, but for different audiences.
-
-```mermaid
-flowchart LR
-    subgraph Install["Phase 1 — Installation (LOCAL, operator's machine)"]
-        OP["Operator + Copilot agents<br/>@deploy · @terraform …"]
-        ECOL["mcp-ecosystem (docker compose)<br/>localhost:3100"]
-        OP -->|consult docs while building| ECOL
-    end
-    subgraph Runtime["Phase 2 — Runtime (AZURE / AKS, ai-services namespace)"]
-        DEV["Developers"]
-        CHAT["Backstage AI Chat<br/>(agent-api)"]
-        ECOK["mcp-ecosystem Service<br/>:3100"]
-        DEV --> CHAT -->|ground answers| ECOK
-    end
-    Install -.->|same image, GHCR/ACR| Runtime
-```
-
-| | Phase 1 — Installation | Phase 2 — Runtime |
-| --- | --- | --- |
-| Where | **Local** (operator's machine, Docker) | **Azure / AKS** (`ai-services` namespace) |
-| Who uses it | The operator and the Copilot agents while **building** the platform | The **AI Chat** that developers use inside Backstage |
-| Why | Ground build-time decisions in real upstream docs (spec-kit, Backstage, …) | Ground developer answers in real upstream docs |
-| How started | `docker compose up` (or `make up`) | `Deployment` + `Service` rendered by the installer, gated to `enable_mcp_ecosystem` |
-| Lifecycle | Ephemeral, on the laptop; never shipped to Azure | Long-running, governed, observable |
-
-> The **infra/operational MCP servers** (`azure`, `github`, `terraform`,
-> `kubernetes`, …) in [mcp-config.json](mcp-config.json) are a **different**
-> surface used only locally during installation to actually execute changes.
-> They are not part of this server and are never deployed to AKS.
-
-### 7.1 Local (Docker Compose) — used during installation
+### Local (Docker Compose)
 
 ```bash
 cd mcp-servers
 make up      # docker compose up -d --build  → :3100
-make health  # curl http://localhost:3100/health  → {"status":"ok"}
+make health  # curl http://localhost:3100/health
 make logs
 make down
 ```
 
-`docker-compose.yml`: `restart: unless-stopped`, a named volume for `CACHE_DIR`,
-and optional `GH_TOKEN`/`CACHE_TTL_MS`. The `.env` file is **optional**
-(`required: false`) so the server runs with zero configuration.
+`docker-compose.yml`: `restart: unless-stopped`, port `3100`, a named volume for
+`CACHE_DIR`, and `GH_TOKEN`/`CACHE_TTL_MS` passthrough.
 
-The host port is configurable to avoid local collisions (Grafana **Loki** also
-defaults to `3100`):
+### Container image
 
-```bash
-MCP_ECOSYSTEM_PORT=3101 docker compose up -d   # serve on host :3101
-```
+Published to GHCR as `mcp-ecosystem` (multi-stage Node build; see
+[Dockerfile](Dockerfile) and the platform CHANGELOG for the current tag). Never
+use `:latest` in manifests.
 
-### 7.2 Container image
+### Kubernetes / AKS
 
-Published to GHCR as `ghcr.io/ohorizons/mcp-ecosystem` (multi-stage Node build;
-see [Dockerfile](Dockerfile) and the platform CHANGELOG for the current tag).
-Never use `:latest` in manifests.
-
-### 7.3 Kubernetes / AKS — used at runtime
-
-Rendered by the installer (`scripts/render-k8s.sh` → `scripts/render-manifests.sh`)
-and gated to `enable_mcp_ecosystem` (wizard `RULE-003`):
-
-- **Namespace**: `ai-services` — the **same namespace as the AI Chat agent-api**,
-  so the call is in-namespace (no cross-namespace hop).
-- **Workloads**: [mcp-ecosystem-deployment.yaml.tmpl](../backstage/k8s/templates/mcp-ecosystem-deployment.yaml.tmpl)
-  renders a `Deployment` + `Service` + `ServiceAccount` on port `3100`, with
-  `GET /health` liveness/readiness probes and `automountServiceAccountToken: false`.
-- **NetworkPolicy**: [mcp-ecosystem-networkpolicy.yaml.tmpl](../backstage/k8s/templates/mcp-ecosystem-networkpolicy.yaml.tmpl)
-  locks ingress on `:3100` to the `agent-api` pod (the only consumer); egress
-  stays open so the server can fetch and cache upstream docs.
-- **Wiring**: the AI Chat agent-api sets `MCP_ECOSYSTEM_URL` explicitly to
-  `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp` in
-  [agent-api-deployment.yaml.tmpl](../backstage/k8s/templates/agent-api-deployment.yaml.tmpl).
-- **Cache**: mount a `PersistentVolumeClaim` at `CACHE_DIR` to persist the cache
-  across restarts; inject optional `GH_TOKEN` from Key Vault via CSI.
-
-### 7.4 Using your own ACR instead of GHCR
-
-The manifests default to the public GHCR image. To pull from a private **Azure
-Container Registry**, import the image once and point the installer at it:
-
-```bash
-# 1. Import the public image into your ACR (one-time, per version tag)
-az acr import \
-  --name <your-acr> \
-  --source ghcr.io/ohorizons/mcp-ecosystem:<tag> \
-  --image mcp-ecosystem:<tag>
-
-# 2. Tell the installer to render the ACR path (consumed by render-manifests.sh)
-export MCP_ECOSYSTEM_IMAGE="<your-acr>.azurecr.io/mcp-ecosystem:<tag>"
-scripts/render-k8s.sh && scripts/render-manifests.sh
-```
-
-The AKS kubelet pulls from ACR using the cluster's `AcrPull` managed identity
-(configured by the `aks-cluster` + `container-registry` Terraform modules), so
-no registry secret is needed in the pod.
+Deploy as a Deployment + Service in the platform namespace; probe `GET /health`
+for liveness/readiness; mount a PVC at `CACHE_DIR` to persist the cache; inject
+`GH_TOKEN` from Key Vault via CSI. The AI Chat reaches it via the in-cluster
+`mcp-ecosystem` Service DNS name on port 3100.
 
 ---
 
@@ -317,13 +244,11 @@ no registry secret is needed in the pod.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `PORT` | `3100` | HTTP listen port (in-container) |
+| `PORT` | `3100` | HTTP listen port |
 | `CACHE_DIR` | `<cwd>/cache` | Cache directory (mount a volume) |
 | `CACHE_TTL_MS` | `3600000` | Cache TTL (1 hour) |
 | `GH_TOKEN` | (empty) | Optional GitHub token to raise upstream rate limits |
-| `MCP_ECOSYSTEM_PORT` | `3100` | **Local only** host port for docker compose (avoid Loki clash) |
-| `MCP_ECOSYSTEM_IMAGE` | `ghcr.io/ohorizons/mcp-ecosystem` | **Installer** image path (override for ACR) |
-| `MCP_ECOSYSTEM_URL` | local: `http://localhost:3100/mcp` · AKS: `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp` | **Client-side** (agent-api) target URL |
+| `MCP_ECOSYSTEM_URL` | `http://localhost:3100/mcp` | **Client-side** (agent-api) target URL |
 
 ---
 
@@ -334,8 +259,6 @@ no registry secret is needed in the pod.
 - **Secrets**: `GH_TOKEN` is optional and injected via env/Key Vault, never
   committed. It is a low-privilege read token.
 - **Network egress**: only `raw.githubusercontent.com` and `api.github.com`.
-- **Network ingress (AKS)**: a `NetworkPolicy` restricts `:3100` to the
-  `agent-api` pod in `ai-services`; no other workload can reach the server.
 - **Tenancy**: per-session transports isolate concurrent clients; unknown
   session ids are rejected (`404`).
 - **Resilience**: global exception handlers prevent crashes; cache failures and
