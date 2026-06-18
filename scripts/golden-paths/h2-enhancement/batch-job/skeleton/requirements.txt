@@ -1,2 +1,0 @@
-structlog>=23.0
-pydantic>=2.0
