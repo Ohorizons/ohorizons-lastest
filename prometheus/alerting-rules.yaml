@@ -348,6 +348,24 @@ groups:
           summary: "SRE Agent high workload"
           description: "SRE Agent is processing more than 10 actions per second."
 
+      # ----------------------------------------------------------------------
+      # Foundry harness — prompt/response cache (L6)
+      # ----------------------------------------------------------------------
+      - alert: PromptCacheHitRateLow
+        # `cache_hit_rate` gauge exported by the foundry-agents gateway
+        # (/v1/cache/stats — exact + semantic tiers). A sustained low hit rate
+        # erodes the 40-70% inference cost-reduction target of H3.
+        expr: |
+          avg_over_time(cache_hit_rate[3d]) < 0.60
+        for: 5m
+        labels:
+          severity: warning
+          horizon: h3
+          component: prompt-cache
+        annotations:
+          summary: "Prompt cache hit rate below target"
+          description: "3-day average cache hit rate is below 0.60 — check prefix-order drift, Redis health, and the semantic-cache similarity threshold."
+
   # ===========================================================================
   # GITOPS & PLATFORM ALERTS
   # ===========================================================================
