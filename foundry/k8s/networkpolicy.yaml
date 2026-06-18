@@ -1,5 +1,5 @@
 ---
-# NetworkPolicy: only allow ingress from backstage namespace (mcp-chat-backend, lightspeed)
+# NetworkPolicy: only allow ingress from backstage namespace (ai-chat backend)
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

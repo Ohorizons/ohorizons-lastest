@@ -39,7 +39,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: foundry-agents
-          image: ghcr.io/3horizons/foundry-agents:1.0.0
+          image: ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.4
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

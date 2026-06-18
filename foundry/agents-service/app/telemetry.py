@@ -1,7 +1,7 @@
 """Foundry-agents gateway runtime telemetry — the 21-field LLM-call schema (REQ-FINOPS-001).
 
-Mirrors ``new-features/foundry/lightspeed-shim/app/telemetry.py`` so Foundry traffic lands in
-the *same* Application Insights workspace as the Lightspeed shim's ``llm.call.completed`` events
+Emits the ``llm.call.completed`` event (21 fields) so Foundry traffic lands in
+the platform's Application Insights workspace alongside the rest of the agent fleet.
 (and the Copilot Metrics ingest's ``copilot.*`` events) — see ``docs/finops/metrics.md`` and the
 Q1/Q2/Q8 KQL in ``docs/finops/kql-queries.md``. Emission is gated by
 ``APPLICATIONINSIGHTS_CONNECTION_STRING``; without it the helper is a no-op (returns ``False``).
@@ -102,7 +102,7 @@ def validate_llm_call_attributes(attributes: Mapping[str, Any]) -> None:
         raise ValueError(f"missing LLM telemetry fields: {', '.join(missing)}")
 
 
-# ── App Insights emission (same wire format as the lightspeed shim) ──────────
+# ── App Insights emission (21-field llm.call.completed event) ────────────────
 def parse_connection_string(connection_string: str) -> dict[str, str]:
     parts: dict[str, str] = {}
     for item in connection_string.split(";"):

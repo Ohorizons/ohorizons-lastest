@@ -5,7 +5,7 @@ a set of specialised agents for the Open Horizons Agentic DevOps Platform.
 
 ## Why this exists
 
-- RHDH plugins (`mcp-chat-backend`, `lightspeed-backend`) speak the OpenAI Chat
+- Backstage plugins (`ai-chat`, agent backends) speak the OpenAI Chat
   Completions protocol. Azure OpenAI uses a different URL scheme
   (`/openai/deployments/{name}/chat/completions?api-version=...`) and an
   `api-key` header instead of `Authorization: Bearer`.
@@ -62,8 +62,8 @@ curl -X POST localhost:8080/v1/agents/architect/chat \
 ## Container build
 
 ```bash
-docker build -t ghcr.io/3horizons/foundry-agents:1.0.0 .
-docker push ghcr.io/3horizons/foundry-agents:1.0.0
+docker build -t ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.4 .
+docker push ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.4
 ```
 
 ## Deploy on AKS/ARO

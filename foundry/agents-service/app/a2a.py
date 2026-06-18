@@ -8,7 +8,7 @@ final consumer), and (d) emit an OTel span linking caller↔callee.
 This module gives the gateway the wire format (HTTP headers) + the in-process context
 object + helpers to extract it from an inbound request, propagate it to an outbound A2A
 call, and render OTel span attributes. The actual span export rides the existing
-Application Insights / Azure Monitor OTLP pipeline (see ``lightspeed-shim/app/telemetry.py``).
+Application Insights / Azure Monitor OTLP pipeline (see ``telemetry.py``).
 """
 from __future__ import annotations
 

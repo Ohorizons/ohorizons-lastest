@@ -29,7 +29,7 @@ curl localhost:8080/v1/agents | jq
 
 ## Wire mcp-chat-backend to use this gateway
 
-Add to `app-config-rhdh` ConfigMap (ns `backstage`):
+Add to `app-config` ConfigMap (ns `backstage`):
 
 ```yaml
 mcpChat:
