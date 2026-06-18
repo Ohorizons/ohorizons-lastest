@@ -213,6 +213,7 @@ Each agent ships with a companion skill under `.github/skills/<skill>/SKILL.md`.
 After the wizard finishes, the developer follows three short steps. They are also written into the PR or initial commit of the generated repo.
 
 1. **Configure Azure OIDC** (only if `deployToAzure` was checked):
+
    ```bash
    ./scripts/setup-azure-oidc.sh \
      --resource-group <resource-group> \
@@ -220,6 +221,7 @@ After the wizard finishes, the developer follows three short steps. They are als
    ```
 
 2. **Run the infrastructure preview**:
+
    ```bash
    gh workflow run azure-infrastructure.yml \
      --field environment=dev \
@@ -229,6 +231,7 @@ After the wizard finishes, the developer follows three short steps. They are als
    ```
 
 3. **Apply the deployment when the diff is clean**:
+
    ```bash
    gh workflow run azure-infrastructure.yml \
      --field environment=dev \

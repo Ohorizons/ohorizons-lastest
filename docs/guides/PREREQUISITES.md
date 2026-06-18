@@ -261,6 +261,7 @@ Azure OpenAI token usage is highly variable (~$200–$5,000/mo depending on agen
 Print this and check off before running `scripts/install-wizard.sh`:
 
 ### Azure
+
 - [ ] Entra tenant ID captured
 - [ ] Subscription ID(s) captured (one per environment)
 - [ ] Owner or Contributor + UAA role confirmed
@@ -270,18 +271,21 @@ Print this and check off before running `scripts/install-wizard.sh`:
 - [ ] Custom domain reserved & DNS zone reachable
 
 ### GitHub
+
 - [ ] Organization created with Admin access
 - [ ] GitHub App or OAuth App created — Client ID + Secret captured
 - [ ] OIDC federated credential created for `Ohorizons/<your-fork>`
 - [ ] Branch protection rules ready (or will be set by `setup-branch-protection.sh`)
 
 ### Azure DevOps (only if hybrid)
+
 - [ ] Organization + Project created
 - [ ] PAT generated with required scopes
 - [ ] Service connection to Azure created
 - [ ] Hybrid scenario (A/B/C) selected
 
 ### Local
+
 - [ ] All CLI tools at min version (`scripts/validate-prerequisites.sh`)
 - [ ] `gh auth login` completed
 - [ ] `az login` + correct subscription selected (`az account set --subscription <id>`)

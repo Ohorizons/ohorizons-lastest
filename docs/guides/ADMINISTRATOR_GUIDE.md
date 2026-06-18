@@ -36,7 +36,7 @@ tags: ["administration", "operations", "sre", "platform-engineering"]
 
 ## 1. Introduction
 
-### What is This Guide?
+### What is This Guide
 
 This Administrator Guide provides everything you need to **operate and maintain** the Open Horizons platform on a day-to-day basis. It covers routine tasks, monitoring, troubleshooting, and incident response.
 
@@ -47,7 +47,7 @@ This Administrator Guide provides everything you need to **operate and maintain*
 > - **Administrator Guide (this):** How to operate the platform (daily)
 > - **Troubleshooting Guide:** How to fix specific problems (when issues occur)
 
-### Who Should Read This?
+### Who Should Read This
 
 | Role | What You'll Learn |
 |------|-------------------|
@@ -489,6 +489,7 @@ groups:
 > 💡 **Types of Autoscaling**
 >
 > The platform supports three types of autoscaling:
+>
 > - **HPA (Horizontal Pod Autoscaler):** Scales pods within a deployment
 > - **VPA (Vertical Pod Autoscaler):** Adjusts pod resource requests
 > - **Cluster Autoscaler:** Adds/removes nodes from the cluster
@@ -500,6 +501,7 @@ groups:
 > ⚠️ **When to Scale Manually**
 >
 > Usually, let the Cluster Autoscaler handle scaling. Manual scaling is for:
+>
 > - Preparing for known traffic spikes
 > - Cost optimization (scaling down during off-hours)
 > - Emergency situations
@@ -590,7 +592,7 @@ kubectl get hpa -n production -w
 
 **Expected output:**
 
-```
+```text
 NAME         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
 my-app-hpa   Deployment/my-app   23%/70%   3         20        5          2m
 ```
@@ -604,6 +606,7 @@ my-app-hpa   Deployment/my-app   23%/70%   3         20        5          2m
 > 💡 **Backup Strategy**
 >
 > We use a "belt and suspenders" approach:
+>
 > - **Terraform state:** In Azure Storage (versioned)
 > - **Git:** All configs in version control
 > - **Velero:** Kubernetes resources and PV snapshots
@@ -778,6 +781,7 @@ kubectl get secret my-app-secrets -n my-app -o jsonpath='{.data.DATABASE_PASSWOR
 > 💡 **RBAC (Role-Based Access Control)**
 >
 > We use RBAC at two levels:
+>
 > - **Azure RBAC:** Who can access Azure resources
 > - **Kubernetes RBAC:** Who can access Kubernetes resources
 
@@ -923,6 +927,7 @@ az keyvault certificate create \
 > 💡 **Major Cost Drivers**
 >
 > In order of typical impact:
+>
 > 1. **AKS Node VMs:** 60-70% of cost
 > 2. **Azure OpenAI:** Variable based on usage
 > 3. **Storage:** Disks, blobs, logs

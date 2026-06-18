@@ -35,7 +35,7 @@ tags: ["architecture", "azure", "github", "backstage", "agentic-devops"]
 
 ## 1. Introduction
 
-### What is This Guide?
+### What is This Guide
 
 This Architecture Guide explains **how** the Open Horizons Platform is designed and **why** specific technology choices were made. It's intended for architects and engineers who need to understand the platform's internal workings.
 
@@ -44,7 +44,7 @@ This Architecture Guide explains **how** the Open Horizons Platform is designed 
 > - **Deployment Guide:** Step-by-step instructions to deploy the platform
 > - **Architecture Guide (this):** Explains the design decisions and component interactions
 
-### Who Should Read This?
+### Who Should Read This
 
 | Role | What You'll Learn |
 |------|-------------------|
@@ -69,7 +69,7 @@ After reading this guide, you'll understand:
 
 ## 2. Understanding the Open Horizons Model
 
-### 2.1 What is the Open Horizons Framework?
+### 2.1 What is the Open Horizons Framework
 
 > 💡 **Origin of the Model**
 >
@@ -81,7 +81,7 @@ The Open Horizons model organizes the platform into three layers with different 
 
 ![Open Horizons Framework](../assets/arch-three-horizons-framework.svg)
 
-### 2.2 Why Use Open Horizons?
+### 2.2 Why Use Open Horizons
 
 | Benefit | Explanation |
 |---------|-------------|
@@ -170,7 +170,7 @@ The Open Horizons model organizes the platform into three layers with different 
 
 ![AKS Cluster Architecture](../assets/arch-aks-cluster.svg)
 
-### 4.2 Why Multiple Node Pools?
+### 4.2 Why Multiple Node Pools
 
 | Node Pool | Purpose | Why Separate? |
 |-----------|---------|---------------|
@@ -199,6 +199,7 @@ These are additional capabilities we enable on the AKS cluster:
 > 💡 **Why Network Architecture Matters**
 >
 > Proper network design is critical for:
+>
 > - **Security:** Isolating sensitive workloads
 > - **Performance:** Reducing latency between components
 > - **Compliance:** Meeting regulatory requirements for data isolation
@@ -216,10 +217,10 @@ These are additional capabilities we enable on the AKS cluster:
 
 | Service | Private DNS Zone | Example Resolution |
 |---------|------------------|-------------------|
-| Key Vault | `privatelink.vaultcore.azure.net` | kv-myapp.vault.azure.net → 10.0.4.5 |
+| Key Vault | `privatelink.vaultcore.azure.net` | kv-myapp.vault.Azure.net → 10.0.4.5 |
 | ACR | `privatelink.azurecr.io` | myacr.azurecr.io → 10.0.4.4 |
-| PostgreSQL | `privatelink.postgres.database.azure.com` | mydb.postgres.database.azure.com → 10.0.4.6 |
-| OpenAI | `privatelink.openai.azure.com` | myoai.openai.azure.com → 10.0.4.7 |
+| PostgreSQL | `privatelink.postgres.database.azure.com` | mydb.postgres.database.Azure.com → 10.0.4.6 |
+| OpenAI | `privatelink.openai.azure.com` | myoai.openai.Azure.com → 10.0.4.7 |
 
 ### 5.3 Network Security Groups (NSGs)
 
@@ -257,7 +258,7 @@ NSGs act as firewalls at the subnet level:
 
 ## 7. GitOps Architecture
 
-### 7.1 What is GitOps?
+### 7.1 What is GitOps
 
 > 💡 **GitOps Explained Simply**
 >
@@ -548,6 +549,7 @@ flowchart LR
 **Decision:** Use Azure Kubernetes Service (AKS) instead of self-managed Kubernetes.
 
 **Rationale:**
+
 - Azure manages the control plane (99.95% SLA)
 - Automatic security patches
 - Deep Azure integration (identity, networking, storage)
@@ -555,6 +557,7 @@ flowchart LR
 - Cost: Only pay for worker nodes
 
 **Trade-offs:**
+
 - Less control over control plane configuration
 - Tied to Azure's upgrade schedule
 
@@ -569,6 +572,7 @@ flowchart LR
 **Decision:** Use ArgoCD for GitOps-based deployments.
 
 **Rationale:**
+
 - CNCF graduated project (mature, well-maintained)
 - Excellent UI for visibility
 - Supports Helm, Kustomize, plain YAML
@@ -576,6 +580,7 @@ flowchart LR
 - Strong community support
 
 **Alternatives Considered:**
+
 - Flux: Good but less intuitive UI
 - Jenkins X: More complex, heavier
 - Spinnaker: Enterprise-focused, complex
@@ -591,12 +596,14 @@ flowchart LR
 **Decision:** Use Azure CNI instead of kubenet.
 
 **Rationale:**
+
 - Pods get VNet IP addresses directly
 - Better integration with Azure services
 - Required for some features (Windows nodes, network policies)
 - Better performance for large clusters
 
 **Trade-offs:**
+
 - Requires more IP addresses (need larger subnets)
 - More complex IP planning
 
@@ -611,12 +618,14 @@ flowchart LR
 **Decision:** Use External Secrets Operator instead of Key Vault CSI driver.
 
 **Rationale:**
+
 - Works with standard Kubernetes Secrets (no application changes)
 - Supports multiple secret stores (flexibility)
 - Automatic refresh of secrets
 - Better GitOps compatibility
 
 **Trade-offs:**
+
 - Additional component to maintain
 - Secrets exist in-cluster (encrypted at rest)
 

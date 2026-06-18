@@ -238,7 +238,7 @@ Exit codes: `0` success, `1` usage error, `2` dependency rule violation, `3` val
 | Profile | Horizon | Mode | Key components | Golden Paths |
 |---------|---------|------|----------------|--------------|
 | `minimal` | h1 | express | container_registry, databases (Backstage core only, no AI Chat) | basic-cicd, web-application, security-baseline |
-| `standard` | h2 | standard | argocd, observability, external_secrets, cost_management, AI Chat plugin | all H1 + H2 |
+| `standard` | h2 | standard | ArgoCD, observability, external_secrets, cost_management, AI Chat plugin | all H1 + H2 |
 | `full` | all | enterprise | all 11 modules + all 6 Backstage components, including AI Foundry and MCP ecosystem | all 34 |
 
 ### Schema Validation
@@ -271,15 +271,19 @@ These steps differ when the client is consuming Open Horizons as a productized t
 
 1. Fork or import the repository into the client GitHub organization. If forking is blocked, mirror it.
 2. Run the install wizard to configure the platform for your environment:
+
    ```bash
    cp .env.example .env
    scripts/install-wizard.sh
    ```
+
    The wizard collects GitHub org/repo, domain, auth provider (GitHub/Entra/Guest), container registry, Azure details, and AI services configuration. It writes `.env` and optionally generates K8s manifests.
 3. If the wizard didn't render manifests, run manually:
+
    ```bash
    scripts/render-k8s.sh
    ```
+
    This generates all K8s manifests from templates in `backstage/k8s/templates/` using the values from `.env`. No manual search-and-replace is needed.
 4. Make sure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read).
 5. Register Azure resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
@@ -378,7 +382,7 @@ Wizard automated tests:
 - `bash tests/wizard/run.sh` runs **27 smoke asserts** covering CLI flags, dry-run safety, idempotency, dependency rules, schema validation, profile presets, and primitive allowlists.
 - `bash tests/wizard/e2e.sh` runs **36 end-to-end asserts** that drive `install-wizard.sh -> render-manifests.sh -> kubectl kustomize` for each profile (`minimal`, `standard`, `full`) plus a custom-allowlist scenario.
 - `KUBECTL_E2E_SERVER=1 bash tests/wizard/e2e.sh` adds **3 extra asserts** that submit the rendered manifests to a live Kubernetes cluster via `kubectl apply --dry-run=server`. This validates the actual admission control without applying anything.
-- The CI workflow [.github/workflows/wizard-tests.yml](../../.github/workflows/wizard-tests.yml) runs both suites on every PR touching wizard code.
+- The CI workflow [.GitHub/workflows/wizard-tests.yml](../../.github/workflows/wizard-tests.yml) runs both suites on every PR touching wizard code.
 
 Functional smoke tests:
 
@@ -409,6 +413,7 @@ Functional smoke tests:
 - **Tear down generated infra**: in the generated repository run the workflow with `mode=apply` against an empty parameter set or use `az deployment group delete`.
 - **Tear down platform infra**: `./scripts/deploy-full.sh --environment dev --destroy` after backing up state.
 - **Remove OIDC artifacts** (platform repo example):
+
   ```bash
   APP_ID=$(az ad app list --display-name <app-name> --query '[0].appId' -o tsv)
   az role assignment delete --assignee "$APP_ID" --scope <scope> --role Contributor

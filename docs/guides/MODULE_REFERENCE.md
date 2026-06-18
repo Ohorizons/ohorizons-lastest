@@ -34,11 +34,12 @@ tags: ["terraform", "modules", "azure", "infrastructure"]
 
 Before diving into the specific modules, let's understand what Terraform modules are and why we use them.
 
-### 1.1 What is a Terraform Module?
+### 1.1 What is a Terraform Module
 
 > 💡 **Concept: Terraform Modules**
 >
 > Think of a Terraform module like a **LEGO building set**:
+>
 > - Each set (module) contains all the pieces needed to build something specific
 > - You can combine multiple sets to build something bigger
 > - Each set has clear instructions (inputs/outputs) for how to use it
@@ -103,6 +104,7 @@ Here's a decision guide for which modules to use:
 > | **H3** | Innovation | When ready for AI/ML | Azure OpenAI |
 >
 > Think of it like building a house:
+>
 > - H1 = Foundation and walls (must have)
 > - H2 = Electrical and plumbing (makes it functional)
 > - H3 = Smart home features (nice to have)
@@ -122,6 +124,7 @@ These modules create the core infrastructure that everything else depends on.
 > 💡 **Why This Module Exists**
 >
 > Azure has specific naming rules for each resource type:
+>
 > - Storage accounts: max 24 characters, lowercase, no hyphens
 > - Key Vault: max 24 characters
 > - ACR: no hyphens allowed
@@ -224,6 +227,7 @@ module "acr" {
 > 💡 **Why This Module Exists**
 >
 > Every Azure resource needs a network. This module creates a **secure, production-ready network** with:
+>
 > - Virtual Network (VNet) - Your private network in Azure
 > - Subnets - Logical divisions of the VNet
 > - NSGs - Firewalls that control traffic
@@ -256,6 +260,7 @@ module "acr" {
 > 💡 **Understanding CIDR Notation**
 >
 > CIDR notation like `10.0.0.0/22` defines a range of IP addresses:
+>
 > - `/16` = 65,536 addresses (e.g., 10.0.0.0 - 10.0.255.255)
 > - `/20` = 4,096 addresses
 > - `/22` = 1,024 addresses
@@ -364,7 +369,7 @@ The module creates private DNS zones for Azure services:
 > When you access a resource like `mykeyvault.vault.azure.net` from within the VNet,
 > the private DNS zone resolves it to the **private IP** instead of the public IP.
 >
-> ```
+> ```text
 > From Internet:    mykeyvault.vault.azure.net → 52.x.x.x (public)
 > From VNet:        mykeyvault.vault.azure.net → 10.0.4.5 (private)
 > ```
@@ -379,6 +384,7 @@ The module creates private DNS zones for Azure services:
 >
 > Azure Kubernetes Service (AKS) is the heart of the platform. This module creates a
 > **production-ready Kubernetes cluster** with:
+>
 > - Multiple node pools for different workloads
 > - Workload identity for secure Azure access
 > - Network configuration for security
@@ -695,6 +701,7 @@ module "acr" {
 ![Image Pull Flow](../assets/mod-image-pull-flow.svg)
 
 The AKS module automatically:
+
 1. Creates a managed identity for kubelet
 2. Assigns `AcrPull` role to that identity on your ACR
 3. Configures AKS to use that identity
@@ -708,6 +715,7 @@ The AKS module automatically:
 > 💡 **Why This Module Exists**
 >
 > Security is foundational. This module creates:
+>
 > - **Key Vault**: Secure storage for secrets, keys, and certificates
 > - **Managed Identities**: Passwordless authentication for Azure resources
 > - **Workload Identity**: Allows Kubernetes pods to authenticate to Azure
@@ -741,12 +749,14 @@ The AKS module automatically:
 > 💡 **Understanding Key Vault Access Models**
 >
 > **RBAC Authorization** (Recommended):
+>
 > - Uses Azure RBAC roles (Key Vault Administrator, Key Vault Secrets User, etc.)
 > - Permissions managed at Azure level
 > - Easier to audit and manage
 > - Works with Managed Identities seamlessly
 >
 > **Access Policies** (Legacy):
+>
 > - Each identity needs a policy configured in Key Vault
 > - More complex to manage
 > - Being phased out by Microsoft
@@ -806,6 +816,7 @@ module "security" {
 > 💡 **Why This Module Exists**
 >
 > Applications need persistent data storage. This module creates:
+>
 > - **PostgreSQL Flexible Server**: Relational database for structured data
 > - **Redis Cache**: In-memory cache for high-performance access
 >
@@ -891,6 +902,7 @@ redis_config = {
 > 💡 **When to Use Redis**
 >
 > Redis is an **optional** component. Enable it when you need:
+>
 > - **Session storage** across multiple app instances
 > - **High-speed caching** for frequently accessed data
 > - **Real-time features** like leaderboards or pub/sub
@@ -967,6 +979,7 @@ module "databases" {
 >
 > Microsoft Defender for Cloud provides **threat detection** and **security posture management**.
 > This module enables Defender plans for your resources, giving you:
+>
 > - Vulnerability scanning for containers
 > - Threat detection for databases
 > - Security recommendations
@@ -1042,6 +1055,7 @@ module "defender" {
 > 💡 **Why This Module Exists**
 >
 > Microsoft Purview provides **data governance** capabilities:
+>
 > - Data discovery and cataloging
 > - Data classification (PII, financial, etc.)
 > - Data lineage tracking
@@ -1101,6 +1115,7 @@ These modules add operational capabilities on top of the H1 foundation.
 >
 > ArgoCD enables **GitOps** - a practice where Git is the single source of truth
 > for your infrastructure and applications. With ArgoCD:
+>
 > - Changes in Git automatically deploy to Kubernetes
 > - You can see what's deployed vs what's in Git
 > - Rollbacks are just `git revert`
@@ -1182,6 +1197,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 > 💡 **Why This Module Exists**
 >
 > Kubernetes Secrets store sensitive data, but managing them is hard:
+>
 > - Where do the secrets come from?
 > - How do you rotate them?
 > - How do you sync across environments?
@@ -1267,6 +1283,7 @@ spec:
 > 💡 **Why This Module Exists**
 >
 > You can't fix what you can't see. This module creates a complete observability stack:
+>
 > - **Azure Monitor**: Cloud-native metrics and logs
 > - **Prometheus**: Kubernetes metrics collection
 > - **Grafana**: Visualization dashboards
@@ -1362,6 +1379,7 @@ The module includes these dashboards:
 > 💡 **Why This Module Exists**
 >
 > GitHub Actions workflows run on GitHub-hosted runners by default, but:
+>
 > - They can't access your private network (VNet)
 > - They have limited resources
 > - You pay per-minute for heavy usage
@@ -1460,6 +1478,7 @@ jobs:
 >
 > Backstage (based on Backstage) is your **Internal Developer Portal**.
 > It provides:
+>
 > - A single place for developers to discover services, APIs, and documentation
 > - Golden Path templates for scaffolding new projects
 > - TechDocs for automatic documentation publishing
@@ -1594,6 +1613,7 @@ These modules add advanced AI/ML capabilities.
 >
 > Azure OpenAI provides access to powerful AI models (GPT-4, embeddings, etc.).
 > This module creates:
+>
 > - Cognitive Services account for Azure OpenAI
 > - Model deployments (GPT-4o, embeddings, etc.)
 > - Private endpoint for secure access
@@ -1750,6 +1770,7 @@ These modules provide platform-wide functionality.
 > 💡 **Why This Module Exists**
 >
 > Cloud costs can spiral out of control quickly. This module:
+>
 > - Creates **budgets** with spending limits
 > - Sends **alerts** when spending exceeds thresholds
 > - Helps prevent surprise bills
@@ -1814,6 +1835,7 @@ module "cost_management" {
 >
 > Disasters happen: region outages, data corruption, accidental deletions.
 > This module configures:
+>
 > - **AKS DR cluster** in a secondary region
 > - **Database replication** for data redundancy
 > - **Storage geo-replication** for object data
@@ -2178,6 +2200,7 @@ If you encounter issues not covered here:
    - Look for failed operations with error details
 
 2. **Review Terraform debug logs**:
+
    ```bash
    TF_LOG=DEBUG terraform apply 2>&1 | tee terraform.log
    ```
@@ -2201,10 +2224,10 @@ If you encounter issues not covered here:
 | aks-cluster | Always | vnet_subnet_id, system_node_pool |
 | container-registry | Almost always | name, sku |
 | databases | If need SQL | enable_postgresql, postgresql_config |
-| argocd | For GitOps | github_org |
+| ArgoCD | For GitOps | GitHub_org |
 | external-secrets | For secrets sync | key_vault_name, workload_identity_client_id |
 | observability | Always | aks_cluster_id |
-| github-runners | For private CI/CD | github_app_id, github_app_private_key |
+| GitHub-runners | For private CI/CD | GitHub_app_id, GitHub_app_private_key |
 | ai-foundry | For AI/ML | model_deployments |
 | cost-management | Always | budget_amount, alert_emails |
 | disaster-recovery | For production | primary_location, secondary_location |
@@ -2230,7 +2253,7 @@ If you encounter issues not covered here:
 | Module selection guidance | `@terraform` | *"Which modules do I need for a production AKS deployment?"* |
 | Input variable configuration | `@terraform` | *"Help me configure the networking module variables for a hub-spoke topology"* |
 | Module dependency analysis | `@terraform` | *"Show me the dependency graph between aks-cluster and networking modules"* |
-| Security review of module config | `@security` | *"Review my terraform.tfvars for security best practices"* |
+| Security review of module config | `@security` | *"Review my Terraform.tfvars for security best practices"* |
 | Cost estimation | `@terraform` | *"Estimate monthly costs for this module configuration"* |
 
 > **Tip:** Use `@terraform` to get help with module configuration, dependency analysis, and infrastructure trade-offs.

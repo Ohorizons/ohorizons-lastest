@@ -26,23 +26,29 @@ These are the only steps that differ when consuming Open Horizons as a template 
 
 1. **Fork or import** the repository into your client GitHub organization.
 2. **Run the install wizard** to configure your platform:
+
    ```bash
    cp .env.example .env
    scripts/install-wizard.sh
    ```
+
    The wizard collects your org name, domain, auth provider, Azure details, and writes `.env`.
 3. **Render K8s manifests** from your configuration:
+
    ```bash
    scripts/render-k8s.sh
    ```
+
    This generates all K8s manifests in `backstage/k8s/` from templates using your `.env` values.
 4. **GitHub permissions.** Ensure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read).
 5. **Azure prerequisites.** Register the resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
 6. **Create K8s secrets.** The `render-k8s.sh` script outputs the exact commands needed:
+
    ```bash
    kubectl create secret generic backstage-secrets --namespace backstage ...
    kubectl create secret generic agent-api-secrets --namespace ai-services ...
    ```
+
 7. **Deploy the platform.** Pick one of the three options:
    - Agent-guided (`@deploy Deploy the platform to my AKS cluster`).
    - Automated script (`./scripts/install-wizard.sh --next-step deploy`).

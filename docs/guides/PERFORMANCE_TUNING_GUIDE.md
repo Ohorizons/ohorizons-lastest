@@ -52,18 +52,21 @@ This guide provides recommendations for optimizing the performance of the Open H
 ### Selecting the Right Profile
 
 **Choose Small when:**
+
 - Development or testing environment
 - < 10 concurrent developers
 - < 20 microservices
 - No GPU workloads
 
 **Choose Medium when:**
+
 - Standard production workload
 - 10-50 concurrent developers
 - 20-50 microservices
 - Light AI/ML workloads
 
 **Choose Large when:**
+
 - Enterprise production
 - 50-200 concurrent developers
 - 50-100 microservices
@@ -71,6 +74,7 @@ This guide provides recommendations for optimizing the performance of the Open H
 - GPU requirements
 
 **Choose XLarge when:**
+
 - Mission-critical systems
 - 200+ concurrent developers
 - 100+ microservices
@@ -588,7 +592,7 @@ export default function () {
 
 ### Growth Planning Formula
 
-```
+```text
 Required Nodes = (Current Workload × Growth Factor) / Node Capacity
 
 Example:
