@@ -298,6 +298,15 @@ terraform/environments/*.tfvars.bak.*
 # Open Horizons render-manifests output
 backstage/k8s/.rendered/
 
+# Golden Path skeleton build artifacts (generated; must never be committed)
+golden-paths/**/bin/
+golden-paths/**/obj/
+scripts/golden-paths/**/bin/
+scripts/golden-paths/**/obj/
+
+# Golden Path common agents render output
+golden-paths/common/agents/.rendered/
+
 # Specky 002 - rendered primitives
 golden-paths/common/agents/.rendered/
 

@@ -1069,8 +1069,8 @@ Here's the complete file with explanations for each setting:
 
 # Project name: Used in all resource names
 # Rules: lowercase, no spaces, no special characters, max 12 characters
-# Example: "openhorizons" creates resources like "aks-openhorizons-dev"
-project_name = "openhorizons"
+# Example: "contoso" creates resources like "aks-contoso-dev"
+project_name = "contoso"
 
 # Environment: Determines naming and some configurations
 # Options: "dev", "staging", "prod"
@@ -1304,16 +1304,16 @@ Terraform will perform the following actions:
 
   # module.networking.azurerm_virtual_network.main will be created
   + resource "azurerm_virtual_network" "main" {
-      + name                = "vnet-openhorizons-dev"
+      + name                = "vnet-contoso-dev"
       + address_space       = ["10.0.0.0/16"]
       + location            = "brazilsouth"
-      + resource_group_name = "rg-openhorizons-dev"
+      + resource_group_name = "rg-contoso-dev"
       ...
     }
 
   # module.aks.azurerm_kubernetes_cluster.main will be created
   + resource "azurerm_kubernetes_cluster" "main" {
-      + name                = "aks-openhorizons-dev"
+      + name                = "aks-contoso-dev"
       + kubernetes_version  = "1.29"
       ...
     }
@@ -1410,13 +1410,13 @@ terraform output
 ```
 Outputs:
 
-aks_cluster_name     = "aks-openhorizons-dev"
-aks_cluster_id       = "/subscriptions/.../managedClusters/aks-openhorizons-dev"
-acr_login_server     = "acropenhorizonsdev.azurecr.io"
-key_vault_name       = "kv-openhorizons-dev"
-key_vault_uri        = "https://kv-openhorizons-dev.vault.azure.net/"
-resource_group_name  = "rg-openhorizons-dev"
-vnet_id              = "/subscriptions/.../virtualNetworks/vnet-openhorizons-dev"
+aks_cluster_name     = "aks-contoso-dev"
+aks_cluster_id       = "/subscriptions/.../managedClusters/aks-contoso-dev"
+acr_login_server     = "acrcontosodev.azurecr.io"
+key_vault_name       = "kv-contoso-dev"
+key_vault_uri        = "https://kv-contoso-dev.vault.azure.net/"
+resource_group_name  = "rg-contoso-dev"
+vnet_id              = "/subscriptions/.../virtualNetworks/vnet-contoso-dev"
 ```
 
 **Save these values!** You'll need them for verification and debugging.
@@ -1461,7 +1461,7 @@ az aks get-credentials \
 **Expected output:**
 
 ```
-Merged "aks-openhorizons-dev" as current context in /Users/you/.kube/config
+Merged "aks-contoso-dev" as current context in /Users/you/.kube/config
 ```
 
 **Verify connection to cluster:**
@@ -1473,8 +1473,8 @@ kubectl cluster-info
 **Expected output:**
 
 ```
-Kubernetes control plane is running at https://aks-openhorizons-dev-abc123.hcp.brazilsouth.azmk8s.io:443
-CoreDNS is running at https://aks-openhorizons-dev-abc123.hcp.brazilsouth.azmk8s.io:443/api/v1/...
+Kubernetes control plane is running at https://aks-contoso-dev-abc123.hcp.brazilsouth.azmk8s.io:443
+CoreDNS is running at https://aks-contoso-dev-abc123.hcp.brazilsouth.azmk8s.io:443/api/v1/...
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
@@ -1546,12 +1546,12 @@ az resource list \
 
 | Name | Type | Purpose |
 |------|------|---------|
-| aks-openhorizons-dev | Microsoft.ContainerService/managedClusters | Kubernetes cluster |
-| acropenhorizonsdev | Microsoft.ContainerRegistry/registries | Container images |
-| kv-openhorizons-dev | Microsoft.KeyVault/vaults | Secrets storage |
-| vnet-openhorizons-dev | Microsoft.Network/virtualNetworks | Network |
+| aks-contoso-dev | Microsoft.ContainerService/managedClusters | Kubernetes cluster |
+| acrcontosodev | Microsoft.ContainerRegistry/registries | Container images |
+| kv-contoso-dev | Microsoft.KeyVault/vaults | Secrets storage |
+| vnet-contoso-dev | Microsoft.Network/virtualNetworks | Network |
 | nsg-aks-* | Microsoft.Network/networkSecurityGroups | Firewall rules |
-| id-openhorizons-* | Microsoft.ManagedIdentity/userAssignedIdentities | Identities |
+| id-contoso-* | Microsoft.ManagedIdentity/userAssignedIdentities | Identities |
 
 ### 5.5 Test Container Registry Access
 

@@ -512,8 +512,8 @@ kubectl get nodes | wc -l
 
 # Scale the workload node pool
 az aks nodepool scale \
-  --resource-group rg-openhorizons-dev \
-  --cluster-name aks-openhorizons-dev \
+  --resource-group rg-contoso-dev \
+  --cluster-name aks-contoso-dev \
   --name workload \
   --node-count 5
 
@@ -955,7 +955,7 @@ az consumption budget create \
   --time-grain Monthly \
   --start-date 2024-01-01 \
   --end-date 2025-12-31 \
-  --resource-group rg-openhorizons-dev \
+  --resource-group rg-contoso-dev \
   --notification-key-1 80Percent \
   --notification-threshold 80 \
   --notification-operator GreaterThan \
