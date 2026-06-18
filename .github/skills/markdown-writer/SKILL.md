@@ -229,7 +229,7 @@ For documents with more than 3 sections, include a TOC after the Change Log. Use
 - Add a `## References` section at the end with numbered citations
 ### Images and Diagrams
  
-- Use descriptive alt text: `![Architecture diagram showing the 3-tier deployment](./img/architecture.png)`
+- Use descriptive alt text, for example an image markdown reference with `Architecture diagram showing the 3-tier deployment` as the alt text and `./img/architecture.png` as the relative path.
 - Store images in an `img/` or `assets/` subfolder
 - Prefer Mermaid diagrams over images when possible (version-controlled, editable)
 ## Document Type Templates

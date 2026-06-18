@@ -40,7 +40,7 @@ The evidence is convergent:
 
 The pattern is clear: **the platform determines whether AI succeeds or fails**.
 
-Open Horizons packages the four layers of the [Context Platform Stack](docs/context-engineer/) into a deployable, opinionated, open-source reference implementation:
+Open Horizons packages the Context Platform Stack into a deployable, opinionated, open-source reference implementation:
 
 ```
 Platform Engineering (foundation)
@@ -48,7 +48,7 @@ Platform Engineering (foundation)
     = Agentic DevOps Platform (outcome)
 ```
 
-> Based on [25+ peer-reviewed papers](docs/context-engineer/) and the Context Platform Stack (Silva, 2026).
+> Based on the Context Platform Stack (Silva, 2026).
 
 ---
 
@@ -326,7 +326,7 @@ Alternatively, use the Copilot deploy agent from VS Code:
 | **[Administrator Guide](docs/guides/ADMINISTRATOR_GUIDE.md)** | Day-2 operations |
 | **[Agent System](AGENTS.md)** | 9 agents, 31 skills, 9 prompts |
 | **[Code Map](CODEMAP.md)** | Navigating the codebase |
-| **[Context Platform Stack](docs/context-engineer/)** | The intellectual foundation (6 chapters) |
+| **[Code Map](CODEMAP.md)** | Context map and codebase navigation |
 | **[Module Reference](docs/guides/MODULE_REFERENCE.md)** | All 16 Terraform modules |
 | **[Troubleshooting](docs/guides/TROUBLESHOOTING_GUIDE.md)** | Problem diagnosis |
 | **[Contributing](CONTRIBUTING.md)** | How to contribute |

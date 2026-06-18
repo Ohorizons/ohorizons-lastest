@@ -2598,7 +2598,7 @@ The platform includes AI agents that can assist you at every deployment step:
 - **Configure monitoring**: Set up Grafana dashboards and alerting rules — see [Administrator Guide](./ADMINISTRATOR_GUIDE.md)
 - **Review security posture**: Validate security baseline — see [Architecture Guide](./ARCHITECTURE_GUIDE.md)
 - **Set up observability**: Deploy Prometheus, Grafana, and Loki — see [Module Reference](./MODULE_REFERENCE.md)
-- **Review runbooks**: Familiarize with operational procedures — see [Runbooks](../runbooks/README.md)
+- **Review troubleshooting procedures**: Familiarize with operational procedures — see [Troubleshooting Guide](./TROUBLESHOOTING_GUIDE.md)
 
 ---
 

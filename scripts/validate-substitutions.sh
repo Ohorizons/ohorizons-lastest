@@ -40,70 +40,138 @@ echo -e "${BLUE}╔════════════════════�
 echo -e "${BLUE}║       OPEN HORIZONS — Variable Substitution Validation     ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 
-# Files to check for unresolved variables
-declare -A FILE_GROUPS=(
-  ["Helm ArgoCD"]="deploy/helm/argocd/values.yaml"
-  ["Helm Monitoring"]="deploy/helm/monitoring/values.yaml"
-  ["ArgoCD Root App"]="argocd/app-of-apps/root-application.yaml"
-  ["ArgoCD Repo Creds"]="argocd/repo-credentials.yaml"
-  ["ArgoCD Secret Store"]="argocd/secrets/cluster-secret-store.yaml"
-  ["Prometheus Alerting"]="prometheus/alerting-rules.yaml"
-  ["K8s Constraints"]="policies/kubernetes/constraints/platform-constraints.yaml"
+# Files to check for unresolved variables.
+# Keep as parallel arrays for compatibility with macOS Bash 3.2.
+FILE_GROUP_NAMES=(
+  "Helm ArgoCD"
+  "Helm Monitoring"
+  "ArgoCD Root App"
+  "ArgoCD Repo Creds"
+  "ArgoCD Secret Store"
+  "Prometheus Alerting"
+  "K8s Constraints"
 )
 
-# Known variables and their descriptions
-declare -A KNOWN_VARS=(
-  ["DNS_ZONE_NAME"]="Base DNS zone (e.g., platform.contoso.com)"
-  ["GITHUB_ORG"]="GitHub organization name"
-  ["CUSTOMER_NAME"]="Customer name for resource naming"
-  ["CUSTOMER_FULL_NAME"]="Full customer display name"
-  ["CUSTOMER_DOMAIN"]="Customer email domain"
-  ["AZURE_TENANT_ID"]="Azure AD tenant ID"
-  ["AZURE_SUBSCRIPTION_ID"]="Azure subscription ID"
-  ["GRAFANA_ADMIN_PASSWORD"]="Grafana admin password"
-  ["GRAFANA_CLIENT_ID"]="Grafana Azure AD app client ID"
-  ["GRAFANA_CLIENT_SECRET"]="Grafana Azure AD app client secret"
-  ["GRAFANA_TOKEN"]="Grafana API token"
-  ["PAGERDUTY_SERVICE_KEY"]="PagerDuty integration key"
-  ["TEAMS_WEBHOOK_URL"]="Microsoft Teams webhook URL"
-  ["GITHUB_APP_ID"]="GitHub App ID"
-  ["GITHUB_APP_CLIENT_ID"]="GitHub App client ID"
-  ["GITHUB_APP_CLIENT_SECRET"]="GitHub App client secret"
-  ["GITHUB_APP_PRIVATE_KEY"]="GitHub App private key (PEM)"
-  ["GITHUB_PAT"]="GitHub personal access token"
-  ["GITHUB_WEBHOOK_SECRET"]="GitHub webhook secret"
-  ["SSH_PRIVATE_KEY"]="SSH private key for Git"
-  ["AZURE_DEVOPS_PAT"]="Azure DevOps PAT"
-  ["ACR_NAME"]="Azure Container Registry name"
-  ["ACR_USERNAME"]="ACR username"
-  ["ACR_PASSWORD"]="ACR password"
-  ["KEY_VAULT_URL"]="Azure Key Vault URL"
-  ["KEY_VAULT_NAME"]="Azure Key Vault name"
-  ["CLUSTER_NAME"]="AKS cluster name"
-  ["ENVIRONMENT"]="Environment name (dev/staging/prod)"
-  ["BACKSTAGE_MANAGED_IDENTITY_CLIENT_ID"]="Backstage managed identity client ID"
-  ["POSTGRESQL_HOST"]="PostgreSQL server hostname"
-  ["POSTGRESQL_USER"]="PostgreSQL admin username"
-  ["POSTGRESQL_PASSWORD"]="PostgreSQL admin password"
-  ["ARGOCD_AUTH_TOKEN"]="ArgoCD authentication token"
-  ["ARGOCD_ADMIN_PASSWORD"]="ArgoCD admin password"
-  ["STORAGE_ACCOUNT_NAME"]="Azure Storage account name"
-  ["STORAGE_ACCOUNT_KEY"]="Azure Storage account key"
-  ["K8S_SERVICE_ACCOUNT_TOKEN"]="Kubernetes service account token"
-  ["DNS_ZONE_RESOURCE_GROUP"]="Resource group containing DNS zone"
-  ["EXTERNAL_DNS_CLIENT_ID"]="External DNS managed identity client ID"
-  ["RUNBOOK_BASE_URL"]="Base URL for operational runbooks"
+FILE_GROUP_PATHS=(
+  "deploy/helm/argocd/values.yaml"
+  "deploy/helm/monitoring/values.yaml"
+  "argocd/app-of-apps/root-application.yaml"
+  "argocd/repo-credentials.yaml"
+  "argocd/secrets/cluster-secret-store.yaml"
+  "prometheus/alerting-rules.yaml"
+  "policies/kubernetes/constraints/platform-constraints.yaml"
 )
+
+# Known variables and their descriptions.
+KNOWN_VAR_NAMES=(
+  "DNS_ZONE_NAME"
+  "GITHUB_ORG"
+  "CUSTOMER_NAME"
+  "CUSTOMER_FULL_NAME"
+  "CUSTOMER_DOMAIN"
+  "AZURE_TENANT_ID"
+  "AZURE_SUBSCRIPTION_ID"
+  "GRAFANA_ADMIN_PASSWORD"
+  "GRAFANA_CLIENT_ID"
+  "GRAFANA_CLIENT_SECRET"
+  "GRAFANA_TOKEN"
+  "PAGERDUTY_SERVICE_KEY"
+  "TEAMS_WEBHOOK_URL"
+  "GITHUB_APP_ID"
+  "GITHUB_APP_CLIENT_ID"
+  "GITHUB_APP_CLIENT_SECRET"
+  "GITHUB_APP_PRIVATE_KEY"
+  "GITHUB_PAT"
+  "GITHUB_WEBHOOK_SECRET"
+  "SSH_PRIVATE_KEY"
+  "AZURE_DEVOPS_PAT"
+  "ACR_NAME"
+  "ACR_USERNAME"
+  "ACR_PASSWORD"
+  "KEY_VAULT_URL"
+  "KEY_VAULT_NAME"
+  "CLUSTER_NAME"
+  "ENVIRONMENT"
+  "BACKSTAGE_MANAGED_IDENTITY_CLIENT_ID"
+  "POSTGRESQL_HOST"
+  "POSTGRESQL_USER"
+  "POSTGRESQL_PASSWORD"
+  "ARGOCD_AUTH_TOKEN"
+  "ARGOCD_ADMIN_PASSWORD"
+  "STORAGE_ACCOUNT_NAME"
+  "STORAGE_ACCOUNT_KEY"
+  "K8S_SERVICE_ACCOUNT_TOKEN"
+  "DNS_ZONE_RESOURCE_GROUP"
+  "EXTERNAL_DNS_CLIENT_ID"
+  "RUNBOOK_BASE_URL"
+)
+
+KNOWN_VAR_DESCRIPTIONS=(
+  "Base DNS zone (e.g., platform.contoso.com)"
+  "GitHub organization name"
+  "Customer name for resource naming"
+  "Full customer display name"
+  "Customer email domain"
+  "Azure AD tenant ID"
+  "Azure subscription ID"
+  "Grafana admin password"
+  "Grafana Azure AD app client ID"
+  "Grafana Azure AD app client secret"
+  "Grafana API token"
+  "PagerDuty integration key"
+  "Microsoft Teams webhook URL"
+  "GitHub App ID"
+  "GitHub App client ID"
+  "GitHub App client secret"
+  "GitHub App private key (PEM)"
+  "GitHub personal access token"
+  "GitHub webhook secret"
+  "SSH private key for Git"
+  "Azure DevOps PAT"
+  "Azure Container Registry name"
+  "ACR username"
+  "ACR password"
+  "Azure Key Vault URL"
+  "Azure Key Vault name"
+  "AKS cluster name"
+  "Environment name (dev/staging/prod)"
+  "Backstage managed identity client ID"
+  "PostgreSQL server hostname"
+  "PostgreSQL admin username"
+  "PostgreSQL admin password"
+  "ArgoCD authentication token"
+  "ArgoCD admin password"
+  "Azure Storage account name"
+  "Azure Storage account key"
+  "Kubernetes service account token"
+  "Resource group containing DNS zone"
+  "External DNS managed identity client ID"
+  "Base URL for operational runbooks"
+)
+
+known_var_description() {
+  local name="$1"
+  local index
+  for index in "${!KNOWN_VAR_NAMES[@]}"; do
+    if [[ "${KNOWN_VAR_NAMES[$index]}" == "$name" ]]; then
+      echo "${KNOWN_VAR_DESCRIPTIONS[$index]}"
+      return 0
+    fi
+  done
+  echo "Unknown variable"
+}
 
 ALL_UNRESOLVED=()
 
 header "Scanning Configuration Files"
 
-for group_name in "${!FILE_GROUPS[@]}"; do
-  file="${PROJECT_ROOT}/${FILE_GROUPS[$group_name]}"
+for index in "${!FILE_GROUP_NAMES[@]}"; do
+  group_name="${FILE_GROUP_NAMES[$index]}"
+  group_path="${FILE_GROUP_PATHS[$index]}"
+  file="${PROJECT_ROOT}/${group_path}"
   
   if [[ ! -f "$file" ]]; then
-    warn "$group_name: File not found (${FILE_GROUPS[$group_name]})"
+    warn "$group_name: File not found (${group_path})"
     continue
   fi
   
@@ -120,7 +188,7 @@ for group_name in "${!FILE_GROUPS[@]}"; do
       while IFS= read -r var; do
         var_name="${var#\$\{}"
         var_name="${var_name%\}}"
-        desc="${KNOWN_VARS[$var_name]:-Unknown variable}"
+        desc="$(known_var_description "$var_name")"
         echo -e "    ${YELLOW}${var}${NC} — $desc"
         ALL_UNRESOLVED+=("$var_name")
       done <<< "$unresolved"
@@ -146,7 +214,7 @@ if [[ ${#UNIQUE_VARS[@]} -gt 0 ]]; then
     echo "  Set these before deployment (add to .env or export):"
     echo ""
     for var in "${UNIQUE_VARS[@]}"; do
-      desc="${KNOWN_VARS[$var]:-Unknown}"
+      desc="$(known_var_description "$var")"
       echo "  export ${var}=\"\"  # $desc"
     done
     echo ""

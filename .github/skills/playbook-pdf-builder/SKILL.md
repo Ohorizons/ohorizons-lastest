@@ -200,7 +200,7 @@ The script automatically:
 - **Strips changelog sections** — any `## Changelog`, `## Change Log`, `## CHANGELOG`,
   or `## Histórico de Versões` heading and all content after it within the same file
   is removed before rendering
-- **Resolves image paths** — `![alt](filename.png)` → `file:///absolute/path/filename.png`
+- **Resolves image paths** — Markdown image paths are converted to absolute `file:///` URLs
   using the `images_dir` from config. If an image is not found, it is skipped gracefully.
 
 ---

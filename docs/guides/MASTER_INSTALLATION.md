@@ -180,9 +180,9 @@ The install wizard at [`scripts/install-wizard.sh`](../../scripts/install-wizard
 | Terraform modules (11) | individual booleans (`enable_container_registry`, `enable_databases`, `enable_defender`, `enable_purview`, `enable_argocd`, `enable_external_secrets`, `enable_observability`, `enable_github_runners`, `enable_cost_management`, `enable_ai_foundry`, `enable_disaster_recovery`) | matches existing `terraform/terraform.tfvars.example` | `terraform/environments/<env>.tfvars` |
 | Backstage components (6) | `enable_ai_chat_plugin`, `enable_agent_api`, `enable_agent_api_impact`, `enable_agent_api_maf`, `enable_agent_api_sk`, `enable_mcp_ecosystem` | AI Chat plus its agent-api on, others off | `terraform/environments/<env>.tfvars` |
 | Golden Paths (34) | any subset of `<horizon>/<template>` ids | all 34 | `catalog.locations` of `backstage/app-config.production.yaml` |
-| Chat agents (19) | optional allowlist of agent ids in `agents:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/agents/` |
-| Skills (28) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
-| Prompts (16) | optional allowlist of prompt ids in `prompts:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/prompts/` |
+| Chat agents (9) | optional allowlist of agent ids in `agents:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/agents/` |
+| Skills (31) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
+| Prompts (9) | optional allowlist of prompt ids in `prompts:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/prompts/` |
 | MCP servers (12) | optional allowlist of MCP ids in `mcp_servers:` | empty list = include all | `golden-paths/common/agents/.rendered/mcp-servers/enabled.txt` |
 
 ### Outputs
@@ -428,11 +428,9 @@ Functional smoke tests:
 - [Module Reference](MODULE_REFERENCE.md)
 - [Performance Tuning Guide](PERFORMANCE_TUNING_GUIDE.md)
 - [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)
-- [Copilot Agents Complete Guide](copilot-agents-complete-guide.md)
-- [Copilot Agents Best Practices](copilot-agents-best-practices.md)
 - [AGENTS Catalog](../../AGENTS.md)
 - [CODEMAP](../../CODEMAP.md)
 - [Golden Paths README](../../golden-paths/README.md)
 - [Azure OIDC Setup](../../golden-paths/common/azure-infrastructure/docs/azure-oidc.md)
-- [Context Platform Stack chapters](../context-engineer/)
-- [Runbooks](../runbooks/)
+- [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)
+- [Performance Tuning Guide](PERFORMANCE_TUNING_GUIDE.md)

@@ -91,8 +91,6 @@ In VS Code or GitHub.com, type `@agent-name` in the Copilot Chat window.
 | -------- | ----------- |
 | [Deployment Guide](../guides/DEPLOYMENT_GUIDE.md) | Step-by-step platform deployment instructions |
 | [Architecture Guide](../guides/ARCHITECTURE_GUIDE.md) | Overall system architecture and design |
-| [Copilot Agents Best Practices](../guides/copilot-agents-best-practices.md) | Best practices for using Copilot agents |
-| [Copilot Agents Complete Guide](../guides/copilot-agents-complete-guide.md) | Comprehensive agent usage guide |
 | [AGENTS.md](../../AGENTS.md) | Agent system overview and skill reference |
 
 ## ➡️ Next Steps
@@ -100,7 +98,7 @@ In VS Code or GitHub.com, type `@agent-name` in the Copilot Chat window.
 - **Get Started**: Use `@deploy` in Copilot Chat to set up your environment
 - **Configure Specialists**: Use `@terraform`, `@backstage-expert`, `@security`, or `@sre` when `@deploy` hands off specialist work
 - **Deploy Platform**: Follow the [Deployment Guide](../guides/DEPLOYMENT_GUIDE.md) for end-to-end deployment
-- **Learn Best Practices**: Read the [Copilot Agents Best Practices](../guides/copilot-agents-best-practices.md)
+- **Learn Best Practices**: Read [AGENTS.md](../../AGENTS.md) for the supported deploy-managed agent model
 
 ---
 

@@ -8,7 +8,7 @@ argument-hint: "the architecture markdown file to validate, for example UBB_Plat
 
 The quality gate for architecture documents in this workspace. It turns the Senior Cloud Architect's Definition of Done into an executable check so an architecture deliverable cannot ship incomplete or with broken Mermaid, which is the main source of rework.
 
-Pair this with the `Senior Cloud Architect` agent ([../../agents/arch.agent.md](../../agents/arch.agent.md)): the agent designs and writes `{app}_Architecture.md`, then runs this gate before presenting.
+Pair this with the deploy-managed architecture workflow: the responsible agent designs and writes `{app}_Architecture.md`, then runs this gate before presenting.
 
 ## When to use
 

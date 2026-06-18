@@ -129,4 +129,4 @@ shellcheck *.sh
 ## Related Documentation
 
 - [Deployment Guide](../docs/guides/DEPLOYMENT_GUIDE.md)
-- [Deployment Runbook](../docs/runbooks/deployment-runbook.md)
+- [Troubleshooting Guide](../docs/guides/TROUBLESHOOTING_GUIDE.md)

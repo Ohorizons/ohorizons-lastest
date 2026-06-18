@@ -31,7 +31,7 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 |----------|-------------|
 | [Grafana Dashboards](../grafana/README.md) | Dashboard definitions consuming these rules |
 | [Performance Tuning Guide](../docs/guides/PERFORMANCE_TUNING_GUIDE.md) | Monitoring baselines and tuning |
-| [Incident Response Runbook](../docs/runbooks/incident-response.md) | How to respond to fired alerts |
+| [Troubleshooting Guide](../docs/guides/TROUBLESHOOTING_GUIDE.md) | How to respond to fired alerts |
 
 ---
 

@@ -210,7 +210,7 @@ deployment_mode: express
 modules: {enable_container_registry: true}
 backstage_components: {enable_ai_chat_plugin: true, enable_agent_api: true}
 golden_paths: [h1-foundation/basic-cicd]
-agents: [pipeline, sentinel, compass]
+agents: [deploy, terraform, security]
 YAML
 rm -rf "$REPO_ROOT/golden-paths/common/agents/.rendered"
 rm -f "$manifest_path"

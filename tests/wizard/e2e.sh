@@ -201,8 +201,8 @@ golden_paths:
   - h1-foundation/web-application
   - h2-enhancement/microservice
 agents:
-  - pipeline
-  - sentinel
+  - deploy
+  - terraform
 skills:
   - kubectl-cli
   - terraform-cli
