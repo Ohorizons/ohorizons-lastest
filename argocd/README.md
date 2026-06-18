@@ -119,5 +119,5 @@ argocd repo add https://github.com/org/repo --username user --password token
 ## Related Documentation
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [GitOps Agent (DevOps)](../.github/agents/devops.agent.md)
+- [Deploy Agent](../.github/agents/deploy.agent.md)
 - [Deployment Guide](../docs/guides/DEPLOYMENT_GUIDE.md)

@@ -251,6 +251,6 @@ yarn dev
 
 ## Related Documentation
 
-- [Platform Agent](../.github/agents/platform.agent.md)
-- [DevOps Agent](../.github/agents/devops.agent.md)
+- [Backstage Expert Agent](../.github/agents/backstage-expert.agent.md)
+- [Deploy Agent](../.github/agents/deploy.agent.md)
 - [Backstage Scaffolder](https://backstage.io/docs/features/software-templates/)

@@ -118,4 +118,4 @@ Select any template from the Backstage portal under "Create" → "Choose a Templ
 ## Related Documentation
 
 - [Golden Paths Overview](../README.md)
-- [DevOps Agent](../../.github/agents/devops.agent.md)
+- [Deploy Agent](../../.github/agents/deploy.agent.md)

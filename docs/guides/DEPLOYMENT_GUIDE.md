@@ -2567,14 +2567,14 @@ The platform includes AI agents that can assist you at every deployment step:
 
 | Step | Agent | Example Prompt |
 |------|-------|---------------|
-| First-time setup | `@onboarding` | "Help me set up prerequisites and create my first `.tfvars`" |
+| First-time setup | `@deploy` | "Help me set up prerequisites and create my first `.tfvars`" |
 | Terraform configuration | `@terraform` | "Validate my `dev.tfvars` against the AKS module variables" |
 | Terraform troubleshooting | `@terraform` | "My `terraform plan` shows unexpected changes, help me understand" |
-| ArgoCD setup & sync | `@devops` | "ArgoCD app is OutOfSync, help me debug" |
-| Backstage portal setup | `@platform` | "Help me register Golden Path templates in the catalog" |
+| ArgoCD setup & sync | `@deploy` | "ArgoCD app is OutOfSync, help me debug" |
+| Backstage portal setup | `@backstage-expert` | "Help me register Golden Path templates in the catalog" |
 | Security validation | `@security` | "Review my Terraform plan for security misconfigurations" |
 | Post-deploy verification | `@sre` | "Verify all pods are healthy after H1 deployment" |
-| Architecture questions | `@architect` | "Explain the networking design between H1 and H2" |
+| Azure infrastructure questions | `@azure-portal-deploy` | "Explain the networking design between H1 and H2" |
 
 > **Tip:** Each agent will decompose your request into sub-tasks and walk you through step by step.
 

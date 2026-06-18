@@ -190,7 +190,7 @@ jobs:
             ## Highlights
 
             - 18 Terraform modules for Azure infrastructure
-            - 19 Copilot Chat Agents for interactive development
+            - 9 Copilot Chat Agents for deploy-managed workflows
             - 22 Golden Path templates for Backstage
             - 27 GitHub Issue templates with T-shirt sizing
             - Multi-region support (Brazil, US East, US South Central)
@@ -211,7 +211,7 @@ jobs:
 
             - [Deployment Guide](docs/guides/DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
             - [Architecture Guide](docs/guides/ARCHITECTURE_GUIDE.md) - Open Horizons architecture
-            - [Agent Documentation](AGENTS.md) - 19 Copilot Chat Agents
+            - [Agent Documentation](AGENTS.md) - 9 Copilot Chat Agents
 
             ${{ needs.changelog.outputs.changelog }}
           files: |

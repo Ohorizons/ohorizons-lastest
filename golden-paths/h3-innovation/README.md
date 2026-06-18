@@ -88,5 +88,5 @@ Ensure H3 infrastructure (AI Foundry) is deployed before using these templates.
 ## Related Documentation
 
 - [Golden Paths Overview](../README.md)
-- [Architect Agent](../../.github/agents/architect.agent.md)
-- [DevOps Agent](../../.github/agents/devops.agent.md)
+- [Azure Portal Deploy Agent](../../.github/agents/azure-portal-deploy.agent.md)
+- [Deploy Agent](../../.github/agents/deploy.agent.md)

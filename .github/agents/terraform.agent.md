@@ -1,6 +1,6 @@
 ---
 name: terraform
-description: "Azure Infrastructure as Code specialist using Terraform — writes modules, validates plans, manages state, and follows AVM patterns. USE FOR: write Terraform module, terraform plan, terraform apply, create AKS module, Terraform state management, AVM module, Terraform validation. DO NOT USE FOR: deployment orchestration (use @deploy), CI/CD pipelines (use @devops), architecture design (use @architect)."
+description: "Azure Infrastructure as Code specialist using Terraform — writes modules, validates plans, manages state, and follows AVM patterns. USE FOR: write Terraform module, terraform plan, create AKS module, Terraform state management, AVM module, Terraform validation. DO NOT USE FOR: deployment orchestration or apply execution (use @deploy), security review (use @security), post-deploy verification (use @sre)."
 tools:
   - search
   - edit
@@ -12,9 +12,9 @@ handoffs:
     agent: security
     prompt: "Review these changes specifically for security vulnerabilities."
     send: false
-  - label: "Deploy via DevOps"
-    agent: devops
-    prompt: "Ready for deployment. Please set up the CI/CD pipeline."
+  - label: "Deploy Platform"
+    agent: deploy
+    prompt: "Terraform changes are ready. Orchestrate deployment validation and apply flow."
     send: false
 ---
 
@@ -60,7 +60,7 @@ terraform/
 | **Write/Edit .tf files** | ✅ **ALWAYS** | Focus on modularity. |
 | **Run `fmt` / `validate`** | ✅ **ALWAYS** | Keep code clean. |
 | **Run `plan`** | ⚠️ **ASK FIRST** | Ensure read-only access. |
-| **Run `apply` / `destroy`** | 🚫 **NEVER** | Use CI/CD pipelines for state changes. |
+| **Run `apply` / `destroy`** | 🚫 **NEVER** | Use `@deploy` for controlled deployment orchestration. |
 | **Read Secrets** | 🚫 **NEVER** | Use Key Vault references. |
 
 ## 📝 Output Style
@@ -75,6 +75,6 @@ When you receive a complex infrastructure request, **always** break it into sub-
 3. **Write** — Create/modify `.tf` files following module structure standards.
 4. **Format** — Run `terraform fmt` and `terraform validate`.
 5. **Plan** — Suggest the user run `terraform plan -var-file=environments/<env>.tfvars`.
-6. **Handoff** — Suggest `@security` for review or `@devops` for CI/CD pipeline.
+6. **Handoff** — Suggest `@security` for review or `@deploy` for deployment orchestration.
 
 Present the sub-task plan to the user before proceeding. Check off each step as you complete it.

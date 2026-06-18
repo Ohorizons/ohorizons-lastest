@@ -182,25 +182,24 @@ terraform apply -var-file=environments/dev.tfvars
 
 ## Agent System
 
-The platform uses **19 Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **27 skills** for domain knowledge, **16 prompts** for one-shot shortcuts, and **10 instructions** for auto-applied coding standards.
+The platform uses **9 deploy-managed Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **27 skills** for domain knowledge, **9 prompts** for one-shot shortcuts, and **10 instructions** for auto-applied coding standards.
 
 ### Agent Organization
 - **@deploy**: Deployment orchestration, end-to-end platform deployment
-- **@architect**: System architecture, AI Foundry, multi-agent design
-- **@devops**: CI/CD, GitOps, MLOps, Golden Paths, pipelines
-- **@docs**: Documentation generation and maintenance
-- **@platform**: Backstage portal, platform services, developer experience
-- **@reviewer**: Code review, PR analysis, quality checks
+- **@terraform**: Infrastructure as Code, Terraform modules
 - **@security**: Security policies, scanning, compliance
 - **@sre**: Reliability engineering, incident response, monitoring
-- **@terraform**: Infrastructure as Code, Terraform modules
-- **@test**: Test generation, validation, quality assurance
+- **@backstage-expert**: Backstage portal deployment and configuration
+- **@azure-portal-deploy**: Azure AKS, Key Vault, PostgreSQL, and ACR provisioning
+- **@github-integration**: GitHub App, org discovery, GHAS, Actions, Packages
+- **@ado-integration**: Azure DevOps PAT, repos, pipelines, boards
+- **@hybrid-scenarios**: GitHub + ADO coexistence scenarios
 
 ### Skills Available
 Agents can use skills from `.github/skills/` including: terraform-cli, kubectl-cli, azure-cli, argocd-cli, helm-cli, github-cli, validation-scripts, and more.
 
 ### Agent Handoffs
-Agents support handoffs for workflow orchestration. Example: @terraform -> @devops -> @security -> @test
+Agents support handoffs for workflow orchestration. Example: @deploy -> @terraform -> @security -> @sre
 
 When generating code for agents:
 - Follow the agent specification format in `.github/agents/`

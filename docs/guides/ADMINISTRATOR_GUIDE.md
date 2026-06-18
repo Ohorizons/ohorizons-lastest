@@ -1169,9 +1169,9 @@ The platform includes AI agents that assist with day-2 operations:
 | Monitoring & alerts | `@sre` | "Show me the current error rate and latency for all services" |
 | Security operations | `@security` | "Audit RBAC assignments on the AKS cluster" |
 | Scaling decisions | `@terraform` | "Help me scale the AKS nodepool to 5 nodes" |
-| Cost optimization | `@architect` | "Suggest cost savings for our current Azure setup" |
-| Pipeline management | `@devops` | "Help me set up a new GitHub Actions workflow" |
-| Documentation updates | `@docs` | "Update the README to reflect the new module we added" |
+| Cost optimization | `@terraform` | "Suggest infrastructure sizing changes for our current Azure setup" |
+| Deployment orchestration | `@deploy` | "Help me validate and deploy this platform change" |
+| Backstage operations | `@backstage-expert` | "Help me update Backstage configuration after this module change" |
 
 > **Tip:** Use `@sre` as your daily operations companion. It will triage issues, check metrics, and suggest fixes.
 

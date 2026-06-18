@@ -2229,11 +2229,11 @@ If you encounter issues not covered here:
 |------|---------------|---------|
 | Module selection guidance | `@terraform` | *"Which modules do I need for a production AKS deployment?"* |
 | Input variable configuration | `@terraform` | *"Help me configure the networking module variables for a hub-spoke topology"* |
-| Module dependency analysis | `@architect` | *"Show me the dependency graph between aks-cluster and networking modules"* |
+| Module dependency analysis | `@terraform` | *"Show me the dependency graph between aks-cluster and networking modules"* |
 | Security review of module config | `@security` | *"Review my terraform.tfvars for security best practices"* |
-| Cost estimation | `@architect` | *"Estimate monthly costs for this module configuration"* |
+| Cost estimation | `@terraform` | *"Estimate monthly costs for this module configuration"* |
 
-> **Tip:** Use `@terraform` to get help with module configuration and `@architect` to understand module dependencies and architecture decisions.
+> **Tip:** Use `@terraform` to get help with module configuration, dependency analysis, and infrastructure trade-offs.
 
 ---
 

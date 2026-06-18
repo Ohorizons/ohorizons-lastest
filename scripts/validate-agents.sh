@@ -74,46 +74,26 @@ REQUIRED_SECTIONS=(
 # Keep as parallel indexed arrays for compatibility with macOS Bash 3.2.
 EXPECTED_AGENT_FILES=(
     "deploy.agent.md"
-    "architect.agent.md"
-    "devops.agent.md"
-    "platform.agent.md"
     "terraform.agent.md"
     "security.agent.md"
     "sre.agent.md"
-    "reviewer.agent.md"
-    "test.agent.md"
-    "docs.agent.md"
     "backstage-expert.agent.md"
     "azure-portal-deploy.agent.md"
     "github-integration.agent.md"
     "ado-integration.agent.md"
     "hybrid-scenarios.agent.md"
-    "prompt.agent.md"
-    "compass.agent.md"
-    "pipeline.agent.md"
-    "sentinel.agent.md"
 )
 
 EXPECTED_AGENT_NAMES=(
     "Deploy Agent"
-    "Architect Agent"
-    "DevOps Agent"
-    "Platform Agent"
     "Terraform Agent"
     "Security Agent"
     "SRE Agent"
-    "Reviewer Agent"
-    "Test Agent"
-    "Docs Agent"
     "Backstage Expert Agent"
     "Azure Portal Deploy Agent"
     "GitHub Integration Agent"
     "ADO Integration Agent"
     "Hybrid Scenarios Agent"
-    "Prompt Engineer Agent"
-    "Compass Agent"
-    "Pipeline Agent"
-    "Sentinel Agent"
 )
 
 # Valid MCP servers

@@ -54,7 +54,7 @@ The accelerator covers:
 - The **Internal Developer Platform (IDP)** that developers use day to day - Backstage on AKS with Software Catalog, TechDocs, Software Templates, and DORA / Cost dashboards.
 - The **Agent IDP** - 4 agent runtime APIs, trajectory and cost middleware, agent identity, and a Backstage AI Chat plugin.
 - The **scaffolder** that creates new repositories on demand via wizard - 34 Golden Paths, all aligned to the same agents, TechDocs, CI/CD, and an opt-in Azure baseline.
-- The **AI primitives** that make Copilot Chat productive in this codebase - 19 chat agents, 16 prompts, 8 instructions, 27 skills, and 12 MCP server tools.
+- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 10 instructions, 27 skills, and 12 MCP server tools.
 - The **infrastructure** to run all of the above - 16 Terraform modules covering AKS, networking, registries, databases, secrets, security, observability, AI Foundry, GitHub runners, ArgoCD, Backstage, Defender, Purview, disaster recovery, cost management, and naming.
 - The **governance and policy** stack - OPA/Gatekeeper rules for Kubernetes and Terraform, CONSTITUTION + SPECIFICATION + IMPLEMENTATION_PLAN templates, scope-guard hooks, and intent-drift measurement.
 - The **observability** stack - Prometheus rules, Grafana dashboards, Alertmanager wiring, plus per-agent trajectory and cost telemetry.
@@ -67,7 +67,7 @@ The accelerator covers:
 | L2 - Platform Engineering | Golden paths, GitOps, governance | Backstage portal in [`backstage/`](../../backstage/) (catalog, TechDocs, software templates, AI Chat plugin), 34 Golden Paths in [`golden-paths/`](../../golden-paths/), ArgoCD app-of-apps in [`argocd/`](../../argocd/), 7 Kubernetes OPA policies and 1 Terraform OPA policy in [`policies/`](../../policies/), 5 Grafana dashboards in [`grafana/dashboards/`](../../grafana/dashboards/), Prometheus recording and alerting rules in [`prometheus/`](../../prometheus/), 9 GitHub Actions workflows in [`.github/workflows/`](../../.github/workflows/), 22 automation scripts in [`scripts/`](../../scripts/). |
 | L3 - Context Engineering | Agent context and tools | 27 skills in [`.github/skills/`](../../.github/skills/), 12 MCP servers in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
 | L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), workspace guardrails in [`.github/hooks/`](../../.github/hooks/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
-| L5 - Agentic Execution | Runtime agents and identity | 19 Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 16 prompts in [`.github/prompts/`](../../.github/prompts/), 8 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
+| L5 - Agentic Execution | Runtime agents and identity | 9 deploy-managed Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 9 prompts in [`.github/prompts/`](../../.github/prompts/), 10 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
 
 ## Inventory at a Glance
 
@@ -78,9 +78,9 @@ The accelerator covers:
 | Backstage plugins (custom) | 1 (AI Chat) |
 | Runtime agent APIs | 4 |
 | Golden Path templates | 34 |
-| Copilot Chat agents | 19 |
-| Prompts | 16 |
-| Instructions | 8 |
+| Copilot Chat agents | 9 |
+| Prompts | 9 |
+| Instructions | 10 |
 | Skills | 27 |
 | MCP servers | 12 |
 | GitHub Actions workflows | 9 |
@@ -341,7 +341,7 @@ L4 is what keeps the agents on task when scope or constraints change:
 
 The platform exposes two agent surfaces:
 
-- **Copilot Chat agents** in [`.github/agents/`](../../.github/agents/). 19 role-based agents that run inside VS Code: `ado-integration`, `architect`, `azure-portal-deploy`, `backstage-expert`, `compass`, `deploy`, `devops`, `docs`, `github-integration`, `hybrid-scenarios`, `pipeline`, `platform`, `prompt`, `reviewer`, `security`, `sentinel`, `sre`, `terraform`, `test`. Catalog and metadata are summarized in [`AGENTS.md`](../../AGENTS.md).
+- **Copilot Chat agents** in [`.github/agents/`](../../.github/agents/). 9 deploy-managed agents that run inside VS Code: `ado-integration`, `azure-portal-deploy`, `backstage-expert`, `deploy`, `github-integration`, `hybrid-scenarios`, `security`, `sre`, `terraform`. Catalog and metadata are summarized in [`AGENTS.md`](../../AGENTS.md).
 - **Runtime agent APIs** in [`backstage/server/`](../../backstage/server/):
   - `agent-api` - AI Chat backend used by the Backstage AI Chat plugin.
   - `agent-api-impact` - Agentic DevOps impact analytics (DORA correlation, KPIs).

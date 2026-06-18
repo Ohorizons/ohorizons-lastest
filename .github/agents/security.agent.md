@@ -1,14 +1,14 @@
 ---
 name: security
-description: "Security compliance specialist — audits code and infrastructure for OWASP Top 10, CIS benchmarks, Zero Trust, RBAC, and vulnerability scanning. USE FOR: security review, OWASP scan, vulnerability assessment, RBAC audit, secrets detection, compliance check, Zero Trust validation. DO NOT USE FOR: general code review (use @reviewer), test generation (use @test), infrastructure deployment (use @deploy)."
+description: "Security compliance specialist — audits deployment, code, and infrastructure for OWASP Top 10, CIS benchmarks, Zero Trust, RBAC, and vulnerability scanning. USE FOR: security review, OWASP scan, vulnerability assessment, RBAC audit, secrets detection, compliance check, Zero Trust validation. DO NOT USE FOR: deployment orchestration (use @deploy), Terraform authoring (use @terraform), post-deploy reliability checks (use @sre)."
 tools:
   - search
   - read
 user-invocable: true
 handoffs:
-  - label: "Remediate Findings"
-    agent: devops
-    prompt: "Implement the security fixes identified in this review."
+  - label: "Deploy Remediation"
+    agent: deploy
+    prompt: "Orchestrate remediation for the security findings identified in this review."
     send: false
 ---
 
@@ -68,6 +68,6 @@ When you receive a complex security request, **always** break it into sub-tasks 
 4. **Network** — Validate NSGs, private endpoints, and encryption in transit.
 5. **Compliance** — Check against CIS Benchmarks, OWASP Top 10, and tagging standards.
 6. **Report** — List findings by severity with remediation steps.
-7. **Handoff** — Suggest `@devops` to implement the fixes.
+7. **Handoff** — Suggest `@deploy` to orchestrate approved remediation.
 
 Present the sub-task plan to the user before proceeding. Check off each step as you complete it.

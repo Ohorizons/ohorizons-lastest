@@ -2,15 +2,15 @@
 
 ## Overview
 
-The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **19 specialized agents**, **27 skills**, **16 prompts**, and **10 instructions** for deterministic, automated platform operations.
+The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **27 skills**, **9 prompts**, and **10 instructions** for deterministic, automated platform operations.
 
 ## Architecture
 
 ```text
 .github/
-├── agents/          # 19 role-based chat agents (.agent.md)
+├── agents/          # 9 deploy-managed chat agents (.agent.md)
 ├── instructions/    # 10 code-generation instructions (.instructions.md)
-├── prompts/         # 16 reusable prompts (.prompt.md)
+├── prompts/         # 9 reusable prompts (.prompt.md)
 ├── skills/          # 27 operational skill sets (SKILL.md)
 └── ISSUE_TEMPLATE/  # Issue templates
 ```
@@ -20,24 +20,14 @@ The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based 
 | Agent | File | Role |
 | --- | --- | --- |
 | **Deploy** | [deploy.agent.md](.github/agents/deploy.agent.md) | Deployment orchestration, end-to-end platform deployment |
-| **Architect** | [architect.agent.md](.github/agents/architect.agent.md) | System architecture, AI Foundry, multi-agent design |
-| **DevOps** | [devops.agent.md](.github/agents/devops.agent.md) | CI/CD, GitOps, MLOps, Golden Paths, pipelines |
-| **Platform** | [platform.agent.md](.github/agents/platform.agent.md) | Backstage portal, platform services, developer experience |
 | **Terraform** | [Terraform agent](.github/agents/terraform.agent.md) | Infrastructure as Code, Terraform modules |
 | **Security** | [security.agent.md](.github/agents/security.agent.md) | Security policies, scanning, compliance |
 | **SRE** | [sre.agent.md](.github/agents/sre.agent.md) | Reliability engineering, incident response, monitoring |
-| **Reviewer** | [reviewer.agent.md](.github/agents/reviewer.agent.md) | Code review, PR analysis, quality checks |
-| **Test** | [test.agent.md](.github/agents/test.agent.md) | Test generation, validation, quality assurance |
-| **Docs** | [docs.agent.md](.github/agents/docs.agent.md) | Documentation generation and maintenance |
 | **Backstage Expert** | [Backstage Expert agent](.github/agents/backstage-expert.agent.md) | Backstage portal deployment on AKS, GitHub auth, Golden Paths |
 | **Azure Portal Deploy** | [Azure Portal Deploy agent](.github/agents/azure-portal-deploy.agent.md) | Azure AKS provisioning, Key Vault, PostgreSQL, ACR |
 | **GitHub Integration** | [GitHub Integration agent](.github/agents/github-integration.agent.md) | GitHub App, org discovery, GHAS, Actions, Packages |
 | **ADO Integration** | [ado-integration.agent.md](.github/agents/ado-integration.agent.md) | Azure DevOps PAT, repos, pipelines, boards |
 | **Hybrid Scenarios** | [hybrid-scenarios.agent.md](.github/agents/hybrid-scenarios.agent.md) | GitHub + ADO coexistence scenarios |
-| **Prompt Engineer** | [prompt.agent.md](.github/agents/prompt.agent.md) | Production-ready prompt engineering |
-| **Compass** | [compass.agent.md](.github/agents/compass.agent.md) | Epic decomposition, user stories, sprint planning |
-| **Pipeline** | [pipeline.agent.md](.github/agents/pipeline.agent.md) | CI/CD diagnostics, GitHub Actions failure analysis |
-| **Sentinel** | [sentinel.agent.md](.github/agents/sentinel.agent.md) | Test coverage analysis, CI check runs, quality gates |
 
 ### How to Use
 
@@ -45,8 +35,6 @@ In VS Code with GitHub Copilot Chat, mention an agent by name:
 
 ```text
 @deploy Deploy the platform to dev environment
-@architect Design a microservice architecture for order processing
-@devops Set up GitOps deployment with ArgoCD
 @terraform Create a new AKS module with private networking
 @security Review security posture for the platform
 @sre Create an incident response runbook
@@ -54,7 +42,7 @@ In VS Code with GitHub Copilot Chat, mention an agent by name:
 
 ## Prompts
 
-The 16 prompt files in the workspace prompt folder provide one-shot shortcuts (`/name` in chat picker):
+The 9 prompt files in the workspace prompt folder provide one-shot shortcuts (`/name` in chat picker):
 
 | Prompt | Agent | Purpose |
 | --- | --- | --- |
@@ -63,17 +51,10 @@ The 16 prompt files in the workspace prompt folder provide one-shot shortcuts (`
 | `/azure-infra` | Azure Portal Deploy | Provision AKS, Key Vault, PostgreSQL, ACR |
 | `/backstage` | Backstage Expert | Deploy Backstage portal to AKS |
 | `/security-review` | Security | OWASP, RBAC, secrets audit |
-| `/architecture` | Architect | Design with WAF + Mermaid diagrams |
 | `/ado-setup` | ADO Integration | Configure ADO PAT + pipelines |
 | `/hybrid-setup` | Hybrid Scenarios | GitHub + ADO coexistence |
-| `/create-service` | Platform | Scaffold a new microservice |
-| `/deploy-service` | DevOps | Deploy a service to AKS |
-| `/review-code` | Reviewer | Comprehensive code review |
 | `/troubleshoot-incident` | SRE | Troubleshoot incidents |
 | `/create-mcp-server` | — | Scaffold MCP server |
-| `/analyze-checks` | Sentinel | Analyze CI check runs and PR status |
-| `/decompose-epic` | Compass | Decompose epics into INVEST user stories |
-| `/diagnose-pipeline` | Pipeline | Diagnose GitHub Actions pipeline failures |
 
 ## Instructions
 

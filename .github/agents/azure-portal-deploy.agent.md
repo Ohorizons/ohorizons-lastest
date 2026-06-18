@@ -1,6 +1,6 @@
 ---
 name: azure-portal-deploy
-description: "Azure infrastructure specialist for developer portal deployments — provisions AKS clusters, Key Vault, PostgreSQL, ACR, and deploys Backstage via Helm. USE FOR: provision AKS, create Key Vault, deploy PostgreSQL, create ACR, Helm deploy Backstage, Azure portal infrastructure. DO NOT USE FOR: Backstage configuration (use @backstage-expert), Terraform modules (use @terraform), CI/CD pipelines (use @devops)."
+description: "Azure infrastructure specialist for developer portal deployments — provisions AKS clusters, Key Vault, PostgreSQL, ACR, and deploys Backstage via Helm. USE FOR: provision AKS, create Key Vault, deploy PostgreSQL, create ACR, Helm deploy Backstage, Azure portal infrastructure. DO NOT USE FOR: Backstage configuration (use @backstage-expert), Terraform modules (use @terraform), full platform orchestration (use @deploy)."
 tools:
   - search
   - edit

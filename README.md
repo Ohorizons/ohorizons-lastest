@@ -59,6 +59,7 @@ Platform Engineering (foundation)
 <td width="50%">
 
 ### Developer IDP
+
 - **34 Golden Paths** — scaffolding templates (H1, H2, H3)
 - **Service Catalog** — every service, API, and owner
 - **TechDocs** — documentation as code
@@ -69,7 +70,8 @@ Platform Engineering (foundation)
 <td width="50%">
 
 ### Agent IDP
-- **19 Copilot Chat Agents** — role-based AI assistants
+
+- **9 Copilot Chat Agents** — deploy-managed AI assistants
 - **7 Runtime Agents** — production agentic APIs
 - **12 MCP Server Tools** — context protocol integration
 - **Trajectory Logging** — every decision recorded
@@ -240,9 +242,9 @@ Zero-trust, Workload Identity, GHAS scanning, OPA Gatekeeper, private endpoints.
 | Component | Count | Layer |
 |:----------|------:|:------|
 | Golden Path Templates | 34 | L2 |
-| Copilot Chat Agents | 19 | L5 |
+| Copilot Chat Agents | 9 | L5 |
 | Skills (lazy-loaded) | 27 | L3 |
-| Prompts | 16 | L3 |
+| Prompts | 9 | L3 |
 | Terraform Modules | 16 | L1 |
 | MCP Server Tools | 12 | L3 |
 | Grafana Dashboards | 5 | L2 |
@@ -322,7 +324,7 @@ Alternatively, use the Copilot deploy agent from VS Code:
 | **[Client Installation Guide](docs/guides/CLIENT_INSTALLATION.md)** | Template-receive checklist (fork, branding, branch strategy) |
 | **[Architecture Guide](docs/guides/ARCHITECTURE_GUIDE.md)** | Understanding the system design |
 | **[Administrator Guide](docs/guides/ADMINISTRATOR_GUIDE.md)** | Day-2 operations |
-| **[Agent System](AGENTS.md)** | 19 agents, 27 skills, 16 prompts |
+| **[Agent System](AGENTS.md)** | 9 agents, 27 skills, 9 prompts |
 | **[Code Map](CODEMAP.md)** | Navigating the codebase |
 | **[Context Platform Stack](docs/context-engineer/)** | The intellectual foundation (6 chapters) |
 | **[Module Reference](docs/guides/MODULE_REFERENCE.md)** | All 16 Terraform modules |
@@ -366,7 +368,7 @@ Alternatively, use the Copilot deploy agent from VS Code:
 - GitHub Copilot
 - Microsoft Agent Framework
 - Semantic Kernel
-- 19 Copilot Chat Agents
+- 9 Copilot Chat Agents
 
 </td>
 <td>
