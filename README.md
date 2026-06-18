@@ -1,6 +1,7 @@
+<!-- markdownlint-disable MD001 MD022 MD026 MD032 MD036 MD041 -->
 <div align="center">
 
-<img src="https://img.shields.io/badge/%20-F25022?style=flat-square&logoColor=white" height="4" width="80"/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="80"/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="80"/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="80"/>
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square&logoColor=white" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="80" alt=""/>
 
 # Open Horizons
 
@@ -15,7 +16,7 @@ Built on **Backstage**, **Azure**, and **GitHub**.
 [![Azure](https://img.shields.io/badge/Azure-AKS-0078D4?style=for-the-badge&logo=microsoftazure)](https://azure.microsoft.com)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-Agents-000?style=for-the-badge&logo=github)](https://github.com/features/copilot)
 
-**34** Golden Paths | **19** AI Agents | **12** MCP Servers | **16** Terraform Modules
+**34** Golden Paths | **9** AI Agents | **12** MCP Servers | **16** Terraform Modules
 
 [Deploy Now](#get-started) | [Documentation](#documentation)
 
@@ -42,7 +43,7 @@ The pattern is clear: **the platform determines whether AI succeeds or fails**.
 
 Open Horizons packages the Context Platform Stack into a deployable, opinionated, open-source reference implementation:
 
-```
+```text
 Platform Engineering (foundation)
     + Open Horizons (accelerator)
     = Agentic DevOps Platform (outcome)
@@ -243,7 +244,7 @@ Zero-trust, Workload Identity, GHAS scanning, OPA Gatekeeper, private endpoints.
 |:----------|------:|:------|
 | Golden Path Templates | 34 | L2 |
 | Copilot Chat Agents | 9 | L5 |
-| Skills (lazy-loaded) | 27 | L3 |
+| Skills (lazy-loaded) | 28 | L3 |
 | Prompts | 9 | L3 |
 | Terraform Modules | 16 | L1 |
 | MCP Server Tools | 12 | L3 |
@@ -396,7 +397,7 @@ Alternatively, use the Copilot deploy agent from VS Code:
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/%20-F25022?style=flat-square&logoColor=white" height="4" width="80"/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="80"/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="80"/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="80"/>
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square&logoColor=white" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="80" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="80" alt=""/>
 
 ### Ready to Transform Your SDLC?
 
