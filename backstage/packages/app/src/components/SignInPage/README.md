@@ -5,7 +5,7 @@ Full-screen landing and authentication page for the Open Horizons platform. Feat
 ## Features
 
 - **Video Background** — Auto-playing demo video (`/Open-Horizons-Demo.mp4`) in the hero section
-- **Platform Stats** — 22 Golden Paths, 17 AI Agents, 16 Terraform Modules, 15 MCP Servers, 120+ Platform Files
+- **Platform Stats** — 34 Golden Paths, 9 AI Agents, 16 Terraform Modules, 12 MCP Servers, 120+ Platform Files
 - **Evolution Timeline** — DevOps → DevSecOps → Agentic DevOps progression
 - **Three Horizons** — H1 Foundation, H2 Enhancement, H3 Innovation with tag badges
 - **6 Differentiators** — Open Source Portal, Complete Automation, Azure Native, AI-Powered, Open Horizons Journey, Security by Default

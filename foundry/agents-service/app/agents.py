@@ -69,7 +69,7 @@ Software Templates.
 
 Stack:
 - Backstage OSS on AKS in the `backstage` namespace
-- 22 Golden Path templates across H1/H2/H3
+- 34 Golden Path templates across H1/H2/H3
 - AI chat via the `ai-chat` plugin backed by Azure AI Foundry
 - Catalog, Scaffolder, TechDocs, and RBAC plugins
 

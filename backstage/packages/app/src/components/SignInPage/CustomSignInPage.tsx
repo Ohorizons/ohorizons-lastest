@@ -542,7 +542,7 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
     { type: 'success', text: '  ✓ H1 Foundation — 32m 14s' },
     { type: 'agent', text: '  @deploy → H2 Enhancement' },
     { type: 'output', text: '  ArgoCD, Backstage, Prometheus' },
-    { type: 'output', text: '  Loading 22 Golden Path templates' },
+    { type: 'output', text: '  Loading 34 Golden Path templates' },
     { type: 'success', text: '  ✓ H2 Enhancement — 28m 47s' },
     { type: 'agent', text: '  @deploy → H3 Innovation' },
     { type: 'output', text: '  AI Agents, MCP Servers, RAG' },
