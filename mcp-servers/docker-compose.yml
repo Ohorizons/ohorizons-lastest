@@ -4,7 +4,10 @@ services:
     container_name: mcp-ecosystem
     restart: unless-stopped
     ports:
-      - "3100:3100"
+      # Host port is configurable to avoid local collisions (e.g. Grafana Loki
+      # also defaults to 3100). Override with MCP_ECOSYSTEM_PORT, e.g.
+      #   MCP_ECOSYSTEM_PORT=3101 docker compose up -d
+      - "${MCP_ECOSYSTEM_PORT:-3100}:3100"
     env_file:
       # Optional: provide GH_TOKEN / CACHE_TTL_MS to raise upstream rate limits.
       # Not required to run locally during installation.

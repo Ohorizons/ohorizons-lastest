@@ -7,6 +7,22 @@ computer.
 > Architecture deep-dive: [ARCHITECTURE.md](ARCHITECTURE.md) ·
 > Platform skill: [mcp-ecosystem skill](../.github/skills/mcp-ecosystem/SKILL.md)
 
+## Where it runs
+
+The same image serves **two phases** of the platform lifecycle:
+
+| Phase | Where | Who uses it |
+| --- | --- | --- |
+| **1 · Installation** | **Local** (this `docker compose`, `:3100`) | The operator + Copilot agents while **building** the platform |
+| **2 · Runtime** | **Azure / AKS** (`ai-services` namespace, gated to `enable_mcp_ecosystem`) | The Backstage **AI Chat** that developers use |
+
+At runtime the AI Chat (`agent-api`, same namespace) reaches it at
+`http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp`; a `NetworkPolicy`
+restricts `:3100` to the `agent-api` pod. The operational MCP servers
+(`azure`, `github`, `terraform`, …) in [mcp-config.json](mcp-config.json) are a
+separate, local-only surface and are not deployed to AKS. See
+[ARCHITECTURE.md](ARCHITECTURE.md#7-deployment--lifecycle) for the full picture.
+
 ## Sources
 
 ### Group A — Agent & AI frameworks (7 modules · 30 tools)
@@ -46,6 +62,21 @@ make up
 # 3. Verify
 make health
 # → { "status": "ok", "sessions": 0 }
+```
+
+> **Port already in use?** Grafana Loki also defaults to `3100`. Run on another
+> host port with `MCP_ECOSYSTEM_PORT=3101 docker compose up -d`.
+
+### Deploy to AKS with your own ACR
+
+The AKS manifests default to the public GHCR image. To use a private ACR:
+
+```bash
+# Import once per tag, then point the installer at the ACR path
+az acr import --name <your-acr> \
+  --source ghcr.io/ohorizons/mcp-ecosystem:<tag> --image mcp-ecosystem:<tag>
+export MCP_ECOSYSTEM_IMAGE="<your-acr>.azurecr.io/mcp-ecosystem:<tag>"
+scripts/render-k8s.sh && scripts/render-manifests.sh
 ```
 
 ## Auto-Start on Boot

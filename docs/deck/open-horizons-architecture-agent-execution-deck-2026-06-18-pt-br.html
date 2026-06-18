@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Deck técnico de arquitetura e execução dos agentes do Open Horizons, com foco em implementação, runtime agêntico, governança, MCP, Azure AI Foundry e operação." />
+<meta name="author" content="Open Horizons, Agentic DevOps Platform" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Open Horizons · Arquitetura e Execução dos Agentes" />
+<meta property="og:description" content="Deep dive técnico sobre arquitetura, implementação e execução dos agentes no Open Horizons." />
+<title>Open Horizons · Arquitetura e Execução dos Agentes</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2032%2032%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Crect%20x%3D%272%27%20y%3D%272%27%20width%3D%2713%27%20height%3D%2713%27%20fill%3D%27%23F25022%27/%3E%3Crect%20x%3D%2717%27%20y%3D%272%27%20width%3D%2713%27%20height%3D%2713%27%20fill%3D%27%237FBA00%27/%3E%3Crect%20x%3D%272%27%20y%3D%2717%27%20width%3D%2713%27%20height%3D%2713%27%20fill%3D%27%2300A4EF%27/%3E%3Crect%20x%3D%2717%27%20y%3D%2717%27%20width%3D%2713%27%20height%3D%2713%27%20fill%3D%27%23FFB900%27/%3E%3C/svg%3E" />
+<style>
+:root {
+  --ps-color-ms-red-500: #F25022;
+  --ps-color-ms-red-700: #B33816;
+  --ps-color-ms-red-50: #FFF0EA;
+  --ps-color-ms-green-500: #7FBA00;
+  --ps-color-ms-green-700: #5A8500;
+  --ps-color-ms-green-50: #F1F8DE;
+  --ps-color-ms-blue-500: #00A4EF;
+  --ps-color-ms-blue-700: #0078D4;
+  --ps-color-ms-blue-50: #EAF6FD;
+  --ps-color-ms-yellow-500: #FFB900;
+  --ps-color-ms-yellow-700: #B88500;
+  --ps-color-ms-yellow-50: #FFF8E6;
+  --ps-color-bg: #F7F7F8;
+  --ps-color-paper: #FFFFFF;
+  --ps-color-ink: #1B1B1F;
+  --ps-color-ink-2: #51545A;
+  --ps-color-ink-3: #74777F;
+  --ps-color-rule: #E4E6EA;
+  --ps-color-rule-2: #C9CDD4;
+  --ps-color-dark-bg: #111114;
+  --ps-color-dark-surface: #1B1B1F;
+  --ps-color-dark-ink: #F5F7FA;
+  --ps-color-dark-ink-2: #C9CDD4;
+  --ps-color-dark-ink-3: #8D9199;
+  --ps-color-dark-rule: #333842;
+  --ps-font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --ps-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --ps-shadow: 0 16px 38px rgba(17, 24, 39, 0.12);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--ps-color-bg); color: var(--ps-color-ink); font-family: var(--ps-font); }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+a { color: var(--ps-color-ms-blue-700); }
+code, pre { font-family: var(--ps-font-mono); }
+.deck { position: relative; width: 100vw; height: 100vh; }
+.slide {
+  position: absolute; inset: 0;
+  padding: 76px 72px 64px;
+  display: flex; flex-direction: column; justify-content: center;
+  visibility: hidden; opacity: 0; pointer-events: none;
+  transition: opacity 0.18s ease-out;
+}
+.slide[data-active="true"] { visibility: visible; opacity: 1; pointer-events: auto; }
+.slide--light { background: var(--ps-color-bg); color: var(--ps-color-ink); }
+.slide--paper { background: var(--ps-color-paper); color: var(--ps-color-ink); }
+.slide--dark { background: var(--ps-color-dark-bg); color: var(--ps-color-dark-ink); }
+.slide--dark .subtitle, .slide--dark .caption, .slide--dark .body { color: var(--ps-color-dark-ink-2); }
+.slide--dark .eyebrow { color: var(--accent, var(--ps-color-ms-yellow-500)); }
+[data-accent="red"] { --accent: var(--ps-color-ms-red-500); }
+[data-accent="green"] { --accent: var(--ps-color-ms-green-500); }
+[data-accent="blue"] { --accent: var(--ps-color-ms-blue-500); }
+[data-accent="blue-700"] { --accent: var(--ps-color-ms-blue-700); }
+[data-accent="yellow"] { --accent: var(--ps-color-ms-yellow-500); }
+
+.deck-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--ps-color-ms-blue-500); z-index: 200; transition: width 0.25s ease; }
+.deck-brand { position: fixed; top: 22px; left: 22px; display: flex; align-items: center; gap: 10px; z-index: 100; }
+.deck-brand__squares { display: grid; grid-template-columns: 10px 10px; gap: 2px; }
+.deck-brand__squares span { width: 10px; height: 10px; display: block; }
+.deck-brand__squares span:nth-child(1) { background: var(--ps-color-ms-red-500); }
+.deck-brand__squares span:nth-child(2) { background: var(--ps-color-ms-green-500); }
+.deck-brand__squares span:nth-child(3) { background: var(--ps-color-ms-blue-500); }
+.deck-brand__squares span:nth-child(4) { background: var(--ps-color-ms-yellow-500); }
+.deck-brand__text { font-family: var(--ps-font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-2); }
+.deck-meta { position: fixed; top: 22px; right: 22px; z-index: 100; padding: 7px 10px; border: 1px solid var(--ps-color-rule); border-radius: 4px; background: var(--ps-color-paper); font-family: var(--ps-font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.deck-controls { position: fixed; bottom: 22px; right: 22px; display: flex; gap: 6px; z-index: 100; font-family: var(--ps-font-mono); }
+.deck-controls__btn { width: 38px; height: 38px; border: 1px solid var(--ps-color-rule-2); border-radius: 4px; background: var(--ps-color-paper); color: var(--ps-color-ink); font-size: 16px; cursor: pointer; }
+.deck-controls__btn:hover { background: var(--ps-color-ink); color: var(--ps-color-paper); }
+.deck-controls__counter { display: inline-flex; align-items: center; padding: 0 14px; border: 1px solid var(--ps-color-rule-2); border-radius: 4px; background: var(--ps-color-paper); color: var(--ps-color-ink-2); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; }
+body[data-slide-theme="dark"] .deck-brand__text { color: var(--ps-color-dark-ink-2); }
+body[data-slide-theme="dark"] .deck-meta, body[data-slide-theme="dark"] .deck-controls__btn, body[data-slide-theme="dark"] .deck-controls__counter { background: var(--ps-color-dark-surface); border-color: var(--ps-color-dark-rule); color: var(--ps-color-dark-ink-2); }
+body[data-slide-theme="dark"] .deck-controls__btn:hover { background: var(--ps-color-dark-ink); color: var(--ps-color-dark-bg); }
+
+.eyebrow { margin-bottom: 18px; font-family: var(--ps-font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent, var(--ps-color-ms-blue-700)); }
+.title { margin: 0; max-width: 1420px; font-size: clamp(42px, 6vw, 82px); line-height: 0.98; font-weight: 650; letter-spacing: 0; }
+.title--medium { font-size: clamp(32px, 4.2vw, 58px); line-height: 1.05; }
+.title--small { font-size: clamp(27px, 3.2vw, 43px); line-height: 1.12; }
+.section-number { font-family: var(--ps-font-mono); font-size: clamp(90px, 16vw, 180px); line-height: 0.86; font-weight: 700; color: var(--accent, var(--ps-color-ms-blue-500)); }
+.section-title { margin: 20px 0 0; font-size: clamp(44px, 7vw, 94px); line-height: 0.94; font-weight: 700; }
+.subtitle { max-width: 1180px; margin: 22px 0 0; color: var(--ps-color-ink-2); font-size: clamp(19px, 2vw, 28px); line-height: 1.35; }
+.body { max-width: 1160px; color: var(--ps-color-ink-2); font-size: 20px; line-height: 1.48; }
+.caption { margin: 18px 0 0; max-width: 1380px; color: var(--ps-color-ink-3); font-size: 13px; line-height: 1.5; }
+.accent-red { color: var(--ps-color-ms-red-500); }
+.accent-green { color: var(--ps-color-ms-green-500); }
+.accent-blue { color: var(--ps-color-ms-blue-700); }
+.accent-yellow { color: var(--ps-color-ms-yellow-700); }
+
+.meta-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 34px; max-width: 1120px; }
+.meta-item { border-top: 2px solid var(--ps-color-rule-2); padding-top: 10px; }
+.meta-label { display: block; margin-bottom: 4px; font-family: var(--ps-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.meta-value { font-size: 15px; font-weight: 600; line-height: 1.35; }
+
+.grid { display: grid; gap: 14px; margin-top: 22px; }
+.grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.card { border: 1px solid var(--ps-color-rule); border-left: 4px solid var(--card-color, var(--ps-color-ms-blue-500)); border-radius: 8px; padding: 18px; background: var(--ps-color-paper); min-height: 112px; }
+.card--soft { background: var(--card-bg, var(--ps-color-paper)); }
+.card__kicker { margin-bottom: 8px; font-family: var(--ps-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--card-ink, var(--ps-color-ink-3)); }
+.card__title { margin: 0 0 8px; font-size: 18px; line-height: 1.2; font-weight: 650; }
+.card__text { margin: 0; color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.5; }
+.card__list { margin: 0; padding-left: 18px; color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.55; }
+.card[data-card="blue"] { --card-color: var(--ps-color-ms-blue-500); --card-ink: var(--ps-color-ms-blue-700); }
+.card[data-card="blue-700"] { --card-color: var(--ps-color-ms-blue-700); --card-ink: var(--ps-color-ms-blue-700); }
+.card[data-card="green"] { --card-color: var(--ps-color-ms-green-500); --card-ink: var(--ps-color-ms-green-700); }
+.card[data-card="green-700"] { --card-color: var(--ps-color-ms-green-700); --card-ink: var(--ps-color-ms-green-700); }
+.card[data-card="yellow"] { --card-color: var(--ps-color-ms-yellow-500); --card-ink: var(--ps-color-ms-yellow-700); }
+.card[data-card="red"] { --card-color: var(--ps-color-ms-red-500); --card-ink: var(--ps-color-ms-red-700); }
+.card--soft[data-card="blue"] { --card-bg: var(--ps-color-ms-blue-50); }
+.card--soft[data-card="green"] { --card-bg: var(--ps-color-ms-green-50); }
+.card--soft[data-card="yellow"] { --card-bg: var(--ps-color-ms-yellow-50); }
+.card--soft[data-card="red"] { --card-bg: var(--ps-color-ms-red-50); }
+
+.layer-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; max-width: 1240px; }
+.layer-row { display: grid; grid-template-columns: 72px 220px 1fr 210px; gap: 14px; align-items: center; border: 1px solid var(--ps-color-rule); border-left: 5px solid var(--layer-color); border-radius: 8px; background: var(--ps-color-paper); padding: 12px 16px; }
+.layer-row__num { font-family: var(--ps-font-mono); font-size: 14px; font-weight: 800; color: var(--layer-color); }
+.layer-row__name { font-size: 18px; font-weight: 700; }
+.layer-row__desc { color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.45; }
+.layer-row__owner { font-family: var(--ps-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.layer-row[data-layer="red"] { --layer-color: var(--ps-color-ms-red-500); }
+.layer-row[data-layer="green"] { --layer-color: var(--ps-color-ms-green-500); }
+.layer-row[data-layer="blue"] { --layer-color: var(--ps-color-ms-blue-500); }
+.layer-row[data-layer="yellow"] { --layer-color: var(--ps-color-ms-yellow-500); }
+
+.diagram-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr); gap: 18px; align-items: stretch; margin-top: 18px; min-height: 0; }
+.diagram-stage { display: flex; align-items: center; justify-content: center; min-height: 520px; border: 1px solid var(--ps-color-rule); border-radius: 8px; background: var(--ps-color-paper); padding: 16px; overflow: hidden; }
+.diagram-stage img { width: 100%; height: 100%; max-height: 640px; object-fit: contain; display: block; }
+.slide--diagram { justify-content: flex-start; }
+.slide--diagram .title--small { font-size: clamp(26px, 2.75vw, 37px); line-height: 1.08; }
+.slide--diagram .diagram-layout { height: clamp(360px, calc(100vh - 360px), 520px); }
+.slide--diagram .diagram-stage { min-height: 0; }
+.diagram-notes { border-left: 4px solid var(--accent, var(--ps-color-ms-blue-500)); border-radius: 8px; border-top: 1px solid var(--ps-color-rule); border-right: 1px solid var(--ps-color-rule); border-bottom: 1px solid var(--ps-color-rule); background: var(--ps-color-paper); padding: 18px; }
+.diagram-notes h3 { margin: 0 0 12px; font-size: 18px; line-height: 1.2; }
+.diagram-notes ul { margin: 0; padding-left: 18px; color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.6; }
+.diagram-only { margin-top: 18px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--ps-color-rule); border-radius: 8px; background: var(--ps-color-paper); padding: 14px; height: calc(100vh - 220px); }
+.diagram-only img { width: 100%; height: 100%; object-fit: contain; }
+
+.flow { display: flex; align-items: stretch; gap: 10px; margin-top: 22px; }
+.flow-step { flex: 1; min-width: 0; border: 1px solid var(--ps-color-rule); border-top: 4px solid var(--step-color, var(--ps-color-ms-blue-500)); border-radius: 8px; padding: 14px; background: var(--ps-color-paper); }
+.flow-step__num { font-family: var(--ps-font-mono); font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: var(--step-color, var(--ps-color-ms-blue-700)); text-transform: uppercase; }
+.flow-step__title { margin-top: 8px; font-size: 15px; font-weight: 700; line-height: 1.25; }
+.flow-step__text { margin-top: 6px; color: var(--ps-color-ink-2); font-size: 12px; line-height: 1.45; }
+.flow-arrow { display: flex; align-items: center; color: var(--ps-color-ink-3); font-size: 22px; }
+.flow-step[data-step="red"] { --step-color: var(--ps-color-ms-red-500); }
+.flow-step[data-step="green"] { --step-color: var(--ps-color-ms-green-500); }
+.flow-step[data-step="blue"] { --step-color: var(--ps-color-ms-blue-500); }
+.flow-step[data-step="yellow"] { --step-color: var(--ps-color-ms-yellow-500); }
+
+.code-panel { margin-top: 22px; max-width: 1220px; border-radius: 8px; overflow: hidden; background: #151517; box-shadow: var(--ps-shadow); }
+.code-panel__header { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-bottom: 1px solid #303036; background: #202025; color: #AEB4BE; font-family: var(--ps-font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.code-panel__dots { display: inline-flex; gap: 5px; }
+.code-panel__dots span { width: 8px; height: 8px; border-radius: 50%; display: block; }
+.code-panel__dots span:nth-child(1) { background: var(--ps-color-ms-red-500); }
+.code-panel__dots span:nth-child(2) { background: var(--ps-color-ms-yellow-500); }
+.code-panel__dots span:nth-child(3) { background: var(--ps-color-ms-green-500); }
+.code-panel pre { margin: 0; padding: 18px 20px; color: #E6E8EC; font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+.code-comment { color: #858B96; }
+.code-key { color: #77C7FF; }
+.code-good { color: #A6E22E; }
+.code-warn { color: #FFD166; }
+.code-bad { color: #FF8A65; }
+
+.table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--ps-color-paper); border: 1px solid var(--ps-color-rule); border-radius: 8px; overflow: hidden; font-size: 13px; }
+.table th { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--ps-color-rule-2); font-family: var(--ps-font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.table td { padding: 12px 14px; border-bottom: 1px solid var(--ps-color-rule); color: var(--ps-color-ink-2); line-height: 1.45; vertical-align: top; }
+.table tr:last-child td { border-bottom: none; }
+.table b { color: var(--ps-color-ink); }
+
+.notes-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 95; max-height: 32vh; overflow-y: auto; transform: translatéY(100%); transition: transform 0.25s ease; background: rgba(20, 20, 20, 0.97); border-top: 2px solid var(--ps-color-ms-blue-500); padding: 18px 48px 22px; }
+body[data-notes-open="true"] .notes-panel { transform: translatéY(0); }
+body[data-notes-open="true"] .deck-controls { bottom: calc(32vh + 16px); }
+.notes-panel__label { margin-bottom: 8px; color: var(--ps-color-ms-blue-500); font-family: var(--ps-font-mono); font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.notes-panel__body { max-width: 1120px; color: var(--ps-color-dark-ink-2); font-size: 15px; line-height: 1.6; }
+.notes-panel__empty { color: var(--ps-color-dark-ink-3); font-style: italic; }
+.kbd-hint { position: fixed; right: 22px; bottom: 74px; z-index: 99; padding: 8px 14px; border-radius: 4px; background: rgba(26, 26, 26, 0.92); color: var(--ps-color-dark-ink); font-family: var(--ps-font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.kbd-hint[data-visible="true"] { opacity: 1; }
+.kbd-hint kbd { padding: 2px 5px; border: 1px solid rgba(255,255,255,0.35); border-radius: 3px; background: rgba(255,255,255,0.08); font-family: inherit; font-size: 10px; }
+
+.overview { position: fixed; inset: 0; z-index: 180; display: none; overflow-y: auto; background: rgba(247, 247, 248, 0.98); padding: 34px; }
+.overview[data-open="true"] { display: block; }
+.overview__header { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+.overview__title { font-size: 24px; font-weight: 750; }
+.overview__hint { color: var(--ps-color-ink-3); font-family: var(--ps-font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.overview__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.overview-card { min-height: 132px; border: 1px solid var(--ps-color-rule); border-radius: 8px; padding: 12px; background: var(--ps-color-paper); cursor: pointer; text-align: left; }
+.overview-card:hover, .overview-card[data-current="true"] { border-color: var(--ps-color-ms-blue-500); box-shadow: 0 8px 20px rgba(0, 120, 212, 0.13); }
+.overview-card--dark { background: var(--ps-color-dark-bg); color: var(--ps-color-dark-ink); }
+.overview-card__num { display: inline-block; margin-bottom: 10px; font-family: var(--ps-font-mono); font-size: 10px; font-weight: 800; color: var(--ps-color-ms-blue-700); }
+.overview-card__eyebrow { display: block; margin-bottom: 8px; font-family: var(--ps-font-mono); font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ps-color-ink-3); }
+.overview-card__title { font-size: 14px; line-height: 1.25; font-weight: 700; }
+body[data-overview-open="true"] .deck-brand, body[data-overview-open="true"] .deck-meta, body[data-overview-open="true"] .deck-progress, body[data-overview-open="true"] .deck-controls, body[data-overview-open="true"] .kbd-hint { display: none; }
+
+.references { margin-top: 20px; max-width: 1280px; columns: 2; column-gap: 28px; }
+.references li { break-inside: avoid; margin: 0 0 10px; color: var(--ps-color-ink-2); font-size: 13px; line-height: 1.45; }
+
+@media (max-width: 700px) {
+  .slide { padding: 68px 38px 58px; }
+  .grid--4, .grid--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .diagram-layout { grid-template-columns: 1fr; }
+  .diagram-stage { min-height: 360px; }
+  .layer-row { grid-template-columns: 56px 180px 1fr; }
+  .layer-row__owner { display: none; }
+}
+@media (max-width: 760px) {
+  html, body { overflow: auto; }
+  .deck { height: auto; }
+  .slide { position: relative; min-height: 100vh; padding: 72px 22px 72px; display: none; }
+  .slide[data-active="true"] { display: flex; }
+  .meta-grid, .grid--2, .grid--3, .grid--4, .grid--5 { grid-template-columns: 1fr; }
+  .flow { flex-direction: column; }
+  .flow-arrow { justify-content: center; transform: rotaté(90deg); }
+  .deck-brand__text, .deck-meta { display: none; }
+  .references { columns: 1; }
+}
+@media print {
+  html, body { overflow: visible; }
+  .slide { position: relative; visibility: visible; opacity: 1; page-break-after: always; min-height: 100vh; }
+  .deck-brand, .deck-meta, .deck-progress, .deck-controls, .notes-panel, .overview, .kbd-hint { display: none !important; }
+}
+</style>
+</head>
+<body data-slide-theme="light" data-notes-open="false" data-overview-open="false">
+<div class="deck-progress" id="progress"></div>
+<div class="deck-brand" aria-hidden="true">
+  <div class="deck-brand__squares"><span></span><span></span><span></span><span></span></div>
+  <span class="deck-brand__text">Open Horizons | Agentic DevOps Platform</span>
+</div>
+<div class="deck-meta">PT-BR · Arquitetura</div>
+
+<main class="deck" id="deck">
+  <section class="slide slide--light" data-active="true" data-accent="blue-700" data-notes="Abra posicionando o deck como uma revisão técnica. A promessa aqui não é vender o conceito; é mostrar como o Open Horizons é implementado, onde cada capacidade mora, e como a execução dos agentes é governada.">
+    <div class="eyebrow">Open Horizons · Deep dive técnico</div>
+    <h1 class="title">Arquitetura e <span class="accent-blue">execução dos agentes</span>.</h1>
+    <p class="subtitle">Como o acelerador matérializa Backstage OSS, Azure, GitHub, Azure AI Foundry, MCP, guardrails e observabilidade em uma plataforma operável.</p>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Autora</span><span class="meta-value">Open Horizons</span></div>
+      <div class="meta-item"><span class="meta-label">Audiência</span><span class="meta-value">Arquitetura, plataforma, SRE, segurança e AI engineering</span></div>
+      <div class="meta-item"><span class="meta-label">Duração</span><span class="meta-value">45 a 60 minutos</span></div>
+      <div class="meta-item"><span class="meta-label">Data</span><span class="meta-value">2026-06-18</span></div>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="blue-700" data-notes="Mostre a estrutura. Este deck acompanhá o template visual do deck principal, mas troca a narrativa comercial por uma revisão técnica orientada a implementação.">
+    <div class="eyebrow">Mapa do deep dive</div>
+    <h2 class="title title--small">Quatro atos. Um objetivo: sair sabendo <span class="accent-green">como a plataforma funciona por dentro</span>.</h2>
+    <div class="grid grid--4">
+      <div class="card" data-card="blue"><div class="card__kicker">Ato 1</div><h3 class="card__title">Modelo de referência</h3><p class="card__text">Horizons, camadas, fronteiras do sistema e diagramas oficiais de arquitetura.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">Ato 2</div><h3 class="card__title">Implementação da plataforma</h3><p class="card__text">Terraform, AKS, Backstage, ArgoCD, observabilidade, políticas e repo map.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Ato 3</div><h3 class="card__title">Runtime agêntico</h3><p class="card__text">Agent API, roteamento, loop de tool calls, hooks, trajetórias, custos, MCP e Foundry.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">Ato 4</div><h3 class="card__title">Operação e revisão</h3><p class="card__text">Fluxo ponta a ponta, rollout H1/H2/H3, segurança, observabilidade e checklist de arquitetura.</p></div>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="green" data-notes="Este slide define o criterio de sucesso. Arquitetura boa aqui significa controle operacional sobre infraestrutura, plataforma, contexto, intenção e execução agêntica.">
+    <div class="eyebrow">Tese de arquitetura</div>
+    <h2 class="title title--small">Open Horizons é uma arquitetura para tornar agentes <span class="accent-green">executáveis, governados e auditáveis</span>.</h2>
+    <div class="grid grid--5">
+      <div class="card" data-card="blue"><div class="card__kicker">01</div><h3 class="card__title">Fundação segura</h3><p class="card__text">AKS, rede privada, identidade, Key Vault, políticas e observabilidade desde H1.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">02</div><h3 class="card__title">IDP operável</h3><p class="card__text">Backstage OSS como produto interno: catálogo, Golden Paths, TechDocs e status.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">03</div><h3 class="card__title">Contexto controlado</h3><p class="card__text">MCP, memória, cache, skills e RAG com budget de contexto e fronteiras claras.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">04</div><h3 class="card__title">Intencao explicita</h3><p class="card__text">SDD, CONSTITUTION.md, model routing e scope guard antes da implementação.</p></div>
+      <div class="card" data-card="blue-700"><div class="card__kicker">05</div><h3 class="card__title">Execução rastreavel</h3><p class="card__text">Trajetoria, custos, hooks, telemetria GenAI e evidencia para revisão.</p></div>
+    </div>
+  </section>
+
+  <section class="slide slide--dark" data-accent="blue" data-notes="Transicao para o modelo. Use este bloco para alinhár linguagem antes de entrar nos diagramas.">
+    <div class="eyebrow">Ato 1</div>
+    <div class="section-number">01</div>
+    <h1 class="section-title">Modelo de referência.</h1>
+    <p class="subtitle">Horizons, camadas, atores e fronteiras do sistema antes de discutir qualquer implementação.</p>
+  </section>
+
+  <section class="slide slide--paper" data-accent="blue-700" data-notes="Explique que H1/H2/H3 são estágios de adoção e as camadas são responsabilidades arquiteturais. L6 é o harness operacional que torna chamadas de modelo governáveis.">
+    <div class="eyebrow">Horizons e camadas</div>
+    <h2 class="title title--small">Tres horizontes de adoção. Seis responsabilidades operacionais.</h2>
+    <div class="layer-stack">
+      <div class="layer-row" data-layer="red"><div class="layer-row__num">L6</div><div class="layer-row__name">Harness</div><div class="layer-row__desc">Gateway Foundry, cache semântico, A2A, telemetria, memória enterprise e controle de custo por chamada.</div><div class="layer-row__owner">H3 · SRE/FinOps/Sec</div></div>
+      <div class="layer-row" data-layer="yellow"><div class="layer-row__num">L5</div><div class="layer-row__name">Agentic Execution</div><div class="layer-row__desc">Agent API, agentes runtime, tool loop, trajetórias, cost tracker e hooks no choke point.</div><div class="layer-row__owner">H3 · AI Platform</div></div>
+      <div class="layer-row" data-layer="red"><div class="layer-row__num">L4</div><div class="layer-row__name">Intent Engineering</div><div class="layer-row__desc">CONSTITUTION.md, SDD, EARS, scope guard e model routing por fase do SDLC.</div><div class="layer-row__owner">H3 · Product/Architecture</div></div>
+      <div class="layer-row" data-layer="yellow"><div class="layer-row__num">L3</div><div class="layer-row__name">Context Engineering</div><div class="layer-row__desc">MCP servers, skills, memória, cache, RAG, Shared Context Store e curadoria de contexto.</div><div class="layer-row__owner">H3 · AI Engineering</div></div>
+      <div class="layer-row" data-layer="green"><div class="layer-row__num">L2</div><div class="layer-row__name">Platform Engineering</div><div class="layer-row__desc">Backstage, Golden Paths, ArgoCD, observabilidade, políticas, workflows e experiência do desenvolvedor.</div><div class="layer-row__owner">H2 · Platform</div></div>
+      <div class="layer-row" data-layer="blue"><div class="layer-row__num">L1</div><div class="layer-row__name">Cloud/Infrastructure</div><div class="layer-row__desc">Terraform, AKS, rede, identidade, ACR, Key Vault, banco, storage, monitoramento e recovery.</div><div class="layer-row__owner">H1 · Cloud</div></div>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Use o diagrama de overview para orientar a conversa. Não entre em detalhes ainda; a função deste slide é mostrar a separação H1/H2/H3 e o modelo operacional.">
+    <div class="eyebrow">Diagrama 1 · Architecture Overview</div>
+    <h2 class="title title--small">A arquitetura separa fundação, plataforma, inovação agêntica e modelo operacional.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/architecture-overview.svg" alt="Open Horizons architecture overview diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Como apresentar</h3><ul><li>H3 depende de H2 e H1, mas é habilitado por gate.</li><li>H2 é a camada de produto interno: Backstage, GitOps, Golden Paths e operação.</li><li>H1 é a fundação segura em Azure.</li><li>O modelo operacional faz parte da arquitetura, não é apêndice.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="green" data-notes="Mostre quem conversa com o sistema: desenvolvedores, platform engineers, agentes runtime, GitHub, ADO, Backstage, ArgoCD, AKS e Foundry.">
+    <div class="eyebrow">Diagrama 2 · System Context</div>
+    <h2 class="title title--small">A fronteira do sistema inclui pessoas, agentes, sistemas de engenhária e runtime Azure.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/system-context.svg" alt="Open Horizons system context diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Checks arquiteturais</h3><ul><li>GitHub e Azure DevOps são integrações de primeira classe.</li><li>Backstage é o plano de experiência.</li><li>ArgoCD é o plano de reconciliação.</li><li>Telemetria e governança agêntica estão dentro da fronteira.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--dark" data-accent="green" data-notes="Transicao para a implementação das camadas H1 e H2. Agora o discurso sai do modelo e entra no que e provisionado e operado.">
+    <div class="eyebrow">Ato 2</div>
+    <div class="section-number">02</div>
+    <h1 class="section-title">Implementação da plataforma.</h1>
+    <p class="subtitle">Como H1 e H2 saem do desenho para Terraform, Kubernetes, GitOps, Backstage e observabilidade.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue" data-notes="H1 é o slide para cloud, segurança e rede. Destaque que aqui ficam as dependências para qualquer coisa acima funcionar com segurança.">
+    <div class="eyebrow">Diagrama 3 · H1 Foundation</div>
+    <h2 class="title title--small">A fundação H1 entrega o runtime Azure seguro para o resto da plataforma.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h1-foundation.svg" alt="H1 foundation architecture diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Planos H1</h3><ul><li>Network edge, hub-spoke, firewall e private endpoints.</li><li>Entra ID, Key Vault, Managed Identity e Defender.</li><li>ACR, PostgreSQL, Storage e Purview.</li><li>AKS, runners, External Secrets, Policy e OPA.</li><li>Azure Monitor, Log Analytics, App Insights e recovery.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="blue" data-notes="Conecte o diagrama ao repositorio. Estes são os modulos reais que implementam H1 e os modulos de suporte H2.">
+    <div class="eyebrow">H1 em código</div>
+    <h2 class="title title--small">Terraform e o contrato de infraestrutura reproduzivel.</h2>
+    <div class="grid grid--4">
+      <div class="card" data-card="blue"><div class="card__kicker">Runtime</div><h3 class="card__title">AKS + ACR</h3><p class="card__text">`aks-cluster` e `container-registry` criam o plano de execução, identidade e imagens aprovadas.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">Rede</div><h3 class="card__title">Networking</h3><p class="card__text">VNet, subnets, NSGs, private endpoints e caminho de egress controlado.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Segurança</div><h3 class="card__title">Key Vault + identity</h3><p class="card__text">Managed Identity e Workload Identity substituem segredo estático em pod.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">Dados</div><h3 class="card__title">PostgreSQL + Storage</h3><p class="card__text">Estado do Backstage, artefatos, catálogo e integrações persistentes.</p></div>
+    </div>
+    <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>terraform/modules</div><pre><code>aks-cluster · networking · container-registry · databases · security
+ai-foundry · observability · argocd · backstage · cost-management
+defender · disaster-recovery · external-secrets · github-runners · naming · purview</code></pre></div>
+  </section>
+
+  <section class="slide slide--light" data-accent="red" data-notes="Este slide é para segurança e rede. Destaque o fluxo de identidade e a ausência de segredos de longa duração no caminho alvo.">
+    <div class="eyebrow">Diagrama 4 · H1 Network and Security Detail</div>
+    <h2 class="title title--small">Rede privada, identidade federada e política preventiva reduzem a superfície de ataque.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h1-network-security-detail.svg" alt="H1 network and security detail diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Validar na revisão</h3><ul><li>Private DNS para Key Vault, ACR, PostgreSQL, Storage e AI services.</li><li>Egress via Azure Firewall para runners e workloads agênticos.</li><li>NetworkPolicy por namespace, inclusive tráfego MCP/tool.</li><li>RBAC de Key Vault estreito e auditável.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="green" data-notes="H2 é a camada em que a plataforma vira produto para desenvolvedores e operadores. Mostre que Backstage não está sozinho; ele orquestra catálogo, templates, docs, status e integrações.">
+    <div class="eyebrow">Diagrama 5 · H2 Enhancement</div>
+    <h2 class="title title--small">H2 transforma infraestrutura em produto interno: portal, GitOps, Golden Paths e operação.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h2-enhancement.svg" alt="H2 enhancement architecture diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Planos H2</h3><ul><li>Source e CI/CD: GitHub, Actions, GHCR e security scanning.</li><li>GitOps: ArgoCD, sync waves, drift e health.</li><li>Portal: Backstage OSS, catálogo, TechDocs e Golden Paths.</li><li>Observabilidade: Prometheus, Grafana, Loki e Alertmanager.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="yellow" data-notes="O foco aqui é o ciclo de entrega. O importante é mostrar desired state, sync waves, health checks e feedback operacional.">
+    <div class="eyebrow">Diagrama 6 · H2 GitOps and Observability</div>
+    <h2 class="title title--small">A entrega é declarativa: source muda, CI valida, ArgoCD reconcilia, observabilidade fecha o loop.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h2-gitops-observability-detail.svg" alt="H2 GitOps and observability detail diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Fluxo</h3><ul><li>Build, teste e scan antes de atualizar estádo desejado.</li><li>Imagem imutável por digest no manifesto ou Helm values.</li><li>Sync waves aplicam recursos na ordem correta.</li><li>Prometheus, Loki, Grafana e Alertmanager criam a evidencia operacional.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="green" data-notes="Use este mapa para ajudar arquitetos a encontrar o código depois da apresentação. É também uma defesa de separação de responsabilidades no repo.">
+    <div class="eyebrow">Mapa de implementação</div>
+    <h2 class="title title--small">Cada responsabilidade arquitetural tem um endereco no repositorio.</h2>
+    <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>repo map</div><pre><code>terraform/modules/                 <span class="code-comment"># L1 Azure infrastructure modules</span>
+backstage/                         <span class="code-comment"># L2 Backstage OSS portal, plugins, k8s manifests</span>
+argocd/                            <span class="code-comment"># L2 GitOps apps, sync policies, app-of-apps</span>
+policies/                          <span class="code-comment"># L2/L1 OPA, Gatekeeper, Terraform policy checks</span>
+golden-paths/                      <span class="code-comment"># L2 software templates and SDD artefatos</span>
+mcp-servers/                       <span class="code-comment"># L3 MCP ecosystem tools</span>
+.github/agents/ .github/skills/    <span class="code-comment"># L3/L5 Copilot agents and skill knowledge</span>
+backstage/server/agent-api*/       <span class="code-comment"># L5 Agent APIs and middleware</span>
+foundry/agents-service/            <span class="code-comment"># L6 Foundry gateway harness</span>
+grafana/ prometheus/               <span class="code-comment"># observability and alerting</span></code></pre></div>
+  </section>
+
+  <section class="slide slide--dark" data-accent="yellow" data-notes="Agora entramos no motor agêntico. Prepare a audiencia para olhár o runtime como sistema distribuído, não como prompt solto.">
+    <div class="eyebrow">Ato 3</div>
+    <div class="section-number">03</div>
+    <h1 class="section-title">Runtime dos agentes.</h1>
+    <p class="subtitle">Do clique no portal até a chamada de modelo, tool call, governança, telemetria e resposta em streaming.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Mostre que há múltiplos entry points. O portal é uma superfície; os backends agênticos são serviços com portas e contratos claros.">
+    <div class="eyebrow">Entry points reais</div>
+    <h2 class="title title--small">O runtime agêntico é exposto por APIs especializadas e um gateway Foundry.</h2>
+    <table class="table" aria-label="Open Horizons runtime entry points">
+      <thead><tr><th>Superficie</th><th>Entrada</th><th>Porta / protocolo</th><th>Funcao</th></tr></thead>
+      <tbody>
+        <tr><td><b>Backstage portal</b></td><td>backstage/packages/app/</td><td>7007</td><td>Experiência do usuário: catálogo, TechDocs, AI Chat, AI Impact e operação.</td></tr>
+        <tr><td><b>Agent API</b></td><td>backstage/server/agent-api/main.py</td><td>8008</td><td>Multi-agent chat, router, SSE, trajetoria, custo e hooks.</td></tr>
+        <tr><td><b>Agent API Impact</b></td><td>backstage/server/agent-api-impact/main.py</td><td>8011</td><td>Analise de impacto e experiências AI Impact.</td></tr>
+        <tr><td><b>MAF / SK APIs</b></td><td>backstage/server/agent-api-maf/ · agent-api-sk/</td><td>8012 / 8013</td><td>Superficies para Microsoft Agent Framework e Semantic Kernel.</td></tr>
+        <tr><td><b>MCP Ecosystem</b></td><td>mcp-servers/src/index.ts</td><td>stdio</td><td>Ferramentas de documentacao, catálogo, Backstage, GitHub e referência.</td></tr>
+        <tr><td><b>Foundry gateway</b></td><td>foundry/agents-service/app/main.py</td><td>OpenAI-compatible API</td><td>Harness L6 para chamadas Foundry, cache, A2A, toolbox, memória e telemetria.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide slide--paper" data-accent="yellow" data-notes="Este e o fluxo central do Agent API. Leia de cima para baixo e enfatize os pontos de governança: trajectory before, cost start, execute tool com hook, cost finish, trajectory after.">
+    <div class="eyebrow">Fluxo real · Agent API</div>
+    <h2 class="title title--small">`POST /api/agents/chat` executa roteamento, loop agêntico, hooks e streaming SSE.</h2>
+    <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>Agent API core flow</div><pre><code>POST /api/agents/chat
+  -&gt; router.detect_agent(message)       <span class="code-comment"># @mention &gt; keyword &gt; orchestrator</span>
+  -&gt; TrajectoryMiddleware.before()      <span class="code-comment"># intent + context snapshot</span>
+  -&gt; CostTracker.start()                <span class="code-comment"># begin token accounting</span>
+  -&gt; BaseAgent.hándle(message)          <span class="code-comment"># agentic loop</span>
+      -&gt; Azure OpenAI chat.completions
+      -&gt; tool_call? -&gt; _execute_tool()
+          -&gt; tool_hooks.pre_tool_use()  <span class="code-comment"># classify, block, audit</span>
+          -&gt; tool_executor(name, args)
+          -&gt; tool_hooks.post_tool_use() <span class="code-comment"># redact, truncaté</span>
+      -&gt; loop until no tool_calls
+  -&gt; CostTracker.finish()
+  -&gt; TrajectoryMiddleware.after()
+  -&gt; SSE stream to frontend             <span class="code-comment"># agent | text | tool_use | tool_result | done</span></code></pre></div>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue" data-notes="Explique que o roteador evita um agente universal para tudo. A escolhá pode vir explicita por request.agent, por @mention, por keyword, ou cair no orchestrator.">
+    <div class="eyebrow">Roteamento</div>
+    <h2 class="title title--small">O router escolhe o agente antes do modelo receber o contexto.</h2>
+    <div class="flow">
+      <div class="flow-step" data-step="blue"><div class="flow-step__num">01</div><div class="flow-step__title">Override explicito</div><div class="flow-step__text">Se a request traz `agent` valido, o backend usa esse agente.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="green"><div class="flow-step__num">02</div><div class="flow-step__title">@mention</div><div class="flow-step__text">`@pipeline`, `@security`, `@sre` e outros nomes direcionam a conversa.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="yellow"><div class="flow-step__num">03</div><div class="flow-step__title">Keyword match</div><div class="flow-step__text">O router detecta intenção por palavras-cháve do `AgentConfig`.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="red"><div class="flow-step__num">04</div><div class="flow-step__title">Fallback</div><div class="flow-step__text">Sem match, o `orchestrator` assume a conversa.</div></div>
+    </div>
+    <div class="grid grid--4">
+      <div class="card" data-card="blue"><div class="card__kicker">pipeline</div><p class="card__text">Diagnóstico de CI/CD via GitHub workflow runs e jobs.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">sentinel</div><p class="card__text">Quality gates, checks, cobertura e status de PR.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">guardian</div><p class="card__text">Segurança, advisories, Dependabot e postura.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">forge</div><p class="card__text">Infraestrutura, repositorios, branches e automação.</p></div>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="green" data-notes="Mostre o BaseAgent como mecanismo comum. Todos os agentes herdam a mesma logica e por isso o choke point de tool execution funciona para a frota inteira.">
+    <div class="eyebrow">Loop agêntico</div>
+    <h2 class="title title--small">`BaseAgent.hándle()` executa um ciclo: prompt, modelo, tools, resultado, repeticao.</h2>
+    <div class="flow">
+      <div class="flow-step" data-step="blue"><div class="flow-step__num">Sistema</div><div class="flow-step__title">System prompt</div><div class="flow-step__text">O `AgentConfig` injeta persona, limites e ferramentas.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="yellow"><div class="flow-step__num">Modelo</div><div class="flow-step__title">Chat completion</div><div class="flow-step__text">A chamada inclui histórico, temperatura, budget e tool definitions.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="red"><div class="flow-step__num">Tools</div><div class="flow-step__title">Tool calls</div><div class="flow-step__text">Cada chamada passa por `_execute_tool()` antes de chegar no executor.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="green"><div class="flow-step__num">Final</div><div class="flow-step__title">No more tools</div><div class="flow-step__text">Quando não há tool calls, a resposta final e enviada ao frontend.</div></div>
+    </div>
+    <p class="caption">A propriedade arquitetural importante: o loop e comum para a frota. Isso permite hooks, auditoria e sanitização uniformes.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="red" data-notes="Este é um dos slides mais importantes. A governança não depende de cada agente lembrar de se comportar bem; ela está no caminho único de execução de ferramenta.">
+    <div class="eyebrow">Governança de tool use</div>
+    <h2 class="title title--small">Todo tool call passa pelo mesmo choke point: `BaseAgent._execute_tool()`.</h2>
+    <div class="grid grid--2">
+      <div class="card card--soft" data-card="red"><div class="card__kicker">preToolUse</div><h3 class="card__title">Antes de executar</h3><ul class="card__list"><li>Classifica tool como read-only, mutating ou unknown.</li><li>Bloqueia padrões perigosos: path traversal, `rm -rf`, force push, `terraform destroy`, `kubectl delete --all`, SQL destrutivo.</li><li>Audita mutações e decisões de risco.</li><li>`AGENT_HOOKS_ENFORCE=false` permite rollout em modo warning.</li></ul></div>
+      <div class="card card--soft" data-card="blue"><div class="card__kicker">postToolUse</div><h3 class="card__title">Depois de executar</h3><ul class="card__list"><li>Redige tokens, chaves, JWTs, private keys e connection strings.</li><li>Trunca payloads grandes antes de voltarem ao modelo.</li><li>Registra eventos de sanitização.</li><li>Espelha a política do gateway Foundry.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="yellow" data-notes="Trajetoria e custo são o black box recorder. Sem isso, não existe revisão confiavel de comportamento agêntico.">
+    <div class="eyebrow">Trajetoria, custo e SSE</div>
+    <h2 class="title title--small">A resposta do agente é também um registro operacional.</h2>
+    <div class="grid grid--3">
+      <div class="card" data-card="green"><div class="card__kicker">Trajectory</div><h3 class="card__title">O que aconteceu</h3><p class="card__text">`trajectory_logger.start`, tool calls, tool results, outcome e snapshot de contexto.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Cost tracker</div><h3 class="card__title">Quanto custou</h3><p class="card__text">Tokens de entrada e saída por agente, modelo e trajectory id.</p></div>
+      <div class="card" data-card="blue"><div class="card__kicker">SSE</div><h3 class="card__title">Como chega no portal</h3><p class="card__text">Chunks `agent`, `text`, `tool_use`, `tool_result`, `done` e `error` via `text/event-stream`.</p></div>
+    </div>
+    <div class="code-panel"><div class="code-panel__header"><span class="code-panel__dots"><span></span><span></span><span></span></span>observability endpoints</div><pre><code>GET /api/agents/trajectories
+GET /api/agents/trajectories/{agent_name}
+GET /api/agents/costs
+GET /api/agents/costs/{agent_name}
+GET /api/agents/context
+GET /api/agents/hooks
+GET /api/agents/hooks/audit</code></pre></div>
+  </section>
+
+  <section class="slide slide--dark" data-accent="yellow" data-notes="Transicao para contexto e Foundry. Esta parte explica como o agente sabe, lembra, chama ferramentas e passa pelo harness.">
+    <div class="eyebrow">Ato 4</div>
+    <div class="section-number">04</div>
+    <h1 class="section-title">Contexto, MCP e Foundry.</h1>
+    <p class="subtitle">Como a plataforma controla o que o agente pode saber, chamar, lembrar e gastar.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="yellow" data-notes="Context engineering é a diferença entre uma demo e um sistema operável. Reforce a separação entre fatos, memória curta, memória longa e ferramentas.">
+    <div class="eyebrow">Context engineering</div>
+    <h2 class="title title--small">O agente não recebe contexto infinito. Ele recebe contexto curado.</h2>
+    <div class="grid grid--4">
+      <div class="card" data-card="blue"><div class="card__kicker">Hot</div><h3 class="card__title">Instrucoes sempre carregadas</h3><p class="card__text">Copilot instructions, AGENTS.md, CODEMAP e contratos de execução.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">Warm</div><h3 class="card__title">Skill e memória de sessão</h3><p class="card__text">Skills carregadas sob demanda e Shared Context Store com TTL.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Cold</div><h3 class="card__title">RAG e memória duravel</h3><p class="card__text">AI Search, Redis, Cosmos memory e stores classificados.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">Bounded</div><h3 class="card__title">Budget de janela</h3><p class="card__text">Recupera, ranqueia, compacta e evita tool/context sprawl.</p></div>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="blue" data-notes="O toolbox agrega capacidades. A política de aprovacao e auth mode vira metadado do catálogo de ferramentas, não memória tribal.">
+    <div class="eyebrow">MCP e Toolbox</div>
+    <h2 class="title title--small">Ferramentas são catalogadas, catégorizadas é governadas antes de chegar ao agente.</h2>
+    <div class="grid grid--4">
+      <div class="card" data-card="blue"><div class="card__kicker">mcp</div><h3 class="card__title">Servidores MCP</h3><p class="card__text">Azure, AKS, Foundry, Backstage, GitHub, Terraform, Playwright, filesystem e outros.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">builtin</div><h3 class="card__title">Foundry built-ins</h3><p class="card__text">Web Search, File Search, Azure AI Search e Code Interpreter.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">openapi</div><h3 class="card__title">Wrappers OpenAPI</h3><p class="card__text">Catégoria pronta para contratos de API descritos e versionados.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">a2a</div><h3 class="card__title">Agent-to-Agent</h3><p class="card__text">Especialistas acessíveis por protocolo A2A v1.0 com contexto de trace.</p></div>
+    </div>
+    <p class="caption">Cada tool carrega `require_approval` e `auth`: managed identity, OAuth passthrough, key ou local. Key-based auth exige dono de rotacao.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="yellow" data-notes="Este e o diagrama H3 principal. Mostre que H3 não e so modelo: tem portal, runtime, contexto, governança e Foundry.">
+    <div class="eyebrow">Diagrama 7 · H3 Innovation</div>
+    <h2 class="title title--small">H3 adiciona runtime agêntico, contexto, governança e Azure AI Foundry.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h3-innovation.svg" alt="H3 innovation architecture diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Planos H3</h3><ul><li>Experiência: AI Chat, AI Impact e GitHub Copilot.</li><li>Runtime: Agent API, model router, orchestrator e MCP.</li><li>Contexto: Shared Context Store, memory tiers, Redis e skills.</li><li>Governança: trajetórias, custo, identidade e safety.</li><li>Foundry: Azure OpenAI, AI Search e App Insights.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="red" data-notes="Este e o fluxo mais importante para entender execução de agente. Leia os passos de controle: identity, routing, cache, context, safety, model, telemetry, response.">
+    <div class="eyebrow">Diagrama 8 · H3 Agent Flow Detail</div>
+    <h2 class="title title--small">Uma request agêntica passa por roteamento, cache, memória, RAG, tools, guardrails, inferência e telemetria.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/h3-agent-flow-detail.svg" alt="H3 agent flow detail diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Sequência</h3><ul><li>Valida request e identidade.</li><li>Seleciona modelo por tarefa.</li><li>Consulta cache semântico e estádo curto.</li><li>Curadoria via AI Search e MCP.</li><li>Aplica safety e scope antes de tool/model.</li><li>Persiste trajetoria, custo e OpenTelemetry.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="red" data-notes="Use ADR-0002 como justificativa: o harness standalone torna as chamadas de modelo governáveis e escaláveis fora de um backend específico.">
+    <div class="eyebrow">L6 Harness</div>
+    <h2 class="title title--small">O `foundry-agents` gateway é o controle operacional das chamadas Foundry.</h2>
+    <div class="grid grid--3">
+      <div class="card" data-card="blue"><div class="card__kicker">API</div><h3 class="card__title">OpenAI-compatible</h3><p class="card__text">`/v1/chat/completions`, `/v1/agents/{agent_id}/chat`, `/v1/models`, `/v1/agents`.</p></div>
+      <div class="card" data-card="green"><div class="card__kicker">Cache</div><h3 class="card__title">Hierarchical cache</h3><p class="card__text">Cache exato e semântico com escopo por tenant, projeto, sessão e modelo.</p></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">A2A</div><h3 class="card__title">Agent hándoff</h3><p class="card__text">Headers de trace, cadeia de agentes, lineage Purview e profundidade do hop.</p></div>
+      <div class="card" data-card="red"><div class="card__kicker">Tool hooks</div><h3 class="card__title">pre/postToolUse</h3><p class="card__text">Aprovação humana, budget gate, validação de argumentos, cache hit e audit.</p></div>
+      <div class="card" data-card="blue-700"><div class="card__kicker">Telemetry</div><h3 class="card__title">llm.call.completed</h3><p class="card__text">Atributos GenAI para App Insights, incluindo token usage, laténcia, agent id e tool calls.</p></div>
+      <div class="card" data-card="green-700"><div class="card__kicker">Memory</div><h3 class="card__title">Enterprise memory</h3><p class="card__text">Cosmos memory, AAD-only, probe operacional e auditoria de acesso classificado.</p></div>
+    </div>
+    <p class="caption">ADR-0002: o harness standalone escala, é auditado e pode ser protegido por NetworkPolicy separada do backend de agente.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Roteamento de modelo e custo deve ser decisão arquitetural, não preferência manual do operador. Aqui mostramos a política declarativa em .github/model-routing.yaml.">
+    <div class="eyebrow">Model routing por SDLC</div>
+    <h2 class="title title--small">O modelo certo depende da fase, do risco e da clareza do escopo.</h2>
+    <table class="table" aria-label="Model routing policy by SDLC pháse">
+      <thead><tr><th>Fase</th><th>Modo</th><th>Tier</th><th>Quando usar</th></tr></thead>
+      <tbody>
+        <tr><td><b>specification</b></td><td>ask</td><td>high-capability</td><td>Requisitos ambiguos, incompletos ou contraditorios.</td></tr>
+        <tr><td><b>architecture</b></td><td>ask</td><td>high-capability</td><td>Planejamento multi-arquivo, desenho de sistema e ADR.</td></tr>
+        <tr><td><b>tdd_spec</b></td><td>edit</td><td>mid-tier</td><td>Casos de teste a partir de especificacao clara.</td></tr>
+        <tr><td><b>implementation</b></td><td>agent</td><td>mid-tier</td><td>Feature code com plano aprovado e escopo claro.</td></tr>
+        <tr><td><b>docstrings / summarization</b></td><td>ask</td><td>cost-optimized</td><td>Tarefas pequenas, repetitivas e bem definidas.</td></tr>
+        <tr><td><b>code_review</b></td><td>ask</td><td>high-capability</td><td>Revisão de qualidade e segurança em PR pronto.</td></tr>
+      </tbody>
+    </table>
+    <p class="caption">Fonte local: `.github/model-routing.yaml`. A política registra fase, modo, modelos candidatos, tier, custo relativo e criterio de uso.</p>
+  </section>
+
+  <section class="slide slide--dark" data-accent="green" data-notes="Transicao para o caminho ponta a ponta. Aqui juntamos plataforma, runtime agêntico e operação.">
+    <div class="eyebrow">Ato 5</div>
+    <div class="section-number">05</div>
+    <h1 class="section-title">Execução ponta a ponta.</h1>
+    <p class="subtitle">Do Golden Path ao deploy, do deploy ao AI Chat, do AI Chat a telemetria e governança.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="green" data-notes="Este é o slide de caminho crítico. Ele mostra o que precisa funcionar em conjunto para uma experiência completa.">
+    <div class="eyebrow">Diagrama 9 · Critical Path Sequence</div>
+    <h2 class="title title--small">O caminho crítico conecta scaffold, CI/CD, GitOps, runtime e resposta agêntica.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/sequence-golden-path.svg" alt="Critical path sequence diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Sequência</h3><ul><li>Developer abre um Golden Path.</li><li>Backstage cria repo e metadados.</li><li>GitHub ou ADO executa CI/CD.</li><li>ArgoCD reconcilia para AKS.</li><li>Status volta ao Backstage.</li><li>AI Chat chama Agent API e Foundry.</li><li>Resposta e telemetria retornam ao usuário.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Este slide ajuda em clientes hibridos. O ponto e que Open Horizons não assume que todos ja migraram para GitHub-only.">
+    <div class="eyebrow">Diagrama 10 · Hybrid Azure DevOps + GitHub</div>
+    <h2 class="title title--small">A arquitetura suporta coexistencia GitHub + Azure DevOps sem quebrar catálogo e operação.</h2>
+    <div class="diagram-layout">
+      <div class="diagram-stage"><img src="../assets/architecture/hybrid-devops-github.svg" alt="Hybrid Azure DevOps and GitHub diagram" /></div>
+      <aside class="diagram-notes" aria-label="Notas do diagrama"><h3>Cenários</h3><ul><li>A: GitHub Repos + Azure Pipelines + Azure Boards.</li><li>B: Azure Repos + Azure Pipelines + Azure Boards.</li><li>C: GitHub Repos + GitHub Actions + GitHub Issues ou tracker externo.</li><li>Backstage normaliza metadados para o catálogo.</li></ul></aside>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="green" data-notes="Fale sobre rollback e sincronismo. Nem tudo e sincrono, e isso precisa estár explicito na arquitetura.">
+    <div class="eyebrow">Entrega e rollback</div>
+    <h2 class="title title--small">A execução de deploy é controlada por desired state, health checks e evidencias.</h2>
+    <div class="flow">
+      <div class="flow-step" data-step="blue"><div class="flow-step__num">01</div><div class="flow-step__title">Change</div><div class="flow-step__text">Código, chart, manifesto, plugin ou template muda via PR.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="green"><div class="flow-step__num">02</div><div class="flow-step__title">Validate</div><div class="flow-step__text">CI executa build, testes, scans e policy gates.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="yellow"><div class="flow-step__num">03</div><div class="flow-step__title">Desired state</div><div class="flow-step__text">Imagem imutável e manifests versionados entram no GitOps repo.</div></div><div class="flow-arrow">→</div>
+      <div class="flow-step" data-step="red"><div class="flow-step__num">04</div><div class="flow-step__title">Reconcile</div><div class="flow-step__text">ArgoCD aplica sync waves, health checks, drift e rollback operacional.</div></div>
+    </div>
+    <p class="caption">A decisão arquitetural: laptops não aplicam `kubectl` em produção. O cluster converge para o estádo desejado revisado.</p>
+  </section>
+
+  <section class="slide slide--light" data-accent="red" data-notes="Este slide vira checklist de governança. Ajuda a decidir se H3 pode ser ligado ou se ainda falta base operacional.">
+    <div class="eyebrow">Gates de rollout</div>
+    <h2 class="title title--small">H3 so deve ser habilitado quando H1 e H2 conseguem sustentar agentes em produção.</h2>
+    <div class="grid grid--3">
+      <div class="card card--soft" data-card="blue"><div class="card__kicker">H1 gate</div><h3 class="card__title">Fundação pronta</h3><ul class="card__list"><li>Private endpoints e DNS validados.</li><li>Workload Identity sem segredo estático.</li><li>ACR, Key Vault, banco e Storage protegidos.</li><li>Logs, alerts e recovery configurados.</li></ul></div>
+      <div class="card card--soft" data-card="green"><div class="card__kicker">H2 gate</div><h3 class="card__title">Plataforma pronta</h3><ul class="card__list"><li>Backstage autenticado e persistente.</li><li>ArgoCD com sync policies por ambiente.</li><li>Golden Paths gerando catalog-info e SDD.</li><li>Dashboards e alertas com dono.</li></ul></div>
+      <div class="card card--soft" data-card="red"><div class="card__kicker">H3 gate</div><h3 class="card__title">Agentes prontos</h3><ul class="card__list"><li>Model routing aprovado.</li><li>Tool approvals e hooks ativos.</li><li>Budget e cost endpoints visíveis.</li><li>Trajetorias, evals e incident runbooks definidos.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide slide--paper" data-accent="blue-700" data-notes="Feche com perguntas objetivas. A meta e sair da reuniao com decisões, não com admiracao pelo diagrama.">
+    <div class="eyebrow">Checklist de revisão arquitetural</div>
+    <h2 class="title title--small">Perguntas que a arquitetura precisa responder antes de operar agentes.</h2>
+    <div class="grid grid--2">
+      <div class="card" data-card="blue"><div class="card__kicker">Runtime</div><ul class="card__list"><li>Qual SLO vale para portal, Agent API e Foundry gateway?</li><li>Quais workloads escalam de forma independente?</li><li>Qual trace id correlaciona portal, CI/CD, ArgoCD, Agent API e Foundry?</li></ul></div>
+      <div class="card" data-card="red"><div class="card__kicker">Segurança</div><ul class="card__list"><li>Existe algum caminho publico para dados ou dependências stateful?</li><li>Quais tools exigem aprovacao humana?</li><li>Como auditoria prova quem mudou o que, por que e com qual agente?</li></ul></div>
+      <div class="card" data-card="yellow"><div class="card__kicker">Custo</div><ul class="card__list"><li>Quais budgets existem por agente, equipe e rota?</li><li>Quando cache e routing são obrigatorios?</li><li>Como alertas de custo chegam ao owner correto?</li></ul></div>
+      <div class="card" data-card="green"><div class="card__kicker">Operação</div><ul class="card__list"><li>Quem e dono de dashboard, alerta e runbook?</li><li>Qual rollback existe para cada servico crítico?</li><li>Quais evidencias ficam retidas para revisão?</li></ul></div>
+    </div>
+  </section>
+
+  <section class="slide slide--light" data-accent="blue-700" data-notes="Slide final de referências. Ele aténde o criterio de integridade factual: fatos de arquitetura do repo e links oficiais para as tecnologias citadas.">
+    <div class="eyebrow">Referências</div>
+    <h2 class="title title--small">Fontes usadas para o deck.</h2>
+    <ol class="references">
+      <li>Open Horizons local: <a href="../architecture/ARCHITECTURE_REVIEW.md">docs/architecture/ARCHITECTURE_REVIEW.md</a>.</li>
+      <li>Open Horizons local: <a href="../../CODEMAP.md">CODEMAP.md</a>.</li>
+      <li>Open Horizons ADR: <a href="../architecture/adr/0002-foundry-agents-gateway-l6-harness.md">ADR-0002 · Foundry agents gateway L6 harness</a>.</li>
+      <li>Microsoft Azure Well-Architected Framework: <a href="https://learn.microsoft.com/azure/well-architected/">https://learn.microsoft.com/azure/well-architected/</a>.</li>
+      <li>Azure AI Foundry documentation: <a href="https://learn.microsoft.com/azure/ai-foundry/">https://learn.microsoft.com/azure/ai-foundry/</a>.</li>
+      <li>Backstage architecture overview: <a href="https://backstage.io/docs/overview/architecture-overview">https://backstage.io/docs/overview/architecture-overview</a>.</li>
+      <li>Model Context Protocol: <a href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a>.</li>
+      <li>OpenTelemetry GenAI semantic conventions: <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">https://opentelemetry.io/docs/specs/semconv/gen-ai/</a>.</li>
+      <li>Azure architecture icons: <a href="https://learn.microsoft.com/azure/architecture/icons/">https://learn.microsoft.com/azure/architecture/icons/</a>.</li>
+      <li>GitHub Octicons: <a href="https://primer.style/octicons/">https://primer.style/octicons/</a>.</li>
+    </ol>
+  </section>
+</main>
+
+<div aria-hidden="true" class="overview" id="overview">
+  <div class="overview__header">
+    <div class="overview__title">Visão geral</div>
+    <div class="overview__hint">Clique em um slide · Esc para fechar</div>
+  </div>
+  <div class="overview__grid" id="overviewGrid"></div>
+</div>
+<div class="kbd-hint" id="kbdHint">Use <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> overview · <kbd>N</kbd> notas</div>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-panel__label">Speaker notes</div>
+  <div class="notes-panel__body"></div>
+</div>
+<div class="deck-controls" aria-label="Controles do deck">
+  <button class="deck-controls__btn" id="prevBtn" type="button" aria-label="Slide anterior">‹</button>
+  <div class="deck-controls__counter"><span id="currentSlide">01</span><span>&nbsp;/&nbsp;</span><span id="totalSlides">01</span></div>
+  <button class="deck-controls__btn" id="nextBtn" type="button" aria-label="Próximo slide">›</button>
+  <button class="deck-controls__btn" id="overviewBtn" type="button" aria-label="Visão geral">□</button>
+  <button class="deck-controls__btn" id="notesBtn" type="button" aria-label="Notas do apresentador">N</button>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+slides.forEach((slide) => {
+  if (slide.querySelector('.diagram-layout')) slide.classList.add('slide--diagram');
+});
+const progress = document.getElementById('progress');
+const currentSlide = document.getElementById('currentSlide');
+const totalSlides = document.getElementById('totalSlides');
+const notesPanel = document.getElementById('notesPanel');
+const kbdHint = document.getElementById('kbdHint');
+const overview = document.getElementById('overview');
+const overviewGrid = document.getElementById('overviewGrid');
+let index = 0;
+let overviewOpen = false;
+
+totalSlides.textContent = String(slides.length).padStart(2, '0');
+
+function setActiveSlide(nextIndex) {
+  index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+  slides.forEach((slide, i) => slide.dataset.active = i === index ? 'true' : 'false');
+  const active = slides[index];
+  document.body.dataset.slideTheme = active.classList.contains('slide--dark') ? 'dark' : 'light';
+  currentSlide.textContent = String(index + 1).padStart(2, '0');
+  progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+  updatéNotes();
+  updatéOverviewCurrent();
+}
+
+function updatéNotes() {
+  const note = slides[index].dataset.notes || '';
+  notesPanel.querySelector('.notes-panel__body').innerHTML = note || '<span class="notes-panel__empty">Sem notas para este slide.</span>';
+}
+
+function next() { setActiveSlide(index + 1); }
+function prev() { setActiveSlide(index - 1); }
+
+function buildOverview() {
+  overviewGrid.innerHTML = '';
+  slides.forEach((slide, i) => {
+    const card = document.creatéElement('button');
+    card.type = 'button';
+    card.className = 'overview-card';
+    if (slide.classList.contains('slide--dark')) card.classList.add('overview-card--dark');
+    const eyebrow = slide.querySelector('.eyebrow')?.textContent?.trim() || '';
+    const title = slide.querySelector('.title, .section-title, h1, h2')?.textContent?.trim() || `Slide ${i + 1}`;
+    const eyebrowHtml = eyebrow ? '<span class="overview-card__eyebrow">' + eyebrow.slice(0, 44) + '</span>' : '';
+    card.innerHTML = '<span class="overview-card__num">' + String(i + 1).padStart(2, '0') + '</span>' + eyebrowHtml + '<div class="overview-card__title">' + title.slice(0, 96) + '</div>';
+    card.addEventListener('click', () => { closeOverview(); setActiveSlide(i); });
+    overviewGrid.appendChild(card);
+  });
+  updatéOverviewCurrent();
+}
+
+function updatéOverviewCurrent() {
+  if (!overviewGrid.children.length) return;
+  Array.from(overviewGrid.children).forEach((card, i) => card.dataset.current = i === index ? 'true' : 'false');
+}
+
+function openOverview() {
+  if (!overviewGrid.children.length) buildOverview();
+  overview.dataset.open = 'true';
+  overview.setAttribute('aria-hidden', 'false');
+  document.body.dataset.overviewOpen = 'true';
+  overviewOpen = true;
+}
+
+function closeOverview() {
+  overview.dataset.open = 'false';
+  overview.setAttribute('aria-hidden', 'true');
+  document.body.dataset.overviewOpen = 'false';
+  overviewOpen = false;
+}
+
+function toggleOverview() { overviewOpen ? closeOverview() : openOverview(); }
+function toggleNotes() { document.body.dataset.notesOpen = document.body.dataset.notesOpen === 'true' ? 'false' : 'true'; }
+
+function maybePrevent(e) {
+  const keys = ['ArrowRight', 'ArrowLeft', 'PageDown', 'PageUp', ' ', 'Home', 'End'];
+  if (keys.includes(e.key)) e.preventDefault();
+}
+
+document.getElementById('prevBtn').addEventListener('click', prev);
+document.getElementById('nextBtn').addEventListener('click', next);
+document.getElementById('overviewBtn').addEventListener('click', toggleOverview);
+document.getElementById('notesBtn').addEventListener('click', toggleNotes);
+
+document.addEventListener('keydown', (e) => {
+  if (overviewOpen) {
+    if (e.key === 'Escape' || e.key.toLowerCase() === 'o') closeOverview();
+    return;
+  }
+  maybePrevent(e);
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') next();
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev();
+  if (e.key === 'Home') setActiveSlide(0);
+  if (e.key === 'End') setActiveSlide(slides.length - 1);
+  if (e.key.toLowerCase() === 'o' || e.key === 'Escape') toggleOverview();
+  if (e.key.toLowerCase() === 'n') toggleNotes();
+});
+
+setActiveSlide(0);
+setTimeout(() => { kbdHint.dataset.visible = 'true'; }, 400);
+setTimeout(() => { kbdHint.dataset.visible = 'false'; }, 5000);
+</script>
+</body>
+</html>

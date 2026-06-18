@@ -68,18 +68,41 @@ for anything that is not upstream reference data.
 | Auth to upstreams | Optional `GH_TOKEN` raises GitHub raw/API rate limits |
 | Image | `ohorizons` GHCR: `mcp-ecosystem` (see CHANGELOG for current tag) |
 
+### Where it runs (two phases)
+
+The same server image is used in two moments of the platform lifecycle:
+
+- **Phase 1 — Installation (LOCAL):** runs on the operator's machine via Docker
+  during platform build, so the Copilot agents (`@deploy`, `@terraform`, …) can
+  ground build-time decisions in real upstream docs. Ephemeral; never shipped to
+  Azure.
+- **Phase 2 — Runtime (AZURE / AKS):** deployed to the `ai-services` namespace
+  (gated to `enable_mcp_ecosystem`), where the Backstage **AI Chat** calls it to
+  ground developer answers. The AI Chat (`agent-api`) lives in the same namespace
+  and reaches it at `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp`;
+  a `NetworkPolicy` restricts `:3100` to the `agent-api` pod.
+
+Full deployment detail: [mcp-servers/ARCHITECTURE.md](../../../mcp-servers/ARCHITECTURE.md#7-deployment--lifecycle).
+
 ### Run it locally
 
 ```bash
 cd mcp-servers
 make up        # docker compose up -d  (builds + starts on :3100)
-make health    # curl http://localhost:3100/health
+make health    # curl http://localhost:3100/health  → {"status":"ok"}
 make logs      # follow logs
 make down      # stop
 ```
 
+The `.env` file is optional. The host port is configurable to avoid collisions
+(Grafana **Loki** also defaults to `3100`):
+
+```bash
+MCP_ECOSYSTEM_PORT=3101 docker compose up -d
+```
+
 Environment variables (all optional): `PORT` (3100), `CACHE_DIR`,
-`CACHE_TTL_MS` (3600000), `GH_TOKEN`.
+`CACHE_TTL_MS` (3600000), `GH_TOKEN`, `MCP_ECOSYSTEM_PORT` (local host port).
 
 ## Tool catalog (12 modules · 61 tools)
 
