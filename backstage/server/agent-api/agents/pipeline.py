@@ -32,7 +32,7 @@ AVAILABLE REPOSITORIES in the configured GitHub organization:
 - backstage — Backstage framework fork
 - golden-paths — Golden Path templates
 - agentic-workflows — GitHub Agentic Workflows
-- awesome-copilot — Copilot customization files
+- microsoft-docs — official Microsoft/Azure docs (Learn, CAF, WAF) via MCP Ecosystem
 - aks-platform-engineering — AKS + OSS platform stack
 - open-horizons-platform — Agentic DevOps Platform
 

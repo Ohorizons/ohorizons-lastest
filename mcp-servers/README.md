@@ -1,6 +1,6 @@
 # MCP Ecosystem Server
 
-A unified MCP server that exposes **61 tools across 12 modules** from curated
+A unified MCP server that exposes **79 tools across 17 modules** from curated
 reference sources, running in a single Docker container. Auto-starts with your
 computer.
 
@@ -47,7 +47,7 @@ separate, local-only surface and are not deployed to AKS. See
 | **Spotify Backstage** (6) | `spotifybackstage_list_sections`, `spotifybackstage_get_page`, `spotifybackstage_get_portal_docs`, `spotifybackstage_get_plugins_docs`, `spotifybackstage_get_core_features`, `spotifybackstage_discover_links` | [`backstage.spotify.com`](https://backstage.spotify.com) |
 | **Backstage Org** (4) | `backstageorg_list_repos`, `backstageorg_get_repo_readme`, `backstageorg_search_repos`, `backstageorg_get_backstage_plugins` | [`github.com/backstage`](https://github.com/backstage) |
 
-**Total:** 61 tools across 12 modules
+**Total:** 79 tools across 17 modules
 
 ## Quick Start
 

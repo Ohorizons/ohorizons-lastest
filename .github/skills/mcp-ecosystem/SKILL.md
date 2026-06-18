@@ -1,7 +1,7 @@
 ---
 name: mcp-ecosystem
 description: >-
-  Access 61 tools across 12 modules from the local MCP Ecosystem server to fetch
+  Access 79 tools across 17 modules from the local MCP Ecosystem server to fetch
   live methodology, templates, components, and reference data for spec-kit,
   anthropics-skills, awesome-copilot, agent-framework, gh-aw, agents-md,
   github-copilot-docs, backstage-docs, backstage-plugins, backstage-ui,
@@ -21,7 +21,7 @@ description: >-
 # MCP Ecosystem
 
 The **MCP Ecosystem** is the platform's own Model Context Protocol (MCP) server.
-It exposes **61 tools across 12 modules** that fetch live, cached reference data
+It exposes **79 tools across 17 modules** that fetch live, cached reference data
 (methodology, format specs, templates, components, plugin catalogs, and docs)
 from curated upstream sources. It is the L3 Context Engineering surface that lets
 Open Horizons agents — and the Backstage **AI Chat** — ground their answers in
@@ -63,7 +63,7 @@ for anything that is not upstream reference data.
 | Transport | Streamable HTTP (`StreamableHTTPServerTransport`) |
 | Endpoint | `http://localhost:3100/mcp` |
 | Health | `GET http://localhost:3100/health` → `{ "status": "ok", "sessions": N }` |
-| Modules / tools | **12 modules · 61 tools** |
+| Modules / tools | **17 modules · 79 tools** |
 | Cache | On-disk JSON cache (`CACHE_DIR`, default 1h TTL via `CACHE_TTL_MS`) |
 | Auth to upstreams | Optional `GH_TOKEN` raises GitHub raw/API rate limits |
 | Image | `ohorizons` GHCR: `mcp-ecosystem` (see CHANGELOG for current tag) |
@@ -104,7 +104,7 @@ MCP_ECOSYSTEM_PORT=3101 docker compose up -d
 Environment variables (all optional): `PORT` (3100), `CACHE_DIR`,
 `CACHE_TTL_MS` (3600000), `GH_TOKEN`, `MCP_ECOSYSTEM_PORT` (local host port).
 
-## Tool catalog (12 modules · 61 tools)
+## Tool catalog (17 modules · 79 tools)
 
 ### Group A — Agent & AI frameworks (7 modules · 30 tools)
 
@@ -139,7 +139,7 @@ small, curated set of ecosystem tools to the model so agents can ground answers:
 - Client: [backstage/server/agent-api/tools/mcp_ecosystem.py](../../../backstage/server/agent-api/tools/mcp_ecosystem.py)
 - Advertised to the model (orchestrator, sentinel, lighthouse, guardian, forge, pipeline):
   - `ecosystem_list_tools` — discover everything the server exposes.
-  - `ecosystem_call_tool(name, args)` — call any of the 61 tools directly.
+  - `ecosystem_call_tool(name, args)` — call any of the 79 tools directly.
   - `search_backstage_docs(query)` → `backstagedocs_search`
   - `get_spec_kit_methodology()` → `speckit_get_methodology`
   - `search_copilot_docs(query)` → `copilotdocs_search`

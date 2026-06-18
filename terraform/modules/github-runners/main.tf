@@ -152,61 +152,66 @@ resource "helm_release" "runner_scale_sets" {
     template = {
       spec = {
         containers = [
-          {
-            name    = "runner"
-            image   = var.custom_runner_image != "" ? var.custom_runner_image : "ghcr.io/actions/actions-runner:latest"
-            command = ["/home/runner/run.sh"]
+          merge(
+            # Only pin an explicit image when the caller provides one. Otherwise
+            # omit the field so the gha-runner-scale-set chart injects its own
+            # default runner image, which is pinned to the chart version. This
+            # keeps the deployment free of mutable `latest` tags.
+            var.custom_runner_image != "" ? { image = var.custom_runner_image } : {},
+            {
+              name    = "runner"
+              command = ["/home/runner/run.sh"]
 
-            env = concat(
-              [
-                {
-                  name  = "ACTIONS_RUNNER_CONTAINER_HOOKS"
-                  value = "/home/runner/k8s/index.js"
-                },
-                {
-                  name = "ACTIONS_RUNNER_POD_NAME"
-                  valueFrom = {
-                    fieldRef = {
-                      fieldPath = "metadata.name"
+              env = concat(
+                [
+                  {
+                    name  = "ACTIONS_RUNNER_CONTAINER_HOOKS"
+                    value = "/home/runner/k8s/index.js"
+                  },
+                  {
+                    name = "ACTIONS_RUNNER_POD_NAME"
+                    valueFrom = {
+                      fieldRef = {
+                        fieldPath = "metadata.name"
+                      }
                     }
                   }
+                ],
+                # Azure credentials if provided
+                var.azure_credentials != null ? [
+                  {
+                    name  = "AZURE_CLIENT_ID"
+                    value = var.azure_credentials.client_id
+                  },
+                  {
+                    name  = "AZURE_TENANT_ID"
+                    value = var.azure_credentials.tenant_id
+                  },
+                  {
+                    name  = "AZURE_SUBSCRIPTION_ID"
+                    value = var.azure_credentials.subscription_id
+                  }
+                ] : []
+              )
+
+              resources = {
+                requests = {
+                  cpu    = each.value.resources.cpu_request
+                  memory = each.value.resources.memory_request
                 }
-              ],
-              # Azure credentials if provided
-              var.azure_credentials != null ? [
+                limits = {
+                  cpu    = each.value.resources.cpu_limit
+                  memory = each.value.resources.memory_limit
+                }
+              }
+
+              volumeMounts = each.value.container_mode == "dind" ? [
                 {
-                  name  = "AZURE_CLIENT_ID"
-                  value = var.azure_credentials.client_id
-                },
-                {
-                  name  = "AZURE_TENANT_ID"
-                  value = var.azure_credentials.tenant_id
-                },
-                {
-                  name  = "AZURE_SUBSCRIPTION_ID"
-                  value = var.azure_credentials.subscription_id
+                  name      = "work"
+                  mountPath = "/home/runner/_work"
                 }
               ] : []
-            )
-
-            resources = {
-              requests = {
-                cpu    = each.value.resources.cpu_request
-                memory = each.value.resources.memory_request
-              }
-              limits = {
-                cpu    = each.value.resources.cpu_limit
-                memory = each.value.resources.memory_limit
-              }
-            }
-
-            volumeMounts = each.value.container_mode == "dind" ? [
-              {
-                name      = "work"
-                mountPath = "/home/runner/_work"
-              }
-            ] : []
-          }
+          })
         ]
 
         # Docker-in-Docker sidecar

@@ -54,7 +54,7 @@ The accelerator covers:
 - The **Internal Developer Platform (IDP)** that developers use day to day - Backstage on AKS with Software Catalog, TechDocs, Software Templates, and DORA / Cost dashboards.
 - The **Agent IDP** - 4 agent runtime APIs, trajectory and cost middleware, agent identity, and a Backstage AI Chat plugin.
 - The **scaffolder** that creates new repositories on demand via wizard - 34 Golden Paths, all aligned to the same agents, TechDocs, CI/CD, and an opt-in Azure baseline.
-- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 28 skills, and 12 MCP server tools.
+- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 28 skills, and 12 MCP tool modules (61 tools).
 - The **infrastructure** to run all of the above - 16 Terraform modules covering AKS, networking, registries, databases, secrets, security, observability, AI Foundry, GitHub runners, ArgoCD, Backstage, Defender, Purview, disaster recovery, cost management, and naming.
 - The **governance and policy** stack - OPA/Gatekeeper rules for Kubernetes and Terraform, CONSTITUTION + SPECIFICATION + IMPLEMENTATION_PLAN templates, scope-guard hooks, and intent-drift measurement.
 - The **observability** stack - Prometheus rules, Grafana dashboards, Alertmanager wiring, plus per-agent trajectory and cost telemetry.
@@ -65,7 +65,7 @@ The accelerator covers:
 |-------|---------|------------|
 | L1 - Cloud Infrastructure | Compute and security baseline | 16 Terraform modules in [`terraform/modules/`](../../terraform/modules/) covering AKS, networking, ACR, databases (Postgres + Redis), Key Vault and external secrets, Defender, Purview, observability, cost management, GitHub runners, AI Foundry, ArgoCD, Backstage, naming, disaster recovery, security baseline. Environment tfvars in [`terraform/environments/`](../../terraform/environments/). |
 | L2 - Platform Engineering | Golden paths, GitOps, governance | Backstage portal in [`backstage/`](../../backstage/) (catalog, TechDocs, software templates, AI Chat plugin), 34 Golden Paths in [`golden-paths/`](../../golden-paths/), ArgoCD app-of-apps in [`argocd/`](../../argocd/), 7 Kubernetes OPA policies and 1 Terraform OPA policy in [`policies/`](../../policies/), 5 Grafana dashboards in [`grafana/dashboards/`](../../grafana/dashboards/), Prometheus recording and alerting rules in [`prometheus/`](../../prometheus/), 9 GitHub Actions workflows in [`.github/workflows/`](../../.github/workflows/), 22 automation scripts in [`scripts/`](../../scripts/). |
-| L3 - Context Engineering | Agent context and tools | 28 skills in [`.github/skills/`](../../.github/skills/), 12 MCP servers in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
+| L3 - Context Engineering | Agent context and tools | 28 skills in [`.github/skills/`](../../.github/skills/), the MCP Ecosystem server (12 tool modules, 61 tools) in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
 | L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), workspace guardrails in [`.github/hooks/`](../../.github/hooks/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
 | L5 - Agentic Execution | Runtime agents and identity | 9 deploy-managed Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 9 prompts in [`.github/prompts/`](../../.github/prompts/), 8 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
 
@@ -219,6 +219,31 @@ Exit codes: `0` success, `1` usage error, `2` dependency rule violation, `3` val
 | `minimal` | h1 | express | container_registry, databases (Backstage core only, no AI Chat) | basic-cicd, web-application, security-baseline |
 | `standard` | h2 | standard | ArgoCD, observability, external_secrets, cost_management, AI Chat plugin | all H1 + H2 |
 | `full` | all | enterprise | all 11 modules + all 6 Backstage components, including AI Foundry and MCP ecosystem | all 34 |
+
+### Backstage Image and Post-Install Enablement
+
+The portal runtime is the **Open Horizons distribution of Backstage OSS**: the
+upstream Backstage app (release `1.48.3`) built with the Open Horizons custom
+plugins and pages, published to `ghcr.io/ohorizons/ohorizons-backstage` under a
+pinned, immutable tag (for example `v7.2.4`). Deployments always reference a
+pinned tag; `latest` is never used. The `image_tag` variable in
+[`terraform/modules/backstage`](../../terraform/modules/backstage/) rejects
+`latest` by validation.
+
+The installer separates the **base install** from **plugin enablement**:
+
+1. **Base install** deploys the distribution image with the Backstage core
+   experience (catalog, scaffolder, TechDocs) plus the customer identity and
+   catalog configuration. The `base` portal profile ships nothing extra.
+2. **Post-install enablement** then offers the Open Horizons custom plugins and
+   pages and the standard Backstage public plugins. The `platform`, `full`, and
+   `custom` portal profiles select which packs are enabled, and the wizard
+   collects only the integration data each choice needs (GitHub App,
+   organization, Azure DevOps, Microsoft Entra ID, domain, and Azure OpenAI or
+   Foundry for AI features).
+
+This keeps the first install clean and lets the customer opt in to the custom
+experience only when they are ready, with their own credentials.
 
 ### Schema Validation
 

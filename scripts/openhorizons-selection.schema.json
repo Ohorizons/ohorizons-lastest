@@ -28,8 +28,8 @@
     },
     "portal_profile": {
       "type": "string",
-      "description": "Backstage portal experience profile. base is the clean enterprise fork default; platform adds H2 pages; full adds H3 innovation packs.",
-      "enum": ["base", "platform", "full"]
+      "description": "Backstage portal experience profile. base is the clean enterprise fork default; platform adds H2 pages; full adds H3 innovation packs; custom keeps the base portal and enables only the feature packs you select.",
+      "enum": ["base", "platform", "full", "custom"]
     },
     "branding_profile": {
       "type": "string",

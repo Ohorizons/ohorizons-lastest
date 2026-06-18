@@ -62,7 +62,7 @@ GOLDEN_PATHS_DIR="$REPO_ROOT/golden-paths"
 ENVIRONMENT=""
 HORIZON=""
 DEPLOYMENT_MODE=""
-PORTAL_PROFILE="base"      # base | platform | full
+PORTAL_PROFILE="base"      # base | platform | full | custom
 BRANDING_PROFILE="neutral" # neutral | open-horizons | custom
 AUTO=false
 DRY_RUN=false
@@ -413,7 +413,7 @@ prompt_portal_profile_choice() {
   if $AUTO && ! $PORTAL_PROFILE_EXPLICIT && [[ -z "$PROFILE" ]]; then
     return 0
   fi
-  PORTAL_PROFILE="$(prompt_choice "Portal profile" "$PORTAL_PROFILE" base platform full)"
+  PORTAL_PROFILE="$(prompt_choice "Portal profile" "$PORTAL_PROFILE" base platform full custom)"
   apply_portal_profile_defaults
 }
 
@@ -435,8 +435,13 @@ apply_portal_profile_defaults() {
     full)
       fp_set 0 true; fp_set 1 true; fp_set 2 true; fp_set 3 true; fp_set 4 true; fp_set 5 true
       ;;
+    custom)
+      # Keep whatever feature packs the operator already selected (interactive
+      # prompts or the selection manifest). The custom profile never forces a
+      # preset, it only aligns the legacy component flags below.
+      ;;
     *)
-      log_err "Unknown portal_profile: $PORTAL_PROFILE (use base | platform | full)"
+      log_err "Unknown portal_profile: $PORTAL_PROFILE (use base | platform | full | custom)"
       exit "$EXIT_USAGE"
       ;;
   esac

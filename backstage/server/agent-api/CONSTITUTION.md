@@ -33,7 +33,6 @@ When trade-offs arise, agents prioritize in this order:
 | backstage-framework | Backstage framework fork (secondary) |
 | golden-paths | Golden Path templates |
 | agentic-workflows | GitHub Agentic Workflows |
-| awesome-copilot | Copilot customization files |
 | aks-platform-engineering | AKS + OSS platform stack |
 | open-horizons-platform | Agentic DevOps Platform |
 | litellm | LLM proxy gateway |

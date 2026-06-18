@@ -3,18 +3,23 @@
 # Rendered by scripts/render-k8s.sh; gated to ENABLE_MCP_ECOSYSTEM by
 # scripts/render-manifests.sh. Applied only when the MCP Ecosystem is enabled.
 #
-# Intent: lock inbound access to the MCP Ecosystem server (:3100) to the AI Chat
-# agent-api, which is the only in-cluster consumer (same ai-services namespace).
+# Two egress postures by environment:
+#   - LOCAL (Docker, installation phase): egress is OPEN by nature; this policy
+#     does not apply (NetworkPolicy is Kubernetes-only).
+#   - PRODUCTION (Azure / AKS, runtime): egress is CLOSED to a hardened posture
+#     below - DNS + outbound HTTPS to the public internet only, with all private
+#     (RFC1918 + link-local) ranges denied so the server cannot reach internal
+#     cluster/VNet services. This lets it fetch official docs (learn.microsoft.com,
+#     raw.githubusercontent.com, api.github.com, docs.claude.com) while blocking
+#     lateral movement.
 #
-# Design notes:
-#   - Ingress-only on purpose. Once this policy selects the mcp-ecosystem pod,
-#     ingress is default-deny except the rule below.
-#   - Egress is intentionally left open so the server can resolve DNS and fetch
-#     upstream documentation over HTTPS (raw.githubusercontent.com, api.github.com)
-#     to populate its cache.
-#   - Kubelet liveness/readiness probes originate from the node (local host -> pod)
-#     and are not affected by this pod-selector ingress policy on AKS
-#     (Azure CNI / Azure NPM / Calico allow local host-to-pod traffic by default).
+# Intent (ingress): lock inbound access to the MCP Ecosystem server (:3100) to
+# the AI Chat agent-api, the only in-cluster consumer (same ai-services ns).
+#
+# Note: vanilla NetworkPolicy cannot match egress by DNS name. To pin egress to
+# the exact official domains, use Cilium FQDN policies or route egress through
+# Azure Firewall with an application-rule allowlist. The CIDR-based rule below is
+# the portable hardened default.
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -32,6 +37,7 @@ spec:
       app.kubernetes.io/name: mcp-ecosystem
   policyTypes:
     - Ingress
+    - Egress
   ingress:
     # Allow the AI Chat agent-api (same namespace) to reach the MCP endpoint.
     - from:
@@ -41,3 +47,28 @@ spec:
       ports:
         - protocol: TCP
           port: 3100
+  egress:
+    # 1. DNS resolution (kube-dns in kube-system).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # 2. Outbound HTTPS to the public internet only (official documentation
+    #    sources). Private/link-local ranges are excluded to block lateral
+    #    movement to internal cluster or VNet services.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443

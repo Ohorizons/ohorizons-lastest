@@ -95,9 +95,14 @@ variable "acr_login_server" {
 }
 
 variable "custom_runner_image" {
-  description = "Custom runner image (if not using default)"
+  description = "Optional pinned runner image reference (for example ghcr.io/actions/actions-runner:2.319.1). When empty, the gha-runner-scale-set chart's own version-pinned default image is used. Do not use mutable tags such as 'latest'."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.custom_runner_image == "" || !endswith(var.custom_runner_image, ":latest")
+    error_message = "custom_runner_image must use a pinned, immutable tag. The mutable tag 'latest' is not allowed."
+  }
 }
 
 variable "azure_credentials" {

@@ -31,7 +31,9 @@ ECOSYSTEM_TOOLS = {
     "ecosystem_list_tools", "ecosystem_call_tool",
     "search_backstage_docs", "search_copilot_docs",
     "search_anthropic_docs", "get_spec_kit_methodology",
-    "search_awesome_copilot",
+    "search_microsoft_learn", "fetch_microsoft_learn",
+    "search_vscode_docs", "search_github_docs",
+    "search_caf", "search_waf",
 }
 
 

@@ -31,22 +31,31 @@ variable "backstage_chart_version" {
   default     = "2.3.0"
 }
 
-# --- Custom Image ---
+# --- Open Horizons Backstage distribution image ---
+# The runtime image is the Open Horizons distribution of Backstage OSS: the
+# upstream Backstage app built with the Open Horizons custom plugins and pages,
+# then published to a registry under a pinned, immutable tag. Never deploy
+# `latest` in any environment.
 variable "image_registry" {
-  description = "Container registry for the custom Backstage image"
+  description = "Container registry that hosts the Open Horizons Backstage distribution image (for example ghcr.io/ohorizons)"
   type        = string
   default     = ""
 }
 
 variable "image_repository" {
-  description = "Image repository name"
+  description = "Image repository name for the Open Horizons Backstage distribution (for example ohorizons-backstage)"
   type        = string
 }
 
 variable "image_tag" {
-  description = "Image tag"
+  description = "Pinned, immutable image tag for the Open Horizons Backstage distribution (for example v7.2.4). Mutable tags such as 'latest' are rejected."
   type        = string
-  default     = "latest"
+  default     = "v7.2.4"
+
+  validation {
+    condition     = var.image_tag != "" && var.image_tag != "latest"
+    error_message = "image_tag must be a pinned, immutable tag (for example v7.2.4). The mutable tag 'latest' is not allowed in any environment."
+  }
 }
 
 # --- Database ---

@@ -47,7 +47,7 @@ AVAILABLE REPOSITORIES in the configured GitHub organization:
 - backstage — Backstage framework fork
 - golden-paths — Golden Path templates
 - agentic-workflows — GitHub Agentic Workflows
-- awesome-copilot — Copilot customization files
+- microsoft-docs — official Microsoft/Azure docs (Learn, CAF, WAF) via MCP Ecosystem
 - aks-platform-engineering — AKS + OSS platform stack
 - open-horizons-platform — Agentic DevOps Platform
 
@@ -102,13 +102,13 @@ RULES:
             },
         },
         {
-            "name": "search_awesome_copilot",
-            "description": "Search awesome-copilot for agents, skills, prompts, or instructions relevant to planning and work breakdown.",
+            "name": "search_github_docs",
+            "description": "Search GitHub documentation (docs.github.com) for Issues, Projects, Actions, and planning-related features.",
             "input_schema": {
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "Search query"},
-                    "category": {"type": "string", "description": "Category: all, agents, skills, prompts, instructions", "default": "all"},
+                    "section": {"type": "string", "description": "Docs section, e.g. 'issues', 'get-started'", "default": "get-started"},
                 },
                 "required": ["query"],
             },

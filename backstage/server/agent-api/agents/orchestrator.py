@@ -83,20 +83,17 @@ RULES:
             },
         },
         {
-            "name": "search_awesome_copilot",
-            "description": "Search awesome-copilot for agents, skills, prompts, or instructions.",
+            "name": "search_microsoft_learn",
+            "description": "Search ALL of Microsoft Learn (Azure, AKS, AI Foundry, CAF, WAF) via the official Microsoft Learn MCP. Use to ground any Microsoft/Azure question.",
             "input_schema": {
                 "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Search query"},
-                    "category": {"type": "string", "description": "Category: all, agents, skills, prompts, instructions", "default": "all"},
-                },
+                "properties": {"query": {"type": "string", "description": "Microsoft/Azure question or keywords"}},
                 "required": ["query"],
             },
         },
         {
             "name": "search_anthropic_docs",
-            "description": "Search Anthropic platform documentation via MCP Ecosystem.",
+            "description": "Search the complete Anthropic/Claude documentation via MCP Ecosystem.",
             "input_schema": {
                 "type": "object",
                 "properties": {"query": {"type": "string", "description": "Search query"}},

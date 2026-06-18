@@ -16,7 +16,7 @@ Built on **Backstage**, **Azure**, and **GitHub**.
 [![Azure](https://img.shields.io/badge/Azure-AKS-0078D4?style=for-the-badge&logo=microsoftazure)](https://azure.microsoft.com)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-Agents-000?style=for-the-badge&logo=github)](https://github.com/features/copilot)
 
-**34** Golden Paths | **9** AI Agents | **12** MCP Servers | **16** Terraform Modules
+**34** Golden Paths | **9** Copilot Agents | **7** Runtime Agents | **61** MCP Tools | **16** Terraform Modules
 
 [Deploy Now](#get-started) | [Documentation](#documentation)
 
@@ -73,8 +73,8 @@ Platform Engineering (foundation)
 ### Agent IDP
 
 - **9 Copilot Chat Agents** — deploy-managed AI assistants
-- **7 Runtime Agents** — production agentic APIs
-- **12 MCP Server Tools** — context protocol integration
+- **7 Runtime Agents** — across 4 Agent API services
+- **MCP Ecosystem** — 12 tool modules, 61 tools
 - **Trajectory Logging** — every decision recorded
 - **Per-Agent Cost Tracking** — budget governance
 
@@ -139,46 +139,46 @@ Measure the real impact of Agentic DevOps on your SDLC. KPI dashboards, score br
 <tr>
 <td width="33%">
 
-**Open Source Portal**
+**Open Horizons distribution of Backstage**
 
-Backstage as single pane of glass. Software catalog, Golden Paths, TechDocs, and AI chat in one place.
-
-</td>
-<td width="33%">
-
-**Complete Automation**
-
-Zero manual steps from Terraform plan to ArgoCD sync. GitOps with App-of-Apps and self-healing.
+Backstage OSS built into a pinned, immutable image (never `latest`). The wizard runs a clean base install, then enables custom plugins and pages on demand.
 
 </td>
 <td width="33%">
 
-**Azure Native**
+**Hybrid GitHub + Azure DevOps**
 
-AKS, Key Vault, Azure Monitor, Workload Identity, Defender for Cloud. Cloud-native by design.
+Dual authentication, a cross-platform software catalog, and coexistence scenarios A, B, and C for mixed enterprise estates.
+
+</td>
+<td width="33%">
+
+**Governed agents**
+
+Every agent has an identity, a trajectory log, and a cost budget. Kubernetes service accounts, RBAC, and NetworkPolicy bound by default.
 
 </td>
 </tr>
 <tr>
 <td width="33%">
 
-**AI-Powered Engineering**
+**Intent and context engineering**
 
-Microsoft Agent Framework, MCP servers, DORA metrics correlation, and intelligent deployment decisions.
-
-</td>
-<td width="33%">
-
-**Adoption Stages**
-
-Start with H1 infrastructure, advance through H2 platform engineering, reach H3 AI innovation. At your own pace.
+Spec-Driven Development, model routing per SDLC phase, a shared context store, three-tier memory, and MCP tools.
 
 </td>
 <td width="33%">
 
-**Security by Default**
+**GitOps automation**
 
-Zero-trust, Workload Identity, GHAS scanning, OPA Gatekeeper, private endpoints. Security is never optional.
+Zero manual steps from Terraform plan to ArgoCD App-of-Apps. Self-healing sync with health gates and drift detection.
+
+</td>
+<td width="33%">
+
+**Security by default**
+
+Workload Identity, private endpoints, Defender for Cloud, OPA Gatekeeper, and GHAS. Public data paths are designed out.
 
 </td>
 </tr>
@@ -186,7 +186,9 @@ Zero-trust, Workload Identity, GHAS scanning, OPA Gatekeeper, private endpoints.
 
 ---
 
-## The 4-Layer Context Platform Stack
+## The 5-Layer Context Platform Stack
+
+Five core layers (L1 Cloud and Infrastructure through L5 Agentic Execution), with an optional L6 Foundry agents gateway harness for H3.
 
 <div align="center">
 <img src="docs/assets/readme-5-layer-stack.svg" alt="Context Platform Stack" width="100%"/>
@@ -244,13 +246,15 @@ Zero-trust, Workload Identity, GHAS scanning, OPA Gatekeeper, private endpoints.
 |:----------|------:|:------|
 | Golden Path Templates | 34 | L2 |
 | Copilot Chat Agents | 9 | L5 |
+| Runtime Agents | 7 | L5 |
+| Agent API Services | 4 | L5 |
+| MCP Tool Modules | 12 | L3 |
+| MCP Tools | 61 | L3 |
 | Skills (lazy-loaded) | 28 | L3 |
 | Prompts | 9 | L3 |
 | Terraform Modules | 16 | L1 |
-| MCP Server Tools | 12 | L3 |
 | Grafana Dashboards | 5 | L2 |
 | OPA / Gatekeeper Policies | 8 | L2 |
-| Runtime Agent APIs | 4 | L5 |
 
 ---
 
@@ -294,6 +298,9 @@ Wizard portal profiles:
 | `base` | Clean enterprise fork | Backstage core, catalog, scaffolder, TechDocs |
 | `platform` | H2 platform rollout | Base + branding, platform pages, observability pages |
 | `full` | Demo or H3 innovation rollout | Platform + AI Chat, AI Impact, MCP ecosystem |
+| `custom` | Pick plugins one by one | Base + only the custom plugins and pages you enable |
+
+After the base install, the wizard runs a **post-install enablement** step: it asks whether to turn on the Open Horizons custom plugins and pages and the standard Backstage public plugins, then collects only the integration data each choice needs (GitHub App, organization, Azure DevOps, Microsoft Entra ID, domain, and Azure OpenAI or Foundry for AI features).
 
 ### 3. Generate & Deploy
 
@@ -310,7 +317,7 @@ kubectl create secret generic backstage-secrets \
 kubectl apply -f backstage/k8s/
 ```
 
-> **Pre-built images** — the platform uses public container images from `ghcr.io/ohorizons/*`, so no local build step is required.
+> **Open Horizons distribution of Backstage** — the runtime image is the upstream Backstage OSS app built with the Open Horizons custom plugins and pages, published to `ghcr.io/ohorizons/*` under a pinned, immutable tag (for example `v7.2.4`). No local build is required, and `latest` is never deployed. Customers who need their own supply chain can rebuild the same distribution into their registry.
 
 Alternatively, use the Copilot deploy agent from VS Code:
 

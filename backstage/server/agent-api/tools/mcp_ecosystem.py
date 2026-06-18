@@ -1,24 +1,30 @@
 """
-MCP Ecosystem client — connects to the local MCP Ecosystem server (61 tools / 12 modules).
+MCP Ecosystem client — connects to the local MCP Ecosystem server (79 tools / 17 modules).
 
 Server: http://localhost:3100/mcp (Docker: mcp-servers/docker-compose.yml)
 Protocol: JSON-RPC over HTTP (Streamable HTTP transport)
 
 Tool modules (group · module · tool prefix):
-  Agent & AI frameworks
+  Group A — Agent & AI frameworks
     - spec-kit ............ speckit_*     Spec-Driven Development methodology
     - anthropics-skills ... anthropics_*  Anthropic skills catalog + specs
-    - awesome-copilot ..... awesome_*     Skills/agents/prompts lookup
     - agent-framework ..... agentfw_*     Microsoft Agent Framework patterns
     - gh-aw ............... ghaw_*        GitHub Agentic Workflows
     - agents-md ........... agentsmd_*    AGENTS.md format spec + templates
-    - github-copilot-docs . copilotdocs_* GitHub Copilot documentation
-  Backstage ecosystem
+    - github-copilot-docs . copilotdocs_* GitHub Copilot documentation (deep)
+  Group B — Backstage ecosystem
     - backstage-docs ...... backstagedocs_*    Backstage docs + API reference
     - backstage-plugins ... backstageplugins_* Plugin directory (core + community)
     - backstage-ui ........ backstageui_*      Backstage UI components + storybook
     - spotify-backstage ... spotifybackstage_* Spotify Portal / upstream docs
     - backstage-org ....... backstageorg_*     github.com/backstage repos
+  Group C — Official documentation
+    - microsoft-learn ..... mslearn_*     ALL Microsoft Learn (Azure/AKS/Foundry/CAF/WAF), federated
+    - vscode-docs ......... vscode_*      code.visualstudio.com/docs (all themes)
+    - github-docs ......... ghdocs_*      docs.github.com (Actions, GHAS, OIDC, Packages, …)
+    - anthropic-docs ...... anthropicdocs_* Complete Claude docs (llms-full.txt)
+    - azure-caf ........... caf_*         Cloud Adoption Framework
+    - azure-waf ........... waf_*         Well-Architected Framework
 """
 
 import json
@@ -145,7 +151,7 @@ async def _ecosystem_call(method: str, params: dict | None = None) -> Any:
 
 
 async def ecosystem_list_tools() -> str:
-    """List all available tools from MCP Ecosystem (61 tools across 12 modules)."""
+    """List all available tools from MCP Ecosystem (79 tools across 17 modules)."""
     result = await _ecosystem_call("tools/list")
     if isinstance(result, dict) and "error" in result:
         return json.dumps(result)
@@ -180,8 +186,8 @@ async def search_copilot_docs(query: str) -> str:
 
 
 async def search_anthropic_docs(query: str) -> str:
-    """Search the Anthropic skills catalog via MCP Ecosystem."""
-    return await ecosystem_call_tool("anthropics_search_skills", {"query": query})
+    """Search the complete Anthropic/Claude documentation via MCP Ecosystem."""
+    return await ecosystem_call_tool("anthropicdocs_search", {"query": query})
 
 
 async def get_spec_kit_methodology() -> str:
@@ -189,11 +195,34 @@ async def get_spec_kit_methodology() -> str:
     return await ecosystem_call_tool("speckit_get_methodology", {})
 
 
-async def search_awesome_copilot(query: str, category: str = "all") -> str:
-    """Search awesome-copilot for agents, skills, prompts, or instructions."""
-    return await ecosystem_call_tool("awesome_search", {
-        "query": query,
-    })
+async def search_microsoft_learn(query: str) -> str:
+    """Search ALL of Microsoft Learn (Azure, AKS, AI Foundry, CAF, WAF) via federation."""
+    return await ecosystem_call_tool("mslearn_search", {"query": query})
+
+
+async def fetch_microsoft_learn(url: str) -> str:
+    """Fetch a full Microsoft Learn page as markdown by URL."""
+    return await ecosystem_call_tool("mslearn_fetch", {"url": url})
+
+
+async def search_vscode_docs(query: str, section: str = "copilot") -> str:
+    """Search VS Code documentation (code.visualstudio.com/docs)."""
+    return await ecosystem_call_tool("vscode_search", {"query": query, "section": section})
+
+
+async def search_github_docs(query: str, section: str = "get-started") -> str:
+    """Search GitHub documentation (docs.github.com): Actions, GHAS, OIDC, Packages."""
+    return await ecosystem_call_tool("ghdocs_search", {"query": query, "section": section})
+
+
+async def search_caf(query: str, section: str = "ready") -> str:
+    """Search the Azure Cloud Adoption Framework (CAF)."""
+    return await ecosystem_call_tool("caf_search", {"query": query, "section": section})
+
+
+async def search_waf(query: str, section: str = "reliability") -> str:
+    """Search the Azure Well-Architected Framework (WAF)."""
+    return await ecosystem_call_tool("waf_search", {"query": query, "section": section})
 
 
 # ── Tool dispatcher ──────────────────────────────────────────────
@@ -204,7 +233,12 @@ ECOSYSTEM_TOOL_REGISTRY = {
     "search_copilot_docs": search_copilot_docs,
     "search_anthropic_docs": search_anthropic_docs,
     "get_spec_kit_methodology": get_spec_kit_methodology,
-    "search_awesome_copilot": search_awesome_copilot,
+    "search_microsoft_learn": search_microsoft_learn,
+    "fetch_microsoft_learn": fetch_microsoft_learn,
+    "search_vscode_docs": search_vscode_docs,
+    "search_github_docs": search_github_docs,
+    "search_caf": search_caf,
+    "search_waf": search_waf,
 }
 
 

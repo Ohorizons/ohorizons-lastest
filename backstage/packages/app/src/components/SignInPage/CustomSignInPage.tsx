@@ -78,7 +78,7 @@ const FAQ_ITEMS = [
   { q: 'What is Open Horizons?', a: 'Open Horizons is an Agentic DevOps Platform accelerator built on Backstage, deployed on Azure AKS. It provides Golden Path templates, AI agents, and a unified developer portal for the entire SDLC.' },
   { q: 'How do the AI Agents work?', a: 'The agents are built on Microsoft Agent Framework. AI Chat provides conversational SDLC assistance, while AI Impact measures real Agentic DevOps impact with KPIs, score breakdown, and RAG-powered insights.' },
   { q: 'What is the difference between H1, H2, and H3?', a: 'H1 Foundation covers core infrastructure (AKS, networking, security). H2 Enhancement adds platform engineering (ArgoCD, Backstage, observability). H3 Innovation brings AI agents, MCP servers, and intelligent automation.' },
-  { q: 'What are Golden Paths?', a: 'Golden Paths are self-service Backstage templates that let developers scaffold new projects following platform standards. We provide 22 templates covering infrastructure, microservices, APIs, AI/ML, and more.' },
+  { q: 'What are Golden Paths?', a: 'Golden Paths are self-service Backstage templates that let developers scaffold new projects following platform standards. We provide 34 templates covering infrastructure, microservices, APIs, AI/ML, and more.' },
   { q: 'How long does deployment take?', a: 'Full deployment takes 75-105 minutes for development environments. You can use agent-guided deployment, automated scripts, or step-by-step manual deployment.' },
   { q: 'How do I connect to the AKS cluster?', a: 'Use `az aks get-credentials --resource-group $RG --name $CLUSTER` to get kubectl access. Ensure your IP is in the authorized ranges if using API server access control.' },
   { q: 'Pods are in CrashLoopBackOff — what do I do?', a: 'Check logs with `kubectl logs <pod> --previous`, verify exit codes, ensure resource limits are adequate, and check liveness probe configuration.' },
@@ -632,9 +632,9 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
 
           <div className={classes.heroStats}>
             {[
-              { value: '22', label: 'Golden Paths' },
-              { value: '17', label: 'AI Agents' },
-              { value: '15', label: 'MCP Servers' },
+              { value: '34', label: 'Golden Paths' },
+              { value: '9', label: 'AI Agents' },
+              { value: '61', label: 'MCP Tools' },
               { value: 'AI', label: 'Insights' },
             ].map(s => (
               <div key={s.label}>
