@@ -97,72 +97,51 @@ The accelerator covers:
 
 ## Reference Architecture
 
-```text
-+------------------------------------------------------------+
-|                  Developers / Tech Leads                   |
-+------------------------------------------------------------+
-                          |
-                          v
-+------------------------------------------------------------+
-|                    Backstage Portal (L2)                   |
-|  Software Catalog | TechDocs | Wizard | AI Chat Plugin     |
-+------------------------------------------------------------+
-        |                    |                    |
-        v                    v                    v
-+--------------+    +--------------+    +-----------------+
-| Scaffolder   |    | Agent APIs   |    | DORA + Cost     |
-| 34 Golden    |    | (4 runtimes) |    | Dashboards      |
-| Paths (L2)   |    | (L5)         |    | (L2)            |
-+------+-------+    +------+-------+    +-----------------+
-       |                   |
-       v                   v
-+--------------+    +-----------------+
-| GitHub repos |    | MCP servers (12)|
-| + agents +   |    | (L3 context)    |
-| TechDocs +   |    +-----------------+
-| optional     |
-| Azure infra  |
-+------+-------+
-       |
-       v
-+------------------------------------------------------------+
-|                Azure (L1) provisioned by                   |
-|  Terraform: AKS, ACR, KV, Postgres, Redis, AI Foundry,     |
-|  Defender, Log Analytics, App Insights, Managed Grafana.   |
-+------------------------------------------------------------+
+```mermaid
+flowchart TD
+    Dev["Developers / Tech Leads"] --> BS["Backstage Portal (L2)<br/>Software Catalog · TechDocs · Wizard · AI Chat"]
+    BS --> SCAF["Scaffolder<br/>34 Golden Paths (L2)"]
+    BS --> API["Agent APIs<br/>4 runtimes (L5)"]
+    BS --> DASH["DORA + Cost<br/>Dashboards (L2)"]
+    SCAF --> REPO["GitHub repos<br/>agents + TechDocs + optional Azure infra"]
+    API --> MCP["MCP servers (12)<br/>L3 context"]
+    REPO --> AZ["Azure (L1) provisioned by Terraform<br/>AKS · ACR · Key Vault · PostgreSQL · Redis<br/>AI Foundry · Defender · Log Analytics · Managed Grafana"]
+    MCP --> AZ
+
+    style Dev fill:#FFB900,color:#000
+    style BS fill:#0078D4,color:#fff
+    style SCAF fill:#00A4EF,color:#fff
+    style API fill:#00A4EF,color:#fff
+    style DASH fill:#7FBA00,color:#fff
+    style REPO fill:#1A1A1A,color:#fff
+    style MCP fill:#7FBA00,color:#fff
+    style AZ fill:#0078D4,color:#fff
 ```
 
 ## Installation Roadmap
 
-```text
-[0] Prerequisites
-     |
-     v
-[1] Receive the template (fork, branding, branches)
-     |
-     v
-[1.5] Run the install wizard (component selection)
-     |
-     v
-[2] Provision infrastructure (Terraform - 16 modules)
-     |
-     v
-[3] Deploy the platform (Backstage, ArgoCD, Observability, Policies)
-     |
-     v
-[4] Wire context (MCP servers, skills, memory)
-     |
-     v
-[5] Activate intent (CONSTITUTION, SPECIFICATION, drift telemetry)
-     |
-     v
-[6] Run agentic execution (chat agents, runtime APIs, agent identity)
-     |
-     v
-[7] Configure identity federation (OIDC for platform and generated repos)
-     |
-     v
-[8] Validate end to end (templates, docs, agents, observability)
+```mermaid
+flowchart TD
+    S0["0 · Prerequisites"] --> S1["1 · Receive the template<br/>fork, branding, branches"]
+    S1 --> S15["1.5 · Run the install wizard<br/>component selection"]
+    S15 --> S2["2 · Provision infrastructure<br/>Terraform — 16 modules"]
+    S2 --> S3["3 · Deploy the platform<br/>Backstage · ArgoCD · Observability · Policies"]
+    S3 --> S4["4 · Wire context<br/>MCP servers · skills · memory"]
+    S4 --> S5["5 · Activate intent<br/>CONSTITUTION · SPECIFICATION · drift telemetry"]
+    S5 --> S6["6 · Run agentic execution<br/>chat agents · runtime APIs · agent identity"]
+    S6 --> S7["7 · Configure identity federation<br/>OIDC for platform and generated repos"]
+    S7 --> S8["8 · Validate end to end<br/>templates · docs · agents · observability"]
+
+    style S0 fill:#FFB900,color:#000
+    style S1 fill:#00A4EF,color:#fff
+    style S15 fill:#00A4EF,color:#fff
+    style S2 fill:#0078D4,color:#fff
+    style S3 fill:#0078D4,color:#fff
+    style S4 fill:#7FBA00,color:#fff
+    style S5 fill:#7FBA00,color:#fff
+    style S6 fill:#F25022,color:#fff
+    style S7 fill:#F25022,color:#fff
+    style S8 fill:#7FBA00,color:#fff
 ```
 
 Most stages have automation. The roadmap above maps to actual scripts and guides under [`scripts/`](../../scripts/) and [`docs/guides/`](.).

@@ -655,23 +655,31 @@ az aks upgrade \
 
 > 💡 **Understanding Pod Statuses**
 >
-> ```text
-> Pod Lifecycle:
->
-> Pending ─────► Running ─────► Succeeded
->     │             │              (for Jobs)
->     │             │
->     │             └─────► Failed
->     │
->     └─► (stuck) - See troubleshooting below
->
-> Problematic Statuses:
-> - Pending: Waiting to be scheduled
-> - ImagePullBackOff: Can't pull container image
-> - CrashLoopBackOff: Container keeps crashing
-> - Error: Container exited with error
-> - Terminating: Pod stuck during deletion
-> ```
+> A pod moves through a lifecycle from `Pending` to `Running`, then to `Succeeded` or `Failed`.
+
+```mermaid
+flowchart LR
+    P["Pending"] --> R["Running"]
+    R --> S["Succeeded<br/>(for Jobs)"]
+    R --> F["Failed"]
+    P -.->|stuck| ST["Stuck — see below"]
+
+    style P fill:#FFB900,color:#000
+    style R fill:#00A4EF,color:#fff
+    style S fill:#7FBA00,color:#fff
+    style F fill:#F25022,color:#fff
+    style ST fill:#1A1A1A,color:#fff
+```
+
+**Problematic statuses:**
+
+| Status | Meaning |
+| ------ | ------- |
+| `Pending` | Waiting to be scheduled |
+| `ImagePullBackOff` | Can't pull container image |
+| `CrashLoopBackOff` | Container keeps crashing |
+| `Error` | Container exited with error |
+| `Terminating` | Pod stuck during deletion |
 
 ### 5.2 Pods Stuck in Pending
 
