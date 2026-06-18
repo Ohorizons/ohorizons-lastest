@@ -65,6 +65,10 @@ permissions:
 env:
   TERRAFORM_VERSION: '1.5.7'
   TFSEC_VERSION: 'latest'
+  TF_VAR_customer_name: ${{ vars.OPENHORIZONS_CUSTOMER_NAME || 'openhorizons' }}
+  TF_VAR_location: ${{ vars.AZURE_LOCATION || 'brazilsouth' }}
+  TF_VAR_domain_name: ${{ vars.DOMAIN_NAME || 'openhorizons.example.com' }}
+  TF_VAR_github_org: ${{ github.repository_owner }}
 
 jobs:
   # ===========================================================================
@@ -96,14 +100,14 @@ jobs:
 
       - name: Validate Scripts Syntax
         run: |
-          for script in scripts/*.sh; do
+          find scripts -maxdepth 1 -type f -name '*.sh' -print0 | while IFS= read -r -d '' script; do
             echo "Checking: $script"
             bash -n "$script"
           done
 
       - name: Validate Kubernetes Manifests
         run: |
-          for f in $(find argocd policies deploy -name '*.yaml' -o -name '*.yml' 2>/dev/null); do
+          find argocd policies deploy \( -name '*.yaml' -o -name '*.yml' \) -print0 2>/dev/null | while IFS= read -r -d '' f; do
             echo "Validating: $f"
             python3 -c "import yaml; yaml.safe_load(open('$f'))" 2>/dev/null || \
               echo "  Warning: $f may contain template variables (expected)"
@@ -133,7 +137,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: terraform
-          soft_fail: true
+          soft_fail: false
 
       - name: Run Trivy Config Scan
         uses: aquasecurity/trivy-action@0.28.0
@@ -141,7 +145,7 @@ jobs:
           scan-type: config
           scan-ref: .
           severity: CRITICAL,HIGH
-          exit-code: 0
+          exit-code: 1
           format: sarif
           output: trivy-results.sarif
 
@@ -158,15 +162,13 @@ jobs:
 
       - name: OPA Policy Check
         run: |
-          if command -v conftest &>/dev/null; then
-            echo "Running OPA policy checks..."
-            conftest test --policy policies/terraform/ terraform/ || true
-          else
+          if ! command -v conftest &>/dev/null; then
             echo "conftest not available, installing..."
             wget -q https://github.com/open-policy-agent/conftest/releases/download/v0.46.0/conftest_0.46.0_Linux_x86_64.tar.gz
             tar xzf conftest_0.46.0_Linux_x86_64.tar.gz
-            ./conftest test --policy policies/terraform/ terraform/ || true
+            sudo mv conftest /usr/local/bin/conftest
           fi
+          conftest test --policy policies/terraform/ terraform/
 
   # ===========================================================================
   # TERRAFORM PLAN (Dev)
@@ -182,6 +184,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      TF_VAR_environment: dev
+      TF_VAR_deployment_mode: express
+      TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_admin_group_id: ${{ secrets.AZURE_ADMIN_GROUP_ID || vars.AZURE_ADMIN_GROUP_ID }}
       TF_VAR_github_token: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout
@@ -200,14 +207,14 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: terraform
 
       - name: Terraform Plan
         id: plan
         run: |
           terraform plan \
-            -var-file=environments/dev.tfvars \
+            -input=false \
             -out=dev.tfplan \
             -no-color 2>&1 | tee plan-output.txt
         working-directory: terraform
@@ -251,6 +258,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      TF_VAR_environment: dev
+      TF_VAR_deployment_mode: express
+      TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_admin_group_id: ${{ secrets.AZURE_ADMIN_GROUP_ID || vars.AZURE_ADMIN_GROUP_ID }}
       TF_VAR_github_token: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout
@@ -269,14 +281,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: terraform
 
       - name: Terraform Apply
-        run: |
-          terraform apply \
-            -var-file=environments/dev.tfvars \
-            -auto-approve
+        run: terraform apply -auto-approve -input=false
         working-directory: terraform
 
       - name: Post-Deploy Validation
@@ -305,6 +314,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      TF_VAR_environment: staging
+      TF_VAR_deployment_mode: standard
+      TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_admin_group_id: ${{ secrets.AZURE_ADMIN_GROUP_ID || vars.AZURE_ADMIN_GROUP_ID }}
       TF_VAR_github_token: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout
@@ -323,18 +337,15 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: terraform
 
       - name: Terraform Plan
-        run: |
-          terraform plan \
-            -var-file=environments/staging.tfvars \
-            -out=staging.tfplan
+        run: terraform plan -input=false -out=staging.tfplan
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply staging.tfplan
+        run: terraform apply -input=false staging.tfplan
         working-directory: terraform
 
   # ===========================================================================
@@ -351,6 +362,11 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      TF_VAR_environment: prod
+      TF_VAR_deployment_mode: enterprise
+      TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      TF_VAR_admin_group_id: ${{ secrets.AZURE_ADMIN_GROUP_ID || vars.AZURE_ADMIN_GROUP_ID }}
       TF_VAR_github_token: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout
@@ -369,18 +385,15 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: terraform
 
       - name: Terraform Plan
-        run: |
-          terraform plan \
-            -var-file=environments/prod.tfvars \
-            -out=prod.tfplan
+        run: terraform plan -input=false -out=prod.tfplan
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply prod.tfplan
+        run: terraform apply -input=false prod.tfplan
         working-directory: terraform
 
       - name: Post-Deploy Validation

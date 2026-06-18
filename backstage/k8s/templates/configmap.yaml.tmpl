@@ -93,11 +93,16 @@ data:
 __AUTH_BLOCK__
 
     techdocs:
-      builder: local
+      builder: external
       generator:
         runIn: local
       publisher:
-        type: local
+        type: azureBlobStorage
+        azureBlobStorage:
+          containerName: ${TECHDOCS_AZURE_BLOB_CONTAINER:-techdocs}
+          credentials:
+            accountName: ${TECHDOCS_AZURE_STORAGE_ACCOUNT}
+            accountKey: ${TECHDOCS_AZURE_STORAGE_ACCOUNT_KEY}
 
     catalog:
       rules:

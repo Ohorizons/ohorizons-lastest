@@ -40,6 +40,7 @@ spec:
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
@@ -54,6 +55,8 @@ spec:
             - name: app-config
               mountPath: /app/config
               readOnly: true
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               cpu: 250m
@@ -77,6 +80,8 @@ spec:
         - name: app-config
           configMap:
             name: backstage-app-config
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: ServiceAccount

@@ -523,12 +523,17 @@ on:
     branches: [main]
 
 env:
-  # Add environment variables here
+    # Add environment variables here
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
     
     steps:
       - name: Checkout
@@ -537,9 +542,11 @@ jobs:
           fetch-depth: 0
 
       - name: Azure Login
-        uses: azure/login@v1
+                uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+                    client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Build steps - customize for your project
       # Common examples:
@@ -576,15 +583,20 @@ jobs:
     needs: [build, test]
     if: github.ref == 'refs/heads/main'
     environment: production
+        permissions:
+            contents: read
+            id-token: write
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Azure Login
-        uses: azure/login@v1
+                uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+                    client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Deploy steps - customize for your environment
       # Common examples:

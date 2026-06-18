@@ -520,19 +520,13 @@ Microsoft.Security              Registered
 >
 > Run the `az provider register` command again for that specific provider.
 
-### 1.3 Create a Service Principal for Terraform
+### 1.3 Configure GitHub Actions OIDC for Terraform
 
-> 💡 **What is a Service Principal?**
+> 💡 **What is OIDC federation?**
 >
-> A Service Principal is like a "robot account" for Azure. Instead of Terraform using
-> your personal account (which might have 2FA, password expiration, etc.), we create
-> a dedicated identity just for automation.
->
-> **Why do we need it?**
->
-> - **Security:** Limited permissions, can be revoked independently
-> - **Automation:** Works in CI/CD pipelines without human interaction
-> - **Audit:** All actions are logged under this specific identity
+> GitHub Actions can request short-lived Azure tokens through OpenID Connect (OIDC).
+> Open Horizons uses this keyless model for enterprise deployments instead of storing
+> long-lived service principal secrets in GitHub.
 
 **Step 1: Set up variables**
 
@@ -540,77 +534,44 @@ Microsoft.Security              Registered
 # Get your subscription ID automatically
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-# Choose a name for your Service Principal
-# Convention: sp-{project}-{purpose}
-SP_NAME="sp-openhorizons-terraform"
+# Your fork owner/repo
+GITHUB_ORG="YOUR_ORG_NAME"
+GITHUB_REPO="open-horizons-platform"
+
+# Resource group used as the initial RBAC scope
+RESOURCE_GROUP="rg-openhorizons-dev"
 
 # Display the values to confirm
 echo "Subscription ID: $SUBSCRIPTION_ID"
-echo "Service Principal Name: $SP_NAME"
+echo "GitHub repository: $GITHUB_ORG/$GITHUB_REPO"
+echo "Resource group scope: $RESOURCE_GROUP"
 ```
 
-**Step 2: Create the Service Principal**
+**Step 2: Create or reuse the federated identity**
 
 ```bash
-# Create the Service Principal and save credentials to a file
-az ad sp create-for-rbac \
-  --name "$SP_NAME" \
-  --role "Contributor" \
-  --scopes "/subscriptions/$SUBSCRIPTION_ID" \
-  --sdk-auth > azure-credentials.json
-
-# Display the credentials (SAVE THESE SECURELY!)
-echo ""
-echo "=== IMPORTANT: SAVE THESE CREDENTIALS ==="
-cat azure-credentials.json
-echo ""
-echo "========================================="
+./scripts/setup-identity-federation.sh \
+  --github-org "$GITHUB_ORG" \
+  --github-repo "$GITHUB_REPO" \
+  --resource-group "$RESOURCE_GROUP"
 ```
 
-**Understanding the command:**
+The helper creates or reuses an Entra app registration, adds federated credentials
+for `main` and pull requests, grants Azure RBAC on the requested scope, and writes
+the GitHub repository secrets used by the workflows.
+
+**Understanding the OIDC setup:**
 
 | Parameter | Value | Explanation |
 |-----------|-------|-------------|
-| `--name` | sp-openhorizons-Terraform | Identifier for this Service Principal |
-| `--role` | Contributor | Permission level - can create and manage resources |
-| `--scopes` | /subscriptions/xxx | Limits access to only this subscription |
-| `--sdk-auth` | (flag) | Outputs in a format compatible with GitHub Actions |
+| `--github-org` | YOUR_ORG_NAME | GitHub organization that owns the fork |
+| `--github-repo` | open-horizons-platform | Repository receiving Azure federation |
+| `--resource-group` | rg-openhorizons-dev | Azure RBAC scope for initial deployment |
 
-**Expected output (save this!):**
+> 🔒 **Security posture:** no `AZURE_CREDENTIALS` JSON, no service principal secret,
+> and no `ARM_CLIENT_SECRET` are required for the platform workflows.
 
-```json
-{
-  "clientId": "abcd1234-ab12-cd34-ef56-abcdef123456",
-  "clientSecret": "abc123~XYZ789~verylongsecretstring",
-  "subscriptionId": "12345678-1234-1234-1234-123456789012",
-  "tenantId": "87654321-4321-4321-4321-210987654321",
-  "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
-  "resourceManagerEndpointUrl": "https://management.azure.com/",
-  "activeDirectoryGraphResourceId": "https://graph.windows.net/",
-  "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
-  "galleryEndpointUrl": "https://gallery.azure.com/",
-  "managementEndpointUrl": "https://management.core.windows.net/"
-}
-```
-
-> 🔒 **CRITICAL: Security Warning!**
->
-> The `azure-credentials.json` file contains **sensitive secrets** that can control
-> your entire Azure subscription!
->
-> **DO:**
->
-> - Save it in a password manager (1Password, LastPass, etc.)
-> - Delete it from your computer after copying to GitHub Secrets
-> - Add `azure-credentials.json` to `.gitignore`
->
-> **DON'T:**
->
-> - Commit this file to Git
-> - Share it via email or Slack
-> - Leave it on shared computers
-
-### 1.4 Grant Additional Permissions to Service Principal
+### 1.4 Verify Federated Identity Permissions
 
 > 💡 **Why Additional Permissions?**
 >
@@ -620,37 +581,22 @@ echo "========================================="
 > - **Key Vault Administrator:** To manage secrets in Key Vault
 
 ```bash
-# Get the Service Principal's Object ID (different from Client ID!)
-SP_OBJECT_ID=$(az ad sp list --display-name "$SP_NAME" --query "[0].id" -o tsv)
-
-echo "Service Principal Object ID: $SP_OBJECT_ID"
-
-# Grant User Access Administrator role
-echo "Granting User Access Administrator role..."
-az role assignment create \
-  --assignee "$SP_OBJECT_ID" \
-  --role "User Access Administrator" \
-  --scope "/subscriptions/$SUBSCRIPTION_ID"
-
-# Grant Key Vault Administrator role
-echo "Granting Key Vault Administrator role..."
-az role assignment create \
-  --assignee "$SP_OBJECT_ID" \
-  --role "Key Vault Administrator" \
-  --scope "/subscriptions/$SUBSCRIPTION_ID"
-
-echo "✓ Additional permissions granted!"
+gh secret list | grep -E 'AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID'
+az ad app federated-credential list --id "$(gh secret list >/dev/null && echo "$AZURE_CLIENT_ID")" 2>/dev/null || \
+  echo "Use Azure Portal > App registrations to inspect federated credentials."
 ```
 
-**If you get "Principal not found" error:**
+The deploy identity needs enough permission to create resource groups and assign
+managed identity roles. Use subscription `Owner`, or `Contributor` plus `User Access Administrator`.
+
+**If federation is missing:**
 
 ```bash
-# Wait 30 seconds for Azure AD replication, then retry
-sleep 30
-az role assignment create \
-  --assignee "$SP_OBJECT_ID" \
-  --role "User Access Administrator" \
-  --scope "/subscriptions/$SUBSCRIPTION_ID"
+./scripts/setup-identity-federation.sh \
+  --github-org "$GITHUB_ORG" \
+  --github-repo "$GITHUB_REPO" \
+  --resource-group "$RESOURCE_GROUP" \
+  --dry-run
 ```
 
 ### 1.5 Verify Azure Setup is Complete
@@ -663,12 +609,10 @@ echo "=== AZURE SETUP VERIFICATION ==="
 echo ""
 echo "✓ Subscription: $(az account show --query name -o tsv)"
 echo "✓ Subscription ID: $(az account show --query id -o tsv)"
-echo "✓ Service Principal: $SP_NAME"
+echo "✓ GitHub OIDC repo: $GITHUB_ORG/$GITHUB_REPO"
 echo ""
 echo "Resource Providers Status:"
 az provider list --query "[?namespace=='Microsoft.ContainerService'].{Provider:namespace, Status:registrationState}" -o table
-echo ""
-echo "Credentials file exists: $([ -f azure-credentials.json ] && echo 'YES' || echo 'NO')"
 echo ""
 echo "=== STEP 1 COMPLETE ==="
 ```
@@ -677,8 +621,8 @@ echo "=== STEP 1 COMPLETE ==="
 >
 > - [ ] You're logged into the correct Azure subscription
 > - [ ] All resource providers show "Registered"
-> - [ ] You have `azure-credentials.json` saved securely
-> - [ ] Additional role assignments succeeded
+> - [ ] `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` secrets exist
+> - [ ] Federated credentials exist for the platform repository
 
 ---
 
@@ -779,7 +723,7 @@ cd open-horizons-platform
 > 💡 **What are GitHub Secrets?**
 >
 > Secrets are encrypted environment variables that GitHub Actions can use. We store
-> sensitive data (like Azure credentials) as secrets so they're never exposed in logs
+> sensitive identifiers as secrets so they're never exposed in logs
 > or code.
 
 **First, make sure you're in the repository directory:**
@@ -789,31 +733,17 @@ cd open-horizons-platform
 pwd
 # Should end with: /open-horizons-platform
 
-# Check that azure-credentials.json is accessible
-ls -la azure-credentials.json 2>/dev/null || echo "File not found - make sure you're in the right directory and the file exists"
+# Check that identity federation secrets exist
+gh secret list | grep -E 'AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_SUBSCRIPTION_ID'
 ```
 
 **Set all required secrets:**
 
 ```bash
-# Set the full Azure credentials JSON (used by some workflows)
-gh secret set AZURE_CREDENTIALS < azure-credentials.json
-echo "✓ AZURE_CREDENTIALS set"
-
-# Set individual values (used by Terraform)
-# These extract values from azure-credentials.json automatically
-
-gh secret set ARM_CLIENT_ID --body "$(cat azure-credentials.json | jq -r .clientId)"
-echo "✓ ARM_CLIENT_ID set"
-
-gh secret set ARM_CLIENT_SECRET --body "$(cat azure-credentials.json | jq -r .clientSecret)"
-echo "✓ ARM_CLIENT_SECRET set"
-
-gh secret set ARM_SUBSCRIPTION_ID --body "$(cat azure-credentials.json | jq -r .subscriptionId)"
-echo "✓ ARM_SUBSCRIPTION_ID set"
-
-gh secret set ARM_TENANT_ID --body "$(cat azure-credentials.json | jq -r .tenantId)"
-echo "✓ ARM_TENANT_ID set"
+# Most Azure secrets are written by setup-identity-federation.sh.
+# Add the administrator group and GitHub token used by Terraform providers.
+gh secret set AZURE_ADMIN_GROUP_ID --body "<entra-admin-group-object-id>"
+gh secret set GH_PAT --body "<fine-grained-token-for-repo-automation>"
 
 echo ""
 echo "All secrets configured!"
@@ -829,11 +759,11 @@ gh secret list
 
 ```
 NAME                 UPDATED
-ARM_CLIENT_ID        now
-ARM_CLIENT_SECRET    now
-ARM_SUBSCRIPTION_ID  now
-ARM_TENANT_ID        now
-AZURE_CREDENTIALS    now
+AZURE_CLIENT_ID      now
+AZURE_SUBSCRIPTION_ID now
+AZURE_TENANT_ID      now
+AZURE_ADMIN_GROUP_ID now
+GH_PAT               now
 ```
 
 > ⚠️ **If you get "no repository detected" error:**
@@ -2503,10 +2433,11 @@ az keyvault show --name <kv-name> --query "properties.accessPolicies"
 
 | Variable | Description | Where to Get It |
 |----------|-------------|-----------------|
-| ARM_CLIENT_ID | Service Principal Client ID | Azure-credentials.json |
-| ARM_CLIENT_SECRET | Service Principal Secret | Azure-credentials.json |
-| ARM_SUBSCRIPTION_ID | Azure Subscription ID | Azure-credentials.json |
-| ARM_TENANT_ID | Azure Tenant ID | Azure-credentials.json |
+| AZURE_CLIENT_ID | Federated Entra app client ID | `setup-identity-federation.sh` |
+| AZURE_SUBSCRIPTION_ID | Azure subscription ID | `az account show` / setup helper |
+| AZURE_TENANT_ID | Azure tenant ID | `az account show` / setup helper |
+| AZURE_ADMIN_GROUP_ID | Entra group object ID for admins | Entra admin group |
+| GH_PAT | Fine-grained GitHub token for repo automation | GitHub token settings |
 
 ### Optional Configuration
 

@@ -126,7 +126,7 @@ locals {
     Owner        = var.owner
     CostCenter   = var.cost_center
     ManagedBy    = "Terraform"
-    Repository   = "ohorizons-lastest"
+    Repository   = "open-horizons-platform"
   }
 }
 ```

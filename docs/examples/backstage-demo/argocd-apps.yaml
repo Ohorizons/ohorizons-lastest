@@ -1,7 +1,5 @@
 # =============================================================================
-# ArgoCD — Platform App-of-Apps
-# =============================================================================
-# Registers all platform components as ArgoCD Applications for GitOps management
+# DEMO ONLY — ArgoCD app bundle
 # =============================================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -11,11 +9,13 @@ metadata:
   labels:
     app.kubernetes.io/part-of: open-horizons
     open-horizons/horizon: h2
+  annotations:
+    open-horizons.io/profile: demo-only
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/open-horizons-platform
-    targetRevision: demo
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}
+    targetRevision: ${GITHUB_BRANCH:-main}
     path: deploy/helm
   destination:
     server: https://kubernetes.default.svc
@@ -33,11 +33,13 @@ metadata:
   labels:
     app.kubernetes.io/part-of: open-horizons
     open-horizons/horizon: h2
+  annotations:
+    open-horizons.io/profile: demo-only
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/open-horizons-platform
-    targetRevision: demo
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}
+    targetRevision: ${GITHUB_BRANCH:-main}
     path: prometheus
   destination:
     server: https://kubernetes.default.svc
@@ -55,11 +57,13 @@ metadata:
   labels:
     app.kubernetes.io/part-of: open-horizons
     open-horizons/horizon: h2
+  annotations:
+    open-horizons.io/profile: demo-only
 spec:
   project: default
   source:
-    repoURL: https://github.com/Ohorizons/open-horizons-platform
-    targetRevision: demo
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}
+    targetRevision: ${GITHUB_BRANCH:-main}
     path: argocd
   destination:
     server: https://kubernetes.default.svc

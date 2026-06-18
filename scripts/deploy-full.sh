@@ -126,12 +126,24 @@ load_checkpoint() {
 
 tf_plan() {
   local plan_file="$1"
+  local plan_log
+  plan_log="$(mktemp)"
   echo -e "  ${BLUE}Running terraform plan...${NC}"
+  set +e
   terraform plan \
     -var-file="environments/${ENVIRONMENT}.tfvars" \
     -out="$plan_file" \
-    -detailed-exitcode 2>&1 | tail -5
+    -detailed-exitcode >"$plan_log" 2>&1
+  local plan_status=$?
+  set -e
+  tail -5 "$plan_log"
+  rm -f "$plan_log"
   echo ""
+  if [[ "$plan_status" -eq 1 ]]; then
+    echo -e "  ${RED}Terraform plan failed.${NC}"
+    return 1
+  fi
+  return 0
 }
 
 tf_apply() {
@@ -245,7 +257,7 @@ fi
 # --- Phase 4: Verify H1 ------------------------------------------------------
 if [[ "$LAST_PHASE" -lt 5 ]] && [[ "$HORIZON" == "h1" || "$HORIZON" == "all" ]] && ! $DRY_RUN; then
   phase 4 "Verify H1 Foundation"
-  "$SCRIPT_DIR/validate-deployment.sh" --phase h1 || echo -e "  ${YELLOW}⚠ H1 verification had warnings${NC}"
+  "$SCRIPT_DIR/validate-deployment.sh" --phase h1 --environment "$ENVIRONMENT"
   save_checkpoint 5
 fi
 
@@ -283,13 +295,17 @@ fi
 if [[ "$LAST_PHASE" -lt 6 ]] && [[ "$HORIZON" == "h2" || "$HORIZON" == "all" ]] && ! $DRY_RUN; then
   if [[ -x "$SCRIPT_DIR/render-manifests.sh" ]]; then
     echo -e "  ${BLUE}Rendering Backstage manifests from selection...${NC}"
-    "$SCRIPT_DIR/render-manifests.sh" --selection "$SELECTION_FILE" || \
-      echo -e "  ${YELLOW}!${NC} render-manifests.sh exited non-zero; continuing."
+    "$SCRIPT_DIR/render-manifests.sh" --selection "$SELECTION_FILE" || {
+      echo -e "  ${RED}render-manifests.sh failed.${NC}"
+      exit 1
+    }
     if [[ -d "$PROJECT_DIR/backstage/k8s/.rendered" ]] && command -v kubectl >/dev/null 2>&1; then
       if kubectl cluster-info >/dev/null 2>&1; then
         echo -e "  ${BLUE}Applying rendered Backstage manifests...${NC}"
-        kubectl apply -k "$PROJECT_DIR/backstage/k8s/.rendered" || \
-          echo -e "  ${YELLOW}!${NC} kubectl apply -k failed; check cluster context."
+        kubectl apply -k "$PROJECT_DIR/backstage/k8s/.rendered" || {
+          echo -e "  ${RED}kubectl apply -k failed; check cluster context.${NC}"
+          exit 1
+        }
       else
         echo -e "  ${YELLOW}!${NC} No live cluster context; skipping kubectl apply."
       fi
@@ -300,7 +316,7 @@ fi
 # --- Phase 6: Verify H2 ------------------------------------------------------
 if [[ "$LAST_PHASE" -lt 7 ]] && [[ "$HORIZON" == "h2" || "$HORIZON" == "all" ]] && ! $DRY_RUN; then
   phase 6 "Verify H2 Enhancement"
-  "$SCRIPT_DIR/validate-deployment.sh" --phase h2 || true
+  "$SCRIPT_DIR/validate-deployment.sh" --phase h2 --environment "$ENVIRONMENT"
   save_checkpoint 7
 fi
 
@@ -336,7 +352,7 @@ fi
 # --- Phase 8: Final Verification ---------------------------------------------
 if [[ "$LAST_PHASE" -lt 9 ]] && ! $DRY_RUN; then
   phase 8 "Final Platform Verification"
-  "$SCRIPT_DIR/validate-deployment.sh" --phase all --environment "$ENVIRONMENT" || true
+  "$SCRIPT_DIR/validate-deployment.sh" --phase all --environment "$ENVIRONMENT"
   save_checkpoint 9
 fi
 

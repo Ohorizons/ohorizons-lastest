@@ -45,4 +45,4 @@ This project includes a basic CI/CD pipeline using GitHub Actions.
 ## Links
 
 - [GitHub Actions Documentation](https://docs.github.com/actions)
-- [Open Horizons Platform](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/ohorizons-lastest)
+- [Open Horizons Platform](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/open-horizons-platform)

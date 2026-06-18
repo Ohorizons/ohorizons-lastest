@@ -10,7 +10,7 @@
 #   ./scripts/setup-branch-protection.sh [OWNER/REPO]
 #
 # Example:
-#   ./scripts/setup-branch-protection.sh myorg/ohorizons-lastest
+#   ./scripts/setup-branch-protection.sh myorg/open-horizons-platform
 #
 # =============================================================================
 

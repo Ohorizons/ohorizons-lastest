@@ -85,5 +85,5 @@ This application is deployed via ArgoCD. Changes to the `main` branch automatica
 
 ## Links
 
-- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/ohorizons-lastest)
+- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/open-horizons-platform)
 - [Component Library](https://design.example.com)

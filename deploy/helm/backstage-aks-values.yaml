@@ -30,7 +30,7 @@ backstage:
       memory: 2Gi
 
   containerSecurityContext:
-    readOnlyRootFilesystem: false
+    readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
@@ -41,6 +41,7 @@ backstage:
 
   extraEnvVarsSecrets:
     - backstage-github-app
+    - backstage-techdocs
 
   appConfig:
     app:
@@ -100,6 +101,19 @@ backstage:
                 - resolver: usernameMatchingUserEntityName
 
     # ── Software Catalog ────────────────────────────────────────────
+    techdocs:
+      builder: external
+      generator:
+        runIn: local
+      publisher:
+        type: azureBlobStorage
+        azureBlobStorage:
+          containerName: ${TECHDOCS_AZURE_BLOB_CONTAINER:-techdocs}
+          credentials:
+            accountName: ${TECHDOCS_AZURE_STORAGE_ACCOUNT}
+            accountKey: ${TECHDOCS_AZURE_STORAGE_ACCOUNT_KEY}
+
+    # ── Software Catalog ────────────────────────────────────────────
     catalog:
       rules:
         - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
@@ -116,11 +130,6 @@ backstage:
           target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/examples/entities.yaml
           rules:
             - allow: [Component, API, System, Resource, Domain]
-        - type: url
-          target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/examples/demo-template.yaml
-          rules:
-            - allow: [Template]
-
 postgresql:
   enabled: true
   auth:

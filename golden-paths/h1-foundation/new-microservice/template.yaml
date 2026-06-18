@@ -31,7 +31,7 @@ metadata:
     - title: Node.js Best Practices
       url: https://github.com/goldbergyoni/nodebestpractices
     - title: Open Horizons Guide
-      url: https://github.com/Ohorizons/ohorizons-lastest
+      url: https://github.com/Ohorizons/open-horizons-platform
 
 spec:
   owner: platform-engineering

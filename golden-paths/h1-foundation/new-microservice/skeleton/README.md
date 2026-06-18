@@ -88,6 +88,6 @@ src/
 
 ## Links
 
-- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/ohorizons-lastest)
+- [Open Horizons Documentation](https://github.com/${{values.repoUrl | parseRepoUrl | pick('owner') }}/open-horizons-platform)
 - [ArgoCD Dashboard](https://argocd.example.com)
 - [Grafana Dashboard](https://grafana.example.com)

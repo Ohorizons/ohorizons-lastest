@@ -200,7 +200,7 @@ jobs:
             ```bash
             # Clone the repository
             git clone https://github.com/${{ github.repository }}.git
-            cd ohorizons-lastest
+            cd open-horizons-platform
 
             # Or download the release
             wget https://github.com/${{ github.repository }}/releases/download/${{ needs.validate.outputs.version }}/open-horizons-platform-${{ needs.validate.outputs.version }}.tar.gz

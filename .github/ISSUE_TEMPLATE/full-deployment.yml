@@ -171,8 +171,8 @@ body:
         
         ```bash
         # 1. Clone and setup
-        git clone https://github.com/Ohorizons/ohorizons-lastest.git
-        cd ohorizons-lastest
+        git clone https://github.com/Ohorizons/open-horizons-platform.git
+        cd open-horizons-platform
         
         # 2. Validate prerequisites
         ./scripts/validate-prerequisites.sh

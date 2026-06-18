@@ -1,15 +1,17 @@
 # =============================================================================
-# All Ingress Resources — AKS Backstage Demo
+# DEMO ONLY — Monitoring ingress bundle
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: prometheus-ingress
   namespace: monitoring
+  annotations:
+    open-horizons.io/profile: demo-only
 spec:
   ingressClassName: nginx
   rules:
-    - host: prometheus.128.85.226.112.sslip.io
+    - host: prometheus.${DEMO_LB_IP}.sslip.io
       http:
         paths:
           - path: /
@@ -25,10 +27,12 @@ kind: Ingress
 metadata:
   name: alertmanager-ingress
   namespace: monitoring
+  annotations:
+    open-horizons.io/profile: demo-only
 spec:
   ingressClassName: nginx
   rules:
-    - host: alertmanager.128.85.226.112.sslip.io
+    - host: alertmanager.${DEMO_LB_IP}.sslip.io
       http:
         paths:
           - path: /
