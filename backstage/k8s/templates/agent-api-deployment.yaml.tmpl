@@ -75,6 +75,12 @@ spec:
               value: "8008"
             - name: CORS_ORIGINS
               value: "https://__DOMAIN__,http://__PLATFORM_NAME__-backstage.backstage.svc.cluster.local:7007"
+            # MCP Ecosystem (L3 context) — same-namespace Service in ai-services.
+            # The client also defaults to this URL; set explicitly for clarity and
+            # so it can be overridden per environment. If unreachable, AI Chat
+            # degrades gracefully and answers without upstream grounding.
+            - name: MCP_ECOSYSTEM_URL
+              value: "http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp"
           resources:
             requests:
               cpu: 100m

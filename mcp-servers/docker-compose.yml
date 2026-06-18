@@ -6,7 +6,10 @@ services:
     ports:
       - "3100:3100"
     env_file:
-      - .env
+      # Optional: provide GH_TOKEN / CACHE_TTL_MS to raise upstream rate limits.
+      # Not required to run locally during installation.
+      - path: .env
+        required: false
     environment:
       - PORT=3100
       - CACHE_DIR=/app/cache

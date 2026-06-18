@@ -890,38 +890,36 @@ kubectl delete node <unreachable-node>
 
 ### 6.1 Understanding ArgoCD Sync Status
 
-> 💡 **ArgoCD Status Meanings**
->
-> ```text
-> ┌─────────────────────────────────────────────────────────────────┐
-> │                    ARGOCD STATUS MATRIX                         │
-> ├─────────────────────────────────────────────────────────────────┤
-> │                                                                 │
-> │  SYNC STATUS:                                                   │
-> │  ────────────                                                   │
-> │  Synced      = Git matches cluster (good!)                      │
-> │  OutOfSync   = Git differs from cluster                         │
-> │  Unknown     = ArgoCD can't determine status                    │
-> │                                                                 │
-> │  HEALTH STATUS:                                                 │
-> │  ──────────────                                                 │
-> │  Healthy     = All resources working (good!)                    │
-> │  Progressing = Resources are starting/updating                  │
-> │  Degraded    = Some resources have issues                       │
-> │  Suspended   = Resources are paused (e.g., scaling to 0)        │
-> │  Missing     = Resources don't exist in cluster                 │
-> │  Unknown     = Can't determine health                           │
-> │                                                                 │
-> │  COMMON COMBINATIONS:                                           │
-> │  ────────────────────                                           │
-> │  Synced + Healthy     = Everything working                      │
-> │  OutOfSync + Healthy  = Running old version, update available   │
-> │  Synced + Progressing = Just synced, waiting for rollout        │
-> │  Synced + Degraded    = Synced but app is broken                │
-> │  OutOfSync + Degraded = Need sync AND app is broken             │
-> │                                                                 │
-> └─────────────────────────────────────────────────────────────────┘
-> ```
+> 💡 **ArgoCD Status Meanings** — sync status shows whether Git matches the cluster; health status shows whether resources are actually working.
+
+**Sync status:**
+
+| Status | Meaning |
+| ------ | ------- |
+| `Synced` | Git matches cluster (good) |
+| `OutOfSync` | Git differs from cluster |
+| `Unknown` | ArgoCD can't determine status |
+
+**Health status:**
+
+| Status | Meaning |
+| ------ | ------- |
+| `Healthy` | All resources working (good) |
+| `Progressing` | Resources are starting or updating |
+| `Degraded` | Some resources have issues |
+| `Suspended` | Resources are paused (e.g., scaled to 0) |
+| `Missing` | Resources don't exist in cluster |
+| `Unknown` | Can't determine health |
+
+**Common combinations:**
+
+| Combination | Meaning |
+| ----------- | ------- |
+| `Synced` + `Healthy` | Everything working |
+| `OutOfSync` + `Healthy` | Running old version, update available |
+| `Synced` + `Progressing` | Just synced, waiting for rollout |
+| `Synced` + `Degraded` | Synced but app is broken |
+| `OutOfSync` + `Degraded` | Need sync AND app is broken |
 
 ### 6.2 Application OutOfSync
 
@@ -1063,37 +1061,21 @@ argocd app sync my-app --skip-hooks
 
 ### 7.1 Understanding Kubernetes Networking
 
-> 💡 **Kubernetes Network Model**
->
-> ```text
-> ┌─────────────────────────────────────────────────────────────────────┐
-> │                 KUBERNETES NETWORKING LAYERS                        │
-> ├─────────────────────────────────────────────────────────────────────┤
-> │                                                                     │
-> │  LAYER 1: POD-TO-POD                                                │
-> │  ─────────────────────                                              │
-> │  Every pod gets a unique IP address                                 │
-> │  Pods can reach any other pod by IP (no NAT)                        │
-> │  Managed by: CNI plugin (Azure CNI in AKS)                          │
-> │                                                                     │
-> │  LAYER 2: SERVICE                                                   │
-> │  ────────────────                                                   │
-> │  Services provide stable DNS and load balancing                     │
-> │  service-name.namespace.svc.cluster.local → Pod IPs                 │
-> │  Types: ClusterIP (internal), LoadBalancer (external)               │
-> │                                                                     │
-> │  LAYER 3: INGRESS                                                   │
-> │  ─────────────────                                                  │
-> │  HTTP(S) routing from outside the cluster                           │
-> │  Maps hostnames/paths to services                                   │
-> │                                                                     │
-> │  LAYER 4: NETWORK POLICY                                            │
-> │  ─────────────────────────                                          │
-> │  Firewall rules at pod level                                        │
-> │  Controls which pods can communicate                                │
-> │                                                                     │
-> └─────────────────────────────────────────────────────────────────────┘
-> ```
+> 💡 **Kubernetes Network Model** — traffic is organized into four layers, from pod-to-pod connectivity up to network policy enforcement.
+
+```mermaid
+flowchart TD
+    L1["Layer 1 · Pod-to-Pod<br/>Every pod gets a unique IP · no NAT<br/>Managed by the CNI plugin (Azure CNI in AKS)"]
+    L2["Layer 2 · Service<br/>Stable DNS + load balancing<br/>name.namespace.svc.cluster.local → Pod IPs"]
+    L3["Layer 3 · Ingress<br/>HTTP(S) routing from outside the cluster<br/>Maps hostnames/paths to services"]
+    L4["Layer 4 · Network Policy<br/>Firewall rules at pod level<br/>Controls which pods can communicate"]
+    L1 --- L2 --- L3 --- L4
+
+    style L1 fill:#0078D4,color:#fff
+    style L2 fill:#00A4EF,color:#fff
+    style L3 fill:#7FBA00,color:#fff
+    style L4 fill:#F25022,color:#fff
+```
 
 ### 7.2 Pod Cannot Reach External Service
 
@@ -1249,32 +1231,29 @@ az network private-dns record-set a list \
 
 ### 8.1 Understanding External Secrets
 
-> 💡 **How External Secrets Operator (ESO) Works**
->
-> ```text
-> ┌─────────────────────────────────────────────────────────────────────┐
-> │                 EXTERNAL SECRETS FLOW                               │
-> ├─────────────────────────────────────────────────────────────────────┤
-> │                                                                     │
-> │  1. You create ExternalSecret resource in K8s                       │
-> │                                                                     │
-> │  2. ESO controller sees it                                          │
-> │                                                                     │
-> │  3. ESO uses ClusterSecretStore to know HOW to connect              │
-> │     (Key Vault URL, authentication method)                          │
-> │                                                                     │
-> │  4. ESO authenticates to Key Vault using Workload Identity          │
-> │                                                                     │
-> │  5. ESO reads secret from Key Vault                                 │
-> │                                                                     │
-> │  6. ESO creates/updates Kubernetes Secret                           │
-> │                                                                     │
-> │  7. Your pod uses the Kubernetes Secret                             │
-> │                                                                     │
-> │  If ANY step fails, ExternalSecret shows "SecretSyncedError"        │
-> │                                                                     │
-> └─────────────────────────────────────────────────────────────────────┘
-> ```
+> 💡 **How External Secrets Operator (ESO) Works** — ESO watches your `ExternalSecret`, authenticates to Key Vault, and projects the value into a native Kubernetes Secret.
+
+```mermaid
+flowchart TD
+    A["1 · You create an ExternalSecret resource in K8s"] --> B["2 · ESO controller sees it"]
+    B --> C["3 · ESO reads the ClusterSecretStore<br/>(Key Vault URL + auth method)"]
+    C --> D["4 · ESO authenticates to Key Vault<br/>using Workload Identity"]
+    D --> E["5 · ESO reads the secret from Key Vault"]
+    E --> F["6 · ESO creates/updates the Kubernetes Secret"]
+    F --> G["7 · Your pod uses the Kubernetes Secret"]
+    C -.->|any step fails| X["ExternalSecret shows<br/>SecretSyncedError"]
+    D -.->|any step fails| X
+    E -.->|any step fails| X
+
+    style A fill:#00A4EF,color:#fff
+    style B fill:#00A4EF,color:#fff
+    style C fill:#0078D4,color:#fff
+    style D fill:#FFB900,color:#000
+    style E fill:#0078D4,color:#fff
+    style F fill:#7FBA00,color:#fff
+    style G fill:#7FBA00,color:#fff
+    style X fill:#F25022,color:#fff
+```
 
 ### 8.2 ExternalSecret Not Syncing
 

@@ -484,13 +484,10 @@ user_node_pools = [
 >
 > **Taints** on nodes repel pods that don't have matching **tolerations**.
 >
-> ```text
-> Node with taint:          Pod without toleration:
-> gpu=true:NoSchedule  →    ❌ Won't be scheduled
->
-> Node with taint:          Pod with toleration:
-> gpu=true:NoSchedule  →    ✅ Will be scheduled
-> ```
+> | Node taint | Pod toleration | Result |
+> | ---------- | -------------- | ------ |
+> | `gpu=true:NoSchedule` | none | ❌ Won't be scheduled |
+> | `gpu=true:NoSchedule` | matching | ✅ Will be scheduled |
 >
 > This ensures only GPU workloads run on expensive GPU nodes!
 

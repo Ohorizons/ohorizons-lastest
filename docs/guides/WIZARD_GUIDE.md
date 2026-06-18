@@ -45,44 +45,18 @@ The wizard is the single entry point for creating new work. Selecting a Golden P
 
 ## Wizard Flow
 
-```text
-+----------------------------+
-| 1. Open Horizons Portal    |
-|    (Backstage on AKS)      |
-+-------------+--------------+
-              |
-              v
-+----------------------------+
-| 2. Choose Golden Path      |
-|    (34 templates)          |
-+-------------+--------------+
-              |
-              v
-+----------------------------+
-| 3. Wizard Form             |
-|    - Identity & Repo       |
-|    - Workload Options      |
-|    - Azure Deployment      |  <-- toggle
-|    - CI/CD & Security      |
-+-------------+--------------+
-              |
-              v
-+----------------------------+
-| 4. Scaffolder Steps        |
-|    fetch:template          |
-|    fetch:plain (agents)    |
-|    publish:github          |
-|    catalog:register        |
-+-------------+--------------+
-              |
-              v
-+----------------------------+
-| 5. Output                  |
-|    - Repo URL              |
-|    - Catalog entity        |
-|    - Optional Azure infra  |
-|    - GitHub Actions ready  |
-+----------------------------+
+```mermaid
+flowchart TD
+    P1["1 · Open Horizons Portal<br/>(Backstage on AKS)"] --> P2["2 · Choose Golden Path<br/>(34 templates)"]
+    P2 --> P3["3 · Wizard Form<br/>Identity & Repo · Workload Options<br/>Azure Deployment (toggle) · CI/CD & Security"]
+    P3 --> P4["4 · Scaffolder Steps<br/>fetch:template · fetch:plain (agents)<br/>publish:github · catalog:register"]
+    P4 --> P5["5 · Output<br/>Repo URL · Catalog entity<br/>Optional Azure infra · GitHub Actions ready"]
+
+    style P1 fill:#0078D4,color:#fff
+    style P2 fill:#00A4EF,color:#fff
+    style P3 fill:#FFB900,color:#000
+    style P4 fill:#7FBA00,color:#fff
+    style P5 fill:#F25022,color:#fff
 ```
 
 ## Choosing a Golden Path

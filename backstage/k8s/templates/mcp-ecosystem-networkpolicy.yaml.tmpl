@@ -1,0 +1,43 @@
+# =============================================================================
+# MCP Ecosystem - NetworkPolicy (L3 Context Engineering)
+# Rendered by scripts/render-k8s.sh; gated to ENABLE_MCP_ECOSYSTEM by
+# scripts/render-manifests.sh. Applied only when the MCP Ecosystem is enabled.
+#
+# Intent: lock inbound access to the MCP Ecosystem server (:3100) to the AI Chat
+# agent-api, which is the only in-cluster consumer (same ai-services namespace).
+#
+# Design notes:
+#   - Ingress-only on purpose. Once this policy selects the mcp-ecosystem pod,
+#     ingress is default-deny except the rule below.
+#   - Egress is intentionally left open so the server can resolve DNS and fetch
+#     upstream documentation over HTTPS (raw.githubusercontent.com, api.github.com)
+#     to populate its cache.
+#   - Kubelet liveness/readiness probes originate from the node (local host -> pod)
+#     and are not affected by this pod-selector ingress policy on AKS
+#     (Azure CNI / Azure NPM / Calico allow local host-to-pod traffic by default).
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-ecosystem
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: mcp-ecosystem
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: open-horizons
+    app.kubernetes.io/managed-by: open-horizons-installer
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-ecosystem
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow the AI Chat agent-api (same namespace) to reach the MCP endpoint.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: agent-api
+      ports:
+        - protocol: TCP
+          port: 3100

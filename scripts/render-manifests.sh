@@ -137,6 +137,7 @@ FILE_FLAGS=(
   "agent-api-service.yaml=$ENABLE_AGENT_API"
   "agent-api-impact-deployment.yaml=$ENABLE_AGENT_API_IMPACT"
   "mcp-ecosystem-deployment.yaml=$ENABLE_MCP_ECOSYSTEM"
+  "mcp-ecosystem-networkpolicy.yaml=$ENABLE_MCP_ECOSYSTEM"
 )
 
 render_templates_to_temp_source() {

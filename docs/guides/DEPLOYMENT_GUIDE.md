@@ -181,11 +181,18 @@ The platform is organized into three "horizons" (layers), each building on the p
 
 We deploy in phases because each layer depends on the previous one:
 
-```
-Phase 1          Phase 2          Phase 3          Phase 4          Phase 5
-[Prerequisites]  [H1 Foundation]  [H1 Verify]      [H2 Enhancement] [H3 Innovation]
-    30 min    →     30 min     →    15 min     →      30 min      →    30 min
-                                                                    (optional)
+```mermaid
+flowchart LR
+    P1["Phase 1<br/>Prerequisites<br/>30 min"] --> P2["Phase 2<br/>H1 Foundation<br/>30 min"]
+    P2 --> P3["Phase 3<br/>H1 Verify<br/>15 min"]
+    P3 --> P4["Phase 4<br/>H2 Enhancement<br/>30 min"]
+    P4 --> P5["Phase 5<br/>H3 Innovation<br/>30 min (optional)"]
+
+    style P1 fill:#FFB900,color:#000
+    style P2 fill:#0078D4,color:#fff
+    style P3 fill:#00A4EF,color:#fff
+    style P4 fill:#7FBA00,color:#fff
+    style P5 fill:#F25022,color:#fff
 ```
 
 | Phase | What Happens | Time | Dependencies |
