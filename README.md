@@ -276,7 +276,7 @@ Edit `.env` with your organization's details:
 | Variable | Description |
 |:---------|:------------|
 | `GITHUB_ORG`, `GITHUB_REPO` | Your GitHub organization and repo name |
-| `DOMAIN` | Your custom domain (or use the default) |
+| `DOMAIN` | Your custom domain. The fork-ready default is `openhorizons.example.com`; replace it before production. |
 | `AUTH_PROVIDER` | Authentication provider: `github`, `entra`, or `guest` |
 | Azure details | Subscription, resource group, AKS cluster name |
 
@@ -285,6 +285,14 @@ Or use the **interactive wizard** to configure everything in one step:
 ```bash
 scripts/install-wizard.sh
 ```
+
+Wizard portal profiles:
+
+| Profile | Best for | Includes |
+|:--------|:---------|:---------|
+| `base` | Clean enterprise fork | Backstage core, catalog, scaffolder, TechDocs |
+| `platform` | H2 platform rollout | Base + branding, platform pages, observability pages |
+| `full` | Demo or H3 innovation rollout | Platform + AI Chat, AI Impact, MCP ecosystem |
 
 ### 3. Generate & Deploy
 

@@ -6,9 +6,12 @@
 # Lets a client pick what to install BEFORE running scripts/deploy-full.sh:
 #   - Horizon level (h1 | h2 | h3 | all)
 #   - Deployment mode (express | standard | enterprise)
+#   - Portal profile (base | platform | full)
+#   - Branding profile (neutral | open-horizons | custom)
 #   - Terraform module toggles (11 enable_* flags)
 #   - Backstage component toggles (6 toggles: AI Chat plugin, 4 agent APIs,
 #     MCP ecosystem)
+#   - Backstage feature packs (H2 platform pages, H3 AI, MCP)
 #   - Subset of the 34 Golden Path templates surfaced in the catalog
 #
 # Outputs:
@@ -114,6 +117,8 @@ SELECTED_AGENTS=()
 SELECTED_SKILLS=()
 SELECTED_PROMPTS=()
 SELECTED_MCP=()
+PORTAL_PROFILE_EXPLICIT=false
+FEATURE_PACKS_EXPLICIT=false
 
 # Helper: index of key in array
 index_of() {
@@ -152,12 +157,17 @@ Options:
   --environment, -e <env>     Target environment (dev|staging|prod). Required when --auto.
   --horizon, -h <h>           h1 | h2 | h3 | all. Default: prompt or value from --selection-file.
   --deployment-mode <m>       express | standard | enterprise.
+  --portal-profile <p>        base | platform | full.
+  --branding-profile <p>      neutral | open-horizons | custom.
   --auto                      Non-interactive mode. Requires --selection-file.
   --selection-file <path>     YAML manifest in --auto mode (defaults to .openhorizons-selection.yaml).
   --dry-run                   Print diffs but write nothing.
   --next-step <s>             nothing | deploy. Default: nothing.
   --force                     Skip confirmation prompts on diffs (interactive only).
   --profile <p>               Apply a curated preset before prompts: minimal | standard | full.
+                               minimal => H1 + clean Backstage base.
+                               standard => H2 platform portal.
+                               full => H2 + H3 AI/agent/MCP packs.
   --help                      Show this help.
 
 Examples:
@@ -261,8 +271,13 @@ load_manifest() {
   raw="$(yq '.deployment_mode' "$source_file")"
   [[ "$raw" == "null" || -z "$raw" ]] && raw="express"
   DEPLOYMENT_MODE="${DEPLOYMENT_MODE:-$raw}"
+  PORTAL_PROFILE_EXPLICIT=false
   raw="$(yq '.portal_profile' "$source_file")"
-  [[ "$raw" == "null" || -z "$raw" ]] && raw="base"
+  if [[ "$raw" == "null" || -z "$raw" ]]; then
+    raw="base"
+  else
+    PORTAL_PROFILE_EXPLICIT=true
+  fi
   PORTAL_PROFILE="$raw"
   raw="$(yq '.branding_profile' "$source_file")"
   [[ "$raw" == "null" || -z "$raw" ]] && raw="neutral"
@@ -289,15 +304,24 @@ load_manifest() {
     fi
     BACKSTAGE_VALS[$i]="$(bool_normalize "$raw")"
   done
+  FEATURE_PACKS_EXPLICIT=false
   for i in "${!FEATURE_PACK_KEYS[@]}"; do
     k="${FEATURE_PACK_KEYS[$i]}"
     raw="$(yq ".feature_packs.$k" "$source_file")"
     if [[ "$raw" == "null" || -z "$raw" ]]; then
       raw="${FEATURE_PACK_DEFAULTS[$i]}"
+    else
+      FEATURE_PACKS_EXPLICIT=true
     fi
     FEATURE_PACK_VALS[$i]="$(bool_normalize "$raw")"
   done
-  apply_portal_profile_defaults
+  if $FEATURE_PACKS_EXPLICIT; then
+    align_feature_packs_to_components
+  elif $PORTAL_PROFILE_EXPLICIT; then
+    apply_portal_profile_defaults
+  else
+    derive_feature_packs_from_components
+  fi
 
   SELECTED_PATHS=()
   while IFS= read -r tpl; do
@@ -378,11 +402,17 @@ prompt_deployment_mode_choice() {
 }
 
 prompt_portal_profile_choice() {
+  if $AUTO && ! $PORTAL_PROFILE_EXPLICIT && [[ -z "$PROFILE" ]]; then
+    return 0
+  fi
   PORTAL_PROFILE="$(prompt_choice "Portal profile" "$PORTAL_PROFILE" base platform full)"
   apply_portal_profile_defaults
 }
 
 prompt_branding_profile_choice() {
+  if $AUTO && [[ -z "$PROFILE" ]]; then
+    return 0
+  fi
   BRANDING_PROFILE="$(prompt_choice "Branding profile" "$BRANDING_PROFILE" neutral open-horizons custom)"
 }
 
@@ -403,6 +433,11 @@ apply_portal_profile_defaults() {
       ;;
   esac
 
+  align_feature_packs_to_components
+  return 0
+}
+
+align_feature_packs_to_components() {
   # Keep legacy component flags aligned with the higher-level feature packs.
   local i_chat i_api i_impact i_mcp i_aif
   i_chat=$(index_of enable_ai_chat_plugin "${BACKSTAGE_KEYS[@]}") || true
@@ -416,6 +451,26 @@ apply_portal_profile_defaults() {
   [[ -n "$i_impact" ]] && bs_set "$i_impact" "${FEATURE_PACK_VALS[4]}"
   [[ -n "$i_mcp" ]] && bs_set "$i_mcp" "${FEATURE_PACK_VALS[5]}"
   [[ -n "$i_aif" && ( "${FEATURE_PACK_VALS[3]}" == "true" || "${FEATURE_PACK_VALS[4]}" == "true" ) ]] && mod_set "$i_aif" true
+  return 0
+}
+
+derive_feature_packs_from_components() {
+  # Legacy manifests only set backstage_components. Derive the higher-level
+  # feature packs from them so downstream rendering (which reads feature_packs
+  # first) stays consistent with the legacy intent.
+  local i_chat i_api i_impact i_mcp chat_val
+  i_chat=$(index_of enable_ai_chat_plugin "${BACKSTAGE_KEYS[@]}") || true
+  i_api=$(index_of enable_agent_api "${BACKSTAGE_KEYS[@]}") || true
+  i_impact=$(index_of enable_agent_api_impact "${BACKSTAGE_KEYS[@]}") || true
+  i_mcp=$(index_of enable_mcp_ecosystem "${BACKSTAGE_KEYS[@]}") || true
+
+  chat_val=false
+  [[ -n "$i_chat" && "${BACKSTAGE_VALS[$i_chat]}" == "true" ]] && chat_val=true
+  [[ -n "$i_api" && "${BACKSTAGE_VALS[$i_api]}" == "true" ]] && chat_val=true
+  FEATURE_PACK_VALS[3]="$chat_val"
+  [[ -n "$i_impact" ]] && FEATURE_PACK_VALS[4]="${BACKSTAGE_VALS[$i_impact]}"
+  [[ -n "$i_mcp" ]] && FEATURE_PACK_VALS[5]="${BACKSTAGE_VALS[$i_mcp]}"
+  return 0
 }
 
 prompt_modules() {
@@ -1126,8 +1181,8 @@ prompt_initial_setup() {
   read -r -p "  Organization display name [$GITHUB_ORG]: " ORG_DISPLAY_NAME
   ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME:-$GITHUB_ORG}"
 
-  read -r -p "  Custom domain (leave empty for sslip.io): " DOMAIN
-  DOMAIN="${DOMAIN:-}"
+  read -r -p "  Custom domain [openhorizons.example.com]: " DOMAIN
+  DOMAIN="${DOMAIN:-openhorizons.example.com}"
 
   read -r -p "  Admin email [admin@${DOMAIN:-example.com}]: " ADMIN_EMAIL
   ADMIN_EMAIL="${ADMIN_EMAIL:-admin@${DOMAIN:-example.com}}"
@@ -1257,6 +1312,8 @@ parse_args() {
       --environment|-e)     ENVIRONMENT="$2"; shift 2 ;;
       --horizon|-h)         HORIZON="$2"; shift 2 ;;
       --deployment-mode)    DEPLOYMENT_MODE="$2"; shift 2 ;;
+      --portal-profile)     PORTAL_PROFILE="$2"; PORTAL_PROFILE_EXPLICIT=true; shift 2 ;;
+      --branding-profile)   BRANDING_PROFILE="$2"; shift 2 ;;
       --auto)               AUTO=true; shift ;;
       --selection-file)     SELECTION_FILE="$2"; shift 2 ;;
       --dry-run)            DRY_RUN=true; shift ;;
@@ -1296,6 +1353,8 @@ main() {
   prompt_environment
   prompt_horizon_choice
   prompt_deployment_mode_choice
+  prompt_portal_profile_choice
+  prompt_branding_profile_choice
   prompt_modules
   prompt_backstage
   prompt_paths

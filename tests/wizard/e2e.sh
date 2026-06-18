@@ -135,7 +135,13 @@ run_scenario() {
       must "full profile includes mcp-ecosystem" test -f "$RENDERED/mcp-ecosystem-deployment.yaml"
       ;;
     standard)
-      must "standard profile includes agent-api" test -f "$RENDERED/agent-api-deployment.yaml"
+      # Standard maps to the platform (H2) portal profile. AI Chat, AI Impact,
+      # and MCP are H3 feature packs and must stay opt-in, so they are excluded.
+      if [[ -f "$RENDERED/agent-api-deployment.yaml" ]]; then
+        fail "standard profile leaked agent-api (H3 must be opt-in)"
+      else
+        pass "standard profile correctly omits agent-api"
+      fi
       if [[ -f "$RENDERED/mcp-ecosystem-deployment.yaml" ]]; then
         fail "standard profile leaked mcp-ecosystem"
       else

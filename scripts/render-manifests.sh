@@ -98,9 +98,22 @@ read_flag() {
   fi
 }
 
-ENABLE_AGENT_API="$(read_flag enable_agent_api true)"
-ENABLE_AGENT_API_IMPACT="$(read_flag enable_agent_api_impact false)"
-ENABLE_MCP_ECOSYSTEM="$(read_flag enable_mcp_ecosystem false)"
+read_pack_flag() {
+  # $1 = feature_packs key, $2 = fallback backstage_components key, $3 = default
+  local pack_key="$1" fallback_key="$2" default="$3" raw
+  if [[ ! -f "$SELECTION_FILE" ]]; then
+    echo "$default"; return
+  fi
+  raw="$(yq ".feature_packs.$pack_key" "$SELECTION_FILE" 2>/dev/null || echo "")"
+  if [[ "$raw" != "null" && -n "$raw" ]]; then
+    echo "$raw"; return
+  fi
+  read_flag "$fallback_key" "$default"
+}
+
+ENABLE_AGENT_API="$(read_pack_flag enable_ai_chat enable_agent_api true)"
+ENABLE_AGENT_API_IMPACT="$(read_pack_flag enable_ai_impact enable_agent_api_impact false)"
+ENABLE_MCP_ECOSYSTEM="$(read_pack_flag enable_mcp_ecosystem enable_mcp_ecosystem false)"
 
 declare_enabled() {
   local file="$1" enabled="$2"

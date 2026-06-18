@@ -26,16 +26,25 @@ assert() {
 manifest_path="$REPO_ROOT/.openhorizons-selection.yaml"
 manifest_backup="$(mktemp)"
 [[ -f "$manifest_path" ]] && cp "$manifest_path" "$manifest_backup"
+app_config_path="$REPO_ROOT/backstage/app-config.production.yaml"
+app_config_backup="$(mktemp)"
+[[ -f "$app_config_path" ]] && cp "$app_config_path" "$app_config_backup"
 
-restore_manifest() {
+restore_files() {
   if [[ -s "$manifest_backup" ]]; then
     cp "$manifest_backup" "$manifest_path"
   else
     rm -f "$manifest_path"
   fi
   rm -f "$manifest_backup"
+  if [[ -s "$app_config_backup" ]]; then
+    cp "$app_config_backup" "$app_config_path"
+  else
+    rm -f "$app_config_path"
+  fi
+  rm -f "$app_config_backup"
 }
-trap restore_manifest EXIT
+trap restore_files EXIT
 
 echo "Test 1: --help exits 0"
 "$WIZARD" --help >/dev/null
@@ -301,6 +310,75 @@ else
 fi
 cp "$app_backup" "$app_config"
 rm -f "$app_backup" "$narrow"
+
+echo
+echo "Test 18: profile standard writes platform portal profile and packs"
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --auto --profile standard >/dev/null 2>&1
+ec=$?
+assert "profile standard exit code" "$ec" "0"
+portal_profile=$(yq '.portal_profile' "$manifest_path")
+branding_profile=$(yq '.branding_profile' "$manifest_path")
+platform_pages=$(yq '.feature_packs.enable_platform_pages' "$manifest_path")
+ai_chat_pack=$(yq '.feature_packs.enable_ai_chat' "$manifest_path")
+assert "profile standard portal_profile=platform" "$portal_profile" "platform"
+assert "profile standard branding=open-horizons" "$branding_profile" "open-horizons"
+assert "profile standard enables platform pages" "$platform_pages" "true"
+assert "profile standard keeps AI Chat off" "$ai_chat_pack" "false"
+
+echo
+echo "Test 19: profile full writes full portal profile and AI packs"
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --auto --profile full >/dev/null 2>&1
+ec=$?
+assert "profile full second exit code" "$ec" "0"
+portal_profile=$(yq '.portal_profile' "$manifest_path")
+ai_chat_pack=$(yq '.feature_packs.enable_ai_chat' "$manifest_path")
+ai_impact_pack=$(yq '.feature_packs.enable_ai_impact' "$manifest_path")
+mcp_pack=$(yq '.feature_packs.enable_mcp_ecosystem' "$manifest_path")
+assert "profile full portal_profile=full" "$portal_profile" "full"
+assert "profile full enables AI Chat pack" "$ai_chat_pack" "true"
+assert "profile full enables AI Impact pack" "$ai_impact_pack" "true"
+assert "profile full enables MCP pack" "$mcp_pack" "true"
+
+echo
+echo "Test 20: render-manifests honors feature_packs over legacy flags"
+render_sel="$(mktemp)"
+cat > "$render_sel" <<'YAML'
+horizon: h3
+environment: dev
+deployment_mode: standard
+portal_profile: full
+branding_profile: open-horizons
+modules: {enable_container_registry: true, enable_ai_foundry: true}
+backstage_components:
+  enable_agent_api: false
+  enable_agent_api_impact: false
+  enable_mcp_ecosystem: false
+feature_packs:
+  enable_ai_chat: true
+  enable_ai_impact: true
+  enable_mcp_ecosystem: true
+golden_paths: [h3-innovation/mcp-ecosystem]
+YAML
+render_out="$(mktemp -d)"
+"$REPO_ROOT/scripts/render-manifests.sh" --selection "$render_sel" --output "$render_out" >/dev/null
+assert "feature pack includes agent-api deployment" "$([[ -f $render_out/agent-api-deployment.yaml ]] && echo yes || echo no)" "yes"
+assert "feature pack includes agent-api-impact deployment" "$([[ -f $render_out/agent-api-impact-deployment.yaml ]] && echo yes || echo no)" "yes"
+assert "feature pack includes mcp ecosystem deployment" "$([[ -f $render_out/mcp-ecosystem-deployment.yaml ]] && echo yes || echo no)" "yes"
+rm -f "$render_sel"
+rm -rf "$render_out"
+
+echo
+echo "Test 21: CLI portal and branding profile flags are persisted"
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --horizon h2 --deployment-mode standard --portal-profile platform --branding-profile custom --auto >/dev/null 2>&1
+ec=$?
+assert "CLI profile flags exit code" "$ec" "0"
+portal_profile=$(yq '.portal_profile' "$manifest_path")
+branding_profile=$(yq '.branding_profile' "$manifest_path")
+assert "CLI portal_profile persisted" "$portal_profile" "platform"
+assert "CLI branding_profile persisted" "$branding_profile" "custom"
 
 echo
 echo "Summary: $PASS passed, $FAIL failed"
