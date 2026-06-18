@@ -324,7 +324,7 @@ Alternatively, use the Copilot deploy agent from VS Code:
 | **[Client Installation Guide](docs/guides/CLIENT_INSTALLATION.md)** | Template-receive checklist (fork, branding, branch strategy) |
 | **[Architecture Guide](docs/guides/ARCHITECTURE_GUIDE.md)** | Understanding the system design |
 | **[Administrator Guide](docs/guides/ADMINISTRATOR_GUIDE.md)** | Day-2 operations |
-| **[Agent System](AGENTS.md)** | 9 agents, 27 skills, 9 prompts |
+| **[Agent System](AGENTS.md)** | 9 agents, 31 skills, 9 prompts |
 | **[Code Map](CODEMAP.md)** | Navigating the codebase |
 | **[Context Platform Stack](docs/context-engineer/)** | The intellectual foundation (6 chapters) |
 | **[Module Reference](docs/guides/MODULE_REFERENCE.md)** | All 16 Terraform modules |

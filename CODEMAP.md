@@ -91,7 +91,7 @@ POST /api/agents/chat
 | File | Purpose |
 |------|---------|
 | .github/copilot-instructions.md | Tier 1 hot memory (always loaded) |
-| AGENTS.md | Agent system docs (9 agents, 27 skills, 9 prompts) |
+| AGENTS.md | Agent system docs (9 agents, 31 skills, 9 prompts) |
 | backstage/server/agent-api/CONSTITUTION.md | Agent intent artifact |
 | .github/model-routing.yaml | SDLC model routing config |
 | argocd/sync-policies.yaml | GitOps sync policy presets |

@@ -2,16 +2,16 @@
 
 ## Overview
 
-The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **27 skills**, **9 prompts**, and **10 instructions** for deterministic, automated platform operations.
+The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **31 skills**, **9 prompts**, and **8 instructions** for deterministic, automated platform operations.
 
 ## Architecture
 
 ```text
 .github/
 ├── agents/          # 9 deploy-managed chat agents (.agent.md)
-├── instructions/    # 10 code-generation instructions (.instructions.md)
+├── instructions/    # 8 code-generation instructions (.instructions.md)
 ├── prompts/         # 9 reusable prompts (.prompt.md)
-├── skills/          # 27 operational skill sets (SKILL.md)
+├── skills/          # 31 operational skill sets (SKILL.md)
 └── ISSUE_TEMPLATE/  # Issue templates
 ```
 
@@ -75,7 +75,7 @@ The 10 instruction files in the workspace instructions folder auto-apply when ed
 
 ## Skills
 
-The 27 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
+The 31 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
 
 | Skill | Description |
 | --- | --- |

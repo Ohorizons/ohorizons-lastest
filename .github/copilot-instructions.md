@@ -182,7 +182,7 @@ terraform apply -var-file=environments/dev.tfvars
 
 ## Agent System
 
-The platform uses **9 deploy-managed Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **27 skills** for domain knowledge, **9 prompts** for one-shot shortcuts, and **10 instructions** for auto-applied coding standards.
+The platform uses **9 deploy-managed Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **31 skills** for domain knowledge, **9 prompts** for one-shot shortcuts, and **8 instructions** for auto-applied coding standards.
 
 ### Agent Organization
 - **@deploy**: Deployment orchestration, end-to-end platform deployment
