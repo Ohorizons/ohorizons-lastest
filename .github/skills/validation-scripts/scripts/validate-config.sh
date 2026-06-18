@@ -27,7 +27,7 @@
 #
 # =============================================================================
 
-set -e
+set -euo pipefail
 
 # =============================================================================
 # CONFIGURATION
@@ -78,21 +78,21 @@ print_section() {
 check_pass() {
     local message=$1
     echo -e "  ${GREEN}✓${NC} ${message}"
-    ((CHECKS_PASSED++))
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
     RESULTS+=("{\"status\":\"pass\",\"message\":\"${message}\"}")
 }
 
 check_fail() {
     local message=$1
     echo -e "  ${RED}✗${NC} ${message}"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
     RESULTS+=("{\"status\":\"fail\",\"message\":\"${message}\"}")
 }
 
 check_warn() {
     local message=$1
     echo -e "  ${YELLOW}⚠${NC} ${message}"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
     RESULTS+=("{\"status\":\"warn\",\"message\":\"${message}\"}")
 }
 

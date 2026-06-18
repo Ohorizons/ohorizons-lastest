@@ -105,6 +105,8 @@ Run `scripts/render-k8s.sh` to generate K8s manifests from templates.
 | Agent API (AI Impact) | `backstage/server/agent-api-impact/` |
 | Agent API (MAF) | `backstage/server/agent-api-maf/` |
 | Agent API (SK) | `backstage/server/agent-api-sk/` |
+| Foundry agents gateway (L6, H3) | `foundry/agents-service/` |
+| Foundry K8s manifests (H3) | `foundry/k8s/` |
 | Agent docker-compose | `backstage/server/docker-compose.yml` |
 | Terraform modules | `terraform/modules/` |
 | Environment configs | `terraform/environments/` |
@@ -123,6 +125,8 @@ Run `scripts/render-k8s.sh` to generate K8s manifests from templates.
 | OPA policies (K8s) | `policies/kubernetes/` |
 | OPA policies (Terraform) | `policies/terraform/` |
 | Grafana dashboards | `grafana/dashboards/` |
+| Context Platform dashboards (L1-L6) | `grafana/dashboards/context-platform/` |
+| Architecture doc + ADRs | `docs/architecture/` |
 | MCP servers | `mcp-servers/src/tools/` |
 | Agent memory (L3) | `backstage/server/agent-api/memory/` |
 | Agent middleware (L5) | `backstage/server/agent-api/middleware/` |
@@ -182,7 +186,7 @@ terraform apply -var-file=environments/dev.tfvars
 
 ## Agent System
 
-The platform uses **9 deploy-managed Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **31 skills** for domain knowledge, **9 prompts** for one-shot shortcuts, and **8 instructions** for auto-applied coding standards.
+The platform uses **9 deploy-managed Copilot Chat Agents** in `.github/agents/` for interactive development assistance, **28 skills** for domain knowledge, **9 prompts** for one-shot shortcuts, and **8 instructions** for auto-applied coding standards.
 
 ### Agent Organization
 - **@deploy**: Deployment orchestration, end-to-end platform deployment
@@ -239,6 +243,7 @@ The platform provides agent runtime governance:
 - **Agent Identity**: K8s ServiceAccounts, RBAC Roles, NetworkPolicy in `backstage/k8s/agent-identity.yaml`
 - **7 Runtime Agents**: orchestrator, pipeline, sentinel, compass, guardian, lighthouse, forge
 - **Observability APIs**: `/api/agents/trajectories`, `/api/agents/costs`, `/api/agents/context`
+- **Foundry Agents Gateway (L6 harness, H3)**: standalone service in `foundry/agents-service/` that fronts Azure AI Foundry — semantic prompt cache, A2A v1.0 routing, pre/post tool hooks, 21-field `llm.call.completed` telemetry, and Cosmos enterprise memory. Deployed to the `ai-services` namespace via `foundry/k8s/` and the ArgoCD app `argocd/apps/foundry-agents.yaml`. Gated to H3 (`enable_foundry_agents=true`).
 
 ## Golden Paths
 

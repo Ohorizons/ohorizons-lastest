@@ -12,6 +12,13 @@
 
 set -euo pipefail
 
+# --- requires bash 4+ (associative arrays); macOS ships bash 3.2 by default ---
+if (( ${BASH_VERSINFO[0]:-0} < 4 )); then
+    echo "ERROR: this script requires bash 4 or newer (found ${BASH_VERSION:-unknown})." >&2
+    echo "       On macOS run: brew install bash, then invoke the script with that bash." >&2
+    exit 1
+fi
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -217,7 +224,7 @@ main() {
     
     local required_tools=("terraform" "az" "kubectl" "helm" "gh" "jq" "yq" "git" "curl")
     for tool in "${required_tools[@]}"; do
-        check_tool "$tool" || ((required_missing++))
+        check_tool "$tool" || required_missing=$((required_missing + 1))
     done
     
     # Optional tools
@@ -225,7 +232,7 @@ main() {
     
     local optional_tools=("oc" "docker" "kubelogin" "argocd")
     for tool in "${optional_tools[@]}"; do
-        check_tool "$tool" || ((optional_missing++))
+        check_tool "$tool" || optional_missing=$((optional_missing + 1))
     done
     
     # Authentication status
@@ -233,7 +240,7 @@ main() {
     
     for tool in "${!AUTH_CHECKS[@]}"; do
         if command -v "$tool" &> /dev/null; then
-            check_auth "$tool" || ((auth_missing++))
+            check_auth "$tool" || auth_missing=$((auth_missing + 1))
         fi
     done
     

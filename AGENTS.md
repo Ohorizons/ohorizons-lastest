@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **31 skills**, **9 prompts**, and **8 instructions** for deterministic, automated platform operations.
+The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **28 skills**, **9 prompts**, and **8 instructions** for deterministic, automated platform operations.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based 
 ├── agents/          # 9 deploy-managed chat agents (.agent.md)
 ├── instructions/    # 8 code-generation instructions (.instructions.md)
 ├── prompts/         # 9 reusable prompts (.prompt.md)
-├── skills/          # 31 operational skill sets (SKILL.md)
+├── skills/          # 28 operational skill sets (SKILL.md)
 └── ISSUE_TEMPLATE/  # Issue templates
 ```
 
@@ -58,7 +58,7 @@ The 9 prompt files in the workspace prompt folder provide one-shot shortcuts (`/
 
 ## Instructions
 
-The 10 instruction files in the workspace instructions folder auto-apply when editing matching file types:
+The 8 instruction files in the workspace instructions folder auto-apply when editing matching file types:
 
 | Instruction | Applies To |
 | --- | --- |
@@ -68,14 +68,12 @@ The 10 instruction files in the workspace instructions folder auto-apply when ed
 | `kubernetes` | `deploy/**`, `argocd/**`, `backstage/k8s/**`, `kubernetes/**`, `k8s/**`, `helm/**` |
 | `python` | `*.py`, `python/**` |
 | `terraform` | `*.tf`, `terraform/**`, `*.tfvars` |
-| `typescript` | `*.ts` |
 | `dockerfile` | `Dockerfile` |
 | `docker-compose` | `docker-compose.yml` |
-| `mermaid-figjam` | `*.mmd`, `*.mermaid` |
 
 ## Skills
 
-The 31 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
+The 28 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
 
 | Skill | Description |
 | --- | --- |
@@ -100,16 +98,13 @@ The 31 skills in the workspace skills folder provide domain-specific knowledge t
 | `mcp-ecosystem` | Live methodology and reference data |
 | `observability-stack` | Prometheus, Grafana, Loki, Alertmanager |
 | `pipeline-diagnostics` | GitHub Actions CI/CD failure analysis and remediation |
-| `playbook-pdf-builder` | Consolidated PDF generation from Markdown |
 | `prerequisites` | CLI tool validation and setup |
-| `prompt-architect` | Prompt and customization design |
 | `requirements-engineer` | Requirements engineering |
 | `sdd-spec-engineer` | Spec-driven development artifacts |
 | `story-planning` | INVEST user story decomposition and GitHub Issues creation |
 | `terraform-cli` | Terraform CLI for Azure infra |
 | `test-coverage` | Test coverage analysis, CI check runs, and quality gates |
 | `validation-scripts` | Validation scripts for deployments |
-| `xlsx-creator` | Excel workbooks |
 
 ## Related Documentation
 

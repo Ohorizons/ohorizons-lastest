@@ -54,7 +54,7 @@ The accelerator covers:
 - The **Internal Developer Platform (IDP)** that developers use day to day - Backstage on AKS with Software Catalog, TechDocs, Software Templates, and DORA / Cost dashboards.
 - The **Agent IDP** - 4 agent runtime APIs, trajectory and cost middleware, agent identity, and a Backstage AI Chat plugin.
 - The **scaffolder** that creates new repositories on demand via wizard - 34 Golden Paths, all aligned to the same agents, TechDocs, CI/CD, and an opt-in Azure baseline.
-- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 31 skills, and 12 MCP server tools.
+- The **AI primitives** that make Copilot Chat productive in this codebase - 9 deploy-managed chat agents, 9 prompts, 8 instructions, 28 skills, and 12 MCP server tools.
 - The **infrastructure** to run all of the above - 16 Terraform modules covering AKS, networking, registries, databases, secrets, security, observability, AI Foundry, GitHub runners, ArgoCD, Backstage, Defender, Purview, disaster recovery, cost management, and naming.
 - The **governance and policy** stack - OPA/Gatekeeper rules for Kubernetes and Terraform, CONSTITUTION + SPECIFICATION + IMPLEMENTATION_PLAN templates, scope-guard hooks, and intent-drift measurement.
 - The **observability** stack - Prometheus rules, Grafana dashboards, Alertmanager wiring, plus per-agent trajectory and cost telemetry.
@@ -65,7 +65,7 @@ The accelerator covers:
 |-------|---------|------------|
 | L1 - Cloud Infrastructure | Compute and security baseline | 16 Terraform modules in [`terraform/modules/`](../../terraform/modules/) covering AKS, networking, ACR, databases (Postgres + Redis), Key Vault and external secrets, Defender, Purview, observability, cost management, GitHub runners, AI Foundry, ArgoCD, Backstage, naming, disaster recovery, security baseline. Environment tfvars in [`terraform/environments/`](../../terraform/environments/). |
 | L2 - Platform Engineering | Golden paths, GitOps, governance | Backstage portal in [`backstage/`](../../backstage/) (catalog, TechDocs, software templates, AI Chat plugin), 34 Golden Paths in [`golden-paths/`](../../golden-paths/), ArgoCD app-of-apps in [`argocd/`](../../argocd/), 7 Kubernetes OPA policies and 1 Terraform OPA policy in [`policies/`](../../policies/), 5 Grafana dashboards in [`grafana/dashboards/`](../../grafana/dashboards/), Prometheus recording and alerting rules in [`prometheus/`](../../prometheus/), 9 GitHub Actions workflows in [`.github/workflows/`](../../.github/workflows/), 22 automation scripts in [`scripts/`](../../scripts/). |
-| L3 - Context Engineering | Agent context and tools | 31 skills in [`.github/skills/`](../../.github/skills/), 12 MCP servers in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
+| L3 - Context Engineering | Agent context and tools | 28 skills in [`.github/skills/`](../../.github/skills/), 12 MCP servers in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/), three-tier memory architecture in [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/), Shared Context Store (CA-MCP), CODEMAP-based program skeletons. |
 | L4 - Intent Engineering | Specifications and governance | CONSTITUTION, SPECIFICATION, IMPLEMENTATION_PLAN templates in [`golden-paths/common/templates/`](../../golden-paths/common/templates/), workspace guardrails in [`.github/hooks/`](../../.github/hooks/), [`.github/model-routing.yaml`](../../.github/model-routing.yaml), drift telemetry via [`scripts/measure-intent-drift.sh`](../../scripts/measure-intent-drift.sh). |
 | L5 - Agentic Execution | Runtime agents and identity | 9 deploy-managed Copilot Chat agents in [`.github/agents/`](../../.github/agents/), 9 prompts in [`.github/prompts/`](../../.github/prompts/), 8 instructions in [`.github/instructions/`](../../.github/instructions/), 4 runtime agent APIs in [`backstage/server/`](../../backstage/server/) (`agent-api`, `agent-api-impact`, `agent-api-maf`, `agent-api-sk`), trajectory and cost middleware, agent identity in [`backstage/k8s/agent-identity.yaml`](../../backstage/k8s/agent-identity.yaml). |
 
@@ -80,8 +80,8 @@ The accelerator covers:
 | Golden Path templates | 34 |
 | Copilot Chat agents | 9 |
 | Prompts | 9 |
-| Instructions | 10 |
-| Skills | 27 |
+| Instructions | 8 |
+| Skills | 28 |
 | MCP servers | 12 |
 | GitHub Actions workflows | 9 |
 | ArgoCD applications | 2 |
@@ -181,7 +181,7 @@ The install wizard at [`scripts/install-wizard.sh`](../../scripts/install-wizard
 | Backstage components (6) | `enable_ai_chat_plugin`, `enable_agent_api`, `enable_agent_api_impact`, `enable_agent_api_maf`, `enable_agent_api_sk`, `enable_mcp_ecosystem` | AI Chat plus its agent-api on, others off | `terraform/environments/<env>.tfvars` |
 | Golden Paths (34) | any subset of `<horizon>/<template>` ids | all 34 | `catalog.locations` of `backstage/app-config.production.yaml` |
 | Chat agents (9) | optional allowlist of agent ids in `agents:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/agents/` |
-| Skills (31) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
+| Skills (28) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
 | Prompts (9) | optional allowlist of prompt ids in `prompts:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/prompts/` |
 | MCP servers (12) | optional allowlist of MCP ids in `mcp_servers:` | empty list = include all | `golden-paths/common/agents/.rendered/mcp-servers/enabled.txt` |
 
@@ -319,7 +319,7 @@ Once Terraform finishes:
 
 L3 is what makes the agents productive in this codebase rather than generic. It is mostly already wired in the repo, but the client needs to know it is there:
 
-- **31 skills** in [`.github/skills/`](../../.github/skills/) cover Azure CLI, Terraform CLI, kubectl, Helm, ArgoCD, GitHub CLI, Backstage deployment, observability stack, validation scripts, planning and requirements, test and pipeline diagnostics, Codespaces golden paths, IssueOps, MCP ecosystem, Azure AI Foundry, architecture, and document generation.
+- **28 skills** in [`.github/skills/`](../../.github/skills/) cover Azure CLI, Terraform CLI, kubectl, Helm, ArgoCD, GitHub CLI, Backstage deployment, observability stack, validation scripts, planning and requirements, test and pipeline diagnostics, Codespaces golden paths, IssueOps, MCP ecosystem, Azure AI Foundry, architecture, and document generation.
 - **12 MCP servers** in [`mcp-servers/src/tools/`](../../mcp-servers/src/tools/) expose live reference data for spec-kit, Microsoft Agent Framework, Anthropic skills, AGENTS.md, awesome-copilot, GitHub Copilot docs, gh-aw, Backstage docs / org / plugins / UI, and Spotify Backstage. They run via [`mcp-servers/docker-compose.yml`](../../mcp-servers/docker-compose.yml) and can be deployed to AKS through the rendered manifests under [`backstage/k8s/`](../../backstage/k8s/).
 - **Three-tier memory** (Hot, Warm, Cold) lives under [`backstage/server/agent-api/memory/`](../../backstage/server/agent-api/memory/) along with the Shared Context Store.
 - **CODEMAP** at [`CODEMAP.md`](../../CODEMAP.md) is the program skeleton that agents read before navigating the codebase.

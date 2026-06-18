@@ -188,77 +188,111 @@ create_app_registration() {
     fi
 }
 
+# Create a federated identity credential.
+#   $1 name · $2 subject/pattern · $3 description · $4 use_wildcard(true|false)
+# When use_wildcard=true the subject contains a "*" and a standard subject match
+# is impossible, so a *flexible* FIC is emitted using claimsMatchingExpression
+# (claims['sub'] matches '<pattern>'), per the Azure workload-identity docs.
+# The parameter file is created with mktemp and always removed via a RETURN trap.
+create_fic() {
+    local name="$1" subject="$2" description="$3" use_wildcard="$4"
+    local tmp
+    tmp="$(mktemp "${TMPDIR:-/tmp}/fedcred.XXXXXX")"
+    # shellcheck disable=SC2064
+    trap "rm -f '$tmp'" RETURN
+
+    if [[ "$use_wildcard" == "true" ]]; then
+        cat > "$tmp" << EOF
+{
+  "name": "${name}",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "audiences": ["api://AzureADTokenExchange"],
+  "description": "${description}",
+  "claimsMatchingExpression": {
+    "value": "claims['sub'] matches '${subject}'",
+    "languageVersion": 1
+  }
+}
+EOF
+    else
+        cat > "$tmp" << EOF
+{
+  "name": "${name}",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "${subject}",
+  "description": "${description}",
+  "audiences": ["api://AzureADTokenExchange"]
+}
+EOF
+    fi
+
+    az ad app federated-credential create \
+        --id "$APP_ID" \
+        --parameters "@$tmp" >/dev/null
+}
+
 # Create Federated Credentials
 create_federated_credentials() {
     log_step "Creating Federated Credentials..."
-    
-    local repo_subject
+
+    local use_wildcard="false"
+    local repo_pattern
     if [[ "$GITHUB_REPO" == "*" ]]; then
-        repo_subject="repo:${GITHUB_ORG}/*"
+        use_wildcard="true"
+        repo_pattern="repo:${GITHUB_ORG}/*"
+        log_info "Org-wide scope requested: using flexible FIC (claimsMatchingExpression)"
     else
-        repo_subject="repo:${GITHUB_ORG}/${GITHUB_REPO}"
+        repo_pattern="repo:${GITHUB_ORG}/${GITHUB_REPO}"
     fi
-    
+
     # Create credential for each environment
     IFS=',' read -ra ENV_ARRAY <<< "$ENVIRONMENTS"
     for env in "${ENV_ARRAY[@]}"; do
         local cred_name="github-${env}"
         local subject
-        
+
         if [[ "$env" == "main" ]]; then
-            subject="${repo_subject}:ref:refs/heads/main"
+            subject="${repo_pattern}:ref:refs/heads/main"
         else
-            subject="${repo_subject}:environment:${env}"
+            subject="${repo_pattern}:environment:${env}"
         fi
-        
+
         log_info "Creating federated credential: $cred_name"
-        
+
         if [[ "$DRY_RUN" == "true" ]]; then
-            log_info "[DRY-RUN] Subject: $subject"
-        else
-            # Check if credential exists
-            if az ad app federated-credential show --id "$APP_ID" --federated-credential-id "$cred_name" &>/dev/null; then
-                log_warning "Credential already exists: $cred_name"
+            if [[ "$use_wildcard" == "true" ]]; then
+                log_info "[DRY-RUN] claimsMatchingExpression: claims['sub'] matches '${subject}'"
             else
-                cat > /tmp/fedcred-${env}.json << EOF
-{
-  "name": "${cred_name}",
-  "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "${subject}",
-  "description": "GitHub Actions - ${env}",
-  "audiences": ["api://AzureADTokenExchange"]
-}
-EOF
-                az ad app federated-credential create \
-                    --id "$APP_ID" \
-                    --parameters @/tmp/fedcred-${env}.json >/dev/null
-                log_success "Created credential: $cred_name"
-                rm -f /tmp/fedcred-${env}.json
+                log_info "[DRY-RUN] Subject: $subject"
             fi
+            continue
+        fi
+
+        # Check if credential exists
+        if az ad app federated-credential show --id "$APP_ID" --federated-credential-id "$cred_name" &>/dev/null; then
+            log_warning "Credential already exists: $cred_name"
+        else
+            create_fic "$cred_name" "$subject" "GitHub Actions - ${env}" "$use_wildcard"
+            log_success "Created credential: $cred_name"
         fi
     done
-    
+
     # Create PR credential if enabled
     if [[ "$ENABLE_PR_FEDERATION" == "true" ]]; then
+        local pr_subject="${repo_pattern}:pull_request"
         log_info "Creating federated credential for Pull Requests"
-        
-        if [[ "$DRY_RUN" != "true" ]]; then
-            if ! az ad app federated-credential show --id "$APP_ID" --federated-credential-id "github-pr" &>/dev/null; then
-                cat > /tmp/fedcred-pr.json << EOF
-{
-  "name": "github-pr",
-  "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "${repo_subject}:pull_request",
-  "description": "GitHub Actions - Pull Requests",
-  "audiences": ["api://AzureADTokenExchange"]
-}
-EOF
-                az ad app federated-credential create \
-                    --id "$APP_ID" \
-                    --parameters @/tmp/fedcred-pr.json >/dev/null
-                log_success "Created credential: github-pr"
-                rm -f /tmp/fedcred-pr.json
+
+        if [[ "$DRY_RUN" == "true" ]]; then
+            if [[ "$use_wildcard" == "true" ]]; then
+                log_info "[DRY-RUN] claimsMatchingExpression: claims['sub'] matches '${pr_subject}'"
+            else
+                log_info "[DRY-RUN] Subject: $pr_subject"
             fi
+        elif az ad app federated-credential show --id "$APP_ID" --federated-credential-id "github-pr" &>/dev/null; then
+            log_warning "Credential already exists: github-pr"
+        else
+            create_fic "github-pr" "$pr_subject" "GitHub Actions - Pull Requests" "$use_wildcard"
+            log_success "Created credential: github-pr"
         fi
     fi
 }

@@ -11,7 +11,7 @@
 # Usage: ./scripts/validate-agents.sh [--verbose]
 #
 
-set -e
+set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -33,7 +33,7 @@ ERRORS=0
 
 # Verbose mode
 VERBOSE=false
-if [[ "$1" == "--verbose" || "$1" == "-v" ]]; then
+if [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]]; then
     VERBOSE=true
 fi
 
@@ -50,12 +50,12 @@ print_success() {
 
 print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 }
 
 print_error() {
     echo -e "${RED}❌ $1${NC}"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 }
 
 print_info() {
@@ -187,9 +187,9 @@ validate_agents() {
         local file_path="${EXPECTED_AGENT_FILES[$index]}"
         local agent_name="${EXPECTED_AGENT_NAMES[$index]}"
 
-        ((TOTAL_AGENTS++))
+        TOTAL_AGENTS=$((TOTAL_AGENTS + 1))
         if validate_agent "$file_path" "$agent_name"; then
-            ((VALID_AGENTS++))
+            VALID_AGENTS=$((VALID_AGENTS + 1))
         fi
     done
 }
@@ -244,7 +244,7 @@ validate_crossrefs() {
                     if [[ "$VERBOSE" == true ]]; then
                         print_warning "Broken link in $(basename "$file"): $link"
                     fi
-                    ((broken_links++))
+                    broken_links=$((broken_links + 1))
                 fi
             done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$file" 2>/dev/null | sed 's/.*](//' | sed 's/)$//' || true)
         fi

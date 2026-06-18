@@ -29,6 +29,13 @@
 # =============================================================================
 set -euo pipefail
 
+# --- requires bash 4+ (associative arrays); macOS ships bash 3.2 by default ---
+if (( ${BASH_VERSINFO[0]:-0} < 4 )); then
+    echo "ERROR: this script requires bash 4 or newer (found ${BASH_VERSION:-unknown})." >&2
+    echo "       On macOS run: brew install bash, then invoke the script with that bash." >&2
+    exit 1
+fi
+
 # --- Colors & helpers --------------------------------------------------------
 if [[ -t 1 ]]; then
   RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -555,7 +562,9 @@ apply_profile() {
       mod_set 1 true   # databases
       mod_set 2 false; mod_set 3 false
       mod_set 4 false; mod_set 5 false; mod_set 6 false
-      mod_set 7 false; mod_set 8 false; mod_set 9 false; mod_set 10 false
+      mod_set 7 false; mod_set 8 false; mod_set 9 false
+      mod_set 10 false # foundry_agents (H3)
+      mod_set 11 false # disaster_recovery
       bs_set 0 false; bs_set 1 false; bs_set 2 false
       bs_set 3 false; bs_set 4 false; bs_set 5 false
       apply_portal_profile_defaults
@@ -573,7 +582,9 @@ apply_profile() {
       mod_set 0 true; mod_set 1 true
       mod_set 2 true; mod_set 3 false
       mod_set 4 true; mod_set 5 true; mod_set 6 true
-      mod_set 7 false; mod_set 8 true; mod_set 9 false; mod_set 10 false
+      mod_set 7 false; mod_set 8 true; mod_set 9 false
+      mod_set 10 false # foundry_agents (H3)
+      mod_set 11 false # disaster_recovery
       bs_set 0 true; bs_set 1 true
       bs_set 2 false; bs_set 3 false; bs_set 4 false; bs_set 5 false
       apply_portal_profile_defaults
@@ -592,7 +603,9 @@ apply_profile() {
       mod_set 0 true; mod_set 1 true
       mod_set 2 true; mod_set 3 true
       mod_set 4 true; mod_set 5 true; mod_set 6 true
-      mod_set 7 true; mod_set 8 true; mod_set 9 true; mod_set 10 true
+      mod_set 7 true; mod_set 8 true; mod_set 9 true
+      mod_set 10 true  # foundry_agents (H3, valid: horizon=all + ai_foundry)
+      mod_set 11 true  # disaster_recovery
       bs_set 0 true; bs_set 1 true
       bs_set 2 true; bs_set 3 true; bs_set 4 true; bs_set 5 true
       apply_portal_profile_defaults

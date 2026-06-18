@@ -59,7 +59,7 @@ check_doc_standards() {
         return 0
     fi
 
-    ((DOC_STANDARD_CHECKS++)) || true
+    DOC_STANDARD_CHECKS=$((DOC_STANDARD_CHECKS + 1)) || true
 
     local content
     content="$(cat "$source_file")"
@@ -146,7 +146,7 @@ check_file_link() {
         return 0
     fi
 
-    ((CHECKED++)) || true
+    CHECKED=$((CHECKED + 1)) || true
 
     # Resolve relative path (macOS compatible)
     local resolved_path
@@ -241,7 +241,7 @@ main() {
 
     for md_file in $md_files; do
         local full_path="$ROOT_DIR/${md_file#./}"
-        ((FILES_SCANNED++)) || true
+        FILES_SCANNED=$((FILES_SCANNED + 1)) || true
 
         check_doc_standards "$full_path"
 

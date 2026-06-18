@@ -28,6 +28,6 @@ oc create configmap "$CM_NAME" \
   --from-file="purview_audit.py=$SRC_DIR/app/purview_audit.py" \
   --from-file="requirements.txt=$SRC_DIR/requirements.txt" \
   --from-file="mcp-config.json=$REPO_ROOT/mcp-servers/mcp-config.json" \
-  --dry-run=client -o yaml | oc apply -f -
+  --dry-run=client -o yaml | kubectl apply -f -
 
 echo "✅ ConfigMap $CM_NAME applied to namespace $NS"

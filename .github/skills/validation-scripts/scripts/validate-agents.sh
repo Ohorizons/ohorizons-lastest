@@ -11,7 +11,14 @@
 # Usage: ./scripts/validate-agents.sh [--verbose]
 #
 
-set -e
+set -euo pipefail
+
+# --- requires bash 4+ (associative arrays); macOS ships bash 3.2 by default ---
+if (( ${BASH_VERSINFO[0]:-0} < 4 )); then
+    echo "ERROR: this script requires bash 4 or newer (found ${BASH_VERSION:-unknown})." >&2
+    echo "       On macOS run: brew install bash, then invoke the script with that bash." >&2
+    exit 1
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -33,7 +40,7 @@ ERRORS=0
 
 # Verbose mode
 VERBOSE=false
-if [[ "$1" == "--verbose" || "$1" == "-v" ]]; then
+if [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]]; then
     VERBOSE=true
 fi
 
@@ -50,12 +57,12 @@ print_success() {
 
 print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 }
 
 print_error() {
     echo -e "${RED}❌ $1${NC}"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 }
 
 print_info() {
@@ -200,9 +207,9 @@ validate_agents() {
     print_header "Validating Agent Specifications"
 
     for file_path in "${!EXPECTED_AGENTS[@]}"; do
-        ((TOTAL_AGENTS++))
+        TOTAL_AGENTS=$((TOTAL_AGENTS + 1))
         if validate_agent "$file_path" "${EXPECTED_AGENTS[$file_path]}"; then
-            ((VALID_AGENTS++))
+            VALID_AGENTS=$((VALID_AGENTS + 1))
         fi
     done
 }
@@ -257,7 +264,7 @@ validate_crossrefs() {
                     if [[ "$VERBOSE" == true ]]; then
                         print_warning "Broken link in $(basename "$file"): $link"
                     fi
-                    ((broken_links++))
+                    broken_links=$((broken_links + 1))
                 fi
             done < <(grep -oP '\[.*?\]\(\K[^)]+(?=\))' "$file" 2>/dev/null || true)
         fi

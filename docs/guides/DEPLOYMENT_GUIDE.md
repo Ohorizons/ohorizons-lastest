@@ -72,7 +72,6 @@ This guide is designed for:
 > Use the **Copilot Agents** in VS Code for guidance.
 >
 > - Ask `@deploy` to deploy the platform (recommended!)
-> - Ask `@onboarding` for a walkthrough
 > - Ask `@terraform` to explain configurations
 > - See [AGENTS.md](../../AGENTS.md) for the full playbook
 
@@ -880,7 +879,7 @@ ls -la
 | Directory | Contents | Purpose |
 |-----------|----------|---------|
 | `.github/` | GitHub Actions workflows, templates | CI/CD automation |
-| `.github/agents/` | Copilot Chat Agents | 18 agent definitions |
+| `.github/agents/` | Copilot Chat Agents | 9 agent definitions |
 | `argocd/` | ArgoCD configurations | GitOps setup |
 | `config/` | Sizing profiles, region configs | Platform configuration |
 | `docs/` | Documentation (you're reading it!) | Guides and references |

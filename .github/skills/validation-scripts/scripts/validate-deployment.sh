@@ -59,17 +59,17 @@ log_info() {
 
 log_success() {
     echo -e "${GREEN}[PASS]${NC} $*"
-    ((PASSED++))
+    PASSED=$((PASSED + 1))
 }
 
 log_warning() {
     echo -e "${YELLOW}[WARN]${NC} $*"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 }
 
 log_error() {
     echo -e "${RED}[FAIL]${NC} $*"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
 }
 
 log_verbose() {

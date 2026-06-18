@@ -1,19 +1,24 @@
 """
-MCP Ecosystem client — connects to the local MCP Ecosystem server (46 tools).
+MCP Ecosystem client — connects to the local MCP Ecosystem server (61 tools / 12 modules).
 
-Server: http://localhost:3100 (Docker: mcp-servers/docker-compose.yml)
+Server: http://localhost:3100/mcp (Docker: mcp-servers/docker-compose.yml)
 Protocol: JSON-RPC over HTTP (Streamable HTTP transport)
 
-Tool categories:
-  - spec-kit: Spec-Driven Development methodology
-  - agent-framework: Microsoft Agent Framework patterns
-  - gh-aw: GitHub Agentic Workflows
-  - anthropics-skills: Anthropic skills catalog
-  - agents-md: AGENTS.md format
-  - awesome-copilot: Skills/agents/prompts lookup
-  - github-copilot-docs: GitHub Copilot documentation
-  - anthropic-docs: Anthropic platform docs
-  - backstage-docs: Backstage documentation + API reference
+Tool modules (group · module · tool prefix):
+  Agent & AI frameworks
+    - spec-kit ............ speckit_*     Spec-Driven Development methodology
+    - anthropics-skills ... anthropics_*  Anthropic skills catalog + specs
+    - awesome-copilot ..... awesome_*     Skills/agents/prompts lookup
+    - agent-framework ..... agentfw_*     Microsoft Agent Framework patterns
+    - gh-aw ............... ghaw_*        GitHub Agentic Workflows
+    - agents-md ........... agentsmd_*    AGENTS.md format spec + templates
+    - github-copilot-docs . copilotdocs_* GitHub Copilot documentation
+  Backstage ecosystem
+    - backstage-docs ...... backstagedocs_*    Backstage docs + API reference
+    - backstage-plugins ... backstageplugins_* Plugin directory (core + community)
+    - backstage-ui ........ backstageui_*      Backstage UI components + storybook
+    - spotify-backstage ... spotifybackstage_* Spotify Portal / upstream docs
+    - backstage-org ....... backstageorg_*     github.com/backstage repos
 """
 
 import json
@@ -140,7 +145,7 @@ async def _ecosystem_call(method: str, params: dict | None = None) -> Any:
 
 
 async def ecosystem_list_tools() -> str:
-    """List all available tools from MCP Ecosystem (46 tools)."""
+    """List all available tools from MCP Ecosystem (61 tools across 12 modules)."""
     result = await _ecosystem_call("tools/list")
     if isinstance(result, dict) and "error" in result:
         return json.dumps(result)
@@ -171,12 +176,12 @@ async def search_backstage_docs(query: str) -> str:
 
 async def search_copilot_docs(query: str) -> str:
     """Search GitHub Copilot documentation via MCP Ecosystem."""
-    return await ecosystem_call_tool("ghaw_get_workflow_patterns", {})
+    return await ecosystem_call_tool("copilotdocs_search", {"query": query})
 
 
 async def search_anthropic_docs(query: str) -> str:
-    """Search Anthropic platform documentation via MCP Ecosystem."""
-    return await ecosystem_call_tool("anthropicdocs_search", {"query": query})
+    """Search the Anthropic skills catalog via MCP Ecosystem."""
+    return await ecosystem_call_tool("anthropics_search_skills", {"query": query})
 
 
 async def get_spec_kit_methodology() -> str:

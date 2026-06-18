@@ -53,6 +53,23 @@ POST /api/agents/chat
 | lighthouse | SRE, monitoring | github_api (deployments, envs) |
 | forge | Infrastructure, repos | github_api (repos, branches) |
 
+## Foundry Agents Gateway — L6 Harness (H3)
+
+Standalone service in `foundry/agents-service/` that fronts Azure AI Foundry.
+Gated to H3 (`enable_foundry_agents=true`, requires `enable_ai_foundry`).
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| Gateway | `foundry/agents-service/app/main.py` | OpenAI-compatible API + per-agent endpoints |
+| Toolbox | `foundry/agents-service/app/toolbox.py` | MCP servers + built-in tools aggregation |
+| Semantic cache | `foundry/agents-service/app/cache.py` | Redis-backed prompt cache (threshold 0.93) |
+| A2A router | `foundry/agents-service/app/a2a.py` | Agent-to-agent v1.0 handoff + trace context |
+| Tool hooks | `foundry/agents-service/app/tool_hooks.py` | pre/postToolUse governance hooks |
+| Telemetry | `foundry/agents-service/app/telemetry.py` | 21-field `llm.call.completed` to App Insights |
+| Enterprise memory | `foundry/agents-service/app/cosmos_memory.py` | Cosmos DB cold memory (AAD-only) |
+| Purview audit | `foundry/agents-service/app/purview_audit.py` | Data governance audit trail |
+| K8s manifests | `foundry/k8s/` | namespace `ai-services`, ArgoCD `argocd/apps/foundry-agents.yaml` |
+
 ## Terraform Modules (16)
 
 | Module | Layer | Purpose |
@@ -62,7 +79,7 @@ POST /api/agents/chat
 | container-registry | L1 | ACR with geo-replication |
 | databases | L1 | PostgreSQL Flexible Server |
 | security | L1 | Key Vault, managed identities |
-| ai-foundry | L1 | Azure AI Foundry workspace |
+| ai-foundry | L1 | Azure AI Foundry workspace + models (gpt-5.1) + Foundry/L6 Cosmos memory |
 | observability | L2 | Log Analytics, App Insights |
 | argocd | L2 | ArgoCD Helm deployment |
 | backstage | L2 | Backstage Helm values |

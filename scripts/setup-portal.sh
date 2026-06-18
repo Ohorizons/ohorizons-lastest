@@ -93,7 +93,7 @@ choose() {
   local i=1
   for opt in "${options[@]}"; do
     echo -e "  ${CYAN}$i)${NC} $opt"
-    ((i++))
+    i=$((i + 1))
   done
   local choice
   read -rp "$(echo -e "${CYAN}Choose [1-${#options[@]}]${NC}: ")" choice

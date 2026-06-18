@@ -196,7 +196,10 @@ create_github_app_manifest() {
             ;;
     esac
     
-    cat > /tmp/github-app-manifest.json << EOF
+    local manifest_dir manifest_file
+    manifest_dir="$(mktemp -d "${TMPDIR:-/tmp}/github-app.XXXXXX")"
+    manifest_file="${manifest_dir}/github-app-manifest.json"
+    cat > "$manifest_file" << EOF
 {
     "name": "${APP_NAME}",
     "url": "${HOMEPAGE_URL}",
@@ -213,8 +216,8 @@ create_github_app_manifest() {
 }
 EOF
     
-    log_success "Manifest created: /tmp/github-app-manifest.json"
-    cat /tmp/github-app-manifest.json
+    log_success "Manifest created: ${manifest_file}"
+    cat "$manifest_file"
 }
 
 # Create GitHub App (manual steps)

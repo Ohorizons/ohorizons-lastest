@@ -1,22 +1,37 @@
 # MCP Ecosystem Server
 
-A unified MCP server that exposes tools from 10 reference sources, running in a single Docker container. Auto-starts with your computer.
+A unified MCP server that exposes **61 tools across 12 modules** from curated
+reference sources, running in a single Docker container. Auto-starts with your
+computer.
+
+> Architecture deep-dive: [ARCHITECTURE.md](ARCHITECTURE.md) ·
+> Platform skill: [mcp-ecosystem skill](../.github/skills/mcp-ecosystem/SKILL.md)
 
 ## Sources
 
-| Source | Tools | GitHub |
-|--------|-------|--------|
-| **Spec-Kit** | `speckit_get_phases`, `speckit_get_commands`, `speckit_get_methodology`, `speckit_get_philosophy`, `speckit_search` | [github/spec-kit](https://github.com/github/spec-kit) |
-| **Anthropics Skills** | `anthropics_list_skills`, `anthropics_get_skill`, `anthropics_get_skill_template`, `anthropics_search_skills`, `anthropics_get_spec` | [anthropics/skills](https://github.com/anthropics/skills) |
-| **Awesome Copilot** | `awesome_list_items`, `awesome_get_item`, `awesome_search`, `awesome_get_readme` | [github/awesome-copilot](https://github.com/github/awesome-copilot) |
-| **Agent Framework** | `agentfw_get_patterns`, `agentfw_get_sample`, `agentfw_search_docs`, `agentfw_get_declarative_agents` | [microsoft/agent-framework](https://github.com/microsoft/agent-framework) |
-| **GitHub Agentic Workflows** | `ghaw_get_workflow_patterns`, `ghaw_get_security_guidelines`, `ghaw_get_contributing`, `ghaw_get_agents_md` | [github/gh-aw](https://github.com/github/gh-aw) |
-| **AGENTS.md** | `agentsmd_get_format_spec`, `agentsmd_get_readme`, `agentsmd_get_section_templates` | [agentsmd/agents.md](https://github.com/agentsmd/agents.md) |
-| **GitHub Copilot Docs** | `copilotdocs_list_sections`, `copilotdocs_get_page`, `copilotdocs_search`, `copilotdocs_get_customization`, `copilotdocs_get_extensions` | [docs.github.com/en/copilot](https://docs.github.com/en/copilot) |
-| **Anthropic Platform Docs** | `anthropicdocs_list_sections`, `anthropicdocs_get_page`, `anthropicdocs_search`, `anthropicdocs_get_agent_sdk`, `anthropicdocs_get_prompt_engineering` | [platform.claude.com/docs](https://platform.claude.com/docs) |
-| **Backstage Docs** | `backstagedocs_list_sections`, `backstagedocs_get_page`, `backstagedocs_search`, `backstagedocs_get_catalog`, `backstagedocs_get_software_templates`, `backstagedocs_get_plugins`, `backstagedocs_get_api_reference` | [backstage/backstage](https://github.com/backstage/backstage) |
+### Group A — Agent & AI frameworks (7 modules · 30 tools)
 
-**Total: 46 tools**
+| Source | Tools | Upstream |
+| --- | --- | --- |
+| **Spec-Kit** (5) | `speckit_get_phases`, `speckit_get_commands`, `speckit_get_methodology`, `speckit_get_philosophy`, `speckit_search` | [`github/spec-kit`](https://github.com/github/spec-kit) |
+| **Anthropics Skills** (5) | `anthropics_list_skills`, `anthropics_get_skill`, `anthropics_get_skill_template`, `anthropics_search_skills`, `anthropics_get_spec` | [anthropics/skills](https://github.com/anthropics/skills) |
+| **Awesome Copilot** (4) | `awesome_list_items`, `awesome_get_item`, `awesome_search`, `awesome_get_readme` | [`github/awesome-copilot`](https://github.com/github/awesome-copilot) |
+| **Agent Framework** (4) | `agentfw_get_patterns`, `agentfw_get_sample`, `agentfw_search_docs`, `agentfw_get_declarative_agents` | [microsoft/agent-framework](https://github.com/microsoft/agent-framework) |
+| **GitHub Agentic Workflows** (4) | `ghaw_get_workflow_patterns`, `ghaw_get_security_guidelines`, `ghaw_get_contributing`, `ghaw_get_agents_md` | [`github/gh-aw`](https://github.com/github/gh-aw) |
+| **AGENTS.md** (3) | `agentsmd_get_format_spec`, `agentsmd_get_readme`, `agentsmd_get_section_templates` | [agentsmd/agents.md](https://github.com/agentsmd/agents.md) |
+| **GitHub Copilot Docs** (5) | `copilotdocs_list_sections`, `copilotdocs_get_page`, `copilotdocs_search`, `copilotdocs_get_customization`, `copilotdocs_get_extensions` | [`docs.github.com/en/copilot`](https://docs.github.com/en/copilot) |
+
+### Group B — Backstage ecosystem (5 modules · 31 tools)
+
+| Source | Tools | Upstream |
+| --- | --- | --- |
+| **Backstage Docs** (7) | `backstagedocs_list_sections`, `backstagedocs_get_page`, `backstagedocs_search`, `backstagedocs_get_catalog`, `backstagedocs_get_software_templates`, `backstagedocs_get_plugins`, `backstagedocs_get_api_reference` | [`backstage/backstage`](https://github.com/backstage/backstage) |
+| **Backstage Plugins** (6) | `backstageplugins_list_directory`, `backstageplugins_list_community`, `backstageplugins_get_community_plugin`, `backstageplugins_search_community`, `backstageplugins_list_core`, `backstageplugins_get_core_plugin` | [`backstage/community-plugins`](https://github.com/backstage/community-plugins) |
+| **Backstage UI** (8) | `backstageui_list_components`, `backstageui_get_component`, `backstageui_get_api_report`, `backstageui_get_readme`, `backstageui_get_changelog`, `backstageui_storybook_list_stories`, `backstageui_storybook_get_story`, `backstageui_storybook_search` | [`backstage/backstage` (ui)](https://github.com/backstage/backstage) |
+| **Spotify Backstage** (6) | `spotifybackstage_list_sections`, `spotifybackstage_get_page`, `spotifybackstage_get_portal_docs`, `spotifybackstage_get_plugins_docs`, `spotifybackstage_get_core_features`, `spotifybackstage_discover_links` | [`backstage.spotify.com`](https://backstage.spotify.com) |
+| **Backstage Org** (4) | `backstageorg_list_repos`, `backstageorg_get_repo_readme`, `backstageorg_search_repos`, `backstageorg_get_backstage_plugins` | [`github.com/backstage`](https://github.com/backstage) |
+
+**Total:** 61 tools across 12 modules
 
 ## Quick Start
 
@@ -81,16 +96,16 @@ claude mcp add mcp-ecosystem --transport http --url http://localhost:3100/mcp
 
 ### OpenClaw
 
-Copy the skill file to your OpenClaw skills directory:
+Copy the platform skill file to your OpenClaw skills directory:
 
 ```bash
-cp configs/openclaw-skill.md ~/.openclaw/skills/mcp-ecosystem/SKILL.md
+cp ../.github/skills/mcp-ecosystem/SKILL.md ~/.openclaw/skills/mcp-ecosystem/SKILL.md
 ```
 
 ## Commands
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `make up` | Build and start the container |
 | `make down` | Stop the container |
 | `make logs` | Tail container logs |
@@ -102,7 +117,7 @@ cp configs/openclaw-skill.md ~/.openclaw/skills/mcp-ecosystem/SKILL.md
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │              Docker Container               │
 │         mcp-ecosystem (port 3100)           │
@@ -113,10 +128,12 @@ cp configs/openclaw-skill.md ~/.openclaw/skills/mcp-ecosystem/SKILL.md
 │  └──────────┬──────────────────────────┘    │
 │             │                               │
 │  ┌──────────▼──────────────────────────┐    │
-│  │           Tool Modules              │    │
-│  │  spec-kit │ anthropics │ awesome    │    │
-│  │  agent-fw │ gh-aw │ agents-md      │    │
-│  │  github-copilot-docs │ backstage-docs       │    │
+  │           Tool Modules (12)         │    │
+  │  A: spec-kit │ anthropics │ awesome │    │
+  │     agent-fw │ gh-aw │ agents-md    │    │
+  │     github-copilot-docs             │    │
+  │  B: backstage-docs │ -plugins │ -ui │    │
+  │     spotify-backstage │ backstage-org│   │
 │  └──────────┬──────────────────────────┘    │
 │             │                               │
 │  ┌──────────▼──────────────────────────┐    │
@@ -138,7 +155,7 @@ cp configs/openclaw-skill.md ~/.openclaw/skills/mcp-ecosystem/SKILL.md
 ## Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| --- | --- | --- |
 | `GH_TOKEN` | *(empty)* | GitHub token — increases API rate limit from 60 to 5000 req/h |
 | `CACHE_TTL_MS` | `3600000` | Cache TTL in milliseconds (default: 1 hour) |
 | `PORT` | `3100` | HTTP server port |

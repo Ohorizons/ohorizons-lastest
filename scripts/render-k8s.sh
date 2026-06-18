@@ -196,7 +196,7 @@ print(content, end='')
     echo "$content" > "$output"
     log_ok "Generated: backstage/k8s/$filename"
   fi
-  ((rendered++))
+  rendered=$((rendered + 1))
 done
 
 echo ""

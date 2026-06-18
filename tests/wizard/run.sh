@@ -381,6 +381,80 @@ assert "CLI portal_profile persisted" "$portal_profile" "platform"
 assert "CLI branding_profile persisted" "$branding_profile" "custom"
 
 echo
+echo "Test 22: full profile enables foundry_agents (H3) and keeps disaster_recovery"
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --horizon all --profile full --auto >/dev/null 2>&1
+assert "full profile exit code" "$?" "0"
+assert "full enables enable_foundry_agents" "$(yq '.modules.enable_foundry_agents' "$manifest_path")" "true"
+assert "full enables enable_ai_foundry" "$(yq '.modules.enable_ai_foundry' "$manifest_path")" "true"
+assert "full keeps enable_disaster_recovery" "$(yq '.modules.enable_disaster_recovery' "$manifest_path")" "true"
+
+echo
+echo "Test 23: minimal profile keeps foundry_agents and disaster_recovery false"
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --horizon h1 --profile minimal --auto >/dev/null 2>&1
+assert "minimal profile exit code" "$?" "0"
+assert "minimal disables enable_foundry_agents" "$(yq '.modules.enable_foundry_agents' "$manifest_path")" "false"
+assert "minimal disables enable_disaster_recovery" "$(yq '.modules.enable_disaster_recovery' "$manifest_path")" "false"
+
+echo
+echo "Test 24: foundry_agents without h3 exits 2 (RULE-001b)"
+fa_h1="$(mktemp)"
+cat > "$fa_h1" <<'YAML'
+horizon: h1
+environment: dev
+deployment_mode: express
+modules:
+  enable_ai_foundry: true
+  enable_foundry_agents: true
+backstage_components: {}
+golden_paths:
+  - h1-foundation/basic-cicd
+YAML
+"$WIZARD" --environment dev --auto --selection-file "$fa_h1" >/dev/null 2>&1
+ec=$?
+rm -f "$fa_h1"
+assert "foundry_agents requires h3 exit code" "$ec" "2"
+
+echo
+echo "Test 25: foundry_agents without ai_foundry exits 2 (RULE-001c)"
+fa_noaif="$(mktemp)"
+cat > "$fa_noaif" <<'YAML'
+horizon: h3
+environment: dev
+deployment_mode: express
+modules:
+  enable_ai_foundry: false
+  enable_foundry_agents: true
+backstage_components: {}
+golden_paths:
+  - h3-innovation/mcp-ecosystem
+YAML
+"$WIZARD" --environment dev --auto --selection-file "$fa_noaif" >/dev/null 2>&1
+ec=$?
+rm -f "$fa_noaif"
+assert "foundry_agents requires ai_foundry exit code" "$ec" "2"
+
+echo
+echo "Test 26: valid foundry_agents selection (h3 + ai_foundry) passes"
+fa_ok="$(mktemp)"
+cat > "$fa_ok" <<'YAML'
+horizon: h3
+environment: dev
+deployment_mode: express
+modules:
+  enable_ai_foundry: true
+  enable_foundry_agents: true
+backstage_components: {}
+golden_paths:
+  - h3-innovation/mcp-ecosystem
+YAML
+"$WIZARD" --environment dev --auto --selection-file "$fa_ok" >/dev/null 2>&1
+ec=$?
+rm -f "$fa_ok"
+assert "valid foundry_agents exit code" "$ec" "0"
+
+echo
 echo "Summary: $PASS passed, $FAIL failed"
 if [[ "$FAIL" -gt 0 ]]; then exit 1; fi
 exit 0
