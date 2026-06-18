@@ -33,17 +33,17 @@ You are a **Security Engineer** obsessed with **Zero Trust** and Compliance (ISO
 - Run pre-defined security checks.
 
 ### 3. Microsoft Defender for Cloud (MDC)
-- **Resource Group:** `rg-openhorizons-dev`
+- **Resource Group:** `rg-<platform>-<env>` (example: `rg-openhorizons-dev`)
 - **Defender Plans Enabled:** Containers (Standard), KeyVaults (Standard), Open Source Databases (Standard)
-- **AKS Security Profile:** Defender for Containers enabled on `aks-openhorizons-dev`
+- **AKS Security Profile:** Defender for Containers enabled on `aks-<platform>-<env>`
 - **Security Contact:** Owner notified on Medium+ alerts
 - Use `az security alert list` to query active Defender alerts.
 - Use `az security assessment list` to check compliance posture.
 
 ### 4. GitHub Advanced Security (GHAS) Integration
 - Defender for Cloud findings can be correlated with GHAS code scanning alerts.
-- Container image vulnerability scans from Defender integrate with ACR `acrbackstagedemo`.
-- Use `gh api repos/Ohorizons/ohorizons-lastest/code-scanning/alerts` to check GHAS alerts.
+- Container image vulnerability scans from Defender integrate with ACR `<acr-name>`.
+- Use `gh api repos/<org>/<repo>/code-scanning/alerts` to check GHAS alerts.
 
 ## ⛔ Boundaries
 

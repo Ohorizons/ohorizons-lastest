@@ -17,7 +17,7 @@ Use this gate before delivering any architecture diagram generated with this ski
 - [ ] Main flow reads left to right or top to bottom.
 - [ ] Connectors are orthogonal where possible and labelled with protocol or intent.
 - [ ] Labels are short enough to fit, and every icon has a text label.
-- [ ] Containers use the open-horizons palette, not recolored product icons.
+- [ ] Containers use the Open Horizons palette, not recolored product icons.
 
 ## File output
 

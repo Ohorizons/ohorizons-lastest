@@ -28,18 +28,18 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 
 ---
 
-## Azure MVP Deployment (`rg-openhorizons-dev`)
+## Azure MVP Deployment (`rg-<platform>-<env>`)
 
 ### Resources
 
 | Resource | Name | Type | Location |
 |----------|------|------|----------|
-| AKS | `aks-openhorizons-dev` | 2x Standard_B2s | eastus2 |
-| ACR | `acrbackstagedemo` | Basic | eastus2 |
-| Key Vault | `kv-openhorizons-dev` | RBAC-enabled | eastus2 |
-| PostgreSQL | `pgbackstagedemo` | Flexible B1ms v16 | centralus |
-| Redis | `redis-openhorizons-dev` | Azure Managed B0 | eastus2 |
-| AI Services | `ai-openhorizons-dev` | S0 (GPT-4o + Embeddings) | eastus2 |
+| AKS | `aks-<platform>-<env>` | 2x Standard_B2s | eastus2 |
+| ACR | `<acr-name>` | Basic | eastus2 |
+| Key Vault | `kv-<platform>-<env>` | RBAC-enabled | eastus2 |
+| PostgreSQL | `pg-<platform>-<env>` | Flexible B1ms v16 | centralus |
+| Redis | `redis-<platform>-<env>` | Azure Managed B0 | eastus2 |
+| AI Services | `ai-<platform>-<env>` | S0 (GPT-4o + Embeddings) | eastus2 |
 | Log Analytics | `law-openhorizons-dev` | PerGB2018 | eastus2 |
 | App Insights | `appi-openhorizons-dev` | Application Insights | eastus2 |
 | Managed Prometheus | `prometheus-openhorizons-dev` | Azure Monitor Workspace | eastus2 |

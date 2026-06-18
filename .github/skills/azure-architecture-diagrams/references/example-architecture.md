@@ -20,7 +20,7 @@ A system context diagram for an agentic platform on the GitHub platform and Azur
   - Entra Agent ID and managed identity.
   - Application Insights with OpenTelemetry GenAI, and Foundry evaluation as a CI gate.
 
-Edges are labeled with the relationship (HTTPS, token limit plus semantic cache, route, cache plus memory, retrieve, discover, govern, screen, authN, trace). Boundaries use the open-horizons accent colors; the boxes are neutral placeholders.
+Edges are labeled with the relationship (HTTPS, token limit plus semantic cache, route, cache plus memory, retrieve, discover, govern, screen, authN, trace). Boundaries use the Open Horizons accent colors; the boxes are neutral placeholders.
 
 ## How it was built
 

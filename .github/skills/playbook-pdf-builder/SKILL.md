@@ -41,7 +41,7 @@ Ask (or infer from context) the following. Most have sensible defaults.
 | Document title (cover) | Yes | infer from first chapter title |
 | Document subtitle (cover, 1–2 sentences) | No | infer from chapter descriptions |
 | Author name | No | `Open Horizons` |
-| Author title/org | No | `AI-Native Software Engineer · @open-horizonstech` |
+| Author title/org | No | `Platform Engineering · Open Horizons` |
 | Document date + version | No | today's date + `v1.0` |
 | Output PDF path | No | auto-generated — see naming convention below |
 | Chapter colors (one per chapter) | No | use default palette (see below) |
@@ -95,7 +95,7 @@ with this structure:
   "subtitle": "One or two sentence description of the document.",
   "eyebrow": "Complete Playbook",
   "author": "Open Horizons",
-  "author_title": "AI-Native Software Engineer · @open-horizonstech",
+  "author_title": "Platform Engineering · Open Horizons",
   "date": "April 2026 · v1.1.0",
   "images_dir": "/absolute/path/to/images/folder",
   "chapters": [

@@ -13,7 +13,7 @@ Build complete architecture diagrams with the **official Azure, Microsoft, and G
 ## What this skill produces
 
 - **`.drawio` source** (editable in draw.io / diagrams.net and the VS Code extension).
-- **Exported SVG** for embedding in Markdown and the open-horizons documents and decks.
+- **Exported SVG** for embedding in Markdown and the Open Horizons documents and decks.
 - Diagrams that use official vendor shapes, with consistent layout, grouping, and connector routing.
 
 ## Diagram set for an AI-native system
@@ -51,7 +51,7 @@ Catalog details, download locations, and the draw.io shape style strings are in 
 - Group by boundary (subscription, resource group, VNet, trust zone) with labeled containers.
 - Orthogonal connectors, no crossings where avoidable, labels on edges for protocols.
 - One accent color per boundary; do not re-color official product icons.
-- Apply the open-horizons palette to containers, labels, and connectors, never to the vendor icons themselves.
+- Apply the Open Horizons palette to containers, labels, and connectors, never to the vendor icons themselves.
 
 ## Workflow
 
