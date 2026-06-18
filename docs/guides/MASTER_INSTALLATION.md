@@ -434,3 +434,31 @@ Functional smoke tests:
 - [Azure OIDC Setup](../../golden-paths/common/azure-infrastructure/docs/azure-oidc.md)
 - [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)
 - [Performance Tuning Guide](PERFORMANCE_TUNING_GUIDE.md)
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Prerequisites-555555?style=for-the-badge)](PREREQUISITES.md)
+
+</td>
+<td align="center">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Client%20Installation-0078D4?style=for-the-badge)](CLIENT_INSTALLATION.md)
+
+</td>
+</tr>
+</table>
+
+</div>

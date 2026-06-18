@@ -656,6 +656,28 @@ Add buffer: 3 × 1.3 = 4 nodes recommended
 
 ---
 
-**Document Version:** 2.0.0
-**Last Updated:** March 2026
-**Maintainer:** Platform Engineering Team
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Administrator%20Guide-555555?style=for-the-badge)](ADMINISTRATOR_GUIDE.md)
+
+</td>
+<td align="center">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Troubleshooting-0078D4?style=for-the-badge)](TROUBLESHOOTING_GUIDE.md)
+
+</td>
+</tr>
+</table>
+
+</div>

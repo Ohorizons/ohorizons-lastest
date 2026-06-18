@@ -90,3 +90,26 @@ When Azure credentials and a cluster are available, also run:
 - [Backstage deployment documentation](https://backstage.io/docs/deployment/)
 - [Backstage TechDocs configuration](https://backstage.io/docs/features/techdocs/configuration/)
 - [Terraform input variables](https://developer.hashicorp.com/terraform/language/values/variables)
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Previous](https://img.shields.io/badge/←%20Previous-Troubleshooting-555555?style=for-the-badge)](TROUBLESHOOTING_GUIDE.md)
+
+</td>
+<td align="right">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Documentation%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+</tr>
+</table>
+
+</div>

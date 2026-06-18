@@ -302,3 +302,26 @@ When all boxes are checked, follow the [Master Installation Guide](MASTER_INSTAL
 - [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md) — common issues
 - [`config/sizing-profiles.yaml`](../../config/sizing-profiles.yaml) — full machine-readable sizing data
 - [`config/region-availability.yaml`](../../config/region-availability.yaml) — region/service matrix
+
+---
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/%20-F25022?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-7FBA00?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-00A4EF?style=flat-square" height="4" width="120" alt=""/><img src="https://img.shields.io/badge/%20-FFB900?style=flat-square" height="4" width="120" alt=""/>
+
+<table>
+<tr>
+<td align="left">
+
+[![Documentation Home](https://img.shields.io/badge/⌂%20Documentation%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+
+</td>
+<td align="right">
+
+[![Next](https://img.shields.io/badge/Next%20→-Master%20Installation-0078D4?style=for-the-badge)](MASTER_INSTALLATION.md)
+
+</td>
+</tr>
+</table>
+
+</div>

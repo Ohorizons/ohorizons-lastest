@@ -330,10 +330,11 @@ Alternatively, use the Copilot deploy agent from VS Code:
 | **[Deployment Guide](docs/guides/DEPLOYMENT_GUIDE.md)** | First deployment, step-by-step (3 options) |
 | **[Wizard Guide](docs/guides/WIZARD_GUIDE.md)** | What developers see in Backstage and how the Azure deploy toggle works |
 | **[Client Installation Guide](docs/guides/CLIENT_INSTALLATION.md)** | Template-receive checklist (fork, branding, branch strategy) |
+| **[Documentation Style Guide](docs/guides/DOCUMENTATION_STYLE_GUIDE.md)** | Editorial design, color palette, diagram, and Markdown standards for enterprise forks |
+| **[Architecture Review Pack](docs/architecture/ARCHITECTURE_REVIEW.md)** | Professional ARB meeting pack with editable diagrams and detailed architecture flows |
 | **[Architecture Guide](docs/guides/ARCHITECTURE_GUIDE.md)** | Understanding the system design |
 | **[Administrator Guide](docs/guides/ADMINISTRATOR_GUIDE.md)** | Day-2 operations |
-| **[Agent System](AGENTS.md)** | 9 agents, 31 skills, 9 prompts |
-| **[Code Map](CODEMAP.md)** | Navigating the codebase |
+| **[Agent System](AGENTS.md)** | 9 agents, 28 skills, 9 prompts |
 | **[Code Map](CODEMAP.md)** | Context map and codebase navigation |
 | **[Module Reference](docs/guides/MODULE_REFERENCE.md)** | All 16 Terraform modules |
 | **[Troubleshooting](docs/guides/TROUBLESHOOTING_GUIDE.md)** | Problem diagnosis |
@@ -400,6 +401,8 @@ Alternatively, use the Copilot deploy agent from VS Code:
 ### Ready to Transform Your SDLC?
 
 Deploy Open Horizons and bring Agentic DevOps to your organization.
+
+[![Begin the Guided Path](https://img.shields.io/badge/Begin%20the%20Guided%20Path%20→-Prerequisites%20%26%20Sizing-0078D4?style=for-the-badge)](docs/guides/PREREQUISITES.md)
 
 [Deploy Now](#get-started) | [GitHub](https://github.com/Ohorizons/open-horizons-platform)
 

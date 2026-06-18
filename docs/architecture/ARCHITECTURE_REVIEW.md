@@ -21,12 +21,32 @@ platform: "Microsoft Azure + GitHub · Backstage OSS on AKS"
 
 ## Table of Contents
 
+- [Change Log](#change-log)
+- [Table of Contents](#table-of-contents)
 - [1. Review Goals](#1-review-goals)
 - [2. Diagram Set](#2-diagram-set)
 - [3. Architecture Model](#3-architecture-model)
 - [4. Diagram Walkthrough](#4-diagram-walkthrough)
+  - [4.1 Architecture Overview](#41-architecture-overview)
+  - [4.2 System Context](#42-system-context)
+  - [4.3 H1 Foundation](#43-h1-foundation)
+  - [4.4 H1 Network and Security Detail](#44-h1-network-and-security-detail)
+  - [4.5 H2 Enhancement](#45-h2-enhancement)
+  - [4.6 H2 GitOps and Observability Detail](#46-h2-gitops-and-observability-detail)
+  - [4.7 H3 Innovation](#47-h3-innovation)
+  - [4.8 H3 Agent Flow Detail](#48-h3-agent-flow-detail)
+  - [4.9 Hybrid Azure DevOps + GitHub](#49-hybrid-azure-devops--github)
+  - [4.10 Critical Path Sequence](#410-critical-path-sequence)
 - [5. Integration Flows](#5-integration-flows)
+  - [5.1 Delivery Flow](#51-delivery-flow)
+  - [5.2 Identity and Secret Flow](#52-identity-and-secret-flow)
+  - [5.3 Agent Request Flow](#53-agent-request-flow)
+  - [5.4 Hybrid Catalog Flow](#54-hybrid-catalog-flow)
 - [6. Cross-Cutting Architecture](#6-cross-cutting-architecture)
+  - [6.1 Security](#61-security)
+  - [6.2 Observability](#62-observability)
+  - [6.3 Governance](#63-governance)
+  - [6.4 Data and Context](#64-data-and-context)
 - [7. Non-Functional Review](#7-non-functional-review)
 - [8. Architecture Decisions](#8-architecture-decisions)
 - [9. Review Agenda](#9-review-agenda)
@@ -38,6 +58,8 @@ platform: "Microsoft Azure + GitHub · Backstage OSS on AKS"
 This pack supports a technical architecture review for **Open Horizons (Agentic DevOps Platform)**. The objective is to make the system understandable from three perspectives: how the whole platform connects, how each adoption stage works internally, and how critical flows behave across GitHub, Azure DevOps, Backstage, AKS, and Azure AI Foundry.
 
 The diagrams intentionally split the architecture into **general** and **detail** views. General views avoid overcrowding. Detail views explain lower-level integration logic. The sequence diagram captures the critical path from Golden Path scaffolding to deployment and AI response.
+
+The visual language follows the [Documentation Style Guide](../guides/DOCUMENTATION_STYLE_GUIDE.md): Open Horizons color palette, plane-card diagram layout, official Azure/GitHub icons, versioned `.drawio` sources, and customer-ready Markdown structure.
 
 ## 2. Diagram Set
 
@@ -381,6 +403,7 @@ All 10 `.drawio` files pass XML, icon, and connector checks. All 10 SVG files we
 ## References
 
 - [Open Horizons architecture guide](OpenHorizons_Architecture.md)
+- [Documentation Style Guide](../guides/DOCUMENTATION_STYLE_GUIDE.md)
 - [ADR index](adr/README.md)
 - [Microsoft Azure architecture icons](https://learn.microsoft.com/azure/architecture/icons/)
 - [GitHub Octicons](https://primer.style/octicons/)
