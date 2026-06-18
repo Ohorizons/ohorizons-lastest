@@ -134,7 +134,7 @@ These modules create the core infrastructure that everything else depends on.
 
 #### The Problem It Solves
 
-```
+```text
 WITHOUT naming module:
 ─────────────────────
 storage_account_name = "contoso-dev-storage"     ❌ Fails (has hyphens)
@@ -484,7 +484,7 @@ user_node_pools = [
 >
 > **Taints** on nodes repel pods that don't have matching **tolerations**.
 >
-> ```
+> ```text
 > Node with taint:          Pod without toleration:
 > gpu=true:NoSchedule  →    ❌ Won't be scheduled
 >
@@ -649,6 +649,8 @@ kubectl get nodes
 > | Price (approx) | $5/mo | $20/mo | $50/mo |
 >
 > **Recommendation:** Use **Premium** for production (private endpoints required for security).
+
+---
 
 > ⚠️ **Important: ACR Naming Rules**
 >
@@ -2099,7 +2101,7 @@ module "aks" {
 
 #### "Resource not found" Errors
 
-```
+```text
 Error: Resource group "rg-xxx" was not found
 
 CAUSE: Module dependency not satisfied
@@ -2113,7 +2115,7 @@ module "networking" {
 
 #### "Name already exists" Errors
 
-```
+```text
 Error: The storage account name "stcontoso" is already taken
 
 CAUSE: Global resources (storage, ACR) require globally unique names
@@ -2124,7 +2126,7 @@ SOLUTION:
 
 #### "Subnet not found" Errors
 
-```
+```text
 Error: Subnet with ID ".../subnets/aks-nodes" was not found
 
 CAUSE: AKS module running before networking completes
@@ -2137,7 +2139,7 @@ module "aks" {
 
 #### "Insufficient quota" Errors
 
-```
+```text
 Error: Operation could not be completed as it results in exceeding quota
 
 CAUSE: Azure subscription limits
@@ -2171,7 +2173,7 @@ kubectl get pods -A
 
 ### 9.3 State Management Issues
 
-```
+```text
 Error: Error acquiring the state lock
 
 CAUSE: Previous terraform command didn't complete
@@ -2181,7 +2183,7 @@ SOLUTION:
    terraform force-unlock <LOCK_ID>
 ```
 
-```
+```text
 Error: Resource already exists
 
 CAUSE: Resource created outside Terraform

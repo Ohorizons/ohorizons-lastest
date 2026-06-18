@@ -434,7 +434,7 @@ receivers:
 
 ### 3.3 Creating Custom Alerts
 
-**Example: Alert when HTTP error rate exceeds 1%**
+#### Example: Alert When HTTP Error Rate Exceeds 1%
 
 ```yaml
 # Add to prometheus/alerting-rules.yaml
@@ -789,7 +789,7 @@ kubectl get secret my-app-secrets -n my-app -o jsonpath='{.data.DATABASE_PASSWOR
 
 ### 7.2 Adding a New User
 
-**Step 1: Add to Azure AD Group**
+#### Step 1: Add to Azure AD Group
 
 ```bash
 # Get user's Object ID
@@ -807,7 +807,7 @@ az ad group member add \
   --member-id "user-object-id"
 ```
 
-**Step 2: Create Kubernetes RoleBinding (if namespace-specific)**
+#### Step 2: Create Kubernetes RoleBinding (if namespace-specific)
 
 ```yaml
 # rolebinding.yaml
@@ -827,7 +827,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-**Step 3: Verify access**
+#### Step 3: Verify Access
 
 ```bash
 # User should run:
