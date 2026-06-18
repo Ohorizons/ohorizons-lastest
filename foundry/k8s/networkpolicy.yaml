@@ -1,0 +1,36 @@
+---
+# NetworkPolicy: only allow ingress from backstage namespace (mcp-chat-backend, lightspeed)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: foundry-agents-ingress
+  namespace: ai-services
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: foundry-agents
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backstage
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ai-services
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTPS to Azure OpenAI (any external — refined by FQDN policy if available)
+    - ports:
+        - protocol: TCP
+          port: 443

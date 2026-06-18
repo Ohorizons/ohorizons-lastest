@@ -1,0 +1,25 @@
+---
+# Source-mounted Deployment variant — does NOT require a custom image.
+# Useful for first deploy / dev iterations when GHCR push isn't set up yet.
+# Replace with deployment.yaml (image-based) once image is published.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foundry-agents-source
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/part-of: open-horizons
+data:
+  __init__.py: |
+    """Open Horizons Foundry Agents Service."""
+    __version__ = "1.0.0"
+  requirements.txt: |
+    fastapi==0.115.6
+    uvicorn[standard]==0.32.1
+    httpx==0.28.1
+    pydantic==2.10.4
+    azure-cosmos==4.7.0
+    azure-identity==1.19.0
+  # NOTE: config.py / agents.py / azure_openai.py / cosmos_memory.py / main.py are mounted from
+  # a separate ConfigMap generated at apply-time — see render-source-cm.sh.

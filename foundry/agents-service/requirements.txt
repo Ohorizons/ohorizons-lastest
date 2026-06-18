@@ -1,0 +1,9 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+httpx==0.28.1
+pydantic==2.10.4
+azure-cosmos==4.7.0
+azure-identity==1.19.0
+redis==5.2.1
+# Optional (semantic cache, REQ-REDIS-003 / TASK-07-012) — heavy; install only where the
+# semantic cache is wanted (PROMPT_CACHE_ENABLED=true): pip install sentence-transformers

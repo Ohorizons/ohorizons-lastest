@@ -1,0 +1,183 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: ai-gateway
+    app.kubernetes.io/part-of: open-horizons
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: foundry-agents
+      app.kubernetes.io/instance: open-horizons
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: foundry-agents
+        app.kubernetes.io/instance: open-horizons
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: ai-gateway
+        app.kubernetes.io/part-of: open-horizons
+    spec:
+      serviceAccountName: foundry-agents
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: foundry-agents
+          image: ghcr.io/3horizons/foundry-agents:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: AZURE_OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_OPENAI_ENDPOINT
+            - name: AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_CLIENT_ID
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_CLIENT_SECRET
+            - name: AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_TENANT_ID
+            - name: COSMOS_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_ENDPOINT
+            - name: COSMOS_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_DATABASE_NAME
+            - name: COSMOS_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_CONTAINER_NAME
+            - name: COSMOS_MEMORY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_MEMORY_ENABLED
+            - name: COSMOS_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_TENANT_ID
+          envFrom:
+            - secretRef:
+                name: foundry-agents-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              ephemeral-storage: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: foundry-agents
+              app.kubernetes.io/instance: open-horizons
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/part-of: open-horizons
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/part-of: open-horizons
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: foundry-agents
+      app.kubernetes.io/instance: open-horizons

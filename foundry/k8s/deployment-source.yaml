@@ -1,0 +1,209 @@
+---
+# Source-mounted Deployment — runs the service from a ConfigMap (no image build).
+# After image is published to GHCR, switch to deployment.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/version: "1.0.0-src"
+    app.kubernetes.io/component: ai-gateway
+    app.kubernetes.io/part-of: open-horizons
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: foundry-agents
+      app.kubernetes.io/instance: open-horizons
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: foundry-agents
+        app.kubernetes.io/instance: open-horizons
+        app.kubernetes.io/version: "1.0.0-src"
+        app.kubernetes.io/component: ai-gateway
+        app.kubernetes.io/part-of: open-horizons
+    spec:
+      serviceAccountName: foundry-agents
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: install-deps
+          image: python:3.11-slim
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cp /src/* /opt/app/
+              pip install --target=/opt/app/.deps --no-cache-dir -r /src/requirements.txt
+          volumeMounts:
+            - name: source
+              mountPath: /src
+            - name: app
+              mountPath: /opt/app
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+      containers:
+        - name: foundry-agents
+          image: python:3.11-slim
+          workingDir: /opt/app
+          command:
+            - sh
+            - -c
+            - |
+              export PYTHONPATH=/opt/app/.deps:/opt/app
+              cd /opt/app
+              # Lay out files as a package: app/<module>.py — the full app/ (incl.
+              # toolbox, a2a, cache, tool_hooks, telemetry, purview_audit).
+              mkdir -p app
+              cp __init__.py config.py agents.py azure_openai.py cosmos_memory.py main.py \
+                 toolbox.py a2a.py cache.py tool_hooks.py telemetry.py purview_audit.py app/
+              exec python -m uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 1
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: AZURE_OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_OPENAI_ENDPOINT
+            - name: AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_CLIENT_ID
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_CLIENT_SECRET
+            - name: AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-azure-openai
+                  key: AZURE_TENANT_ID
+            - name: COSMOS_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_ENDPOINT
+            - name: COSMOS_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_DATABASE_NAME
+            - name: COSMOS_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_CONTAINER_NAME
+            - name: COSMOS_MEMORY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_MEMORY_ENABLED
+            - name: COSMOS_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: foundry-agents-config
+                  key: COSMOS_TENANT_ID
+          envFrom:
+            - secretRef:
+                name: foundry-agents-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "192Mi"
+              ephemeral-storage: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 8
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: app
+              mountPath: /opt/app
+      volumes:
+        - name: source
+          configMap:
+            name: foundry-agents-source
+        - name: app
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/part-of: open-horizons
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foundry-agents
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/part-of: open-horizons
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: foundry-agents
+    app.kubernetes.io/instance: open-horizons
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-services
+  labels:
+    app.kubernetes.io/managed-by: open-horizons
+    app.kubernetes.io/part-of: open-horizons
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
