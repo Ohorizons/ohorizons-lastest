@@ -1,6 +1,6 @@
 ---
 name: codespaces-golden-paths
-description: "Configures GitHub Codespaces dev environments for each Golden Path template type so developers get a fully ready workspace when scaffolding from the portal. USE FOR: devcontainer.json configuration, Codespaces setup, Golden Path dev environment, container features, SDK pre-installation. DO NOT USE FOR: Backstage deployment (use backstage-deployment), CI/CD pipelines (use @devops), template creation (use @platform)."
+description: "Configures GitHub Codespaces dev environments for each Golden Path template type so developers get a fully ready workspace when scaffolding from the portal. USE FOR: devcontainer.json configuration, Codespaces setup, Golden Path dev environment, container features, SDK pre-installation. DO NOT USE FOR: Backstage deployment (use backstage-deployment), CI/CD pipelines (use deploy-orchestration), template creation (use backstage-deployment)."
 ---
 
 # Codespaces Golden Paths Skill
@@ -15,7 +15,7 @@ Configures GitHub Codespaces dev environments for each Golden Path template type
 |--------|--------|
 | **Purpose** | Auto-create Codespaces with SDKs, tools, and configs per template |
 | **Trigger** | Developer scaffolds a Golden Path → repo created → Codespace ready |
-| **Used by** | `@backstage-expert`, `@devops` |
+| **Used by** | `@backstage-expert`, `@deploy` |
 
 ---
 

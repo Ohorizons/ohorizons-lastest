@@ -67,4 +67,4 @@ locals {
 5. Use managed identities
 
 ## Integration with Agents
-Used by: @terraform, @security, @devops
+Used by: @terraform, @security, @azure-portal-deploy

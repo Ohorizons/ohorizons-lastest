@@ -422,9 +422,10 @@ sequenceDiagram
 | Infrastructure as Code | `@terraform` | Agent | Claude Sonnet 4.6, GPT-5.1 |
 | Portal deployment | `@backstage-expert` | Agent | Claude Sonnet 4.6, GPT-5.1 |
 | GitHub integration | `@github-integration` | Agent | Claude Sonnet 4.6, GPT-5.1 |
+| Azure DevOps integration | `@ado-integration` | Agent | Claude Sonnet 4.6, GPT-5.1 |
+| Hybrid integration | `@hybrid-scenarios` | Agent | Claude Sonnet 4.6, GPT-5.1 |
 | Post-deploy verification | `@sre` | Ask | Claude Sonnet 4.6, GPT-5.1 |
 | Security audit | `@security` | Ask | Claude Opus 4.6, GPT-5.4 |
-| Documentation | `@docs` | Ask | Claude Haiku 4.5, GPT-5.1 |
 
 > **Deploy times:** Dev 75-105 min · Staging 100-130 min · Production 130-175 min
 
@@ -434,40 +435,48 @@ sequenceDiagram
 
 ### 10.1 Agent Categories
 
-The platform includes 18 Copilot Chat agents organized by adoption stage:
+The platform includes 9 deploy-managed Copilot Chat agents organized around the deployment workflow:
 
 ![Agent Architecture](../assets/arch-agent-categories.svg)
 
 ### 10.2 Agent Handoff Flow
 
-Agents hand off work to specialized peers based on task type. Each agent uses the model best suited to its role.
+The `@deploy` agent is the primary entry point and hands off work to specialized peers based on task type. Each agent uses the model best suited to its role.
 
 ```mermaid
 flowchart LR
     subgraph Planning["Planning · Opus 4.6 / GPT-5.4"]
-        A["@deploy"] --> B["@architect"]
+        A["@deploy"]
     end
 
     subgraph Impl["Implementation · Sonnet 4.6 / GPT-5.1"]
-        B --> C["@terraform"]
-        B --> D["@devops"]
-        B --> E["@platform"]
+        A --> C["@terraform"]
+        A --> D["@azure-portal-deploy"]
+        A --> E["@backstage-expert"]
+        A --> J["@github-integration"]
+        A --> K["@ado-integration"]
+        A --> L["@hybrid-scenarios"]
     end
 
     subgraph Verify["Verification · Opus 4.6 / GPT-5.4"]
         C --> F["@security"]
         D --> F
         E --> F
-        F --> G["@reviewer"]
+        J --> F
+        K --> F
+        L --> F
     end
 
     subgraph Ops["Operations · Sonnet 4.6 / GPT-5.1"]
-        G --> H["@sre"]
-        H --> I["@docs"]
+        F --> H["@sre"]
     end
 
     style A fill:#F25022,color:#fff
-    style B fill:#F25022,color:#fff
+    style C fill:#00A4EF,color:#fff
+    style D fill:#00A4EF,color:#fff
+    style E fill:#00A4EF,color:#fff
+    style F fill:#7FBA00,color:#fff
+    style H fill:#FFB900,color:#000
     style C fill:#00A4EF,color:#fff
     style D fill:#00A4EF,color:#fff
     style E fill:#00A4EF,color:#fff
@@ -636,21 +645,21 @@ For implementation details, see the [Deployment Guide](./DEPLOYMENT_GUIDE.md).
 ## 🤖 Using Copilot Agents for Architecture
 
 | Task | Agent | Example Prompt |
-|------|-------|---------------|
-| System design | `@architect` | "Design a microservice architecture for order processing" |
-| WAF review | `@architect` | "Evaluate this design against the Reliability WAF pillar" |
+| ---- | ----- | -------------- |
+| System design | `@deploy` | "Plan the platform deployment architecture for this environment" |
+| WAF review | `@security` | "Evaluate this design against Zero Trust and security baseline requirements" |
 | Module structure | `@terraform` | "Help me decompose this into reusable Terraform modules" |
 | Security review | `@security` | "Review this architecture for Zero Trust compliance" |
-| ADR creation | `@docs` | "Create an ADR for choosing Cosmos DB over PostgreSQL" |
+| Deployment decision record | `@deploy` | "Summarize the deployment decision and required follow-up actions" |
 
-> **Tip:** `@architect` will create Mermaid diagrams, evaluate trade-offs, and write ADRs. It automatically hands off to `@terraform` for implementation and `@security` for review.
+> **Tip:** Start with `@deploy` for architecture-impacting platform work. It hands off to `@terraform`, `@azure-portal-deploy`, `@backstage-expert`, `@security`, and `@sre` as needed.
 
 ---
 
 ## Related Documentation
 
 | Document | Description |
-|----------|-------------|
+| -------- | ----------- |
 | [Deployment Guide](./DEPLOYMENT_GUIDE.md) | Step-by-step platform deployment instructions |
 | [Module Reference](./MODULE_REFERENCE.md) | Detailed inputs/outputs for all Terraform modules |
 | [Performance Tuning Guide](./PERFORMANCE_TUNING_GUIDE.md) | Optimization recommendations for all components |

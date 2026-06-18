@@ -1,6 +1,6 @@
 ---
 name: observability-stack
-description: "Observability stack — deploy Prometheus, Grafana, Loki, and Alertmanager, plus day-2 monitoring operations. USE FOR: deploy Prometheus, configure Grafana, setup Loki, Alertmanager rules, monitoring dashboards, observability troubleshooting. DO NOT USE FOR: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use @devops)."
+description: "Observability stack — deploy Prometheus, Grafana, Loki, and Alertmanager, plus day-2 monitoring operations. USE FOR: deploy Prometheus, configure Grafana, setup Loki, Alertmanager rules, monitoring dashboards, observability troubleshooting. DO NOT USE FOR: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use deploy-orchestration)."
 ---
 
 ## When to Use
@@ -158,4 +158,4 @@ curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | selec
 4. Recommendations
 
 ## Integration with Agents
-Used by: @sre, @devops
+Used by: @sre, @deploy

@@ -1,6 +1,6 @@
 ---
 name: deploy-orchestration
-description: "End-to-end platform deployment orchestration — prerequisites, Terraform, Kubernetes verification, and troubleshooting. USE FOR: full platform deployment, deployment sequence, prerequisite validation, post-deploy verification, deployment troubleshooting. DO NOT USE FOR: Terraform modules (use terraform-cli), Kubernetes operations (use kubectl-cli), CI/CD pipelines (use @devops)."
+description: "End-to-end platform deployment orchestration — prerequisites, Terraform, Kubernetes verification, and troubleshooting. USE FOR: full platform deployment, deployment sequence, prerequisite validation, post-deploy verification, deployment troubleshooting. DO NOT USE FOR: Terraform modules (use terraform-cli), Kubernetes read operations (use kubectl-cli), Helm package operations (use helm-cli)."
 ---
 
 ## When to Use

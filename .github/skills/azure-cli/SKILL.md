@@ -89,4 +89,4 @@ az acr repository show-tags -n <acr> --repository <repo> --orderby time_desc
 4. Next steps
 
 ## Integration with Agents
-Used by: @terraform, @security, @sre, @test
+Used by: @terraform, @security, @sre, @azure-portal-deploy

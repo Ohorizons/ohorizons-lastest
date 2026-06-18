@@ -1,6 +1,6 @@
 ---
 name: database-management
-description: "Database operations and health monitoring. USE FOR: PostgreSQL health check, database backup, database restore, connection string, database migration, database monitoring. DO NOT USE FOR: Azure infrastructure provisioning (use azure-cli), Terraform IaC (use terraform-cli), application code (use @devops)."
+description: "Database operations and health monitoring. USE FOR: PostgreSQL health check, database backup, database restore, connection string, database migration, database monitoring. DO NOT USE FOR: Azure infrastructure provisioning (use azure-cli), Terraform IaC (use terraform-cli), full platform deployment (use deploy-orchestration)."
 ---
 
 ## When to Use
@@ -64,4 +64,4 @@ psql -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(sch
 4. Recommendations
 
 ## Integration with Agents
-Used by: @terraform, @sre, @test
+Used by: @terraform, @sre, @deploy

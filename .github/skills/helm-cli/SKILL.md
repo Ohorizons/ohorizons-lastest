@@ -69,4 +69,4 @@ helm rollback <release> <revision> -n <namespace>
 4. Next steps
 
 ## Integration with Agents
-Used by: @devops, @platform, @sre
+Used by: @deploy, @backstage-expert, @sre

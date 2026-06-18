@@ -91,4 +91,4 @@ gh issue close <number>
 4. Next steps
 
 ## Integration with Agents
-Used by: @devops, @reviewer
+Used by: @deploy, @github-integration

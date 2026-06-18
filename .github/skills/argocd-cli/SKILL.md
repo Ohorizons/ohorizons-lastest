@@ -1,6 +1,6 @@
 ---
 name: argocd-cli
-description: "ArgoCD CLI operations for GitOps workflows — installation, bootstrap, and day-2 management. USE FOR: ArgoCD install, ArgoCD bootstrap, GitOps sync, ArgoCD app create, ArgoCD troubleshoot, ApplicationSet. DO NOT USE FOR: Helm chart management (use helm-cli), kubectl operations (use kubectl-cli), CI/CD pipeline creation (use @devops)."
+description: "ArgoCD CLI operations for GitOps workflows — installation, bootstrap, and day-2 management. USE FOR: ArgoCD install, ArgoCD bootstrap, GitOps sync, ArgoCD app create, ArgoCD troubleshoot, ApplicationSet. DO NOT USE FOR: Helm chart management (use helm-cli), kubectl operations (use kubectl-cli), full platform deployment orchestration (use deploy-orchestration)."
 ---
 
 ## When to Use
@@ -171,4 +171,4 @@ kubectl get events -n argocd --sort-by='.lastTimestamp'
 4. Recommended actions
 
 ## Integration with Agents
-Used by: @devops, @sre
+Used by: @deploy, @sre

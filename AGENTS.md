@@ -79,33 +79,37 @@ The 31 skills in the workspace skills folder provide domain-specific knowledge t
 
 | Skill | Description |
 | --- | --- |
+| `agentic-architecture-patterns` | Agentic system architecture patterns |
 | `ai-foundry-operations` | Azure AI Foundry provisioning, model deployment, RAG |
+| `architecture-doc` | Architecture document validation |
 | `argocd-cli` | ArgoCD CLI for GitOps workflows |
+| `azure-architecture-diagrams` | Azure architecture diagrams |
 | `azure-cli` | Azure CLI resource management |
 | `azure-infrastructure` | Azure architecture patterns and best practices |
+| `azure-managed-redis-cache` | Azure Managed Redis patterns |
 | `backstage-deployment` | Backstage portal deployment on AKS and locally |
 | `codespaces-golden-paths` | GitHub Codespaces devcontainer configs per Golden Path |
 | `database-management` | Database ops and health monitoring |
 | `deploy-orchestration` | End-to-end platform deployment orchestration |
-| `docx-creator` | Word document generation with Microsoft enterprise branding |
-| `figjam-diagrams` | FigJam diagrams with Mermaid and Microsoft brand colors |
+| `foundry-agent-blueprint` | Azure AI Foundry agent blueprint |
 | `github-cli` | GitHub CLI for repos and workflows |
 | `helm-cli` | Helm CLI for Kubernetes packages |
 | `issue-ops` | GitHub Issue-driven slash command dispatcher |
 | `kubectl-cli` | Kubernetes CLI for AKS |
 | `markdown-writer` | Professional Markdown documents |
-| `mcp-cli` | Model Context Protocol server reference |
-| `mcp-ecosystem` | 39 tools for live methodology and reference data |
+| `mcp-ecosystem` | Live methodology and reference data |
 | `observability-stack` | Prometheus, Grafana, Loki, Alertmanager |
-| `pdf-creator` | Microsoft-branded PDF documents |
-| `pptx-creator` | PowerPoint presentations with Microsoft enterprise branding |
-| `prerequisites` | CLI tool validation and setup |
-| `terraform-cli` | Terraform CLI for Azure infra |
-| `validation-scripts` | Validation scripts for deployments |
-| `xlsx-creator` | Excel workbooks with Microsoft enterprise branding |
 | `pipeline-diagnostics` | GitHub Actions CI/CD failure analysis and remediation |
+| `playbook-pdf-builder` | Consolidated PDF generation from Markdown |
+| `prerequisites` | CLI tool validation and setup |
+| `prompt-architect` | Prompt and customization design |
+| `requirements-engineer` | Requirements engineering |
+| `sdd-spec-engineer` | Spec-driven development artifacts |
 | `story-planning` | INVEST user story decomposition and GitHub Issues creation |
+| `terraform-cli` | Terraform CLI for Azure infra |
 | `test-coverage` | Test coverage analysis, CI check runs, and quality gates |
+| `validation-scripts` | Validation scripts for deployments |
+| `xlsx-creator` | Excel workbooks |
 
 ## Related Documentation
 

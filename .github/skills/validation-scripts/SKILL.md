@@ -1,6 +1,6 @@
 ---
 name: validation-scripts
-description: "Validation scripts for deployment and configuration verification. USE FOR: validate deployment, validate configuration, validate prerequisites, run validation scripts, post-deploy checks. DO NOT USE FOR: Terraform validation (use terraform-cli), Kubernetes checks (use kubectl-cli), CI/CD pipelines (use @devops)."
+description: "Validation scripts for deployment and configuration verification. USE FOR: validate deployment, validate configuration, validate prerequisites, run validation scripts, post-deploy checks. DO NOT USE FOR: Terraform validation (use terraform-cli), Kubernetes checks (use kubectl-cli), Helm operations (use helm-cli)."
 ---
 
 ## When to Use
@@ -60,4 +60,4 @@ description: "Validation scripts for deployment and configuration verification. 
 4. Remediation recommendations
 
 ## Integration with Agents
-Used by: @test, @devops, @sre
+Used by: @deploy, @sre, @security

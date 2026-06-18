@@ -137,4 +137,4 @@ curl -X POST "https://<endpoint>.openai.azure.com/openai/deployments/<deployment
 4. Recommendations
 
 ## Integration with Agents
-Used by: @architect, @devops
+Used by: @deploy, @azure-portal-deploy

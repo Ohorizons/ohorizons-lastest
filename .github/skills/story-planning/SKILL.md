@@ -1,11 +1,11 @@
 ---
 name: story-planning
-description: "INVEST user story decomposition and GitHub Issues creation — epic analysis, persona identification, acceptance criteria, and sprint-ready stories. USE FOR: decompose epic, create user stories, INVEST criteria, acceptance criteria, sprint planning, create GitHub issues, story mapping, backlog grooming. DO NOT USE FOR: test analysis (use test-coverage), pipeline diagnostics (use pipeline-diagnostics), architecture design (use @architect)."
+description: "INVEST user story decomposition and GitHub Issues creation — epic analysis, persona identification, acceptance criteria, and sprint-ready stories. USE FOR: decompose epic, create user stories, INVEST criteria, acceptance criteria, sprint planning, create GitHub issues, story mapping, backlog grooming. DO NOT USE FOR: test analysis (use test-coverage), pipeline diagnostics (use pipeline-diagnostics), Azure infrastructure design (use azure-infrastructure)."
 ---
 
 # Story Planning Skill
 
-Domain knowledge for the **@compass** agent — planning and user story decomposition via GitHub Issues API.
+Domain knowledge for planning and user story decomposition via GitHub Issues API.
 
 ## INVEST Criteria
 

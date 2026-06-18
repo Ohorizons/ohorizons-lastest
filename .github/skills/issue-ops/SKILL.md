@@ -1,6 +1,6 @@
 ---
 name: issue-ops
-description: "GitHub Issue-driven operations dispatcher — maps slash commands in issue comments to automation scripts. USE FOR: slash command dispatch, issue ops automation, /onboard command, /validate command, /check-agents command, IssueOps workflow. DO NOT USE FOR: GitHub Actions workflows (use @devops), manual script execution (use validation-scripts), Backstage deployment (use backstage-deployment)."
+description: "GitHub Issue-driven operations dispatcher — maps slash commands in issue comments to automation scripts. USE FOR: slash command dispatch, issue ops automation, /onboard command, /validate command, /check-agents command, IssueOps workflow. DO NOT USE FOR: manual script execution (use validation-scripts), Backstage deployment (use backstage-deployment), full platform deployment (use deploy-orchestration)."
 ---
 
 # Issue Ops Dispatcher

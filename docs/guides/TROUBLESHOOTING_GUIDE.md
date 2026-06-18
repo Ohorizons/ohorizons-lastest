@@ -1965,7 +1965,7 @@ Before diving into manual troubleshooting, try asking a Copilot Agent:
 | ------------- | ------- | --------------- |
 | Pod crashes & errors | `@sre` | "Pods in namespace X are CrashLoopBackOff, help me diagnose" |
 | Terraform errors | `@terraform` | "My terraform plan fails with error Y, help me fix" |
-| ArgoCD sync failures | `@devops` | "ArgoCD app is stuck in Progressing, what should I check?" |
+| ArgoCD sync failures | `@deploy` | "ArgoCD app is stuck in Progressing, what should I check?" |
 | Network connectivity | `@sre` | "Service A can't reach Service B, help me debug" |
 | Security findings | `@security` | "tfsec found High severity issues, help me remediate" |
 | Performance issues | `@sre` | "Latency is above SLO, help me find the bottleneck" |

@@ -2,24 +2,41 @@
 
 This directory contains skills that extend GitHub Copilot agent capabilities. Skills use **progressive loading** - Copilot reads metadata first and loads scripts only when relevant.
 
-## Available Skills (17)
+## Available Skills (31)
 
 | Skill | Description | Used By |
-|-------|-------------|---------|
-| [terraform-cli](./terraform-cli/) | Terraform CLI operations | @terraform, @infrastructure |
-| [kubectl-cli](./kubectl-cli/) | Kubernetes CLI operations | @platform, @devops, @sre |
-| [azure-cli](./azure-cli/) | Azure CLI operations | @infrastructure, @security |
-| [argocd-cli](./argocd-cli/) | ArgoCD operations | @gitops, @devops |
-| [helm-cli](./helm-cli/) | Helm chart operations | @gitops, @platform |
-| [github-cli](./github-cli/) | GitHub API operations | @devops, @migration |
-| [validation-scripts](./validation-scripts/) | Deployment validation | @validation, @devops |
-| [azure-infrastructure](./azure-infrastructure/) | Azure IaC patterns | @infrastructure |
-| [database-management](./database-management/) | Database operations | @database, @sre |
-| [observability-stack](./observability-stack/) | Monitoring operations | @observability, @sre |
-| [ai-foundry-operations](./ai-foundry-operations/) | Azure AI operations | @ai-foundry |
-| [backstage-deployment](./backstage-deployment/) | Backstage portal operations | @backstage-expert |
-| [mcp-cli](./mcp-cli/) | MCP server reference | All agents |
-| [prerequisites](./prerequisites/) | CLI tool validation | All agents |
+| ----- | ----------- | ------- |
+| [Agentic Architecture Patterns](./agentic-architecture-patterns/) | Agentic system architecture patterns | `@deploy`, `@security` |
+| [AI Foundry Operations](./ai-foundry-operations/) | Azure AI Foundry operations | `@deploy`, `@azure-portal-deploy` |
+| [Architecture Doc](./architecture-doc/) | Architecture document validation | `@deploy` |
+| [ArgoCD CLI](./argocd-cli/) | ArgoCD operations | `@deploy`, `@sre` |
+| [Azure Architecture Diagrams](./azure-architecture-diagrams/) | Azure architecture diagrams | `@deploy` |
+| [Azure CLI](./azure-cli/) | Azure CLI operations | `@terraform`, `@security`, `@sre`, `@azure-portal-deploy` |
+| [Azure Infrastructure](./azure-infrastructure/) | Azure infrastructure patterns | `@terraform`, `@security`, `@azure-portal-deploy` |
+| [Azure Managed Redis Cache](./azure-managed-redis-cache/) | Azure Managed Redis patterns | `@deploy`, `@terraform` |
+| [Backstage Deployment](./backstage-deployment/) | Backstage portal operations | `@backstage-expert`, `@deploy` |
+| [Codespaces Golden Paths](./codespaces-golden-paths/) | Codespaces dev environments | `@backstage-expert`, `@deploy` |
+| [Database Management](./database-management/) | Database operations | `@terraform`, `@sre`, `@deploy` |
+| [Deploy Orchestration](./deploy-orchestration/) | End-to-end deployment orchestration | `@deploy` |
+| [Foundry Agent Blueprint](./foundry-agent-blueprint/) | Azure AI Foundry agent blueprint | `@deploy`, `@azure-portal-deploy` |
+| [GitHub CLI](./github-cli/) | GitHub API operations | `@deploy`, `@github-integration` |
+| [Helm CLI](./helm-cli/) | Helm chart operations | `@deploy`, `@backstage-expert`, `@sre` |
+| [Issue Ops](./issue-ops/) | IssueOps dispatcher patterns | `@deploy` |
+| [Kubectl CLI](./kubectl-cli/) | Kubernetes CLI operations | `@deploy`, `@backstage-expert`, `@sre` |
+| [Markdown Writer](./markdown-writer/) | Markdown document writing | `@deploy` |
+| [MCP Ecosystem](./mcp-ecosystem/) | MCP ecosystem reference lookup | `@backstage-expert`, `@deploy` |
+| [Observability Stack](./observability-stack/) | Monitoring operations | `@sre`, `@deploy` |
+| [Pipeline Diagnostics](./pipeline-diagnostics/) | CI/CD diagnostics reference | `@deploy` |
+| [Playbook PDF Builder](./playbook-pdf-builder/) | Consolidated PDF generation | `@deploy` |
+| [Prerequisites](./prerequisites/) | CLI tool validation | `@deploy` |
+| [Prompt Architect](./prompt-architect/) | Prompt and customization design | `@deploy` |
+| [Requirements Engineer](./requirements-engineer/) | Requirements engineering | `@deploy` |
+| [SDD Spec Engineer](./sdd-spec-engineer/) | Spec-driven development artifacts | `@deploy` |
+| [Story Planning](./story-planning/) | User story planning | `@deploy` |
+| [Terraform CLI](./terraform-cli/) | Terraform CLI operations | `@terraform`, `@security`, `@deploy` |
+| [Test Coverage](./test-coverage/) | Test coverage and quality gates | `@deploy` |
+| [Validation Scripts](./validation-scripts/) | Deployment validation | `@deploy`, `@sre`, `@security` |
+| [XLSX Creator](./xlsx-creator/) | Excel workbook creation | `@deploy` |
 
 ## Skill Structure
 

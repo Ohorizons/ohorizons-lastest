@@ -89,9 +89,10 @@ routing:
 #   @terraform:               claude-sonnet-4.6 / gpt-5.1
 #   @backstage-expert:        claude-sonnet-4.6 / gpt-5.1
 #   @github-integration:      claude-sonnet-4.6 / gpt-5.1
+#   @ado-integration:         claude-sonnet-4.6 / gpt-5.1
+#   @hybrid-scenarios:        claude-sonnet-4.6 / gpt-5.1
 #   @sre (verification):      claude-sonnet-4.6 / gpt-5.1
 #   @security (audit):        claude-opus-4.6 / gpt-5.1
-#   @docs (documentation):    claude-haiku-4.5 / gpt-5.1
 
 # Decision tree for developers:
 #

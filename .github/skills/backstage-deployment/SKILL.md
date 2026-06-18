@@ -1,6 +1,6 @@
 ---
 name: backstage-deployment
-description: "Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop. USE FOR: deploy Backstage, Backstage on AKS, Backstage local Docker, Backstage Helm chart, Backstage PostgreSQL, Backstage ACR image, Backstage GitHub OAuth. DO NOT USE FOR: Backstage plugin development (use @platform), Golden Path template creation (use @platform), Azure infrastructure provisioning (use @azure-portal-deploy)."
+description: "Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop. USE FOR: deploy Backstage, Backstage on AKS, Backstage local Docker, Backstage Helm chart, Backstage PostgreSQL, Backstage ACR image, Backstage GitHub OAuth. DO NOT USE FOR: full platform orchestration (use deploy-orchestration), Azure infrastructure provisioning (use @azure-portal-deploy)."
 ---
 
 # Backstage Deployment Skill
@@ -24,7 +24,7 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 | **Image** | Custom-built from `backstage/` directory, stored in ACR |
 | **Auth** | GitHub OAuth + Guest (dev only) |
 | **Catalog** | H1 Foundation + H2 Enhancement Golden Paths pre-loaded |
-| **Used by** | `@backstage-expert`, `@deploy`, `@platform` |
+| **Used by** | `@backstage-expert`, `@deploy` |
 
 ---
 

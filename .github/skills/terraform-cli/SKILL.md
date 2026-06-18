@@ -80,4 +80,4 @@ Provide structured output:
 5. Recommendations for next steps
 
 ## Integration with Agents
-Used by: @terraform, @security, @test
+Used by: @terraform, @security, @deploy

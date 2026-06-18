@@ -1,11 +1,11 @@
 ---
 name: test-coverage
-description: "Test coverage and quality gate analysis — CI check runs, PR review status, coverage reports, and test improvement recommendations. USE FOR: check runs analysis, test coverage, PR checks, quality gate, test failures, coverage diff, failing checks, test quality. DO NOT USE FOR: pipeline diagnostics (use pipeline-diagnostics), writing tests (use @test agent), code review (use @reviewer)."
+description: "Test coverage and quality gate analysis — CI check runs, PR review status, coverage reports, and test improvement recommendations. USE FOR: check runs analysis, test coverage, PR checks, quality gate, test failures, coverage diff, failing checks, test quality. DO NOT USE FOR: pipeline diagnostics (use pipeline-diagnostics), security review (use @security), deployment orchestration (use @deploy)."
 ---
 
 # Test Coverage Skill
 
-Domain knowledge for the **@sentinel** agent — test and coverage analysis via GitHub Checks and PRs API.
+Domain knowledge for test and coverage analysis via GitHub Checks and PRs API.
 
 ## GitHub Checks API Reference
 
@@ -158,5 +158,5 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '.[].state'
 - [ ] Showed conclusion status for each check (success/failure/neutral/skipped)
 - [ ] Flagged failing required checks prominently
 - [ ] Provided specific improvement recommendations
-- [ ] Suggested handoff when appropriate (@pipeline for workflow issues, @test for new tests)
+- [ ] Suggested follow-up when appropriate (`pipeline-diagnostics` for workflow issues, `@deploy` for deployment-impacting failures)
 - [ ] Used output template format

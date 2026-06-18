@@ -5,7 +5,7 @@ description: "GitHub Actions CI/CD diagnostics — workflow run analysis, job/st
 
 # Pipeline Diagnostics Skill
 
-Domain knowledge for the **@pipeline** agent — CI/CD diagnostics via GitHub Actions API.
+Domain knowledge for CI/CD diagnostics via GitHub Actions API.
 
 ## GitHub Actions API Reference
 
@@ -80,7 +80,7 @@ gh run rerun {run_id} --repo {owner}/{repo} --failed
 **Causes:** Flaky tests, environment differences, assertion failures
 **Remediation:**
 1. Identify which tests failed
-2. **Handoff to @sentinel** for detailed test analysis
+2. Use the `test-coverage` skill for detailed test analysis
 3. Check if tests pass locally
 
 ### 4. Docker Build Failures
@@ -133,5 +133,5 @@ gh run rerun {run_id} --repo {owner}/{repo} --failed
 - [ ] Identified specific failed job and step
 - [ ] Provided root cause analysis
 - [ ] Included actionable remediation steps
-- [ ] Suggested handoff when appropriate (@sentinel for tests, @terraform for infra)
+- [ ] Suggested follow-up when appropriate (`test-coverage` for tests, `@terraform` for infra)
 - [ ] Used output template format
