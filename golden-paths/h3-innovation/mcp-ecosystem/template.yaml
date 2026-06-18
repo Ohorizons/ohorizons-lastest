@@ -4,9 +4,10 @@ metadata:
   name: mcp-ecosystem
   title: MCP Ecosystem Server (Full)
   description: |
-    Creates a complete MCP Ecosystem Server with all 13 tool modules:
-    - Agent & AI: spec-kit, awesome-copilot, agent-framework, gh-aw, agents-md
-    - Backstage: backstage-docs, backstage-plugins, backstage-ui, spotify-backstage, backstage-org
+    Creates a complete MCP Ecosystem Server with all 17 tool modules:
+    - Group A (Agent & AI): spec-kit, anthropics-skills, agent-framework, gh-aw, agents-md, github-copilot-docs
+    - Group B (Backstage): backstage-docs, backstage-plugins, backstage-ui, spotify-backstage, backstage-org
+    - Group C (Official docs): microsoft-learn, vscode-docs, github-docs, anthropic-docs, azure-caf, azure-waf
     - Streamable HTTP transport, Docker, Kubernetes-ready
   tags:
     - mcp
@@ -49,12 +50,13 @@ spec:
 
     - title: Tool Modules
       properties:
+        # Group A - Agent & AI frameworks
         enable_spec_kit:
           title: Spec-Kit (Spec-Driven Development)
           type: boolean
           default: true
-        enable_awesome_copilot:
-          title: Awesome Copilot (agents/skills/prompts)
+        enable_anthropics_skills:
+          title: Anthropic Skills (Agent Skills format)
           type: boolean
           default: true
         enable_agent_framework:
@@ -69,6 +71,11 @@ spec:
           title: AGENTS.md Format Reference
           type: boolean
           default: true
+        enable_github_copilot_docs:
+          title: GitHub Copilot Docs
+          type: boolean
+          default: true
+        # Group B - Backstage ecosystem
         enable_backstage_docs:
           title: Backstage Docs
           type: boolean
@@ -87,6 +94,31 @@ spec:
           default: true
         enable_backstage_org:
           title: Backstage Org Repos
+          type: boolean
+          default: true
+        # Group C - Official documentation
+        enable_microsoft_learn:
+          title: Microsoft Learn (federated - Azure/AKS/AI Foundry/CAF/WAF)
+          type: boolean
+          default: true
+        enable_vscode_docs:
+          title: VS Code Docs
+          type: boolean
+          default: true
+        enable_github_docs:
+          title: GitHub Docs (Actions/GHAS/OIDC/Packages)
+          type: boolean
+          default: true
+        enable_anthropic_docs:
+          title: Anthropic / Claude Docs
+          type: boolean
+          default: true
+        enable_azure_caf:
+          title: Azure Cloud Adoption Framework (CAF)
+          type: boolean
+          default: true
+        enable_azure_waf:
+          title: Azure Well-Architected Framework (WAF)
           type: boolean
           default: true
 

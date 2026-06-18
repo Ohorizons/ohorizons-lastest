@@ -14,7 +14,7 @@ tags: ["mcp", "context-engineering", "backstage", "agentic-devops"]
 > Companion skill: [mcp-ecosystem skill](../.github/skills/mcp-ecosystem/SKILL.md)
 
 The **MCP Ecosystem** is Open Horizons' own [Model Context Protocol](https://modelcontextprotocol.io)
-server. It exposes **79 tools across 17 modules** that fetch live, cached
+server. It exposes **61 tools across 12 modules** that fetch live, cached
 reference data — methodology, format specs, templates, UI components, plugin
 catalogs, and documentation — from curated upstream sources. It is the runtime
 that lets platform agents and the Backstage **AI Chat** ground answers in real,
@@ -31,21 +31,17 @@ flowchart LR
         Agents["Platform agents<br/>orchestrator · sentinel · forge …"]
     end
     subgraph L3["L3 Context Engineering"]
-        ECO["MCP Ecosystem server<br/>:3100 /mcp · 17 modules · 79 tools"]
+        ECO["MCP Ecosystem server<br/>:3100 /mcp · 12 modules · 61 tools"]
         CACHE["On-disk cache<br/>cache.json · TTL 1h"]
     end
     subgraph UP["Upstream sources (read-only)"]
-        GH["raw.githubusercontent.com<br/>GitHub Contents API"]
-        MSL["learn.microsoft.com/api/mcp<br/>(federated MCP)"]
-        AN["docs.claude.com<br/>llms-full.txt"]
+        GH["raw.githubusercontent.com<br/>GitHub Contents / Trees API"]
     end
 
     AIChat -->|JSON-RPC over HTTP| ECO
     Agents -->|MCP client| ECO
     ECO --> CACHE
     ECO -->|fetch + cache| GH
-    ECO -->|federate| MSL
-    ECO -->|fetch + cache| AN
 ```
 
 **Two distinct MCP surfaces** (do not conflate):
@@ -66,30 +62,26 @@ flowchart TB
         FACT["shared/server-factory.ts<br/>Express + Streamable HTTP<br/>per-session McpServer"]
         subgraph Shared["shared/"]
             CACHE["cache.ts<br/>Map + cache.json (TTL)"]
-            FETCH["github-fetcher.ts<br/>fetchRaw · listContents · fetchUrl"]
-            MCPC["mcp-client.ts<br/>federation (Streamable HTTP)"]
+            FETCH["github-fetcher.ts<br/>fetchRaw · listContents · listTree"]
             TYPES["types.ts"]
         end
-        subgraph Tools["src/tools/ — 17 modules"]
-            GA["Group A · Agent & AI frameworks (6)<br/>spec-kit · anthropics-skills · agent-framework<br/>gh-aw · agents-md · github-copilot-docs"]
+        subgraph Tools["src/tools/ — 12 modules"]
+            GA["Group A · Agent & AI frameworks (7)<br/>spec-kit · anthropics-skills · awesome-copilot<br/>agent-framework · gh-aw · agents-md · github-copilot-docs"]
             GB["Group B · Backstage ecosystem (5)<br/>backstage-docs · backstage-plugins · backstage-ui<br/>spotify-backstage · backstage-org"]
-            GC["Group C · Official documentation (6)<br/>microsoft-learn (fed) · vscode-docs · github-docs<br/>anthropic-docs · azure-caf · azure-waf"]
         end
     end
 
     FACT --> IDX --> Tools
     Tools --> FETCH --> CACHE
-    Tools --> MCPC
     Tools -.->|register| FACT
 ```
 
 - **`src/index.ts`** — composition root. `registerAllTools(server)` wires every
-  module's `register<Name>Tools(server)` in three groups (A: agent/AI frameworks,
-  B: Backstage ecosystem, C: official documentation).
+  module's `register<Name>Tools(server)` in two groups (A: agent/AI frameworks,
+  B: Backstage ecosystem).
 - **`src/shared/server-factory.ts`** — builds an `McpServer` (`mcp-ecosystem`
   v1.0.0, capabilities: tools/prompts/resources) and runs the Express HTTP host.
-- **`src/shared/`** — cross-cutting cache, GitHub/web fetchers (`github-fetcher.ts`),
-  a minimal federation client (`mcp-client.ts`), and types.
+- **`src/shared/`** — cross-cutting cache, GitHub fetchers, and types.
 - **`src/tools/<module>.ts`** — one file per module; each registers N tools via
   `server.tool(name, description, schema, handler)`.
 
@@ -154,14 +146,15 @@ Cache characteristics:
 
 ---
 
-## 5. Tool catalog (17 modules · 79 tools)
+## 5. Tool catalog (12 modules · 61 tools)
 
-### Group A — Agent & AI frameworks (6 modules · 26 tools)
+### Group A — Agent & AI frameworks (7 modules · 30 tools)
 
 | Module | Prefix | Count | Tools |
 | --- | --- | --- | --- |
 | spec-kit | `speckit_` | 5 | `get_phases`, `get_commands`, `get_methodology`, `get_philosophy`, `search` |
 | anthropics-skills | `anthropics_` | 5 | `list_skills`, `get_skill`, `get_skill_template`, `search_skills`, `get_spec` |
+| awesome-copilot | `awesome_` | 4 | `list_items`, `get_item`, `search`, `get_readme` |
 | agent-framework | `agentfw_` | 4 | `get_patterns`, `get_sample`, `search_docs`, `get_declarative_agents` |
 | gh-aw | `ghaw_` | 4 | `get_workflow_patterns`, `get_security_guidelines`, `get_contributing`, `get_agents_md` |
 | agents-md | `agentsmd_` | 3 | `get_format_spec`, `get_readme`, `get_section_templates` |
@@ -177,31 +170,8 @@ Cache characteristics:
 | `spotify-backstage` | `spotifybackstage_` | 6 | `list_sections`, `get_page`, `get_portal_docs`, `get_plugins_docs`, `get_core_features`, `discover_links` |
 | `backstage-org` | `backstageorg_` | 4 | `list_repos`, `get_repo_readme`, `search_repos`, `get_backstage_plugins` |
 
-### Group C — Official documentation (6 modules · 22 tools)
-
-| Module | Prefix | Count | Tools |
-| --- | --- | --- | --- |
-| `microsoft-learn` (federated) | `mslearn_` | 3 | `search`, `code_search`, `fetch` |
-| `vscode-docs` | `vscode_` | 4 | `list_sections`, `list_pages`, `get_page`, `search` |
-| `github-docs` | `ghdocs_` | 4 | `list_sections`, `list_pages`, `get_page`, `search` |
-| `anthropic-docs` | `anthropicdocs_` | 3 | `index`, `get_page`, `search` |
-| `azure-caf` | `caf_` | 4 | `list_sections`, `list_pages`, `get_page`, `search` |
-| `azure-waf` | `waf_` | 4 | `list_sections`, `list_pages`, `get_page`, `search` |
-
-**Group C** gives agents complete official documentation coverage during both
-the installation and runtime phases:
-
-- **`microsoft-learn`** *federates* the official Microsoft Learn MCP
-  (`learn.microsoft.com/api/mcp`) — semantic search + fetch across **all** of
-  Microsoft Learn, including Azure, AKS, AI Foundry, **CAF**, and **WAF**.
-- **`vscode-docs`**, **`github-docs`**, **`anthropic-docs`**, **`azure-caf`**,
-  **`azure-waf`** scrape the official upstream sources (cached, offline-capable).
-  `azure-caf`/`azure-waf` duplicate the framework content available via
-  `microsoft-learn` on purpose, to keep CAF/WAF usable from the local cache when
-  federation egress is unavailable.
-
 Full tool name = `prefix + suffix`, e.g. `speckit_get_phases`,
-`mslearn_search`, `backstageui_storybook_search`.
+`backstageui_storybook_search`.
 
 ---
 
@@ -218,17 +188,11 @@ advertises a curated subset of tools to the model.
 | Model-facing tool | Maps to ecosystem tool |
 | --- | --- |
 | `ecosystem_list_tools` | `tools/list` (discovery) |
-| `ecosystem_call_tool(name, args)` | any of the 79 tools |
-| `search_microsoft_learn(query)` | `mslearn_search` (federated) |
-| `fetch_microsoft_learn(url)` | `mslearn_fetch` (federated) |
+| `ecosystem_call_tool(name, args)` | any of the 61 tools |
 | `search_backstage_docs(query)` | `backstagedocs_search` |
-| `search_copilot_docs(query)` | `copilotdocs_search` |
-| `search_github_docs(query, section)` | `ghdocs_search` |
-| `search_vscode_docs(query, section)` | `vscode_search` |
-| `search_anthropic_docs(query)` | `anthropicdocs_search` |
-| `search_caf(query, section)` | `caf_search` |
-| `search_waf(query, section)` | `waf_search` |
 | `get_spec_kit_methodology()` | `speckit_get_methodology` |
+| `search_copilot_docs(query)` | `copilotdocs_search` |
+| `search_anthropic_docs(query)` | `anthropics_search_skills` |
 
 If the server is unreachable, the client **degrades gracefully** — the chat
 answers without grounding rather than failing the request.
@@ -369,11 +333,7 @@ no registry secret is needed in the pod.
   sources; it holds no write credentials and mutates no external state.
 - **Secrets**: `GH_TOKEN` is optional and injected via env/Key Vault, never
   committed. It is a low-privilege read token.
-- **Network egress**: official documentation sources only —
-  `raw.githubusercontent.com`, `api.github.com`, `learn.microsoft.com`
-  (federated MCP), and `docs.claude.com`. **Local** (install): egress open.
-  **Production** (AKS): egress closed to a hardened allowlist via the
-  NetworkPolicy (DNS + public HTTPS only; private ranges denied).
+- **Network egress**: only `raw.githubusercontent.com` and `api.github.com`.
 - **Network ingress (AKS)**: a `NetworkPolicy` restricts `:3100` to the
   `agent-api` pod in `ai-services`; no other workload can reach the server.
 - **Tenancy**: per-session transports isolate concurrent clients; unknown
