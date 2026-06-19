@@ -17,6 +17,7 @@ TEMPLATES_DIR="$REPO_ROOT/backstage/k8s/templates"
 OUTPUT_DIR="$REPO_ROOT/backstage/k8s"
 ENV_FILE="$REPO_ROOT/.env"
 DRY_RUN=false
+NO_GITHUB_MODE="${NO_GITHUB_MODE:-false}"
 
 # Colors
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -49,7 +50,10 @@ fi
 source "$ENV_FILE"
 
 # --- Validate required vars --------------------------------------------------
-REQUIRED_VARS=(PLATFORM_NAME GITHUB_ORG GITHUB_REPO AUTH_PROVIDER IMAGE_TAG)
+REQUIRED_VARS=(PLATFORM_NAME AUTH_PROVIDER IMAGE_TAG)
+if [[ "$NO_GITHUB_MODE" != "true" ]]; then
+  REQUIRED_VARS+=(GITHUB_ORG GITHUB_REPO)
+fi
 missing=()
 for var in "${REQUIRED_VARS[@]}"; do
   if [[ -z "${!var:-}" ]]; then
@@ -77,8 +81,10 @@ AGENT_API_IMAGE="${AGENT_API_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api}"
 AGENT_API_IMPACT_IMAGE="${AGENT_API_IMPACT_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api-impact}"
 MCP_ECOSYSTEM_IMAGE="${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@${DOMAIN}}"
+GITHUB_ORG="${GITHUB_ORG:-local}"
+GITHUB_REPO="${GITHUB_REPO:-open-horizons-platform}"
 ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME:-${GITHUB_ORG}}"
-AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
+AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
 
 log "Platform:  ${BOLD}${PLATFORM_NAME}${NC}"
 log "Domain:    ${BOLD}${DOMAIN}${NC}"
@@ -160,6 +166,16 @@ rendered=0
 for tmpl in "$TEMPLATES_DIR"/*.yaml.tmpl; do
   [[ -f "$tmpl" ]] || continue
   filename=$(basename "$tmpl" .tmpl)
+  if [[ "$NO_GITHUB_MODE" == "true" && "$filename" == "configmap.yaml" ]]; then
+    continue
+  fi
+  if [[ "$filename" == "configmap-nogithub.yaml" ]]; then
+    if [[ "$NO_GITHUB_MODE" == "true" ]]; then
+      filename="configmap.yaml"
+    else
+      continue
+    fi
+  fi
   output="$OUTPUT_DIR/$filename"
 
   # Apply sed replacements

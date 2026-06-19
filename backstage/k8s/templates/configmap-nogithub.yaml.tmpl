@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.override.yaml: |
+    app:
+      title: __ORG_DISPLAY_NAME__ — Agentic DevOps Platform
+      baseUrl: https://__DOMAIN__
+
+    organization:
+      name: __ORG_DISPLAY_NAME__
+
+    backend:
+      baseUrl: https://__DOMAIN__
+      listen:
+        port: 7007
+      auth:
+        externalAccess:
+          - type: static
+            options:
+              token: ${BACKEND_SECRET}
+              subject: external
+        keys:
+          - secret: ${BACKEND_SECRET}
+      database:
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT:-5432}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+          database: ${POSTGRES_DATABASE:-backstage}
+          ssl:
+            rejectUnauthorized: false
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+        img-src: ["'self'", 'data:']
+      cors:
+        origin: https://__DOMAIN__
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+
+    proxy:
+      endpoints:
+        '/agent-api':
+          target: '${AGENT_API_URL:-http://__PLATFORM_NAME__-agent-api.ai-services.svc.cluster.local:8008}'
+          changeOrigin: true
+          allowedMethods: ['GET', 'POST']
+          credentials: forward
+        '/ai-impact':
+          target: '${AI_IMPACT_API_URL:-http://__PLATFORM_NAME__-agent-api-impact.ai-services.svc.cluster.local:8011}'
+          changeOrigin: true
+          allowedMethods: ['GET', 'POST']
+          credentials: forward
+
+__AUTH_BLOCK__
+
+    catalog:
+      rules:
+        - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+      locations: []
+
+    permission:
+      enabled: false
+
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods: []
+
+    costInsights:
+      engineerCost: 200000
+      products:
+        computeEngine:
+          name: Azure Compute
+        cloudStorage:
+          name: Azure Storage
+        bigQuery:
+          name: Azure SQL
+      metrics:
+        DAU:
+          name: Daily Active Users
+          default: true

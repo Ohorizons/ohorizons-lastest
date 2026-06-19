@@ -169,6 +169,13 @@ spec:
     # Allow HTTPS to external APIs (GitHub, Azure OpenAI)
     - to:
         - ipBlock:
+          cidr: 10.0.4.0/24
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow HTTPS to external APIs (GitHub and public Azure endpoints)
+    - to:
+        - ipBlock:
             cidr: 0.0.0.0/0
             except:
               - 10.0.0.0/8

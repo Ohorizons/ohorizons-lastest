@@ -48,6 +48,11 @@ spec:
             - containerPort: 8011
               name: http
           env:
+            - name: AZURE_OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: agent-api-secrets
+                  key: AZURE_OPENAI_ENDPOINT
             - name: AZURE_OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -58,6 +63,7 @@ spec:
                 secretKeyRef:
                   name: backstage-secrets
                   key: GITHUB_TOKEN
+                  optional: true
             - name: GITHUB_OWNER
               value: __GITHUB_ORG__
             - name: AZURE_OPENAI_DEPLOYMENT
