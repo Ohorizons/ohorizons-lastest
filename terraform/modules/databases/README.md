@@ -46,12 +46,12 @@ module "databases" {
 
   redis_config = {
     enabled             = true
-    sku_name            = "Balanced_B1"
+    sku_name            = "Balanced_B3"
     high_availability   = true
     minimum_tls_version = "1.2"
     client_protocol     = "Encrypted"
-    clustering_policy   = "OSSCluster"
-    eviction_policy     = "VolatileLRU"
+    clustering_policy   = "EnterpriseCluster"
+    eviction_policy     = "NoEviction"
     modules             = ["RediSearch", "RedisJSON"]
   }
 
@@ -63,7 +63,7 @@ module "databases" {
 
 | Name | Version |
 |------|---------|
-| terraform | >= 1.5.0 |
+| Terraform | >= 1.5.0 |
 | azurerm | ~> 3.80 |
 | azapi | ~> 2.8 |
 | random | ~> 3.5 |
@@ -96,6 +96,7 @@ module "databases" {
 ## PostgreSQL Configuration
 
 The module applies performance-tuned settings:
+
 - `shared_preload_libraries`: pg_stat_statements
 - `work_mem`: 32MB
 - `maintenance_work_mem`: 512MB
@@ -105,6 +106,7 @@ The module applies performance-tuned settings:
 ## High Availability
 
 When `high_availability = true`:
+
 - Zone-redundant standby replica
 - Automatic failover
 - Maintenance window on Sundays at 3 AM
@@ -112,6 +114,7 @@ When `high_availability = true`:
 ## Secrets
 
 Credentials stored in Key Vault:
+
 - `postgresql-connection-string`
 - `postgresql-admin-password`
 - `redis-connection-string`

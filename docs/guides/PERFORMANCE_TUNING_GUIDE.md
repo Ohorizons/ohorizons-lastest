@@ -384,8 +384,8 @@ redis_config = {
   high_availability   = true
   minimum_tls_version = "1.2"
   client_protocol     = "Encrypted"
-  clustering_policy   = "OSSCluster" # OSS clustering for high throughput
-  eviction_policy     = "VolatileLRU"
+  clustering_policy   = "EnterpriseCluster" # required by RediSearch
+  eviction_policy     = "NoEviction"        # required by RediSearch
   modules             = ["RediSearch", "RedisJSON"] # vector / semantic cache
 }
 ```

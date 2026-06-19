@@ -136,6 +136,35 @@ Wizard + render + deploy in one command.
 Follow docs/guides/DEPLOYMENT_GUIDE.md
 ```
 
+## 🤖 Agent-Supervised Validation Runs
+
+For Azure validation runs, use the **script executor + agent supervisor** model:
+
+- Scripts execute deterministic commands (`az`, `terraform`, `kubectl`, `curl`, screenshot tools).
+- Scripts write full logs and machine-readable artifacts under `runs/azure-validation/<run-id>/`.
+- Agents read only `status.json`, `errors.json`, `summary.md`, and focused log excerpts.
+- `@deploy` coordinates phase order, approval gates, handoffs, retries, evidence capture, and final documentation.
+- Specialist agents diagnose and fix their domain, then document the root cause and remediation in the run artifacts.
+
+Required artifact contract for each phase:
+
+```text
+runs/azure-validation/<run-id>/
+  status.json        # current phase, pass/fail, failed_check, owner_agent, safe_to_retry
+  errors.json        # structured errors, sanitized
+  summary.md         # human-readable checkpoint summary
+  fixes.md           # root cause, files changed, validation result
+  <phase>/           # command logs, JSON outputs, screenshots, sanitized evidence
+```
+
+When a phase fails:
+
+1. Read `status.json` and `errors.json` first.
+2. Read only the referenced log excerpt, not every log.
+3. Route to the owner agent (`@terraform`, `@azure-portal-deploy`, `@security`, `@sre`, `@backstage-expert`, `@github-integration`).
+4. Fix code/configuration when safe, record the change in `fixes.md`, and rerun only the failed phase.
+5. Ask before any paid or destructive action (`terraform apply`, `terraform destroy`, resource deletion, quota increase, public exposure workaround).
+
 ## ⛔ Boundaries
 
 | Action | Policy | Note |
@@ -145,7 +174,7 @@ Follow docs/guides/DEPLOYMENT_GUIDE.md
 | **Run `terraform apply`** | ⚠️ **ASK FIRST** | Show plan output, get explicit confirmation |
 | **Run `kubectl` read commands** | ✅ **ALWAYS** | get, describe, logs are safe |
 | **Restart pods/deployments** | ⚠️ **ASK FIRST** | Explain impact before restarting |
-| **Run `terraform destroy`** | 🚫 **NEVER** | Direct user to use `deploy-full.sh --destroy` |
+| **Run `terraform destroy` / delete RG** | ⚠️ **ASK FIRST** | Require explicit destroy approval and proof of cleanup |
 | **Modify secrets directly** | 🚫 **NEVER** | Use Key Vault and External Secrets |
 
 ## 📝 Output Style
@@ -177,9 +206,14 @@ When user requests a deployment, follow this exact sequence:
 12. **Verify** — Run `./scripts/validate-deployment.sh --environment <env>` + `@sre`
 13. **Summary** — Show deployed resources, portal URL, template count
 
+For validation-run workflows, prefer phase scripts over ad-hoc command-by-command execution. Continue phases only when the previous phase has a passing `status.json`. Persist all logs and evidence instead of pasting long command output into chat.
+
 **Handoff points:**
 - Step 1 → `install-wizard.sh` for interactive data collection
 - Step 10 → `@security` for review (if production)
 - Step 11 → `@backstage-expert` for portal troubleshooting
 - Step 12 → `@sre` for advanced verification
 - On TF error → `@terraform` for debugging
+- On Azure quota/provider/resource-state error → `@azure-portal-deploy`
+- On OPA/RBAC/public-access/secret issue → `@security`
+- On GitHub OAuth/App/GHAS/GHCR issue → `@github-integration`

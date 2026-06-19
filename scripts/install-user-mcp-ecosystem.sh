@@ -18,7 +18,7 @@
 # clobbering an existing .env (so your GH_TOKEN is preserved).
 #
 # Usage:
-#   scripts/install-user-mcp-ecosystem.sh [--port N] [--image REF]
+#   scripts/install-user-mcp-ecosystem.sh [--port N] [--image REF] [--build-local]
 #                                         [--gh-token TOKEN] [--no-register-vscode]
 #
 # Endpoint after install:  http://localhost:<port>/mcp   (default port 3100)
@@ -49,10 +49,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SOURCE_DIR="${REPO_ROOT}/mcp-servers"
 
-PORT="${DEFAULT_PORT}"
+PORT=""
 IMAGE="${MCP_ECOSYSTEM_IMAGE:-${DEFAULT_IMAGE}}"
 GH_TOKEN_ARG=""
 REGISTER_VSCODE="true"
+BUILD_LOCAL="false"
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -74,6 +75,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --port)               PORT="${2:?--port needs a value}"; shift 2 ;;
     --image)              IMAGE="${2:?--image needs a value}"; shift 2 ;;
+    --build-local)        BUILD_LOCAL="true"; IMAGE="${SERVICE_NAME}:local"; shift ;;
     --gh-token)           GH_TOKEN_ARG="${2:?--gh-token needs a value}"; shift 2 ;;
     --no-register-vscode) REGISTER_VSCODE="false"; shift ;;
     -h|--help)            usage ;;
@@ -109,11 +111,25 @@ if ! docker info >/dev/null 2>&1; then
 fi
 ok "Docker is available."
 
+if [[ -z "${PORT}" && -f "${ENV_FILE}" ]]; then
+  PORT="$(grep -E '^MCP_ECOSYSTEM_PORT=' "${ENV_FILE}" 2>/dev/null | cut -d= -f2 || true)"
+fi
+PORT="${PORT:-${DEFAULT_PORT}}"
+
 # --------------------------------------------------------------------------- #
 # Resolve the image: prefer the requested image, else build from repo source.
 # --------------------------------------------------------------------------- #
 log "Resolving server image: ${IMAGE}"
-if docker pull "${IMAGE}" >/dev/null 2>&1; then
+if [[ "${BUILD_LOCAL}" == "true" ]]; then
+  if [[ ! -f "${SOURCE_DIR}/Dockerfile" ]]; then
+    err "No source Dockerfile found at ${SOURCE_DIR}."
+    exit 1
+  fi
+  log "Building local image from source: ${SOURCE_DIR}"
+  docker build -t "${SERVICE_NAME}:local" "${SOURCE_DIR}"
+  IMAGE="${SERVICE_NAME}:local"
+  ok "Built local image ${IMAGE}"
+elif docker pull "${IMAGE}" >/dev/null 2>&1; then
   ok "Pulled image ${IMAGE}"
 elif docker image inspect "${IMAGE}" >/dev/null 2>&1; then
   ok "Using cached local image ${IMAGE}"

@@ -98,11 +98,14 @@ The platform provisions **Azure Managed Redis** (`Microsoft.Cache/redisEnterpris
 | High availability     | Disabled       | Disabled       | Enabled        | Enabled                     |
 | Public network access | Disabled       | Disabled       | Disabled       | Disabled (private endpoint) |
 | Minimum TLS          | 1.2            | 1.2            | 1.2            | 1.2                         |
+| Clustering policy    | `OSSCluster`   | `OSSCluster`   | `EnterpriseCluster` | `EnterpriseCluster`    |
+| Eviction policy      | `VolatileLRU`  | `VolatileLRU`  | `NoEviction`   | `NoEviction`                |
 | Modules (optional)   | —              | —              | RediSearch     | RediSearch + RedisJSON      |
 
 > **Notes.** High availability can be disabled **only** for dev/test SKUs; `Balanced_B0`/`Balanced_B1`
 > have no geo-replication. Enable the `RediSearch` and `RedisJSON` modules when you use Redis as a
-> semantic cache or vector memory store for agents. Valid SKU families are `Balanced_*`,
+> semantic cache or vector memory store for agents. `RediSearch` requires `EnterpriseCluster` and
+> `NoEviction`; do not use it with `OSSCluster`, `VolatileLRU`, or `FlashOptimized_*` SKUs. Valid SKU families are `Balanced_*`,
 > `MemoryOptimized_*`, `ComputeOptimized_*`, and `FlashOptimized_*` — there is **no** `Enterprise_*`
 > family in Azure Managed Redis. The private endpoint subresource group is `redisEnterprise` and its
 > private DNS zone is `privatelink.redis.azure.net`.

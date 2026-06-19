@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "drawio": {
-      "type": "stdio",
-      "command": "${workspaceFolder}/.github/skills/azure-architecture-diagrams/scripts/run-drawio-mcp.sh",
-      "args": []
-    }
-  }
-}

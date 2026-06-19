@@ -16,11 +16,17 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/terraform-test.yml'
+      - 'config/sizing-profiles.yaml'
+      - 'policies/terraform/**'
       - 'terraform/**'
       - 'tests/terraform/**'
   pull_request:
     branches: [main, develop]
     paths:
+      - '.github/workflows/terraform-test.yml'
+      - 'config/sizing-profiles.yaml'
+      - 'policies/terraform/**'
       - 'terraform/**'
       - 'tests/terraform/**'
   schedule:
@@ -42,12 +48,67 @@ env:
   TF_VERSION: "1.6.6"
   GO_VERSION: "1.21"
   TERRATEST_PARALLELISM: "4"
+  CONFTEST_VERSION: "v0.56.0"
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
+  # ===========================================================================
+  # IAC VALIDATION
+  # ===========================================================================
+  iac-validation:
+    name: IaC Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Terraform fmt
+        working-directory: terraform
+        run: terraform fmt -recursive -check
+
+      - name: Terraform init
+        working-directory: terraform
+        run: terraform init -backend=false -input=false -no-color
+
+      - name: Terraform validate
+        working-directory: terraform
+        run: terraform validate -no-color
+
+      - name: TFLint init
+        run: tflint --init
+
+      - name: TFLint recursive scan
+        run: tflint --recursive --minimum-failure-severity=error
+
+      - name: Install conftest
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${CONFTEST_VERSION#v}"
+          curl -fsSL -o conftest.tar.gz "https://github.com/open-policy-agent/conftest/releases/download/${CONFTEST_VERSION}/conftest_${version}_Linux_x86_64.tar.gz"
+          tar -xzf conftest.tar.gz
+          sudo mv conftest /usr/local/bin/conftest
+          conftest --version
+
+      - name: Validate Terraform OPA policies
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '{"resource_changes":[]}' > /tmp/empty-tfplan.json
+          conftest test /tmp/empty-tfplan.json --policy policies/terraform --all-namespaces
+
   # ===========================================================================
   # UNIT TESTS
   # ===========================================================================
@@ -116,6 +177,9 @@ jobs:
       github.event.inputs.test_type == 'all' ||
       github.event_name == 'schedule'
     environment: testing
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout
@@ -189,7 +253,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests]
+    needs: [iac-validation, unit-tests, integration-tests]
     if: always()
 
     steps:
@@ -214,6 +278,7 @@ jobs:
             echo ""
             echo "| Test Type | Status |"
             echo "|-----------|--------|"
+            echo "| IaC Validation | ${{ needs.iac-validation.result || 'skipped' }} |"
             echo "| Unit Tests | ${{ needs.unit-tests.result || 'skipped' }} |"
             echo "| Integration Tests | ${{ needs.integration-tests.result || 'skipped' }} |"
             echo ""

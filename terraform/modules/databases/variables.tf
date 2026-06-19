@@ -83,6 +83,27 @@ variable "redis_config" {
     eviction_policy     = "VolatileLRU"
     modules             = []
   }
+
+  validation {
+    condition = alltrue([
+      for module_name in var.redis_config.modules : contains([
+        "RediSearch",
+        "RedisBloom",
+        "RedisTimeSeries",
+        "RedisJSON"
+      ], module_name)
+    ])
+    error_message = "Azure Managed Redis modules must be one of: RediSearch, RedisBloom, RedisTimeSeries, RedisJSON."
+  }
+
+  validation {
+    condition = !contains(var.redis_config.modules, "RediSearch") || (
+      var.redis_config.clustering_policy == "EnterpriseCluster" &&
+      var.redis_config.eviction_policy == "NoEviction" &&
+      !can(regex("^FlashOptimized_", var.redis_config.sku_name))
+    )
+    error_message = "When modules includes RediSearch, Azure Managed Redis requires clustering_policy = EnterpriseCluster, eviction_policy = NoEviction, and a non-FlashOptimized SKU."
+  }
 }
 
 variable "key_vault_id" {

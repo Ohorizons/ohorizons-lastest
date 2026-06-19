@@ -29,6 +29,6 @@ The Cosmos account uses AAD-only authentication (local authentication disabled) 
 
 - Cache and memory scale and fail independently, matching their different roles.
 - AAD-only Cosmos removes connection-string secrets from the cluster.
-- The semantic cache requires the RediSearch and RedisJSON modules on Azure Managed Redis for the vector/semantic tier; the exact-match tier works without modules. Sizing profiles flag the semantic tier accordingly.
+- The semantic cache requires the RediSearch and RedisJSON modules on Azure Managed Redis for the vector/semantic tier; the exact-match tier works without modules. RediSearch requires `EnterpriseCluster`, `NoEviction`, and a non-FlashOptimized SKU, so the Terraform module validates that combination before apply. Sizing profiles flag the semantic tier accordingly.
 - Cosmos is gated to H3 so H1 and H2 deployments incur no Cosmos cost.
 - PostgreSQL with pgvector remains available for embedding storage where a relational store is preferred; this ADR does not remove that option.

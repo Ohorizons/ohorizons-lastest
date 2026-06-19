@@ -237,7 +237,7 @@ module "acr" {
 
 #### Network Architecture Created
 
-![Network Architecture](../assets/arch-network-topology.svg)
+![H1 network and security detail](../assets/architecture/h1-network-security-detail.svg)
 
 #### Inputs
 
@@ -350,7 +350,7 @@ module "networking" {
 
 The module creates Network Security Groups with these default rules:
 
-![NSG Rules](../assets/nsg-rules-table.svg)
+![H1 network and security detail](../assets/architecture/h1-network-security-detail.svg)
 
 #### Private DNS Zones Created
 
@@ -394,7 +394,7 @@ The module creates private DNS zones for Azure services:
 
 #### Cluster Architecture
 
-![AKS Cluster Architecture](../assets/arch-aks-cluster.svg)
+![H1 foundation architecture](../assets/architecture/h1-foundation.svg)
 
 #### Inputs
 
@@ -804,7 +804,7 @@ module "security" {
 
 #### How Workload Identity Works
 
-![Workload Identity Flow](../assets/arch-workload-identity.svg)
+![H1 network and security detail](../assets/architecture/h1-network-security-detail.svg)
 
 ---
 
@@ -887,13 +887,13 @@ new creations.
 redis_config = {
   enabled             = true
   # SKU family: Balanced_*, MemoryOptimized_*, ComputeOptimized_*, FlashOptimized_*
-  sku_name            = "Balanced_B1"
+  sku_name            = "Balanced_B3"
   # High availability (disable only for dev/test; B0/B1 have no geo-replication)
   high_availability   = true
   minimum_tls_version = "1.2"
   client_protocol     = "Encrypted"          # Encrypted (TLS) or Plaintext
-  clustering_policy   = "OSSCluster"         # OSSCluster or EnterpriseCluster
-  eviction_policy     = "VolatileLRU"
+  clustering_policy   = "EnterpriseCluster"  # required by RediSearch
+  eviction_policy     = "NoEviction"         # required by RediSearch
   # Optional modules for vector / semantic cache
   modules             = ["RediSearch", "RedisJSON"]
 }
@@ -1128,7 +1128,7 @@ These modules add operational capabilities on top of the H1 foundation.
 
 #### How GitOps Works
 
-![GitOps with ArgoCD](../assets/arch-gitops-workflow.svg)
+![H2 GitOps and observability detail](../assets/architecture/h2-gitops-observability-detail.svg)
 
 #### Inputs
 
@@ -1296,7 +1296,7 @@ spec:
 
 #### Observability Architecture
 
-![Observability Stack](../assets/arch-observability-stack.svg)
+![H2 enhancement architecture](../assets/architecture/h2-enhancement.svg)
 
 #### Inputs
 

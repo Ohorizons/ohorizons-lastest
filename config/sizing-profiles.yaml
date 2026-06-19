@@ -289,8 +289,8 @@ profiles:
         high_availability: true
         minimum_tls_version: "1.2"
         client_protocol: "Encrypted"
-        clustering_policy: "OSSCluster"
-        eviction_policy: "VolatileLRU"
+        clustering_policy: "EnterpriseCluster"
+        eviction_policy: "NoEviction"
         modules: ["RediSearch", "RedisJSON"]
 
       cosmos_db:
@@ -433,8 +433,8 @@ profiles:
         high_availability: true
         minimum_tls_version: "1.2"
         client_protocol: "Encrypted"
-        clustering_policy: "OSSCluster"
-        eviction_policy: "VolatileLRU"
+        clustering_policy: "EnterpriseCluster"
+        eviction_policy: "NoEviction"
         modules: ["RediSearch", "RedisJSON"]
 
       cosmos_db:

@@ -1,686 +1,355 @@
 ---
 title: "Open Horizons Architecture Guide"
-description: "Architecture guide for the Microsoft Azure and GitHub enterprise accelerator using Backstage OSS as the IDP."
-author: "Platform Engineering"
-date: "2026-06-17"
-version: "4.0.0"
+description: "Architecture guide for Open Horizons, the Microsoft Azure and GitHub enterprise accelerator using Backstage OSS as the IDP."
+author: "Open Horizons"
+date: "2026-06-18"
+version: "5.0.0"
 status: "review"
 tags: ["architecture", "azure", "github", "backstage", "agentic-devops"]
 ---
 
-# Open Horizons Platform - Architecture Guide
+# Open Horizons Architecture Guide
 
-> **Version:** 4.0.0
-> **Last Updated:** March 2026
-> **Audience:** Architects, Tech Leads, Senior Engineers
+> Architecture guide for architects, tech leads, and platform engineers who need to understand how Open Horizons is structured, why the main architecture decisions were made, and how the official diagram package maps to the implementation.
 
----
+## Change Log
+
+| Version | Date | Author | Changes |
+| ------- | ---- | ------ | ------- |
+| 5.0.0 | 2026-06-18 | Open Horizons | Consolidated the guide around the official draw.io architecture package, removed redundant legacy SVG and Mermaid flows, updated H3 to Foundry/L6/GPT-5.1, and aligned diagram usage with the documentation style guide. |
+| 4.0.0 | 2026-06-17 | Platform Engineering | Previous architecture guide version. |
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [Understanding the Open Horizons Model](#2-understanding-the-open-horizons-model)
-3. [High-Level Platform Architecture](#3-high-level-platform-architecture)
-4. [Infrastructure Architecture](#4-infrastructure-architecture)
-5. [Network Architecture](#5-network-architecture)
-6. [Security Architecture](#6-security-architecture)
-7. [GitOps Architecture](#7-gitops-architecture)
-8. [Observability Architecture](#8-observability-architecture)
-9. [AI/ML Architecture](#9-aiml-architecture)
-10. [Agent Architecture](#10-agent-architecture)
-11. [Data Flow Diagrams](#11-data-flow-diagrams)
-12. [Architecture Decision Records](#12-architecture-decision-records)
-
----
+- [1. Introduction](#1-introduction)
+- [2. Architecture Model](#2-architecture-model)
+- [3. System Context](#3-system-context)
+- [4. H1 Foundation Architecture](#4-h1-foundation-architecture)
+- [5. H2 Enhancement Architecture](#5-h2-enhancement-architecture)
+- [6. H3 Innovation Architecture](#6-h3-innovation-architecture)
+- [7. Critical End-to-End Flow](#7-critical-end-to-end-flow)
+- [8. Agent Operating Model](#8-agent-operating-model)
+- [9. Architecture Decisions](#9-architecture-decisions)
+- [10. Diagram Asset Governance](#10-diagram-asset-governance)
+- [References](#references)
 
 ## 1. Introduction
 
-### What is This Guide
+Open Horizons is an **Agentic DevOps Platform** deployed on Azure Kubernetes Service (AKS). It provides a single Backstage OSS portal for two personas:
 
-This Architecture Guide explains **how** the Open Horizons Platform is designed and **why** specific technology choices were made. It's intended for architects and engineers who need to understand the platform's internal workings.
+- **Developer IDP**: software catalog, Golden Paths, TechDocs, service ownership, and delivery visibility.
+- **Agent IDP**: agent catalog, model routing, context, memory, tool governance, cost, and telemetry.
 
-> 💡 **Different from the Deployment Guide**
->
-> - **Deployment Guide:** Step-by-step instructions to deploy the platform
-> - **Architecture Guide (this):** Explains the design decisions and component interactions
+This guide explains the design of the platform and the purpose of each major component. It complements the [Deployment Guide](DEPLOYMENT_GUIDE.md), which explains how to install and verify the platform.
 
-### Who Should Read This
+### 1.1 Audience
 
-| Role | What You'll Learn |
-|------|-------------------|
-| **Cloud Architects** | Overall platform design and Azure service integration |
-| **Security Architects** | Zero-trust implementation and security controls |
-| **Platform Engineers** | Component interactions and customization points |
-| **DevOps Engineers** | GitOps workflow and CI/CD architecture |
-| **Tech Leads** | Technology choices and trade-offs |
-
-### Key Concepts You'll Understand
-
-After reading this guide, you'll understand:
-
-1. Why we use the "Open Horizons" organizational model
-2. How Azure services are integrated together
-3. How network isolation and security work
-4. How GitOps enables declarative infrastructure
-5. How observability components interact
-6. How AI capabilities are integrated
+| Role | What this guide helps with |
+| ---- | -------------------------- |
+| Cloud architects | Understand Azure service integration, network boundaries, and deployment stages. |
+| Security architects | Review Zero Trust controls, private endpoints, Workload Identity, policy, and secret management. |
+| Platform engineers | Understand Backstage, ArgoCD, observability, Golden Paths, and operational workflows. |
+| DevOps engineers | Understand GitOps reconciliation, CI/CD integration, and deployment control points. |
+| AI platform engineers | Understand Agent API, Foundry gateway, model routing, memory, RAG, tools, and telemetry. |
 
----
+### 1.2 Diagram Package
 
-## 2. Understanding the Open Horizons Model
+The official architecture diagrams live in [docs/assets/architecture](../assets/architecture/). Each diagram has an editable `.drawio` source and an exported `.svg` for Markdown and decks. Legacy standalone SVGs under [docs/assets](../assets/) are not used by this guide.
 
-### 2.1 What is the Open Horizons Framework
+## 2. Architecture Model
 
-> 💡 **Origin of the Model**
->
-> The Open Horizons Platform is a solution created in partnership with **Microsoft** and
-> **GitHub**. It helps organizations balance maintaining current operations
-> (H1) while developing improvements (H2) and exploring future opportunities (H3).
+Open Horizons is organized around three adoption stages and five platform layers. The stages make adoption incremental; the layers make ownership and runtime responsibilities explicit.
 
-The Open Horizons model organizes the platform into three layers with different purposes:
+![Open Horizons architecture overview](../assets/architecture/architecture-overview.svg)
 
-![Open Horizons Framework](../assets/arch-three-horizons-framework.svg)
+### 2.1 Adoption Stages
 
-### 2.2 Why Use Open Horizons
+| Stage | Purpose | Primary capabilities |
+| ----- | ------- | -------------------- |
+| **H1 Foundation** | Secure cloud runtime | AKS, networking, private endpoints, identity, Key Vault, ACR, PostgreSQL, Redis, Defender, and observability foundations. |
+| **H2 Enhancement** | Developer and platform services | Backstage OSS, ArgoCD GitOps, Golden Paths, TechDocs, observability stack, policy, and developer self-service. |
+| **H3 Innovation** | Agentic AI capabilities | Agent API, Microsoft Agent Framework, Semantic Kernel runtime, context engineering, model routing, MCP tools, Foundry Agents Gateway, memory, RAG, evaluation, and telemetry. |
 
-| Benefit | Explanation |
-|---------|-------------|
-| **Clear Dependencies** | Each horizon has well-defined dependencies on lower horizons |
-| **Independent Scaling** | Horizons can evolve at different speeds |
-| **Risk Isolation** | Experimental H3 features don't affect stable H1 infrastructure |
-| **Incremental Adoption** | Organizations can start with H1, add H2/H3 when ready |
-| **Budget Control** | Each horizon can have separate cost allocation |
+### 2.2 Platform Layers
 
-### 2.3 Component Mapping by Horizon
+| Layer | Repository areas | Responsibility |
+| ----- | ---------------- | -------------- |
+| **L1 Cloud and Infrastructure** | `terraform/modules/` | Azure foundation, private networking, managed data services, AKS, and core security controls. |
+| **L2 Platform Engineering** | `backstage/`, `argocd/`, `policies/`, `golden-paths/`, `grafana/` | Developer portal, GitOps delivery, Golden Paths, policy, dashboards, and day-two operations. |
+| **L3 Context Engineering** | `mcp-servers/`, `.github/skills/`, `backstage/server/agent-api/memory/` | Context stores, memory tiers, skills, MCP tools, and retrieval boundaries. |
+| **L4 Intent Engineering** | `.github/model-routing.yaml`, `golden-paths/common/templates/`, `CONSTITUTION.md` | Requirements, model routing, SDD artifacts, and workflow intent. |
+| **L5 Agentic Execution** | `backstage/server/agent-api*/`, `foundry/`, `.github/agents/` | Runtime agents, tool hooks, trajectory, cost, model calls, and governed agent execution. |
 
-#### H1: Foundation Components
+## 3. System Context
 
-| Component | Azure Service | Purpose | Required? |
-|-----------|---------------|---------|-----------|
-| **AKS** | Azure Kubernetes Service | Container orchestration | Yes |
-| **ACR** | Azure Container Registry | Container image storage | Yes |
-| **Key Vault** | Azure Key Vault | Secrets and certificates | Yes |
-| **VNet** | Azure Virtual Network | Network isolation | Yes |
-| **NSG** | Network Security Groups | Firewall rules | Yes |
-| **Managed Identity** | Azure AD Managed Identity | Passwordless auth | Yes |
-| **Defender** | Defender for Cloud | Threat protection | Recommended |
-| **Purview** | Microsoft Purview | Data governance | Optional |
-| **PostgreSQL** | Azure Database for PostgreSQL | Relational database | Optional |
-| **Redis** | Azure Managed Redis | Caching | Optional |
+The system context view shows how users, source-control systems, platform services, AI services, and Azure runtime services interact across the platform boundary.
 
-#### H2: Enhancement Components
+![Open Horizons system context](../assets/architecture/system-context.svg)
 
-| Component | Technology | Purpose | Required? |
-|-----------|------------|---------|-----------|
-| **ArgoCD** | CNCF ArgoCD | GitOps deployment | Recommended |
-| **External Secrets** | External Secrets Operator | Secret synchronization | Recommended |
-| **Prometheus** | CNCF Prometheus | Metrics collection | Recommended |
-| **Grafana** | Grafana | Dashboards | Recommended |
-| **Alertmanager** | CNCF Alertmanager | Alert routing | Recommended |
-| **Gatekeeper** | OPA Gatekeeper | Policy enforcement | Recommended |
-| **Backstage** | Backstage | Developer portal | Optional |
-| **GitHub Runners** | Self-hosted runners | CI/CD execution | Optional |
+### 3.1 Primary Actors and Systems
 
-#### H3: Innovation Components
+| Area | Components | Role in the platform |
+| ---- | ---------- | -------------------- |
+| Users | Developers, platform engineers, runtime agents | Create software, operate the platform, and automate SDLC workflows. |
+| Engineering systems | GitHub Enterprise Cloud, Azure DevOps, GitHub Actions, Azure Pipelines | Source, build, scan, package, and trigger delivery workflows. |
+| Platform plane | Backstage OSS, ArgoCD, observability stack, policy | Exposes self-service and reconciles desired state to AKS. |
+| AI plane | Backstage AI plugins, Agent API, Azure AI Foundry, memory and retrieval services | Provides agentic assistance, model calls, context, and governed automation. |
+| Azure runtime | AKS, Key Vault, PostgreSQL, Azure Managed Redis, Cosmos DB, Azure Monitor | Runs workloads and protects stateful services through private access and identity. |
 
-| Component | Technology | Purpose | Required? |
-|-----------|------------|---------|-----------|
-| **AI Foundry** | Azure OpenAI | LLM capabilities | Optional |
-| **GPT-4o** | OpenAI GPT-4o | Text generation | Optional |
-| **Embeddings** | text-embedding-3 | Vector embeddings | Optional |
-| **Agents** | Custom implementations | Intelligent automation | Optional |
+### 3.2 Boundary Rules
 
----
+- Stateful platform data services use private endpoints where supported.
+- Workloads use Workload Identity or managed identity instead of service-principal secrets.
+- ArgoCD reconciles platform and application workloads from Git.
+- Agent calls flow through a governed Agent API or Foundry gateway boundary before model or tool execution.
+- Observability and cost signals are part of the system boundary, not a separate afterthought.
 
-## 3. High-Level Platform Architecture
+## 4. H1 Foundation Architecture
 
-### 3.1 Layered Architecture Diagram
+H1 provides the secure Azure runtime used by every higher layer. It includes AKS, identity, network isolation, secrets, registry, data services, and baseline telemetry.
 
-![Layered Platform Architecture](../assets/arch-layered-architecture.svg)
+![H1 foundation architecture](../assets/architecture/h1-foundation.svg)
 
-### 3.2 Design Principles
+### 4.1 Core Components
 
-> 💡 **What are Design Principles?**
->
-> Design principles are the rules we follow when making architecture decisions.
-> They ensure consistency and help avoid common mistakes.
+| Component | Azure service or technology | Purpose | Required |
+| --------- | --------------------------- | ------- | -------- |
+| AKS | Azure Kubernetes Service | Runtime for Backstage, ArgoCD, agents, and platform workloads. | Yes |
+| ACR | Azure Container Registry | Private container image storage. | Yes |
+| Key Vault | Azure Key Vault | Secrets, keys, and certificates. | Yes |
+| Networking | VNet, subnets, NSGs, private endpoints, private DNS | Network isolation and private service access. | Yes |
+| Identity | Microsoft Entra ID, managed identities, Workload Identity | Passwordless workload access. | Yes |
+| PostgreSQL | Azure Database for PostgreSQL Flexible Server | Backstage and application relational data. | Optional |
+| Redis | Azure Managed Redis | Cache, semantic cache, session state, and vector memory when enabled. | Optional |
+| Defender | Microsoft Defender for Cloud | Threat detection and cloud security posture. | Recommended |
+| Purview | Microsoft Purview | Data classification and governance. | Optional |
 
-| Principle | What It Means | How We Implement It |
-|-----------|---------------|---------------------|
-| **Infrastructure as Code** | All infrastructure is defined in code, not created manually | Terraform for Azure resources, Kubernetes manifests for apps |
-| **GitOps** | Git is the single source of truth for deployments | ArgoCD watches Git repos and syncs changes automatically |
-| **Zero Trust** | Never trust, always verify | Private endpoints, workload identity, network policies |
-| **Immutable Infrastructure** | Don't modify running systems; replace them | Rolling updates, blue-green deployments |
-| **Observable** | Everything can be measured and monitored | Prometheus metrics, Grafana dashboards, alerts |
-| **Self-Service** | Developers can deploy without ops intervention | Golden Path templates, Backstage portal |
-| **Policy as Code** | Security policies are defined in code | Gatekeeper/OPA constraints |
-| **Cost Awareness** | Monitor and optimize costs continuously | Azure Cost Management, budgets, alerts |
+### 4.2 Network and Security Detail
 
----
+The H1 detail view covers private connectivity, Workload Identity, secret flow, policy, network policy, and telemetry in one diagram. It replaces the older separate network, NSG, Zero Trust, Workload Identity, and secret-management SVGs.
 
-## 4. Infrastructure Architecture
+![H1 network and security detail](../assets/architecture/h1-network-security-detail.svg)
 
-### 4.1 AKS Cluster Architecture
+### 4.3 AKS Design
 
-> 💡 **What is AKS?**
->
-> Azure Kubernetes Service (AKS) is a managed Kubernetes service. Azure manages
-> the control plane (API server, etcd, scheduler), and you only manage the
-> worker nodes where your applications run.
+| Node pool | Purpose | Why it is separate |
+| --------- | ------- | ------------------ |
+| System | Kubernetes and platform system components | Keeps system pods isolated from application scheduling pressure. |
+| Workload | Application and platform workloads | Scales independently from the system pool. |
+| AI | Optional AI or GPU workloads | Can be enabled only for H3 workloads that need specialized compute. |
 
-![AKS Cluster Architecture](../assets/arch-aks-cluster.svg)
+### 4.4 Cluster Add-ons
 
-### 4.2 Why Multiple Node Pools
+| Add-on | Purpose |
+| ------ | ------- |
+| Azure CNI or CNI Overlay | Integrates pod networking with Azure network design. |
+| Azure Policy | Enforces baseline compliance and integrates with Azure governance. |
+| Workload Identity | Allows pods to access Azure resources without stored credentials. |
+| External Secrets Operator | Syncs Key Vault values into Kubernetes Secrets when needed by workloads. |
+| Blob CSI | Allows supported workloads to mount Azure Blob storage. |
 
-| Node Pool | Purpose | Why Separate? |
-|-----------|---------|---------------|
-| **System** | Kubernetes system components | Isolates system pods from application disruptions |
-| **Workload** | Application pods | Can scale independently based on app demand |
-| **AI** | GPU-accelerated workloads | Expensive GPUs only used when needed (scales to 0) |
+## 5. H2 Enhancement Architecture
 
-### 4.3 Cluster Add-ons
+H2 adds the developer portal, GitOps reconciliation, Golden Paths, observability, and operational workflows on top of the secure H1 runtime.
 
-These are additional capabilities we enable on the AKS cluster:
+![H2 enhancement architecture](../assets/architecture/h2-enhancement.svg)
 
-| Add-on | What It Does | Why We Enable It |
-|--------|--------------|------------------|
-| **Azure CNI** | Network plugin | Assigns Azure VNet IPs to pods for better network integration |
-| **Azure Policy** | Policy enforcement | Integrates with Azure Policy for compliance |
-| **Workload Identity** | Pod authentication | Allows pods to authenticate to Azure without secrets |
-| **Key Vault CSI** | Secret injection | Mounts Key Vault secrets as files in pods |
-| **Blob CSI** | Blob storage | Allows pods to use Azure Blob storage as volumes |
+### 5.1 Core Components
 
----
+| Component | Technology | Purpose | Required |
+| --------- | ---------- | ------- | -------- |
+| Backstage OSS | Backstage | Developer portal, software catalog, TechDocs, and Scaffolder. | Recommended |
+| ArgoCD | Argo CD | GitOps desired-state reconciliation. | Recommended |
+| Golden Paths | Backstage Software Templates | Standard scaffolding for H1, H2, and H3 workload types. | Recommended |
+| External Secrets | External Secrets Operator | Key Vault to Kubernetes secret synchronization. | Recommended |
+| Policy | OPA Gatekeeper, Azure Policy | Admission and compliance guardrails. | Recommended |
+| Observability | Prometheus, Grafana, Loki, Alertmanager, Azure Monitor | Metrics, logs, alerts, dashboards, and health views. | Recommended |
+| GitHub runners | GitHub Actions self-hosted runners | Optional private CI/CD execution. | Optional |
 
-## 5. Network Architecture
+### 5.2 GitOps and Observability Detail
 
-### 5.1 Network Topology
+The H2 detail view shows how source changes become deployments and how observability feeds the operating model. It replaces the older separate GitOps, ArgoCD hierarchy, observability, metrics, and alert-flow SVGs.
 
-> 💡 **Why Network Architecture Matters**
->
-> Proper network design is critical for:
->
-> - **Security:** Isolating sensitive workloads
-> - **Performance:** Reducing latency between components
-> - **Compliance:** Meeting regulatory requirements for data isolation
+![H2 GitOps and observability detail](../assets/architecture/h2-gitops-observability-detail.svg)
 
-![Network Topology](../assets/arch-network-topology.svg)
+### 5.3 Sync Strategies
 
-### 5.2 Private DNS Zones
+| Strategy | Use case | Behavior |
+| -------- | -------- | -------- |
+| Auto-sync | Development environments | ArgoCD applies changes when Git changes. |
+| Manual sync | Production environments | A human approves the sync before deployment. |
+| Self-heal | Managed environments | ArgoCD reverts unauthorized live drift. |
+| Prune | Cleanup workflows | Resources removed from Git are removed from the cluster. |
 
-> 💡 **What are Private DNS Zones?**
->
-> When you create a private endpoint for an Azure service (like Key Vault),
-> it gets a private IP (e.g., 10.0.4.5). Private DNS zones automatically
-> resolve the service's public DNS name to this private IP when queried
-> from within the VNet.
+## 6. H3 Innovation Architecture
 
-| Service | Private DNS Zone | Example Resolution |
-|---------|------------------|-------------------|
-| Key Vault | `privatelink.vaultcore.azure.net` | kv-myapp.vault.Azure.net → 10.0.4.5 |
-| ACR | `privatelink.azurecr.io` | myacr.azurecr.io → 10.0.4.4 |
-| PostgreSQL | `privatelink.postgres.database.azure.com` | mydb.postgres.database.Azure.com → 10.0.4.6 |
-| OpenAI | `privatelink.openai.azure.com` | myoai.openai.Azure.com → 10.0.4.7 |
+H3 adds governed agentic AI capabilities. It is optional and gated behind H3 adoption flags such as `enable_ai_foundry` and `enable_foundry_agents`.
 
-### 5.3 Network Security Groups (NSGs)
+![H3 innovation architecture](../assets/architecture/h3-innovation.svg)
 
-NSGs act as firewalls at the subnet level:
+### 6.1 Core Components
 
-![NSG Rules](../assets/nsg-rules-table.svg)
+| Component | Implementation area | Purpose |
+| --------- | ------------------- | ------- |
+| Backstage AI plugins | `backstage/plugins/ai-chat/` | AI Chat and AI Impact experiences in the portal. |
+| Agent API | `backstage/server/agent-api*/` | FastAPI services for AI Chat, AI Impact, Microsoft Agent Framework, and Semantic Kernel paths. |
+| Runtime agents | `backstage/server/agent-api/` | Orchestrator, pipeline, sentinel, compass, guardian, lighthouse, and forge. |
+| MCP tools | `mcp-servers/` | Tool surface for documentation, platform, GitHub, Backstage, and methodology retrieval. |
+| Context and memory | `backstage/server/agent-api/memory/` | Shared context store and hot, warm, cold memory tiers. |
+| Tool hooks | `backstage/server/agent-api/middleware/hooks.py` | Pre and post tool-use governance for every runtime tool call. |
+| Foundry Agents Gateway | `foundry/agents-service/` | H3/L6 gateway in front of Azure AI Foundry with cache, A2A routing, hooks, memory, and telemetry. |
+| Azure AI Foundry | Terraform `ai-foundry` module | GPT-5.1, embeddings, Azure AI Search, Content Safety, evaluation, and model operations. |
+| Enterprise memory | Cosmos DB and Azure Managed Redis | Long-term memory, semantic cache, vector search, and session state where enabled. |
+| Telemetry | Application Insights, Azure Monitor, OpenTelemetry GenAI | Per-call traceability, cost, latency, model tier, and governance telemetry. |
 
----
+### 6.2 Agent Request Flow
 
-## 6. Security Architecture
+The H3 detail view covers request validation, routing, semantic cache, memory, RAG, guardrails, tool calls, Foundry inference, evaluation, cost, and telemetry. It replaces the older agent-category and AI Foundry SVGs.
 
-### 6.1 Zero Trust Model
+![H3 agent flow detail](../assets/architecture/h3-agent-flow-detail.svg)
 
-> 💡 **What is Zero Trust?**
->
-> Zero Trust is a security model where you never trust anything by default,
-> even if it's inside your network. Every request must be verified.
+### 6.3 Model Routing
 
-![Zero Trust Implementation](../assets/arch-zero-trust.svg)
+Open Horizons routes SDLC tasks by phase and cost tier. The source of truth is the [model routing configuration](../../.github/model-routing.yaml).
 
-### 6.2 Workload Identity
+| SDLC phase | Task | Recommended models | Extended thinking | Cost tier |
+| ---------- | ---- | ------------------ | ----------------- | --------- |
+| Specification | Vague requirements to structured specs | Claude Opus 4.6, GPT-5.1 | Yes | High |
+| Architecture | Planning affecting more than five files | Claude Opus 4.6, GPT-5.1 | Yes | High |
+| TDD spec | Test cases from clear specification | Claude Sonnet 4.6, GPT-5.1 | No | Medium |
+| Implementation | Feature code across scoped files | Claude Sonnet 4.6, GPT-5.1 | No | Medium |
+| Docstrings | Docstrings, commit messages, changelogs | Claude Haiku 4.5, GPT-5.1 | No | Low |
+| Code review | Quality and security review | Claude Opus 4.6, GPT-5.1 | Yes | High |
+| Summarization | PR descriptions and release notes | Claude Haiku 4.5, GPT-5.1 | No | Low |
 
-> 💡 **What is Workload Identity?**
->
-> Workload Identity allows Kubernetes pods to authenticate to Azure services
-> using Azure AD tokens, without needing secrets or passwords.
+## 7. Critical End-to-End Flow
 
-![Workload Identity](../assets/arch-workload-identity.svg)
+The critical path diagram shows how a developer moves from self-service scaffolding to GitOps deployment and agent response. It replaces the older standalone deployment-flow and secret-access diagrams in this guide.
 
-### 6.3 Secret Management Flow
+![Critical Golden Path sequence](../assets/architecture/sequence-golden-path.svg)
 
-![Secret Management Architecture](../assets/arch-secret-management.svg)
+### 7.1 Flow Summary
 
----
+1. A developer uses Backstage or GitHub to start a Golden Path workflow.
+2. The template emits code, SDD artifacts, CI/CD workflow files, and Kubernetes or Terraform manifests.
+3. GitHub Actions or Azure Pipelines builds, tests, scans, and publishes artifacts.
+4. ArgoCD reconciles the desired state into AKS.
+5. Workloads use Workload Identity and private endpoints for secrets and data access.
+6. Observability, cost, and drift signals flow back to dashboards and the portal.
+7. AI Chat or AI Impact requests flow through Agent API or the Foundry gateway for context, tools, model calls, and telemetry.
 
-## 7. GitOps Architecture
+## 8. Agent Operating Model
 
-### 7.1 What is GitOps
+Open Horizons has two agent layers: deploy-managed GitHub Copilot Chat agents for platform operations and runtime agents inside the AI Chat service.
 
-> 💡 **GitOps Explained Simply**
->
-> GitOps means **Git is the source of truth** for your infrastructure.
-> Instead of running commands to deploy, you commit changes to Git,
-> and a tool (ArgoCD) automatically applies them to your cluster.
+### 8.1 Deploy-Managed GitHub Copilot Chat Agents
 
-### 7.2 GitOps Workflow
+| Agent | Responsibility |
+| ----- | -------------- |
+| `@deploy` | Coordinates end-to-end platform deployment and validation. |
+| `@terraform` | Authors and validates Terraform modules and plans. |
+| `@azure-portal-deploy` | Provisions Azure portal infrastructure paths such as AKS, Key Vault, ACR, and PostgreSQL. |
+| `@backstage-expert` | Deploys and configures Backstage OSS, auth, Golden Paths, and TechDocs. |
+| `@github-integration` | Configures GitHub App, org discovery, GHAS, Actions, and Packages. |
+| `@ado-integration` | Configures Azure DevOps PAT, repos, pipelines, and boards integration. |
+| `@hybrid-scenarios` | Designs and implements GitHub plus Azure DevOps coexistence scenarios. |
+| `@security` | Reviews Zero Trust, RBAC, secrets, vulnerabilities, and policy. |
+| `@sre` | Reviews observability, SLOs, incident response, and day-two operations. |
 
-![GitOps Workflow](../assets/arch-gitops-workflow.svg)
+### 8.2 Runtime Agents
 
-### 7.3 ArgoCD Application Model
+| Runtime agent | Role |
+| ------------- | ---- |
+| orchestrator | Default fallback and request router. |
+| pipeline | CI/CD diagnostics. |
+| sentinel | Test coverage and quality gates. |
+| compass | Sprint planning and story creation. |
+| guardian | Security scanning and advisories. |
+| lighthouse | SRE, monitoring, and deployment health. |
+| forge | Infrastructure and repository automation. |
 
-![ArgoCD Application Hierarchy](../assets/arch-argocd-app-model.svg)
+### 8.3 Tool Governance
 
-### 7.4 Sync Strategies
+All runtime tool calls pass through a common pre and post hook path. The pre-hook classifies tools, blocks dangerous arguments, and audits decisions. The post-hook redacts secrets and truncates oversized results before they return to the model.
 
-| Strategy | When to Use | How It Works |
-|----------|-------------|--------------|
-| **Auto-Sync** | Development environments | ArgoCD automatically applies changes when Git changes |
-| **Manual Sync** | Production | Human must click "Sync" to apply changes |
-| **Self-Heal** | Always-on environments | ArgoCD reverts manual changes made directly to cluster |
-| **Prune** | Cleanup needed | Deletes resources removed from Git |
+## 9. Architecture Decisions
 
----
-
-## 8. Observability Architecture
-
-### 8.1 Observability Stack
-
-> 💡 **What is Observability?**
->
-> Observability is the ability to understand what's happening inside your system
-> by looking at its external outputs: **metrics**, **logs**, and **traces**.
-
-![Observability Architecture](../assets/arch-observability-stack.svg)
-
-### 8.2 Metrics Collection
-
-![Metrics Collection](../assets/arch-metrics-collection.svg)
-
-### 8.3 Alert Flow
-
-![Alert Flow](../assets/arch-alert-flow.svg)
-
----
-
-## 9. AI/ML Architecture
-
-### 9.1 AI Foundry Integration
-
-> 💡 **What is Azure AI Foundry?**
->
-> Azure AI Foundry is a comprehensive enterprise AI platform that goes far beyond just Azure OpenAI.
-> It provides a unified hub for building, deploying, and managing AI solutions at scale, including:
->
-> - **Multiple AI Model Providers:** Foundation models, fine-tuned models, and embedding services via a managed model gateway
-> - **AI Agent Development:** Tools for building autonomous agents for enterprise workflows
-> - **RAG & Knowledge Management:** Vector search, document intelligence, and knowledge bases
-> - **Responsible AI:** Built-in content safety, prompt shields, and governance controls
-> - **MLOps Integration:** Model versioning, deployment pipelines, and monitoring
-> - **Enterprise Security:** Private endpoints, managed identities, and compliance certifications
-
-![AI Foundry Architecture](../assets/arch-ai-foundry.svg)
-
-### 9.2 Model Routing by SDLC Phase
-
-Open Horizons uses task-specific model routing to optimize cost and quality. The routing is defined in [`.github/model-routing.yaml`](../../.github/model-routing.yaml).
-
-| SDLC Phase | Task | Recommended Models | Extended Thinking | Cost |
-|:-----------|:-----|:-------------------|:-----------------:|:----:|
-| **Specification** | Vague requirements → structured specs | Claude Opus 4.6, GPT-5.4 | Yes | High |
-| **Architecture** | Planning affecting >5 files | Claude Opus 4.6, GPT-5.4 | Yes | High |
-| **TDD** | Test cases from clear spec | Claude Sonnet 4.6, GPT-5.1 | No | Medium |
-| **Implementation** | Feature code, 3-10 files | Claude Sonnet 4.6, GPT-5.1 | No | Medium |
-| **Docstrings** | Commit messages, changelogs | Claude Haiku 4.5, GPT-5.1 | No | Low |
-| **Code Review** | Quality + security review | Claude Opus 4.6, GPT-5.4 | Yes | High |
-| **Summarization** | PR descriptions, release notes | Claude Haiku 4.5, GPT-5.1 | No | Low |
-
-**Model Routing Decision Tree:**
-
-```mermaid
-flowchart TD
-    A["Developer Request"] --> B{"Is the spec clear?"}
-    B -->|No| C["Specification\nOpus 4.6 / GPT-5.4\nAsk + Extended Thinking"]
-    B -->|Yes| D{"Affects more\nthan 5 files?"}
-    D -->|Yes| E["Architecture\nOpus 4.6 / GPT-5.4\nAsk + Extended Thinking"]
-    D -->|No| F{"Tests written?"}
-    F -->|No| G["TDD Spec\nSonnet 4.6 / GPT-5.1\nEdit Mode"]
-    F -->|Yes| H["Implementation\nSonnet 4.6 / GPT-5.1\nAgent + Hooks"]
-    C --> I{{"Human Review Gate"}}
-    E --> I
-    I --> G
-    G --> H
-    H --> J["Code Review\nOpus 4.6 / GPT-5.4\nAsk + Extended Thinking"]
-    J --> K{"Boilerplate?"}
-    K -->|Yes| L["Summarization\nHaiku 4.5 / GPT-5.1"]
-    K -->|No| M["Done"]
-    L --> M
-
-    style C fill:#F25022,color:#fff
-    style E fill:#F25022,color:#fff
-    style G fill:#00A4EF,color:#fff
-    style H fill:#00A4EF,color:#fff
-    style J fill:#F25022,color:#fff
-    style L fill:#7FBA00,color:#fff
-    style I fill:#FFB900,color:#000
-```
-
-### 9.3 Agentic Deployment Workflow
-
-Open Horizons supports fully agentic deployment via `@deploy`. The workflow orchestrates multiple specialized agents, each using the optimal model for its phase.
-
-```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Deploy as @deploy<br/>Opus 4.6 / GPT-5.4
-    participant Azure as @azure-portal-deploy<br/>Sonnet 4.6 / GPT-5.1
-    participant TF as @terraform<br/>Sonnet 4.6 / GPT-5.1
-    participant BS as @backstage-expert<br/>Sonnet 4.6 / GPT-5.1
-    participant GH as @github-integration<br/>Sonnet 4.6 / GPT-5.1
-    participant SRE as @sre<br/>Sonnet 4.6 / GPT-5.1
-    participant Sec as @security<br/>Opus 4.6 / GPT-5.4
-
-    Dev->>Deploy: @deploy Deploy platform to dev
-    Deploy->>Deploy: Plan deployment sequence
-    Deploy->>Deploy: Validate prerequisites
-
-    rect rgb(235, 243, 252)
-        Note over Azure,TF: Phase 1 Infrastructure 30-45 min
-        Deploy->>Azure: Provision AKS KeyVault ACR
-        Azure-->>Deploy: Infrastructure ready
-        Deploy->>TF: terraform init plan apply
-        TF-->>Deploy: 16 modules applied
-    end
-
-    rect rgb(240, 247, 230)
-        Note over BS,GH: Phase 2 Platform 25-35 min
-        Deploy->>BS: Deploy Backstage ArgoCD Grafana
-        Deploy->>GH: Configure GitHub App OAuth
-        BS-->>Deploy: Portal live
-        GH-->>Deploy: Integration complete
-    end
-
-    rect rgb(252, 234, 229)
-        Note over SRE,Sec: Phase 3 Verification 15-25 min
-        Deploy->>SRE: Post-deploy health checks
-        SRE-->>Deploy: All services healthy
-        Deploy->>Sec: Security audit policy review
-        Sec-->>Deploy: Compliant
-    end
-
-    Deploy-->>Dev: Platform deployed successfully
-```
-
-**Agent-to-Model Mapping for Deployment:**
-
-| Deploy Phase | Agent | Mode | Recommended Models |
-|:-------------|:------|:-----|:-------------------|
-| Planning and sequencing | `@deploy` | Ask | Claude Opus 4.6, GPT-5.4 |
-| Azure provisioning | `@azure-portal-deploy` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| Infrastructure as Code | `@terraform` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| Portal deployment | `@backstage-expert` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| GitHub integration | `@github-integration` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| Azure DevOps integration | `@ado-integration` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| Hybrid integration | `@hybrid-scenarios` | Agent | Claude Sonnet 4.6, GPT-5.1 |
-| Post-deploy verification | `@sre` | Ask | Claude Sonnet 4.6, GPT-5.1 |
-| Security audit | `@security` | Ask | Claude Opus 4.6, GPT-5.4 |
-
-> **Deploy times:** Dev 75-105 min · Staging 100-130 min · Production 130-175 min
-
----
-
-## 10. Agent Architecture
-
-### 10.1 Agent Categories
-
-The platform includes 9 deploy-managed Copilot Chat agents organized around the deployment workflow:
-
-![Agent Architecture](../assets/arch-agent-categories.svg)
-
-### 10.2 Agent Handoff Flow
-
-The `@deploy` agent is the primary entry point and hands off work to specialized peers based on task type. Each agent uses the model best suited to its role.
-
-```mermaid
-flowchart LR
-    subgraph Planning["Planning · Opus 4.6 / GPT-5.4"]
-        A["@deploy"]
-    end
-
-    subgraph Impl["Implementation · Sonnet 4.6 / GPT-5.1"]
-        A --> C["@terraform"]
-        A --> D["@azure-portal-deploy"]
-        A --> E["@backstage-expert"]
-        A --> J["@github-integration"]
-        A --> K["@ado-integration"]
-        A --> L["@hybrid-scenarios"]
-    end
-
-    subgraph Verify["Verification · Opus 4.6 / GPT-5.4"]
-        C --> F["@security"]
-        D --> F
-        E --> F
-        J --> F
-        K --> F
-        L --> F
-    end
-
-    subgraph Ops["Operations · Sonnet 4.6 / GPT-5.1"]
-        F --> H["@sre"]
-    end
-
-    style A fill:#F25022,color:#fff
-    style C fill:#00A4EF,color:#fff
-    style D fill:#00A4EF,color:#fff
-    style E fill:#00A4EF,color:#fff
-    style F fill:#7FBA00,color:#fff
-    style H fill:#FFB900,color:#000
-    style C fill:#00A4EF,color:#fff
-    style D fill:#00A4EF,color:#fff
-    style E fill:#00A4EF,color:#fff
-    style F fill:#F25022,color:#fff
-    style G fill:#F25022,color:#fff
-    style H fill:#00A4EF,color:#fff
-    style I fill:#7FBA00,color:#fff
-```
-
----
-
-## 11. Data Flow Diagrams
-
-### 11.1 Application Deployment Flow
-
-![Application Deployment Flow](../assets/arch-deployment-flow.svg)
-
-```mermaid
-flowchart LR
-    A["Developer"] -->|git push| B["GitHub"]
-    B -->|webhook| C["ArgoCD"]
-    C -->|sync| D["AKS Cluster"]
-    D -->|pull image| E["ACR"]
-    D -->|read secrets| F["Key Vault"]
-    D -->|emit metrics| G["Prometheus"]
-    G -->|visualize| H["Grafana"]
-
-    style A fill:#FFB900,color:#000
-    style B fill:#1A1A1A,color:#fff
-    style C fill:#F25022,color:#fff
-    style D fill:#0078D4,color:#fff
-    style E fill:#0078D4,color:#fff
-    style F fill:#0078D4,color:#fff
-    style G fill:#7FBA00,color:#fff
-    style H fill:#7FBA00,color:#fff
-```
-
-### 11.2 Secret Access Flow
-
-![Secret Access Data Flow](../assets/arch-secret-access-flow.svg)
-
-```mermaid
-flowchart LR
-    A["Pod"] -->|ServiceAccount| B["Workload Identity"]
-    B -->|federated token| C["Azure AD"]
-    C -->|access token| D["Key Vault"]
-    D -->|secret value| E["ESO Controller"]
-    E -->|creates| F["K8s Secret"]
-    F -->|mounts| A
-
-    style A fill:#00A4EF,color:#fff
-    style B fill:#FFB900,color:#000
-    style C fill:#0078D4,color:#fff
-    style D fill:#0078D4,color:#fff
-    style E fill:#7FBA00,color:#fff
-    style F fill:#00A4EF,color:#fff
-```
-
----
-
-## 12. Architecture Decision Records
-
-### ADR-001: Use AKS Instead of Self-Managed Kubernetes
+### 9.1 ADR-001: Use AKS for Container Runtime
 
 **Status:** Accepted
 
-**Context:** We need a Kubernetes platform for container orchestration.
+Open Horizons uses AKS instead of self-managed Kubernetes to reduce control-plane operational overhead and improve integration with Azure identity, networking, monitoring, and policy.
 
-**Decision:** Use Azure Kubernetes Service (AKS) instead of self-managed Kubernetes.
-
-**Rationale:**
-
-- Azure manages the control plane (99.95% SLA)
-- Automatic security patches
-- Deep Azure integration (identity, networking, storage)
-- Lower operational overhead
-- Cost: Only pay for worker nodes
-
-**Trade-offs:**
-
-- Less control over control plane configuration
-- Tied to Azure's upgrade schedule
-
----
-
-### ADR-002: Use ArgoCD for GitOps
+### 9.2 ADR-002: Use ArgoCD for GitOps
 
 **Status:** Accepted
 
-**Context:** We need a mechanism to deploy applications declaratively.
+Open Horizons uses ArgoCD because its application-centric reconciliation model, health checks, sync waves, and UI fit the platform's developer and operator workflows.
 
-**Decision:** Use ArgoCD for GitOps-based deployments.
-
-**Rationale:**
-
-- CNCF graduated project (mature, well-maintained)
-- Excellent UI for visibility
-- Supports Helm, Kustomize, plain YAML
-- Application-centric model fits our needs
-- Strong community support
-
-**Alternatives Considered:**
-
-- Flux: Good but less intuitive UI
-- Jenkins X: More complex, heavier
-- Spinnaker: Enterprise-focused, complex
-
----
-
-### ADR-003: Use Azure CNI Networking
+### 9.3 ADR-003: Use Azure CNI or CNI Overlay
 
 **Status:** Accepted
 
-**Context:** Need to choose Kubernetes network plugin.
+AKS networking is configured to integrate workloads with Azure network policy, subnet planning, and private service access. The exact CNI mode is chosen per environment sizing profile.
 
-**Decision:** Use Azure CNI instead of kubenet.
-
-**Rationale:**
-
-- Pods get VNet IP addresses directly
-- Better integration with Azure services
-- Required for some features (Windows nodes, network policies)
-- Better performance for large clusters
-
-**Trade-offs:**
-
-- Requires more IP addresses (need larger subnets)
-- More complex IP planning
-
----
-
-### ADR-004: Use External Secrets Operator
+### 9.4 ADR-004: Use External Secrets Operator
 
 **Status:** Accepted
 
-**Context:** Applications need access to secrets stored in Key Vault.
+External Secrets Operator syncs Key Vault values into Kubernetes Secrets when applications need standard Kubernetes secret objects, while keeping source-of-truth secrets in Key Vault.
 
-**Decision:** Use External Secrets Operator instead of Key Vault CSI driver.
+### 9.5 ADR-005: Use the Foundry Agents Gateway as the H3/L6 Harness
 
-**Rationale:**
+**Status:** Accepted
 
-- Works with standard Kubernetes Secrets (no application changes)
-- Supports multiple secret stores (flexibility)
-- Automatic refresh of secrets
-- Better GitOps compatibility
+The Foundry gateway is implemented as a standalone service under `foundry/`. It fronts Azure AI Foundry and centralizes semantic cache, A2A routing, tool hooks, Cosmos memory, Purview audit, and 21-field LLM telemetry.
 
-**Trade-offs:**
+See [ADR-0002: Foundry agents gateway as the L6 harness service](../architecture/adr/0002-foundry-agents-gateway-l6-harness.md).
 
-- Additional component to maintain
-- Secrets exist in-cluster (encrypted at rest)
+## 10. Diagram Asset Governance
 
----
+The architecture diagrams embedded in this guide follow the [Documentation Style Guide](DOCUMENTATION_STYLE_GUIDE.md). Use these rules when adding or changing diagrams:
+
+- Store editable `.drawio` and exported `.svg` files together under [docs/assets/architecture](../assets/architecture/).
+- Use official Azure, Microsoft, and GitHub icons for architecture diagrams.
+- Do not embed both a legacy SVG and a Mermaid diagram for the same flow.
+- Keep overview diagrams broad and move detailed flow into detail diagrams.
+- Prefer a single official diagram per section unless a second diagram adds a different level of detail.
+- Remove unused legacy image files after all references have moved to the official package.
 
 ## Summary
 
-This Architecture Guide covered:
+Open Horizons is a three-stage Agentic DevOps Platform. H1 builds the secure Azure foundation. H2 adds the developer portal, GitOps, Golden Paths, and observability. H3 adds governed agentic AI through Agent API services, MCP tools, memory, model routing, the Foundry gateway, and OpenTelemetry-backed telemetry.
 
-1. **Open Horizons Model:** How the platform is organized into Foundation, Enhancement, and Innovation layers
-2. **Platform Architecture:** High-level view of all components
-3. **Infrastructure:** AKS cluster design and node pools
-4. **Networking:** VNet topology, subnets, and private endpoints
-5. **Security:** Zero trust implementation and secret management
-6. **GitOps:** ArgoCD workflow and application model
-7. **Observability:** Prometheus, Grafana, and alerting
-8. **AI/ML:** Azure AI Foundry - enterprise AI hub with multiple model providers and agent capabilities
-9. **Agents:** 9 Copilot Chat Agents for development assistance
-10. **Data Flows:** How deployments and secret access work
-11. **ADRs:** Key architecture decisions and rationale
+For deployment details, see the [Deployment Guide](DEPLOYMENT_GUIDE.md). For a review-board package with all diagram walkthroughs, see [Open Horizons Technical Architecture Review](../architecture/ARCHITECTURE_REVIEW.md).
 
-For implementation details, see the [Deployment Guide](./DEPLOYMENT_GUIDE.md).
+## Using GitHub Copilot Agents for Architecture
 
----
-
-## 🤖 Using Copilot Agents for Architecture
-
-| Task | Agent | Example Prompt |
+| Task | Agent | Example prompt |
 | ---- | ----- | -------------- |
 | System design | `@deploy` | "Plan the platform deployment architecture for this environment" |
-| WAF review | `@security` | "Evaluate this design against Zero Trust and security baseline requirements" |
-| Module structure | `@terraform` | "Help me decompose this into reusable Terraform modules" |
+| Well-Architected review | `@security` | "Evaluate this design against Zero Trust and baseline security requirements" |
+| Module structure | `@terraform` | "Help decompose this into reusable Terraform modules" |
 | Security review | `@security` | "Review this architecture for Zero Trust compliance" |
 | Deployment decision record | `@deploy` | "Summarize the deployment decision and required follow-up actions" |
 
-> **Tip:** Start with `@deploy` for architecture-impacting platform work. It hands off to `@terraform`, `@azure-portal-deploy`, `@backstage-expert`, `@security`, and `@sre` as needed.
-
----
+Start with `@deploy` for architecture-impacting platform work. It can coordinate with `@terraform`, `@azure-portal-deploy`, `@backstage-expert`, `@security`, and `@sre` as needed.
 
 ## Related Documentation
 
 | Document | Description |
 | -------- | ----------- |
-| [Deployment Guide](./DEPLOYMENT_GUIDE.md) | Step-by-step platform deployment instructions |
-| [Module Reference](./MODULE_REFERENCE.md) | Detailed inputs/outputs for all Terraform modules |
-| [Performance Tuning Guide](./PERFORMANCE_TUNING_GUIDE.md) | Optimization recommendations for all components |
-| [Administrator Guide](./ADMINISTRATOR_GUIDE.md) | Day-2 operations and maintenance procedures |
+| [Deployment Guide](DEPLOYMENT_GUIDE.md) | Step-by-step platform deployment instructions. |
+| [Module Reference](MODULE_REFERENCE.md) | Inputs, outputs, and examples for Terraform modules. |
+| [Documentation Style Guide](DOCUMENTATION_STYLE_GUIDE.md) | Editorial and diagram standards. |
+| [Technical Architecture Review](../architecture/ARCHITECTURE_REVIEW.md) | Review-board diagram package and walkthrough. |
+| [Open Horizons Architecture](../architecture/OpenHorizons_Architecture.md) | Mermaid-based architecture document. |
 
 ## Next Steps
 
-- **Deploy the platform**: Follow the [Deployment Guide](./DEPLOYMENT_GUIDE.md) to provision infrastructure
-- **Review module details**: See [Module Reference](./MODULE_REFERENCE.md) for all module configurations
-- **Configure monitoring**: Set up observability stack — see [Administrator Guide](./ADMINISTRATOR_GUIDE.md)
-
----
+- Deploy the platform with the [Deployment Guide](DEPLOYMENT_GUIDE.md).
+- Review module-level configuration in the [Module Reference](MODULE_REFERENCE.md).
+- Use the [Technical Architecture Review](../architecture/ARCHITECTURE_REVIEW.md) for architecture-board discussions.
 
 ## References
 
@@ -688,7 +357,11 @@ For implementation details, see the [Deployment Guide](./DEPLOYMENT_GUIDE.md).
 - [AKS baseline reference architecture](https://learn.microsoft.com/azure/architecture/reference-architectures/containers/aks/baseline-aks)
 - [Azure Zero Trust guidance](https://learn.microsoft.com/security/zero-trust/)
 - [Microsoft Entra Workload ID on AKS](https://learn.microsoft.com/azure/aks/workload-identity-overview)
+- [Azure AI Foundry documentation](https://learn.microsoft.com/azure/ai-foundry/)
+- [Azure architecture icons](https://learn.microsoft.com/azure/architecture/icons/)
+- [GitHub Octicons](https://primer.style/octicons/)
 - [Argo CD documentation](https://argo-cd.readthedocs.io/)
+- [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
 
 ---
 
@@ -700,17 +373,17 @@ For implementation details, see the [Deployment Guide](./DEPLOYMENT_GUIDE.md).
 <tr>
 <td align="left">
 
-[![Previous](https://img.shields.io/badge/←%20Previous-Wizard%20Guide-555555?style=for-the-badge)](WIZARD_GUIDE.md)
+[![Previous](https://img.shields.io/badge/Previous-Wizard%20Guide-555555?style=for-the-badge)](WIZARD_GUIDE.md)
 
 </td>
 <td align="center">
 
-[![Documentation Home](https://img.shields.io/badge/⌂%20Home-1B1B1F?style=for-the-badge)](../../README.md)
+[![Documentation Home](https://img.shields.io/badge/Home-1B1B1F?style=for-the-badge)](../../README.md)
 
 </td>
 <td align="right">
 
-[![Next](https://img.shields.io/badge/Next%20→-Module%20Reference-0078D4?style=for-the-badge)](MODULE_REFERENCE.md)
+[![Next](https://img.shields.io/badge/Next-Module%20Reference-0078D4?style=for-the-badge)](MODULE_REFERENCE.md)
 
 </td>
 </tr>
