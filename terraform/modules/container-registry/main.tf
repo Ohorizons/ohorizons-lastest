@@ -70,8 +70,8 @@ resource "azurerm_container_registry" "main" {
     days    = var.retention_policy_days
   }
 
-  # Quarantine policy for security scanning
-  quarantine_policy_enabled = var.sku == "Premium"
+  # Quarantine requires a separate approval workflow; otherwise fresh images stay unpullable.
+  quarantine_policy_enabled = var.sku == "Premium" ? var.enable_quarantine_policy : false
 
   # Export policy
   export_policy_enabled = true

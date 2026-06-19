@@ -101,6 +101,10 @@ require_cmd kubectl
 require_cmd python3
 require_cmd openssl
 
+kapply() {
+  kubectl apply --validate=false -f "$1"
+}
+
 state_value() {
   local resource_type="$1" resource_name="$2" attr="$3"
   local state_file
@@ -174,8 +178,32 @@ if [[ "$ENABLE_MCP_ECOSYSTEM" == "auto" ]]; then
   fi
 fi
 
+ensure_acr_pull_secret() {
+  local image_repo="$1" namespace="$2"
+  local registry repo acr_name scope_name token_name pull_password
+  registry="${image_repo%%/*}"
+  repo="${image_repo#*/}"
+  if [[ "$registry" != *.azurecr.io || "$repo" == "$image_repo" ]]; then
+    return 0
+  fi
+
+  acr_name="${registry%%.azurecr.io}"
+  scope_name="${repo//\//-}-pull"
+  token_name="$scope_name"
+  az acr scope-map show -r "$acr_name" -n "$scope_name" >/dev/null 2>&1 || \
+    az acr scope-map create -r "$acr_name" -n "$scope_name" --repository "$repo" content/read metadata/read >/dev/null
+  az acr token show -r "$acr_name" -n "$token_name" >/dev/null 2>&1 || \
+    az acr token create -r "$acr_name" -n "$token_name" --scope-map "$scope_name" >/dev/null
+  pull_password="$(az acr token credential generate -r "$acr_name" -n "$token_name" --password1 --query 'passwords[0].value' -o tsv 2>/tmp/open-horizons-acr-token.err)"
+  kubectl -n "$namespace" create secret docker-registry acr-mcp-pull \
+    --docker-server="$registry" \
+    --docker-username="$token_name" \
+    --docker-password="$pull_password" \
+    --dry-run=client -o yaml | kubectl apply --validate=false -f -
+}
+
 echo "[runtime] Applying namespaces"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/namespace.yaml"
+kapply "$REPO_ROOT/backstage/k8s/namespace.yaml"
 
 echo "[runtime] Applying runtime secrets"
 kubectl -n backstage create secret generic backstage-secrets \
@@ -189,24 +217,26 @@ kubectl -n backstage create secret generic backstage-secrets \
   --from-literal=GITHUB_TOKEN="not-configured" \
   --from-literal=GITHUB_APP_CLIENT_ID="not-configured" \
   --from-literal=GITHUB_APP_CLIENT_SECRET="not-configured" \
-  --dry-run=client -o yaml | kubectl apply -f -
+  --dry-run=client -o yaml | kubectl apply --validate=false -f -
 
 kubectl -n ai-services create secret generic agent-api-secrets \
   --from-literal=AZURE_OPENAI_ENDPOINT="$AZURE_OPENAI_ENDPOINT" \
   --from-literal=AZURE_OPENAI_API_KEY="$AZURE_OPENAI_API_KEY" \
-  --dry-run=client -o yaml | kubectl apply -f -
+  --dry-run=client -o yaml | kubectl apply --validate=false -f -
 
 echo "[runtime] Applying runtime manifests"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-identity.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/configmap.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/service.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/deployment.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-service.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-deployment.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-impact-deployment.yaml"
+kapply "$REPO_ROOT/backstage/k8s/agent-identity.yaml"
+kapply "$REPO_ROOT/backstage/k8s/configmap.yaml"
+kapply "$REPO_ROOT/backstage/k8s/service.yaml"
+kapply "$REPO_ROOT/backstage/k8s/deployment.yaml"
+kapply "$REPO_ROOT/backstage/k8s/agent-api-service.yaml"
+kapply "$REPO_ROOT/backstage/k8s/agent-api-deployment.yaml"
+kapply "$REPO_ROOT/backstage/k8s/agent-api-impact-deployment.yaml"
 if [[ "$ENABLE_MCP_ECOSYSTEM" == true ]]; then
-  kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-deployment.yaml"
-  kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-networkpolicy.yaml"
+  ensure_acr_pull_secret "$MCP_ECOSYSTEM_IMAGE" ai-services
+  kapply "$REPO_ROOT/backstage/k8s/mcp-ecosystem-deployment.yaml"
+  kubectl -n ai-services patch deployment mcp-ecosystem --type merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"acr-mcp-pull"}]}}}}' >/dev/null
+  kapply "$REPO_ROOT/backstage/k8s/mcp-ecosystem-networkpolicy.yaml"
 else
   echo "[runtime] Skipping MCP Ecosystem; image is not available or --disable-mcp was set"
   kubectl -n ai-services delete deployment mcp-ecosystem --ignore-not-found=true
@@ -216,8 +246,8 @@ else
 fi
 
 if [[ "$APPLY_INGRESS" == true ]]; then
-  kubectl apply -f "$REPO_ROOT/backstage/k8s/tls.yaml"
-  kubectl apply -f "$REPO_ROOT/backstage/k8s/ingress.yaml"
+  kapply "$REPO_ROOT/backstage/k8s/tls.yaml"
+  kapply "$REPO_ROOT/backstage/k8s/ingress.yaml"
 fi
 
 echo "[runtime] Waiting for deployments"

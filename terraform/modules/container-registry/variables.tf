@@ -61,6 +61,12 @@ variable "enable_content_trust" {
   default     = true
 }
 
+variable "enable_quarantine_policy" {
+  description = "Enable ACR quarantine policy. Keep disabled unless an explicit image approval workflow is configured; otherwise newly built images cannot be pulled."
+  type        = bool
+  default     = false
+}
+
 variable "enable_defender" {
   description = "Enable Microsoft Defender for container images"
   type        = bool
