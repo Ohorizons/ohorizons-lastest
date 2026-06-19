@@ -184,8 +184,8 @@ func TestAKSClusterModuleNodePools(t *testing.T) {
 					"max_count": 5,
 					"zones":     []string{"1"},
 					"labels": map[string]string{
-						"workload":       "gpu",
-						"accelerator":   "nvidia",
+						"workload":    "gpu",
+						"accelerator": "nvidia",
 					},
 					"taints": []string{"gpu=true:NoSchedule"},
 				},

@@ -23,7 +23,7 @@ module "aks" {
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
 
-  kubernetes_version = "1.28"
+  kubernetes_version = "1.34"
   sku_tier          = "Standard"
 
   default_node_pool = {
@@ -67,7 +67,7 @@ module "aks" {
 | cluster_name | Name of the AKS cluster | `string` | n/a | yes |
 | resource_group_name | Resource group name | `string` | n/a | yes |
 | location | Azure region | `string` | n/a | yes |
-| kubernetes_version | Kubernetes version | `string` | `"1.28"` | no |
+| kubernetes_version | Kubernetes version (pin a supported minor; 1.29/1.30 are EOL) | `string` | `"1.34"` | no |
 | sku_tier | AKS SKU tier (Free, Standard) | `string` | `"Standard"` | no |
 | default_node_pool | Default node pool configuration | `object` | n/a | yes |
 | network_config | Network configuration | `object` | n/a | yes |

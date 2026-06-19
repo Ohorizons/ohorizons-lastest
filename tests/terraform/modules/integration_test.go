@@ -56,7 +56,7 @@ func TestIntegrationH1Foundation(t *testing.T) {
 				"environment":         "dev",
 				"location":            "brazilsouth",
 				"resource_group_name": "rg-int-test-aks",
-				"kubernetes_version":  "1.29",
+				"kubernetes_version":  "1.34",
 				"aks_subnet_id":       "/subscriptions/00000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/snet",
 				"tags": map[string]interface{}{
 					"Environment": "test",
