@@ -128,8 +128,8 @@ Use this when you need a real Azure proof run with artifacts, agent handoffs, sc
 
 ```bash
 # Safe preflight and plan only (no resources created)
-./scripts/azure-validation-run.sh --phase preflight --customer-name ohval --environment prod --location eastus2
-./scripts/azure-validation-run.sh --phase plan --run-id <run-id> --customer-name ohval --environment prod
+./scripts/azure-validation-run.sh --phase preflight --customer-name <client-name> --environment prod --location eastus2
+./scripts/azure-validation-run.sh --phase plan --run-id <run-id> --customer-name <client-name> --environment prod --domain-name <client-domain> --github-org <client-github-org>
 
 # Apply only after reviewing the plan and approving cost/risk
 ./scripts/azure-validation-run.sh --phase apply --run-id <run-id> --confirm-apply

@@ -207,7 +207,7 @@ Run preflight:
 ```bash
 scripts/azure-validation-run.sh \
   --phase preflight \
-  --customer-name ohval \
+  --customer-name <client-name> \
   --environment prod \
   --location eastus2 \
   --dr-location centralus
@@ -219,8 +219,10 @@ Run plan:
 scripts/azure-validation-run.sh \
   --phase plan \
   --run-id <run-id> \
-  --customer-name ohval \
+  --customer-name <client-name> \
   --environment prod \
+  --domain-name <client-domain> \
+  --github-org <client-github-org> \
   --base-tfvars terraform/environments/production.tfvars
 ```
 
@@ -247,10 +249,10 @@ Destroy after human approval:
 scripts/azure-validation-run.sh \
   --phase destroy \
   --run-id <run-id> \
-  --customer-name ohval \
+  --customer-name <client-name> \
   --environment prod \
   --confirm-destroy \
-  --destroy-confirm-text ohval-prod
+  --destroy-confirm-text <client-name>-prod
 ```
 
 ## 8. Evidence and Documentation
@@ -273,14 +275,14 @@ Recommended evidence:
 After `destroy`, verify no resources remain:
 
 ```bash
-az resource list -g rg-ohval-prod -o table
-az group show -n rg-ohval-prod -o table
+az resource list -g rg-<client-name>-prod -o table
+az group show -n rg-<client-name>-prod -o table
 ```
 
 If the resource group remains empty and you explicitly want it removed:
 
 ```bash
-az group delete -n rg-ohval-prod --yes --no-wait
+az group delete -n rg-<client-name>-prod --yes --no-wait
 ```
 
 ## References

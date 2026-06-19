@@ -13,11 +13,11 @@
 #   - resource group deletion requires --delete-rg plus --confirm-destroy
 #
 # Usage examples:
-#   scripts/azure-validation-run.sh --phase preflight --subscription-id <id>
-#   scripts/azure-validation-run.sh --phase plan --customer-name ohval --environment prod
+#   scripts/azure-validation-run.sh --phase preflight --customer-name <client-name> --subscription-id <id>
+#   scripts/azure-validation-run.sh --phase plan --customer-name <client-name> --domain-name <client-domain> --github-org <client-github-org>
 #   scripts/azure-validation-run.sh --phase apply --run-id <run-id> --confirm-apply
 #   scripts/azure-validation-run.sh --phase validate-all --run-id <run-id>
-#   scripts/azure-validation-run.sh --phase destroy --run-id <run-id> --confirm-destroy --destroy-confirm-text ohval-prod
+#   scripts/azure-validation-run.sh --phase destroy --run-id <run-id> --confirm-destroy --destroy-confirm-text <client-name>-prod
 #
 # =============================================================================
 set -euo pipefail
@@ -29,11 +29,11 @@ RUNS_ROOT="$PROJECT_DIR/runs/azure-validation"
 
 PHASE="preflight"
 RUN_ID=""
-CUSTOMER_NAME="ohval"
+CUSTOMER_NAME=""
 ENVIRONMENT="prod"
 LOCATION="eastus2"
 DR_LOCATION="centralus"
-DOMAIN_NAME="internal.local"
+DOMAIN_NAME=""
 SUBSCRIPTION_ID="${TF_VAR_azure_subscription_id:-}"
 TENANT_ID="${TF_VAR_azure_tenant_id:-}"
 ADMIN_GROUP_ID="${TF_VAR_admin_group_id:-}"
@@ -59,20 +59,20 @@ Safety model:
   - destroy requires --confirm-destroy --destroy-confirm-text <customer>-<environment>
 
 Usage:
-  scripts/azure-validation-run.sh --phase preflight --customer-name ohval --environment prod --location eastus2
+  scripts/azure-validation-run.sh --phase preflight --customer-name <client-name> --environment prod --location eastus2
   scripts/azure-validation-run.sh --phase plan --run-id <run-id>
   scripts/azure-validation-run.sh --phase apply --run-id <run-id> --confirm-apply
   scripts/azure-validation-run.sh --phase validate-all --run-id <run-id>
-  scripts/azure-validation-run.sh --phase destroy --run-id <run-id> --confirm-destroy --destroy-confirm-text ohval-prod
+  scripts/azure-validation-run.sh --phase destroy --run-id <run-id> --confirm-destroy --destroy-confirm-text <client-name>-prod
 
 Options:
   --phase <name>              preflight | plan | apply | validate-h1 | validate-h2 | validate-h3 | validate-all | inventory | docs | destroy | all-safe
   --run-id <id>               Existing or desired run id (default: <customer>-<env>-<UTC timestamp>)
-  --customer-name <name>      Terraform customer_name override (default: ohval)
+  --customer-name <name>      Required: real client/project short name (lowercase, 3-20 chars)
   --environment <env>         Terraform environment override (default: prod)
   --location <region>         Primary Azure region (default: eastus2)
   --dr-location <region>      DR region (default: centralus)
-  --domain-name <domain>      Platform domain override (default: internal.local)
+  --domain-name <domain>      Required for plan/apply: real client domain or approved internal domain
   --subscription-id <id>      Azure subscription id
   --tenant-id <id>            Azure tenant id
   --admin-group-id <id>       Entra admin group object id
@@ -114,6 +114,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$RUN_ID" ]]; then
+  if [[ -z "$CUSTOMER_NAME" ]]; then
+    echo "Error: --customer-name is required and must be the real client/project short name." >&2
+    exit 2
+  fi
   RUN_ID="${CUSTOMER_NAME}-${ENVIRONMENT}-$(date -u +%Y%m%dT%H%M%SZ)"
 fi
 
@@ -128,6 +132,50 @@ OVERRIDE_TFVARS="$RUN_DIR/validation.auto.tfvars"
 PLAN_FILE="$RUN_DIR/validation.tfplan"
 PLAN_JSON="$RUN_DIR/tfplan.json"
 RESOURCE_GROUP="rg-${CUSTOMER_NAME}-${ENVIRONMENT}"
+
+require_customer_name() {
+  if [[ -z "$CUSTOMER_NAME" ]]; then
+    write_error "$PHASE" "missing_customer_name" "deploy" "--customer-name is required. Use the real client/project short name." ""
+    write_status "$PHASE" "failed" "missing_customer_name" "deploy" false
+    exit 2
+  fi
+  if ! [[ "$CUSTOMER_NAME" =~ ^[a-z][a-z0-9-]{1,18}[a-z0-9]$ ]]; then
+    write_error "$PHASE" "invalid_customer_name" "deploy" "--customer-name must match Terraform validation: lowercase alphanumeric/hyphen, 3-20 chars." ""
+    write_status "$PHASE" "failed" "invalid_customer_name" "deploy" false
+    exit 2
+  fi
+}
+
+load_azure_context_defaults() {
+  if command -v az >/dev/null 2>&1 && az account show -o json >/tmp/oh-az-account-context.json 2>/dev/null; then
+    if [[ -z "$SUBSCRIPTION_ID" ]]; then
+      SUBSCRIPTION_ID="$(jq -r '.id // empty' /tmp/oh-az-account-context.json 2>/dev/null || true)"
+    fi
+    if [[ -z "$TENANT_ID" ]]; then
+      TENANT_ID="$(jq -r '.tenantId // empty' /tmp/oh-az-account-context.json 2>/dev/null || true)"
+    fi
+  fi
+}
+
+require_plan_inputs() {
+  require_customer_name
+  load_azure_context_defaults
+  local missing=()
+  [[ -n "$DOMAIN_NAME" ]] || missing+=("--domain-name <client-domain>")
+  [[ -n "$SUBSCRIPTION_ID" ]] || missing+=("--subscription-id <subscription-id> or TF_VAR_azure_subscription_id")
+  [[ -n "$TENANT_ID" ]] || missing+=("--tenant-id <tenant-id> or TF_VAR_azure_tenant_id")
+  [[ -n "$ADMIN_GROUP_ID" ]] || missing+=("--admin-group-id <entra-group-object-id> or TF_VAR_admin_group_id")
+  [[ -n "$GITHUB_ORG" ]] || missing+=("--github-org <client-github-org> or TF_VAR_github_org")
+  [[ -n "${TF_VAR_github_token:-}" ]] || missing+=("TF_VAR_github_token (export in terminal; do not send through chat)")
+
+  if [[ "${#missing[@]}" -gt 0 ]]; then
+    local message="Missing required real client inputs: ${missing[*]}"
+    write_error "$PHASE" "missing_client_inputs" "deploy" "$message" ""
+    write_status "$PHASE" "failed" "missing_client_inputs" "deploy" false
+    printf '%s\n' "$message" >&2
+    exit 2
+  fi
+}
 
 json_escape() {
   python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1])'
@@ -226,6 +274,7 @@ run_logged() {
 }
 
 write_validation_tfvars() {
+  require_plan_inputs
   cat > "$OVERRIDE_TFVARS" <<EOF_TFVARS
 # Generated by scripts/azure-validation-run.sh for run $RUN_ID
 # Non-secret validation overrides. Do not commit run artifacts.
@@ -282,6 +331,8 @@ phase_preflight() {
   mkdir -p "$phase_dir"
   clear_errors
   write_status "$PHASE" "running"
+  require_customer_name
+  load_azure_context_defaults
   append_summary "Preflight started"
 
   for tool in az terraform kubectl jq; do require_tool "$tool"; done

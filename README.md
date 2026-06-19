@@ -297,7 +297,7 @@ Wizard portal profiles:
 |:--------|:---------|:---------|
 | `base` | Clean enterprise fork | Backstage core, catalog, scaffolder, TechDocs |
 | `platform` | H2 platform rollout | Base + branding, platform pages, observability pages |
-| `full` | Demo or H3 innovation rollout | Platform + AI Chat, AI Impact, MCP ecosystem |
+| `full` | H3 innovation rollout or full validation | Platform + AI Chat, AI Impact, MCP ecosystem |
 | `custom` | Pick plugins one by one | Base + only the custom plugins and pages you enable |
 
 After the base install, the wizard runs a **post-install enablement** step: it asks whether to turn on the Open Horizons custom plugins and pages and the standard Backstage public plugins, then collects only the integration data each choice needs (GitHub App, organization, Azure DevOps, Microsoft Entra ID, domain, and Azure OpenAI or Foundry for AI features).

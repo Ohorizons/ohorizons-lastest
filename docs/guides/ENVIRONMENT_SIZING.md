@@ -44,7 +44,7 @@ var-file, fill in the required identifiers, and deploy.
 
 | Scenario       | var-file                                                              | `environment` | `deployment_mode` | Intended use                                  |
 |----------------|-----------------------------------------------------------------------|---------------|-------------------|-----------------------------------------------|
-| **POC**        | [poc.tfvars](../../terraform/environments/poc.tfvars)                 | `poc`         | `express`         | Evaluation, demos, throwaway. No prod data.   |
+| **POC**        | [poc.tfvars](../../terraform/environments/poc.tfvars)                 | `poc`         | `express`         | Evaluation and disposable validation. No prod data. |
 | **Dev**        | [dev.tfvars](../../terraform/environments/dev.tfvars)                 | `dev`         | `express`         | Shared developer environment.                 |
 | **Staging**    | [staging.tfvars](../../terraform/environments/staging.tfvars)         | `staging`     | `standard`        | Pre-production validation with HA.            |
 | **Production** | [production.tfvars](../../terraform/environments/production.tfvars)   | `prod`        | `enterprise`      | Production: multi-zone, DR, Defender, Purview.|
