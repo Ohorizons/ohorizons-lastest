@@ -54,6 +54,11 @@ Optional:
   --enable-mcp               Apply MCP Ecosystem even if image preflight cannot verify it
   --disable-mcp              Skip MCP Ecosystem and delete any existing MCP deployment/service
   --help                     Show this help
+
+Notes:
+  MCP is skipped by default when its image is not publicly pullable. For private
+  ACR deployments, publish mcp-ecosystem:v7.2.4 into the target ACR first and
+  pass --mcp-ecosystem-image <acr>.azurecr.io/mcp-ecosystem --enable-mcp.
 USAGE
 }
 

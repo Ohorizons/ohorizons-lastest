@@ -70,6 +70,23 @@ __AUTH_BLOCK__
         type: multiTenant
       clusterLocatorMethods: []
 
+    argocd:
+      baseUrl: https://argocd.__DOMAIN__
+      appLocatorMethods:
+        - type: config
+          instances: []
+
+    grafana:
+      domain: https://grafana.__DOMAIN__
+      unifiedAlerting: true
+
+    lighthouse:
+      baseUrl: https://__DOMAIN__/api/lighthouse
+
+    copilot:
+      host: github.com
+      organization: local
+
     costInsights:
       engineerCost: 200000
       products:
