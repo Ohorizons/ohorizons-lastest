@@ -238,7 +238,7 @@ resource "azurerm_role_assignment" "search_to_openai" {
 
 # Store OpenAI endpoint and key
 resource "azurerm_key_vault_secret" "openai_endpoint" {
-  count = var.openai_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.openai_config.enabled ? 1 : 0
 
   name         = "openai-endpoint"
   value        = azurerm_cognitive_account.openai[0].endpoint
@@ -248,7 +248,7 @@ resource "azurerm_key_vault_secret" "openai_endpoint" {
 }
 
 resource "azurerm_key_vault_secret" "openai_key" {
-  count = var.openai_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.openai_config.enabled ? 1 : 0
 
   name         = "openai-api-key"
   value        = azurerm_cognitive_account.openai[0].primary_access_key
@@ -259,7 +259,7 @@ resource "azurerm_key_vault_secret" "openai_key" {
 
 # Store AI Search endpoint and key
 resource "azurerm_key_vault_secret" "search_endpoint" {
-  count = var.ai_search_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.ai_search_config.enabled ? 1 : 0
 
   name         = "search-endpoint"
   value        = "https://${azurerm_search_service.main[0].name}.search.windows.net"
@@ -269,7 +269,7 @@ resource "azurerm_key_vault_secret" "search_endpoint" {
 }
 
 resource "azurerm_key_vault_secret" "search_admin_key" {
-  count = var.ai_search_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.ai_search_config.enabled ? 1 : 0
 
   name         = "search-admin-key"
   value        = azurerm_search_service.main[0].primary_key
@@ -280,7 +280,7 @@ resource "azurerm_key_vault_secret" "search_admin_key" {
 
 # Store Content Safety endpoint and key
 resource "azurerm_key_vault_secret" "content_safety_endpoint" {
-  count = var.content_safety_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.content_safety_config.enabled ? 1 : 0
 
   name         = "content-safety-endpoint"
   value        = azurerm_cognitive_account.content_safety[0].endpoint
@@ -290,7 +290,7 @@ resource "azurerm_key_vault_secret" "content_safety_endpoint" {
 }
 
 resource "azurerm_key_vault_secret" "content_safety_key" {
-  count = var.content_safety_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.content_safety_config.enabled ? 1 : 0
 
   name         = "content-safety-api-key"
   value        = azurerm_cognitive_account.content_safety[0].primary_access_key

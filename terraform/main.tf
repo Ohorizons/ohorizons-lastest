@@ -90,26 +90,26 @@ provider "github" {
 }
 
 provider "kubernetes" {
-  host                   = module.aks.host
-  client_certificate     = module.aks.client_certificate
-  client_key             = module.aks.client_key
-  cluster_ca_certificate = module.aks.cluster_ca_certificate
+  host                   = module.aks.admin_host
+  client_certificate     = module.aks.admin_client_certificate
+  client_key             = module.aks.admin_client_key
+  cluster_ca_certificate = module.aks.admin_cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.aks.host
-    client_certificate     = module.aks.client_certificate
-    client_key             = module.aks.client_key
-    cluster_ca_certificate = module.aks.cluster_ca_certificate
+    host                   = module.aks.admin_host
+    client_certificate     = module.aks.admin_client_certificate
+    client_key             = module.aks.admin_client_key
+    cluster_ca_certificate = module.aks.admin_cluster_ca_certificate
   }
 }
 
 provider "kubectl" {
-  host                   = module.aks.host
-  client_certificate     = module.aks.client_certificate
-  client_key             = module.aks.client_key
-  cluster_ca_certificate = module.aks.cluster_ca_certificate
+  host                   = module.aks.admin_host
+  client_certificate     = module.aks.admin_client_certificate
+  client_key             = module.aks.admin_client_key
+  cluster_ca_certificate = module.aks.admin_cluster_ca_certificate
   load_config_file       = false
 }
 
@@ -160,7 +160,11 @@ locals {
     }
   }
 
-  config = local.deployment_configs[var.deployment_mode]
+  base_config = local.deployment_configs[var.deployment_mode]
+  config = merge(local.base_config, {
+    aks_node_count = var.aks_node_count_override != null ? var.aks_node_count_override : local.base_config.aks_node_count
+    aks_node_size  = var.aks_node_size_override != "" ? var.aks_node_size_override : local.base_config.aks_node_size
+  })
 
   region_codes = {
     brazilsouth     = "brs"
@@ -209,6 +213,7 @@ module "networking" {
   subnet_config = {
     aks_nodes_cidr         = "10.0.0.0/22"
     aks_pods_cidr          = "10.0.16.0/20"
+    postgres_cidr          = "10.0.7.0/24"
     private_endpoints_cidr = "10.0.4.0/24"
     bastion_cidr           = "10.0.5.0/26"
     app_gateway_cidr       = "10.0.6.0/24"
@@ -236,7 +241,8 @@ module "security" {
   resource_group_name = azurerm_resource_group.main.name
   tenant_id           = var.azure_tenant_id
 
-  aks_oidc_issuer_url = module.aks.oidc_issuer_url
+  aks_oidc_issuer_url         = module.aks.oidc_issuer_url
+  enable_aad_app_registration = var.github_org != "" && (var.enable_argocd || var.enable_ai_chat_plugin || var.enable_agent_api)
 
   key_vault_config = {
     sku_name                      = "standard"
@@ -313,14 +319,14 @@ module "aks" {
     os_disk_type        = "Managed"
     max_pods            = 110
     enable_auto_scaling = true
-    zones               = local.config.enable_ha ? ["1", "2", "3"] : null
+    zones               = local.config.enable_ha && !var.disable_availability_zones ? ["1", "2", "3"] : null
   }
 
   additional_node_pools = var.deployment_mode == "enterprise" ? {
     "workload" = {
       name                = "workload"
       node_count          = 5
-      vm_size             = "Standard_D4s_v5"
+      vm_size             = var.aks_node_size_override != "" ? var.aks_node_size_override : "Standard_D4s_v5"
       min_count           = 3
       max_count           = 20
       enable_auto_scaling = true
@@ -329,9 +335,24 @@ module "aks" {
         "workload-type" = "application"
       }
       node_taints = []
-      zones       = ["1", "2", "3"]
+      zones       = var.disable_availability_zones ? null : ["1", "2", "3"]
     }
-  } : {}
+    } : (var.enable_argocd || var.enable_external_secrets || var.enable_agent_api || var.enable_foundry_agents ? {
+      "workload" = {
+        name                = "workload"
+        node_count          = 1
+        vm_size             = var.aks_node_size_override != "" ? var.aks_node_size_override : "Standard_D2_v3"
+        min_count           = 1
+        max_count           = 2
+        enable_auto_scaling = true
+        max_pods            = 110
+        node_labels = {
+          "workload-type" = "application"
+        }
+        node_taints = []
+        zones       = var.disable_availability_zones ? null : ["1", "2", "3"]
+      }
+  } : {})
 
   enable_workload_identity       = true
   enable_azure_policy            = true
@@ -362,7 +383,9 @@ module "databases" {
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
-  subnet_id = module.networking.subnet_ids.private_endpoints
+  subnet_id                  = module.networking.subnet_ids.private_endpoints
+  postgres_subnet_id         = module.networking.subnet_ids.postgres
+  private_endpoint_subnet_id = module.networking.subnet_ids.private_endpoints
 
   private_dns_zone_ids = {
     postgres = module.networking.private_dns_zone_ids.postgres
@@ -377,14 +400,14 @@ module "databases" {
     admin_username        = "pgadmin"
     backup_retention_days = var.environment == "prod" ? 35 : 7
     geo_redundant_backup  = var.environment == "prod"
-    high_availability     = local.config.enable_ha
+    high_availability     = local.config.enable_ha && !var.disable_availability_zones
     databases             = ["backstage"]
   }
 
   redis_config = {
     enabled             = true
     sku_name            = var.deployment_mode == "express" ? "Balanced_B0" : "Balanced_B1"
-    high_availability   = var.environment == "prod"
+    high_availability   = var.environment == "prod" && !var.disable_availability_zones
     minimum_tls_version = "1.2"
     client_protocol     = "Encrypted"
     clustering_policy   = "OSSCluster"
@@ -392,7 +415,8 @@ module "databases" {
     modules             = []
   }
 
-  key_vault_id = module.security.key_vault_id
+  key_vault_id            = module.security.key_vault_id
+  store_key_vault_secrets = var.store_key_vault_secrets
 
   tags = local.common_tags
 
@@ -432,20 +456,6 @@ module "ai_foundry" {
         rai_policy    = "Microsoft.Default"
       },
       {
-        name          = "gpt-4o"
-        model_name    = "gpt-4o"
-        model_version = "2024-05-13"
-        capacity      = var.deployment_mode == "enterprise" ? 60 : 30
-        rai_policy    = "Microsoft.Default"
-      },
-      {
-        name          = "gpt-4o-mini"
-        model_name    = "gpt-4o-mini"
-        model_version = "2024-07-18"
-        capacity      = 100
-        rai_policy    = "Microsoft.Default"
-      },
-      {
         name          = "text-embedding-3-large"
         model_name    = "text-embedding-3-large"
         model_version = "1"
@@ -456,7 +466,7 @@ module "ai_foundry" {
   }
 
   ai_search_config = {
-    enabled                       = true
+    enabled                       = var.enable_ai_search
     sku_name                      = var.deployment_mode == "enterprise" ? "standard2" : "standard"
     replica_count                 = var.deployment_mode == "enterprise" ? 2 : 1
     partition_count               = 1
@@ -485,6 +495,7 @@ module "ai_foundry" {
   key_vault_id               = module.security.key_vault_id
   log_analytics_workspace_id = var.enable_observability ? module.observability[0].log_analytics_workspace_id : ""
   enable_diagnostic_settings = var.enable_observability
+  store_key_vault_secrets    = var.store_key_vault_secrets
 
   tags = local.common_tags
 
@@ -508,11 +519,13 @@ module "observability" {
 
   grafana_admin_group_id  = var.admin_group_id
   grafana_viewer_group_id = ""
+  enable_managed_grafana  = var.enable_managed_grafana
 
   enable_container_insights = true
   retention_days            = var.environment == "prod" ? 90 : 30
 
-  alert_email_receivers = var.alert_emails
+  alert_email_receivers        = var.alert_emails
+  deploy_kubernetes_dashboards = var.deploy_kubernetes_dashboards
 
   tags = local.common_tags
 
@@ -543,7 +556,7 @@ module "argocd" {
 
   admin_password_hash = var.argocd_admin_password
 
-  ha_enabled     = local.config.enable_ha
+  ha_enabled     = local.config.enable_ha && !var.disable_availability_zones
   ingress_class  = "nginx"
   cluster_issuer = "letsencrypt-prod"
 
@@ -593,9 +606,10 @@ module "external_secrets" {
   key_vault_id        = module.security.key_vault_id
   key_vault_uri       = module.security.key_vault_uri
 
-  namespace          = "external-secrets"
-  eso_chart_version  = "0.9.11"
-  use_key_vault_rbac = true
+  namespace                   = "external-secrets"
+  eso_chart_version           = "0.9.11"
+  use_key_vault_rbac          = true
+  create_cluster_secret_store = var.create_external_secret_store
 
   tags = local.common_tags
 

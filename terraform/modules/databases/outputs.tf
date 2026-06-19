@@ -41,10 +41,10 @@ output "redis_private_ip" {
 output "key_vault_secret_names" {
   description = "Names of secrets stored in Key Vault"
   value = {
-    postgresql_connection_string = var.postgresql_config.enabled ? azurerm_key_vault_secret.postgresql_connection_string[0].name : null
-    postgresql_password          = var.postgresql_config.enabled ? azurerm_key_vault_secret.postgresql_password[0].name : null
-    redis_connection_string      = var.redis_config.enabled ? azurerm_key_vault_secret.redis_connection_string[0].name : null
-    redis_primary_key            = var.redis_config.enabled ? azurerm_key_vault_secret.redis_primary_key[0].name : null
+    postgresql_connection_string = length(azurerm_key_vault_secret.postgresql_connection_string) > 0 ? azurerm_key_vault_secret.postgresql_connection_string[0].name : null
+    postgresql_password          = length(azurerm_key_vault_secret.postgresql_password) > 0 ? azurerm_key_vault_secret.postgresql_password[0].name : null
+    redis_connection_string      = length(azurerm_key_vault_secret.redis_connection_string) > 0 ? azurerm_key_vault_secret.redis_connection_string[0].name : null
+    redis_primary_key            = length(azurerm_key_vault_secret.redis_primary_key) > 0 ? azurerm_key_vault_secret.redis_primary_key[0].name : null
   }
 }
 

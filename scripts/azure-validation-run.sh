@@ -47,6 +47,8 @@ DESTROY_CONFIRM_TEXT=""
 DELETE_RG=false
 AUTO_APPROVE=false
 TRAP_ACTIVE=false
+DISABLE_ZONES=false
+CREATE_EXTERNAL_SECRET_STORE=false
 
 usage() {
   cat <<'USAGE'
@@ -90,6 +92,8 @@ Options:
   --destroy-confirm-text <t> Required with --confirm-destroy; must equal <customer>-<environment>
   --delete-rg                After terraform destroy, delete empty RG if still present
   --auto-approve             Pass -auto-approve to terraform apply/destroy after confirm flag
+  --disable-zones            Set disable_availability_zones=true in generated tfvars
+  --create-external-secret-store Create External Secrets ClusterSecretStore after ESO CRDs are installed
   --help                     Show help
 USAGE
 }
@@ -115,6 +119,8 @@ while [[ $# -gt 0 ]]; do
     --destroy-confirm-text) DESTROY_CONFIRM_TEXT="$2"; shift 2 ;;
     --delete-rg) DELETE_RG=true; shift ;;
     --auto-approve) AUTO_APPROVE=true; shift ;;
+    --disable-zones) DISABLE_ZONES=true; shift ;;
+    --create-external-secret-store) CREATE_EXTERNAL_SECRET_STORE=true; shift ;;
     --help|-h) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 2 ;;
   esac
@@ -289,13 +295,17 @@ run_logged() {
   mkdir -p "$phase_dir"
   local log_file="$phase_dir/${name}.log"
   append_summary "Running ${name}"
+  TRAP_ACTIVE=false
   set +e
   "$@" > "$log_file" 2>&1
   local exit_code=$?
   set -e
+  TRAP_ACTIVE=true
   if [[ "$exit_code" -ne 0 ]]; then
-    write_error "$PHASE" "${name}_failed" "deploy" "Command failed: $*" "$log_file"
-    write_status "$PHASE" "failed" "${name}" "deploy" true
+    local owner="deploy"
+    if [[ "$name" == terraform-* ]]; then owner="terraform"; fi
+    write_error "$PHASE" "${name}_failed" "$owner" "Command failed: $*" "$log_file"
+    write_status "$PHASE" "failed" "${name}" "$owner" true
     echo "Command failed: $*" >&2
     echo "Log: $log_file" >&2
     tail -80 "$log_file" >&2 || true
@@ -315,18 +325,26 @@ environment           = "$ENVIRONMENT"
 location              = "$LOCATION"
 dr_location           = "$DR_LOCATION"
 domain_name           = "$DOMAIN_NAME"
-deployment_mode       = "enterprise"
+disable_availability_zones = $DISABLE_ZONES
 
 enable_container_registry = true
 enable_databases          = true
 enable_observability      = true
 enable_ai_foundry         = true
+enable_ai_search          = false
+store_key_vault_secrets   = false
+deploy_kubernetes_dashboards = false
+enable_managed_grafana    = false
+create_external_secret_store = $CREATE_EXTERNAL_SECRET_STORE
 EOF_TFVARS
 
   case "$VALIDATION_SCOPE" in
     infra)
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = false
+deployment_mode           = "standard"
+aks_node_count_override   = 2
+aks_node_size_override    = "Standard_D2_v3"
 enable_github_runners     = false
 enable_defender           = false
 enable_purview            = false
@@ -345,6 +363,9 @@ EOF_TFVARS
     nogithub)
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = true
+deployment_mode           = "standard"
+aks_node_count_override   = 2
+aks_node_size_override    = "Standard_D2_v3"
 enable_github_runners     = false
 enable_defender           = false
 enable_purview            = false
@@ -363,6 +384,7 @@ EOF_TFVARS
     platform)
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = true
+deployment_mode           = "enterprise"
 enable_github_runners     = false
 enable_defender           = true
 enable_purview            = false
@@ -381,6 +403,7 @@ EOF_TFVARS
     full)
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = true
+deployment_mode           = "enterprise"
 enable_github_runners     = true
 enable_defender           = true
 enable_purview            = true
@@ -619,11 +642,16 @@ get_output_raw() {
 
 configure_kubectl() {
   local phase_dir="$1"
+  local use_admin="${2:-false}"
   local rg aks
   rg="$(get_output_raw resource_group_name)"
   aks="$(get_output_raw aks_cluster_name)"
   if [[ -n "$rg" && -n "$aks" ]]; then
-    az aks get-credentials --resource-group "$rg" --name "$aks" --overwrite-existing > "$phase_dir/az-aks-get-credentials.log" 2>&1 || return 1
+    if [[ "$use_admin" == true ]]; then
+      az aks get-credentials --resource-group "$rg" --name "$aks" --admin --overwrite-existing > "$phase_dir/az-aks-get-credentials-admin.log" 2>&1 || return 1
+    else
+      az aks get-credentials --resource-group "$rg" --name "$aks" --overwrite-existing > "$phase_dir/az-aks-get-credentials.log" 2>&1 || return 1
+    fi
   else
     return 1
   fi
@@ -641,6 +669,11 @@ phase_validate_h1() {
     exit 1
   fi
   kubectl get nodes -o wide > "$phase_dir/kubectl-nodes.txt" 2> "$phase_dir/kubectl-nodes.err" || true
+  if grep -q 'Forbidden' "$phase_dir/kubectl-nodes.err" 2>/dev/null; then
+    append_summary "kubectl RBAC forbidden; retrying H1 validation with AKS admin credentials"
+    configure_kubectl "$phase_dir" true || true
+    kubectl get nodes -o wide > "$phase_dir/kubectl-nodes.txt" 2> "$phase_dir/kubectl-nodes.err" || true
+  fi
   kubectl get pods -A -o wide > "$phase_dir/kubectl-pods-all.txt" 2> "$phase_dir/kubectl-pods-all.err" || true
   kubectl get events -A --sort-by=.lastTimestamp > "$phase_dir/kubectl-events.txt" 2> "$phase_dir/kubectl-events.err" || true
   if ! grep -q ' Ready ' "$phase_dir/kubectl-nodes.txt" 2>/dev/null; then

@@ -23,8 +23,20 @@ variable "resource_group_name" {
 }
 
 variable "subnet_id" {
-  description = "Subnet ID for private endpoints"
+  description = "Legacy subnet ID used when dedicated PostgreSQL/private endpoint subnet inputs are not provided"
   type        = string
+}
+
+variable "postgres_subnet_id" {
+  description = "Delegated subnet ID for PostgreSQL Flexible Server"
+  type        = string
+  default     = null
+}
+
+variable "private_endpoint_subnet_id" {
+  description = "Subnet ID for private endpoints such as Azure Managed Redis"
+  type        = string
+  default     = null
 }
 
 variable "private_dns_zone_ids" {
@@ -109,6 +121,12 @@ variable "redis_config" {
 variable "key_vault_id" {
   description = "Key Vault ID for storing secrets"
   type        = string
+}
+
+variable "store_key_vault_secrets" {
+  description = "Store generated database/cache connection secrets in Key Vault. Disable for local validation runs when Key Vault public network access is disabled."
+  type        = bool
+  default     = true
 }
 
 variable "tags" {

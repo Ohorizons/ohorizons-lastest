@@ -32,6 +32,9 @@ locals {
 
   # Azure Managed Redis exposes the cluster endpoint on a fixed port.
   redis_port = 10000
+
+  postgres_subnet_id         = coalesce(var.postgres_subnet_id, var.subnet_id)
+  private_endpoint_subnet_id = coalesce(var.private_endpoint_subnet_id, var.subnet_id)
 }
 
 # =============================================================================
@@ -67,8 +70,9 @@ resource "azurerm_postgresql_flexible_server" "main" {
   administrator_login    = var.postgresql_config.admin_username
   administrator_password = random_password.postgresql[0].result
 
-  backup_retention_days        = var.postgresql_config.backup_retention_days
-  geo_redundant_backup_enabled = local.is_prod && var.postgresql_config.geo_redundant_backup
+  backup_retention_days         = var.postgresql_config.backup_retention_days
+  geo_redundant_backup_enabled  = local.is_prod && var.postgresql_config.geo_redundant_backup
+  public_network_access_enabled = false
 
   # High availability (prod only)
   dynamic "high_availability" {
@@ -80,7 +84,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   }
 
   # Private access via delegated subnet
-  delegated_subnet_id = var.subnet_id
+  delegated_subnet_id = local.postgres_subnet_id
   private_dns_zone_id = var.private_dns_zone_ids.postgres
 
   # Maintenance window
@@ -205,7 +209,7 @@ resource "azapi_resource" "redis_database" {
 
 # Retrieve the database access keys (listKeys action).
 resource "azapi_resource_action" "redis_keys" {
-  count = var.redis_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.redis_config.enabled ? 1 : 0
 
   type        = "Microsoft.Cache/redisEnterprise/databases@2025-07-01"
   resource_id = azapi_resource.redis_database[0].id
@@ -222,7 +226,7 @@ resource "azurerm_private_endpoint" "redis" {
   name                = "pe-redis-${local.name_prefix}"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.subnet_id
+  subnet_id           = local.private_endpoint_subnet_id
 
   private_service_connection {
     name                           = "redis-connection"
@@ -247,7 +251,7 @@ data "azurerm_client_config" "current" {}
 
 # Store PostgreSQL connection string
 resource "azurerm_key_vault_secret" "postgresql_connection_string" {
-  count = var.postgresql_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.postgresql_config.enabled ? 1 : 0
 
   name         = "postgresql-connection-string"
   value        = "postgresql://${var.postgresql_config.admin_username}:${random_password.postgresql[0].result}@${azurerm_postgresql_flexible_server.main[0].fqdn}:5432/postgres?sslmode=require"
@@ -258,7 +262,7 @@ resource "azurerm_key_vault_secret" "postgresql_connection_string" {
 
 # Store PostgreSQL admin password
 resource "azurerm_key_vault_secret" "postgresql_password" {
-  count = var.postgresql_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.postgresql_config.enabled ? 1 : 0
 
   name         = "postgresql-admin-password"
   value        = random_password.postgresql[0].result
@@ -269,7 +273,7 @@ resource "azurerm_key_vault_secret" "postgresql_password" {
 
 # Store Redis connection string
 resource "azurerm_key_vault_secret" "redis_connection_string" {
-  count = var.redis_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.redis_config.enabled ? 1 : 0
 
   name         = "redis-connection-string"
   value        = "${azapi_resource.redis_enterprise[0].output.properties.hostName}:${local.redis_port},password=${azapi_resource_action.redis_keys[0].output.primaryKey},ssl=True,abortConnect=False"
@@ -280,7 +284,7 @@ resource "azurerm_key_vault_secret" "redis_connection_string" {
 
 # Store Redis primary key
 resource "azurerm_key_vault_secret" "redis_primary_key" {
-  count = var.redis_config.enabled ? 1 : 0
+  count = var.store_key_vault_secrets && var.redis_config.enabled ? 1 : 0
 
   name         = "redis-primary-key"
   value        = azapi_resource_action.redis_keys[0].output.primaryKey

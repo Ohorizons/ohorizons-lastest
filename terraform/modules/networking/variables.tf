@@ -33,6 +33,7 @@ variable "subnet_config" {
   type = object({
     aks_nodes_cidr         = string
     aks_pods_cidr          = string
+    postgres_cidr          = string
     private_endpoints_cidr = string
     bastion_cidr           = string
     app_gateway_cidr       = string
@@ -40,6 +41,7 @@ variable "subnet_config" {
   default = {
     aks_nodes_cidr         = "10.0.0.0/22"
     aks_pods_cidr          = "10.0.16.0/20"
+    postgres_cidr          = "10.0.7.0/24"
     private_endpoints_cidr = "10.0.4.0/24"
     bastion_cidr           = "10.0.5.0/26"
     app_gateway_cidr       = "10.0.6.0/24"

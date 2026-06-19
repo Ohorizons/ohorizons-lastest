@@ -69,15 +69,8 @@ resource "azurerm_subnet" "aks_nodes" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [var.subnet_config.aks_nodes_cidr]
+  service_endpoints    = ["Microsoft.KeyVault"]
 
-  # Required for Azure CNI Overlay
-  delegation {
-    name = "aks-delegation"
-    service_delegation {
-      name    = "Microsoft.ContainerService/managedClusters"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
 }
 
 # AKS Pods Subnet (for Azure CNI with dynamic IP allocation)
@@ -86,11 +79,21 @@ resource "azurerm_subnet" "aks_pods" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [var.subnet_config.aks_pods_cidr]
+  service_endpoints    = ["Microsoft.KeyVault"]
+
+}
+
+# PostgreSQL Flexible Server delegated subnet
+resource "azurerm_subnet" "postgres" {
+  name                 = "snet-postgres"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = [var.subnet_config.postgres_cidr]
 
   delegation {
-    name = "aks-pods-delegation"
+    name = "postgres-delegation"
     service_delegation {
-      name    = "Microsoft.ContainerService/managedClusters"
+      name    = "Microsoft.DBforPostgreSQL/flexibleServers"
       actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
     }
   }
@@ -102,6 +105,7 @@ resource "azurerm_subnet" "private_endpoints" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [var.subnet_config.private_endpoints_cidr]
+  service_endpoints    = ["Microsoft.ContainerRegistry", "Microsoft.KeyVault"]
 
   private_endpoint_network_policies_enabled = true
 }

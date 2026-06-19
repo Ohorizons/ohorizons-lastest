@@ -65,6 +65,13 @@ variable "key_vault_config" {
 variable "admin_group_id" {
   description = "Azure AD group ID for Key Vault administrators"
   type        = string
+  default     = ""
+}
+
+variable "enable_aad_app_registration" {
+  description = "Create Entra ID application and Key Vault secrets for portal SSO. Disable for Azure-only infrastructure validation."
+  type        = bool
+  default     = true
 }
 
 variable "subnet_id" {

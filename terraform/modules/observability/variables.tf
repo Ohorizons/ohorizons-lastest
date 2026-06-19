@@ -30,6 +30,13 @@ variable "aks_cluster_id" {
 variable "grafana_admin_group_id" {
   description = "Azure AD group ID for Grafana admins"
   type        = string
+  default     = ""
+}
+
+variable "enable_managed_grafana" {
+  description = "Deploy Azure Managed Grafana. Disable for staged validation until Microsoft.Dashboard provider registration is complete."
+  type        = bool
+  default     = true
 }
 
 variable "grafana_viewer_group_id" {
@@ -66,4 +73,10 @@ variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
   default     = {}
+}
+
+variable "deploy_kubernetes_dashboards" {
+  description = "Deploy Grafana dashboard ConfigMaps to Kubernetes. Disable until AKS context is available in staged validation runs."
+  type        = bool
+  default     = true
 }

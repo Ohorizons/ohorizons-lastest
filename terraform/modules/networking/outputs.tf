@@ -13,6 +13,7 @@ output "subnet_ids" {
   value = {
     aks_nodes         = azurerm_subnet.aks_nodes.id
     aks_pods          = azurerm_subnet.aks_pods.id
+    postgres          = azurerm_subnet.postgres.id
     private_endpoints = azurerm_subnet.private_endpoints.id
   }
 }

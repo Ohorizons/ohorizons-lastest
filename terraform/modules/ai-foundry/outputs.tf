@@ -60,12 +60,12 @@ output "private_endpoint_ips" {
 output "key_vault_secrets" {
   description = "Key Vault secret names"
   value = {
-    openai_endpoint         = var.openai_config.enabled ? azurerm_key_vault_secret.openai_endpoint[0].name : null
-    openai_key              = var.openai_config.enabled ? azurerm_key_vault_secret.openai_key[0].name : null
-    search_endpoint         = var.ai_search_config.enabled ? azurerm_key_vault_secret.search_endpoint[0].name : null
-    search_admin_key        = var.ai_search_config.enabled ? azurerm_key_vault_secret.search_admin_key[0].name : null
-    content_safety_endpoint = var.content_safety_config.enabled ? azurerm_key_vault_secret.content_safety_endpoint[0].name : null
-    content_safety_key      = var.content_safety_config.enabled ? azurerm_key_vault_secret.content_safety_key[0].name : null
+    openai_endpoint         = length(azurerm_key_vault_secret.openai_endpoint) > 0 ? azurerm_key_vault_secret.openai_endpoint[0].name : null
+    openai_key              = length(azurerm_key_vault_secret.openai_key) > 0 ? azurerm_key_vault_secret.openai_key[0].name : null
+    search_endpoint         = length(azurerm_key_vault_secret.search_endpoint) > 0 ? azurerm_key_vault_secret.search_endpoint[0].name : null
+    search_admin_key        = length(azurerm_key_vault_secret.search_admin_key) > 0 ? azurerm_key_vault_secret.search_admin_key[0].name : null
+    content_safety_endpoint = length(azurerm_key_vault_secret.content_safety_endpoint) > 0 ? azurerm_key_vault_secret.content_safety_endpoint[0].name : null
+    content_safety_key      = length(azurerm_key_vault_secret.content_safety_key) > 0 ? azurerm_key_vault_secret.content_safety_key[0].name : null
   }
 }
 

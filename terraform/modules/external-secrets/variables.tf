@@ -85,6 +85,12 @@ variable "create_example_secret" {
   default     = false
 }
 
+variable "create_cluster_secret_store" {
+  type        = bool
+  description = "Create the ClusterSecretStore after External Secrets CRDs are installed. Disable for first-stage Helm/CRD installation."
+  default     = true
+}
+
 variable "enable_push_secrets" {
   type        = bool
   description = "Enable PushSecret functionality to sync secrets to Key Vault"

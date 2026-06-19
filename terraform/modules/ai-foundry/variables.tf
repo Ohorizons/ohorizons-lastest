@@ -147,6 +147,12 @@ variable "key_vault_id" {
   type        = string
 }
 
+variable "store_key_vault_secrets" {
+  description = "Store AI endpoint/key secrets in Key Vault. Disable for local validation runs when Key Vault public network access is disabled."
+  type        = bool
+  default     = true
+}
+
 variable "log_analytics_workspace_id" {
   description = "Log Analytics workspace ID for diagnostics"
   type        = string

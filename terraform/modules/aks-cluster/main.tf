@@ -68,9 +68,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     os_disk_type        = var.default_node_pool.os_disk_type
     max_pods            = var.default_node_pool.max_pods
 
-    # Pod subnet for Azure CNI Overlay
-    pod_subnet_id = var.network_config.pods_subnet_id
-
     # System pool settings
     only_critical_addons_enabled = true
 
@@ -219,7 +216,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   vm_size               = each.value.vm_size
   zones                 = each.value.zones
   vnet_subnet_id        = var.network_config.nodes_subnet_id
-  pod_subnet_id         = var.network_config.pods_subnet_id
   max_pods              = each.value.max_pods
 
   # Auto-scaling

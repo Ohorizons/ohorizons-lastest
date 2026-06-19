@@ -86,6 +86,8 @@ resource "azurerm_private_endpoint" "key_vault" {
 
 # Key Vault Administrator role for admin group
 resource "azurerm_role_assignment" "kv_admin" {
+  count = var.admin_group_id != "" ? 1 : 0
+
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Administrator"
   principal_id         = var.admin_group_id
@@ -190,6 +192,8 @@ resource "azurerm_federated_identity_credential" "external_secrets" {
 # =============================================================================
 
 resource "azuread_application" "github_sso" {
+  count = var.enable_aad_app_registration ? 1 : 0
+
   display_name = "GitHub-SSO-${local.name_prefix}"
 
   web {
@@ -230,7 +234,9 @@ resource "azuread_application" "github_sso" {
 }
 
 resource "azuread_service_principal" "github_sso" {
-  client_id = azuread_application.github_sso.client_id
+  count = var.enable_aad_app_registration ? 1 : 0
+
+  client_id = azuread_application.github_sso[0].client_id
 
   app_role_assignment_required = false
 
@@ -238,7 +244,9 @@ resource "azuread_service_principal" "github_sso" {
 }
 
 resource "azuread_application_password" "github_sso" {
-  application_id = azuread_application.github_sso.id
+  count = var.enable_aad_app_registration ? 1 : 0
+
+  application_id = azuread_application.github_sso[0].id
   display_name   = "GitHub SSO Secret"
   end_date       = timeadd(timestamp(), "8760h") # 1 year
 
@@ -249,8 +257,10 @@ resource "azuread_application_password" "github_sso" {
 
 # Store Azure AD app credentials in Key Vault
 resource "azurerm_key_vault_secret" "aad_client_id" {
+  count = var.enable_aad_app_registration ? 1 : 0
+
   name         = "aad-client-id"
-  value        = azuread_application.github_sso.client_id
+  value        = azuread_application.github_sso[0].client_id
   key_vault_id = azurerm_key_vault.main.id
 
   tags = local.common_tags
@@ -259,8 +269,10 @@ resource "azurerm_key_vault_secret" "aad_client_id" {
 }
 
 resource "azurerm_key_vault_secret" "aad_client_secret" {
+  count = var.enable_aad_app_registration ? 1 : 0
+
   name         = "aad-client-secret"
-  value        = azuread_application_password.github_sso.value
+  value        = azuread_application_password.github_sso[0].value
   key_vault_id = azurerm_key_vault.main.id
 
   tags = local.common_tags

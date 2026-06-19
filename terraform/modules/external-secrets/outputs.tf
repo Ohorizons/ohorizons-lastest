@@ -23,7 +23,7 @@ output "managed_identity_principal_id" {
 }
 
 output "cluster_secret_store_name" {
-  value       = kubernetes_manifest.cluster_secret_store.manifest.metadata.name
+  value       = length(kubernetes_manifest.cluster_secret_store) > 0 ? kubernetes_manifest.cluster_secret_store[0].manifest.metadata.name : null
   description = "Name of the ClusterSecretStore resource"
 }
 

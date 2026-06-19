@@ -10,17 +10,17 @@ output "prometheus_query_endpoint" {
 
 output "grafana_id" {
   description = "Azure Managed Grafana ID"
-  value       = azurerm_dashboard_grafana.main.id
+  value       = length(azurerm_dashboard_grafana.main) > 0 ? azurerm_dashboard_grafana.main[0].id : null
 }
 
 output "grafana_endpoint" {
   description = "Grafana endpoint URL"
-  value       = azurerm_dashboard_grafana.main.endpoint
+  value       = length(azurerm_dashboard_grafana.main) > 0 ? azurerm_dashboard_grafana.main[0].endpoint : null
 }
 
 output "grafana_identity_principal_id" {
   description = "Grafana managed identity principal ID"
-  value       = azurerm_dashboard_grafana.main.identity[0].principal_id
+  value       = length(azurerm_dashboard_grafana.main) > 0 ? azurerm_dashboard_grafana.main[0].identity[0].principal_id : null
 }
 
 output "log_analytics_workspace_id" {

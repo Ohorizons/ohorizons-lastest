@@ -138,11 +138,17 @@ resource "helm_release" "external_secrets" {
         name   = "${local.eso_release_name}-controller"
         annotations = {
           "azure.workload.identity/client-id" = azurerm_user_assigned_identity.eso.client_id
+          "azure.workload.identity/tenant-id" = data.azurerm_client_config.current.tenant_id
         }
       }
 
       podLabels = {
         "azure.workload.identity/use" = "true"
+      }
+
+      podAnnotations = {
+        "open-horizons.io/workload-identity-client-id" = azurerm_user_assigned_identity.eso.client_id
+        "open-horizons.io/workload-identity-tenant-id" = data.azurerm_client_config.current.tenant_id
       }
 
       webhook = {
@@ -193,6 +199,8 @@ resource "helm_release" "external_secrets" {
 # -----------------------------------------------------------------------------
 
 resource "kubernetes_manifest" "cluster_secret_store" {
+  count = var.create_cluster_secret_store ? 1 : 0
+
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
     kind       = "ClusterSecretStore"

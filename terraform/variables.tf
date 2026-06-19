@@ -80,6 +80,48 @@ variable "deployment_mode" {
   }
 }
 
+variable "disable_availability_zones" {
+  description = "Disable explicit availability zones for resources such as AKS node pools. Use when the selected subscription/region/SKU does not expose zone support."
+  type        = bool
+  default     = false
+}
+
+variable "aks_node_count_override" {
+  description = "Optional AKS system node count override for validation runs with constrained quota. Null uses the deployment mode default."
+  type        = number
+  default     = null
+}
+
+variable "aks_node_size_override" {
+  description = "Optional AKS system node VM size override for validation runs with constrained quota. Empty string uses the deployment mode default."
+  type        = string
+  default     = ""
+}
+
+variable "store_key_vault_secrets" {
+  description = "Store generated secrets in Key Vault. Disable for local staged validation when Key Vault public network access is disabled."
+  type        = bool
+  default     = true
+}
+
+variable "deploy_kubernetes_dashboards" {
+  description = "Deploy Kubernetes dashboard ConfigMaps from the observability module. Disable until AKS context is available in staged validation runs."
+  type        = bool
+  default     = true
+}
+
+variable "create_external_secret_store" {
+  description = "Create External Secrets ClusterSecretStore. Disable for first-stage External Secrets Helm/CRD installation."
+  type        = bool
+  default     = true
+}
+
+variable "enable_managed_grafana" {
+  description = "Deploy Azure Managed Grafana. Disable for staged validation until Microsoft.Dashboard provider registration is complete."
+  type        = bool
+  default     = true
+}
+
 variable "location" {
   description = "Azure region for deployment"
   type        = string
@@ -138,6 +180,12 @@ variable "enable_external_secrets" {
 
 variable "enable_observability" {
   description = "Deploy observability stack (Prometheus, Grafana, Azure Monitor)"
+  type        = bool
+  default     = true
+}
+
+variable "enable_ai_search" {
+  description = "Deploy Azure AI Search. Disable for validation when the chosen region has temporary AI Search capacity exhaustion."
   type        = bool
   default     = true
 }

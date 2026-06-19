@@ -44,7 +44,7 @@ output "external_secrets_client_id" {
 
 output "aad_application_id" {
   description = "Azure AD application ID for SSO"
-  value       = azuread_application.github_sso.client_id
+  value       = length(azuread_application.github_sso) > 0 ? azuread_application.github_sso[0].client_id : null
 }
 
 output "aad_tenant_id" {

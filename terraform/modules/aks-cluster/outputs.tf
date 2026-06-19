@@ -43,6 +43,30 @@ output "kube_config" {
   sensitive   = true
 }
 
+output "admin_host" {
+  description = "Kubernetes API server host from admin kubeconfig"
+  value       = azurerm_kubernetes_cluster.main.kube_admin_config[0].host
+  sensitive   = true
+}
+
+output "admin_cluster_ca_certificate" {
+  description = "Kubernetes cluster CA certificate from admin kubeconfig"
+  value       = base64decode(azurerm_kubernetes_cluster.main.kube_admin_config[0].cluster_ca_certificate)
+  sensitive   = true
+}
+
+output "admin_client_certificate" {
+  description = "Kubernetes client certificate from admin kubeconfig"
+  value       = base64decode(azurerm_kubernetes_cluster.main.kube_admin_config[0].client_certificate)
+  sensitive   = true
+}
+
+output "admin_client_key" {
+  description = "Kubernetes client key from admin kubeconfig"
+  value       = base64decode(azurerm_kubernetes_cluster.main.kube_admin_config[0].client_key)
+  sensitive   = true
+}
+
 output "kubelet_identity" {
   description = "Kubelet managed identity object ID"
   value       = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id

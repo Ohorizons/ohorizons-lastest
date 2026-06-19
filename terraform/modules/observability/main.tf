@@ -45,6 +45,8 @@ resource "azurerm_monitor_workspace" "prometheus" {
 # =============================================================================
 
 resource "azurerm_dashboard_grafana" "main" {
+  count = var.enable_managed_grafana ? 1 : 0
+
   name                  = "grafana-${local.name_prefix}"
   location              = var.location
   resource_group_name   = var.resource_group_name
@@ -68,25 +70,29 @@ resource "azurerm_dashboard_grafana" "main" {
 
 # Grafana Admin role assignment
 resource "azurerm_role_assignment" "grafana_admin" {
-  scope                = azurerm_dashboard_grafana.main.id
+  count = var.enable_managed_grafana && var.grafana_admin_group_id != "" ? 1 : 0
+
+  scope                = azurerm_dashboard_grafana.main[0].id
   role_definition_name = "Grafana Admin"
   principal_id         = var.grafana_admin_group_id
 }
 
 # Grafana Viewer role assignment (if provided)
 resource "azurerm_role_assignment" "grafana_viewer" {
-  count = var.grafana_viewer_group_id != "" ? 1 : 0
+  count = var.enable_managed_grafana && var.grafana_viewer_group_id != "" ? 1 : 0
 
-  scope                = azurerm_dashboard_grafana.main.id
+  scope                = azurerm_dashboard_grafana.main[0].id
   role_definition_name = "Grafana Viewer"
   principal_id         = var.grafana_viewer_group_id
 }
 
 # Grant Grafana access to read from Azure Monitor workspace
 resource "azurerm_role_assignment" "grafana_monitoring_reader" {
+  count = var.enable_managed_grafana ? 1 : 0
+
   scope                = azurerm_monitor_workspace.prometheus.id
   role_definition_name = "Monitoring Reader"
-  principal_id         = azurerm_dashboard_grafana.main.identity[0].principal_id
+  principal_id         = azurerm_dashboard_grafana.main[0].identity[0].principal_id
 }
 
 # =============================================================================
@@ -420,6 +426,8 @@ resource "azurerm_log_analytics_solution" "container_insights" {
 # =============================================================================
 
 resource "kubernetes_namespace" "grafana_dashboards" {
+  count = var.deploy_kubernetes_dashboards ? 1 : 0
+
   metadata {
     name = "grafana-dashboards"
 
@@ -430,9 +438,11 @@ resource "kubernetes_namespace" "grafana_dashboards" {
 }
 
 resource "kubernetes_config_map" "grafana_dashboards" {
+  count = var.deploy_kubernetes_dashboards ? 1 : 0
+
   metadata {
     name      = "open-horizons-dashboards"
-    namespace = kubernetes_namespace.grafana_dashboards.metadata[0].name
+    namespace = kubernetes_namespace.grafana_dashboards[0].metadata[0].name
 
     labels = {
       "grafana_dashboard" = "1"
