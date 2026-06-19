@@ -609,6 +609,11 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
     }
   }, [onSignInSuccess, signInAuthApi, signInProviderLabel]);
 
+  let signInIcon = hasMicrosoftProvider ? <MicrosoftIcon size={20} /> : <GitHubIcon size={20} />;
+  if (loading) {
+    signInIcon = <CircularProgress size={20} color="inherit" />;
+  }
+
   return (
     <Box className={classes.root}>
       {/* ── Navbar ── */}
@@ -641,7 +646,7 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
 
           <div className={classes.heroBtns}>
             <Button className={classes.signInButton} onClick={handleSignIn} disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : hasMicrosoftProvider ? <MicrosoftIcon size={20} /> : <GitHubIcon size={20} />}>
+              startIcon={signInIcon}>
               {loading ? 'Authenticating...' : `Sign in with ${signInProviderLabel}`}
             </Button>
             <a href="#platform" className={classes.heroSecondaryBtn}>
