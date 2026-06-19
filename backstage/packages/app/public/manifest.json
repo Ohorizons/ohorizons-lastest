@@ -1,7 +1,12 @@
 {
-  "short_name": "Open Horizons",
-  "name": "Open Horizons Developer Portal",
+  "short_name": "Dev Portal",
+  "name": "Enterprise Developer Portal",
   "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
     {
       "src": "favicon.ico",
       "sizes": "48x48",

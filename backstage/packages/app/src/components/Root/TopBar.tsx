@@ -55,6 +55,11 @@ const useStyles = makeStyles({
     letterSpacing: '-0.02em',
     whiteSpace: 'nowrap' as const,
   },
+  logoImage: {
+    height: 22,
+    width: 'auto',
+    display: 'block',
+  },
   navLinks: {
     display: 'flex',
     alignItems: 'center',
@@ -215,7 +220,7 @@ const TopBar = () => {
       <div className={classes.topBar}>
         <div className={classes.topBarInner}>
           <Link to="/home" className={classes.logoArea}>
-            <img src="/logo-msft-github.png" alt="Microsoft + GitHub" style={{ height: 22 }} />
+            <img src="/logo-msft-github.png" alt="Microsoft + GitHub" className={classes.logoImage} />
             <span className={classes.logoText}>Open Horizons</span>
           </Link>
 

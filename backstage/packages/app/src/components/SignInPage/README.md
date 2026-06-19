@@ -1,25 +1,16 @@
 # Custom Sign-In Page
 
-Full-screen landing and authentication page for the Open Horizons platform. Features a cinematic scrolling experience with platform overview, architecture layers, and provider-aware sign-in options (GitHub OAuth, Microsoft Entra ID, Guest).
+White-label enterprise sign-in page for the customer developer portal. The page keeps the Microsoft/GitHub/Backstage visual system and Agentic Platform Engineering message while removing demo-only marketing content.
 
 ## Features
 
-- **Video Background** — Auto-playing demo video (`/Open-Horizons-Demo.mp4`) in the hero section
-- **Platform Stats** — 34 Golden Paths, 9 AI Agents, 61 MCP Tools, 16 Terraform Modules
-- **Evolution Timeline** — DevOps → DevSecOps → Agentic DevOps progression
-- **Three Horizons** — H1 Foundation, H2 Enhancement, H3 Innovation with tag badges
-- **6 Differentiators** — Open Source Portal, Complete Automation, Azure Native, AI-Powered, Open Horizons Journey, Security by Default
-- **Architecture Layers** — 8-layer stack visualization (Application Platform → Security & Compliance)
-- **AI Maturity Model** — 3 pillars × 5 levels (L0 Traditional → L4 Agentic) with capability breakdowns
-- **Team Personas** — Developer Teams, Platform Engineers, Business Leaders value propositions
-- **FAQ Section** — 8 expandable Q&A items about the platform
-- **Tech Logo Strip** — Azure, GitHub, Backstage, Terraform, ArgoCD, Prometheus, Grafana, Kubernetes
-- **Sign-In Options**:
-  - GitHub OAuth
-  - Microsoft Entra ID (enterprise and GitHub EMU mode)
-  - Guest access (demo mode)
-- **Scroll Reveal Animations** — Sections animate in via IntersectionObserver
-- **Microsoft 4-Color Bar** — Top border with Red, Green, Blue, Yellow gradient
+- **Client-first identity** — Displays `organization.name` and `app.title` from Backstage config.
+- **Provider-aware sign-in** — Uses Microsoft Entra ID when the Microsoft auth provider is configured, otherwise falls back to GitHub.
+- **Enterprise platform message** — Uses "Agentic Platform Engineering" and secure developer portal language.
+- **Microsoft design system colors** — Keeps red, green, blue, yellow, and primary Azure blue accents.
+- **Technology signature** — Keeps Microsoft/GitHub logo and Azure, GitHub, Backstage OSS badges.
+- **Minimal layout** — Focused sign-in card and concise platform value signals, without demo video, fixed metrics, FAQs, or repository CTAs.
+- **No inline styles** — Styling is contained in `makeStyles` for lint cleanliness.
 
 ## Screenshot Path
 
@@ -65,11 +56,24 @@ auth:
 
 GitHub Enterprise Managed Users deployments still require GitHub App or token integration for catalog, scaffolder, Actions, PRs, Codespaces, packages, and AI Impact features.
 
+Branding values:
+
+```yaml
+app:
+  title: ${PORTAL_NAME:-Developer Portal}
+  branding:
+    logo: ${PORTAL_LOGO_URL:-/logo-msft-github.png}
+organization:
+  name: ${ORG_DISPLAY_NAME:-Customer Name}
+```
+
+Favicon and PWA metadata are served from `packages/app/public/` and should be replaced by the customer during branding.
+
 ## Dependencies
 
-- `@backstage/core-plugin-api` — SignInPageProps, githubAuthApiRef, useApi
-- `@backstage/core-components` — UserIdentity
-- `@material-ui/core` — Box, Button, CircularProgress, Typography
+- `@backstage/core-plugin-api` — `SignInPageProps`, `configApiRef`, `githubAuthApiRef`, `microsoftAuthApiRef`, `useApi`
+- `@backstage/core-components` — `UserIdentity`
+- `@material-ui/core` — `Box`, `Button`, `CircularProgress`, `Typography`, `makeStyles`
 
 ## Usage
 
