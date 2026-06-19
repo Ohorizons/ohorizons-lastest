@@ -52,6 +52,8 @@ annotations:
 
 **Auth:** GitHub OAuth + Microsoft Entra ID (dual sign-in)
 
+**Enterprise identity variant:** `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=saml-sso` or `enterprise-managed-users` when GitHub access is governed by the same Entra tenant.
+
 **Template pattern:** `publish:github` + `azure:pipeline:create`
 
 ---
@@ -77,7 +79,7 @@ annotations:
 
 **Catalog providers:** `azureDevOps` only
 
-**Auth:** Microsoft Entra ID only
+**Auth:** Microsoft Entra ID only. If GitHub Copilot Standalone is managed through GitHub Enterprise Managed Users, use `GITHUB_IDENTITY_MODE=enterprise-managed-users` for governance metadata even when code remains in Azure Repos.
 
 **Template pattern:** `publish:azure` + `azure:pipeline:create`
 
@@ -107,7 +109,7 @@ annotations:
 
 **Catalog providers:** `github` + `githubOrg`
 
-**Auth:** GitHub OAuth only
+**Auth:** GitHub OAuth or Microsoft Entra ID with GitHub Enterprise Managed Users, depending on enterprise identity strategy.
 
 **Template pattern:** `publish:github` + `argocd:create-resources`
 
@@ -122,7 +124,7 @@ annotations:
 | Work tracking | Azure Boards | Azure Boards | GitHub Issues |
 | Container registry | ACR or GHCR | ACR | GHCR |
 | Security | Mix | ADO/SonarQube | GHAS |
-| Auth | GitHub + Entra ID | Entra ID only | GitHub only |
+| Auth | GitHub + Entra ID or Entra + EMU | Entra ID only | GitHub or Entra + EMU |
 | Catalog provider | github | azureDevOps | github |
 | GitHub App needed | Yes | No | Yes (+GHAS perms) |
 | ADO PAT needed | Yes (pipelines) | Yes (repos+pipelines) | No |

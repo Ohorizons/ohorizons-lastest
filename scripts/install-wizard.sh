@@ -64,6 +64,9 @@ HORIZON=""
 DEPLOYMENT_MODE=""
 PORTAL_PROFILE="base"      # base | platform | full | custom
 BRANDING_PROFILE="neutral" # neutral | open-horizons | custom
+AUTH_PROVIDER="github"     # github | entra | guest
+GITHUB_IDENTITY_MODE="standard" # standard | saml-sso | enterprise-managed-users
+GITHUB_ENTERPRISE_SLUG=""
 AUTO=false
 DRY_RUN=false
 NEXT_STEP="nothing"   # nothing | deploy
@@ -167,6 +170,8 @@ Options:
   --deployment-mode <m>       express | standard | enterprise.
   --portal-profile <p>        base | platform | full.
   --branding-profile <p>      neutral | open-horizons | custom.
+  --auth-provider <p>         github | entra | guest. Writes AUTH_PROVIDER in .env.
+  --github-identity-mode <m>  standard | saml-sso | enterprise-managed-users.
   --auto                      Non-interactive mode. Requires --selection-file.
   --selection-file <path>     YAML manifest in --auto mode (defaults to .openhorizons-selection.yaml).
   --dry-run                   Print diffs but write nothing.
@@ -263,6 +268,8 @@ load_manifest() {
     log "No manifest at $source_file, using defaults."
     HORIZON="${HORIZON:-all}"
     DEPLOYMENT_MODE="${DEPLOYMENT_MODE:-express}"
+    AUTH_PROVIDER="${AUTH_PROVIDER:-github}"
+    GITHUB_IDENTITY_MODE="${GITHUB_IDENTITY_MODE:-standard}"
     for i in "${!MODULE_KEYS[@]}";    do MODULE_VALS[$i]="${MODULE_DEFAULTS[$i]}"; done
     for i in "${!BACKSTAGE_KEYS[@]}"; do BACKSTAGE_VALS[$i]="${BACKSTAGE_DEFAULTS[$i]}"; done
     for i in "${!FEATURE_PACK_KEYS[@]}"; do FEATURE_PACK_VALS[$i]="${FEATURE_PACK_DEFAULTS[$i]}"; done
@@ -290,6 +297,15 @@ load_manifest() {
   raw="$(yq '.branding_profile' "$source_file")"
   [[ "$raw" == "null" || -z "$raw" ]] && raw="neutral"
   BRANDING_PROFILE="$raw"
+  raw="$(yq '.identity.auth_provider' "$source_file")"
+  [[ "$raw" == "null" || -z "$raw" ]] && raw="${AUTH_PROVIDER:-github}"
+  AUTH_PROVIDER="$raw"
+  raw="$(yq '.identity.github_identity_mode' "$source_file")"
+  [[ "$raw" == "null" || -z "$raw" ]] && raw="${GITHUB_IDENTITY_MODE:-standard}"
+  GITHUB_IDENTITY_MODE="$raw"
+  raw="$(yq '.identity.github_enterprise_slug' "$source_file")"
+  [[ "$raw" == "null" || -z "$raw" ]] && raw="${GITHUB_ENTERPRISE_SLUG:-}"
+  GITHUB_ENTERPRISE_SLUG="$raw"
   if [[ -z "$ENVIRONMENT" ]]; then
     raw="$(yq '.environment' "$source_file")"
     [[ "$raw" == "null" || -z "$raw" ]] && raw=""
@@ -681,6 +697,16 @@ for key in ('horizon', 'environment', 'deployment_mode'):
         allowed = schema['properties'][key]['enum']
         if data[key] not in allowed:
             errors.append(f"{key}={data[key]!r} not in {allowed}")
+identity = data.get('identity') or {}
+if identity:
+  identity_schema = schema['properties'].get('identity', {}).get('properties', {})
+  for key in ('auth_provider', 'github_identity_mode'):
+    if key in identity and 'enum' in identity_schema.get(key, {}):
+      allowed = identity_schema[key]['enum']
+      if identity[key] not in allowed:
+        errors.append(f"identity.{key}={identity[key]!r} not in {allowed}")
+  if identity.get('github_identity_mode') == 'enterprise-managed-users' and identity.get('auth_provider') != 'entra':
+    errors.append("identity.github_identity_mode='enterprise-managed-users' requires identity.auth_provider='entra'")
 
 if errors:
     for e in errors:
@@ -742,6 +768,18 @@ validate_dependencies() {
   fi
   if [[ -n "$i_dr" && "${MODULE_VALS[$i_dr]}" == "true" && "$DEPLOYMENT_MODE" == "express" ]]; then
     log_err "[RULE-004] enable_disaster_recovery=true requires deployment_mode standard or enterprise."
+    err=1
+  fi
+  case "$AUTH_PROVIDER" in
+    github|entra|guest) ;;
+    *) log_err "[RULE-006] AUTH_PROVIDER must be github, entra, or guest."; err=1 ;;
+  esac
+  case "$GITHUB_IDENTITY_MODE" in
+    standard|saml-sso|enterprise-managed-users) ;;
+    *) log_err "[RULE-007] GITHUB_IDENTITY_MODE must be standard, saml-sso, or enterprise-managed-users."; err=1 ;;
+  esac
+  if [[ "$GITHUB_IDENTITY_MODE" == "enterprise-managed-users" && "$AUTH_PROVIDER" != "entra" ]]; then
+    log_err "[RULE-008] GITHUB_IDENTITY_MODE=enterprise-managed-users requires AUTH_PROVIDER=entra."
     err=1
   fi
 
@@ -817,6 +855,12 @@ build_manifest_yaml() {
     echo "deployment_mode: $DEPLOYMENT_MODE"
     echo "portal_profile: $PORTAL_PROFILE"
     echo "branding_profile: $BRANDING_PROFILE"
+    echo "identity:"
+    echo "  auth_provider: $AUTH_PROVIDER"
+    echo "  github_identity_mode: $GITHUB_IDENTITY_MODE"
+    if [[ -n "$GITHUB_ENTERPRISE_SLUG" ]]; then
+      echo "  github_enterprise_slug: $GITHUB_ENTERPRISE_SLUG"
+    fi
     echo "modules:"
     local i
     for i in "${!MODULE_KEYS[@]}"; do
@@ -1222,6 +1266,15 @@ prompt_initial_setup() {
   # --- Authentication ---
   log "${BOLD}Authentication Provider${NC}"
   AUTH_PROVIDER="$(prompt_choice "  Auth provider" "github" github entra guest)"
+  GITHUB_IDENTITY_MODE="standard"
+  GITHUB_ENTERPRISE_SLUG=""
+  if [[ "$AUTH_PROVIDER" == "entra" ]]; then
+    GITHUB_IDENTITY_MODE="$(prompt_choice "  GitHub identity mode" "enterprise-managed-users" standard saml-sso enterprise-managed-users)"
+    if [[ "$GITHUB_IDENTITY_MODE" == "enterprise-managed-users" ]]; then
+      read -r -p "  GitHub Enterprise slug (optional): " GITHUB_ENTERPRISE_SLUG
+      GITHUB_ENTERPRISE_SLUG="${GITHUB_ENTERPRISE_SLUG:-}"
+    fi
+  fi
 
   echo
 
@@ -1284,6 +1337,8 @@ ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME}"
 GITHUB_ORG=${GITHUB_ORG}
 GITHUB_REPO=${GITHUB_REPO}
 GITHUB_TOKEN=
+GITHUB_IDENTITY_MODE=${GITHUB_IDENTITY_MODE}
+GITHUB_ENTERPRISE_SLUG=${GITHUB_ENTERPRISE_SLUG}
 
 # Authentication (github | entra | guest)
 AUTH_PROVIDER=${AUTH_PROVIDER}
@@ -1344,6 +1399,8 @@ parse_args() {
       --deployment-mode)    DEPLOYMENT_MODE="$2"; shift 2 ;;
       --portal-profile)     PORTAL_PROFILE="$2"; PORTAL_PROFILE_EXPLICIT=true; shift 2 ;;
       --branding-profile)   BRANDING_PROFILE="$2"; shift 2 ;;
+      --auth-provider)      AUTH_PROVIDER="$2"; shift 2 ;;
+      --github-identity-mode) GITHUB_IDENTITY_MODE="$2"; shift 2 ;;
       --auto)               AUTO=true; shift ;;
       --selection-file)     SELECTION_FILE="$2"; shift 2 ;;
       --dry-run)            DRY_RUN=true; shift ;;

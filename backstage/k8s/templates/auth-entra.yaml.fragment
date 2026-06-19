@@ -1,8 +1,8 @@
     auth:
-      environment: development
+      environment: production
       providers:
         microsoft:
-          development:
+          production:
             clientId: ${ENTRA_CLIENT_ID}
             clientSecret: ${ENTRA_CLIENT_SECRET}
             tenantId: ${ENTRA_TENANT_ID}

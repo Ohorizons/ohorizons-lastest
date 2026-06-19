@@ -35,6 +35,7 @@ The platform is organized into three adoption stages:
 
 Infrastructure is configured per-client via `.env` and the install wizard.
 Run `scripts/render-k8s.sh` to generate K8s manifests from templates.
+Identity configuration separates Backstage sign-in from GitHub governance: `AUTH_PROVIDER` is `github`, `entra`, or `guest`; `GITHUB_IDENTITY_MODE` is `standard`, `saml-sso`, or `enterprise-managed-users`. For GitHub Enterprise Managed Users, use `AUTH_PROVIDER=entra` and keep GitHub App/token credentials for technical GitHub integration.
 
 ### Required Azure Resources
 | Resource | Description |

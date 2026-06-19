@@ -1,6 +1,6 @@
 ---
 name: backstage-deployment
-description: "Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop. USE FOR: deploy Backstage, Backstage on AKS, Backstage local Docker, Backstage Helm chart, Backstage PostgreSQL, Backstage ACR image, Backstage GitHub OAuth. DO NOT USE FOR: full platform orchestration (use deploy-orchestration), Azure infrastructure provisioning (use @azure-portal-deploy)."
+description: "Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop. USE FOR: deploy Backstage, Backstage on AKS, Backstage local Docker, Backstage Helm chart, Backstage PostgreSQL, Backstage ACR image, Backstage GitHub OAuth, Microsoft Entra ID auth, GitHub Enterprise Managed Users. DO NOT USE FOR: full platform orchestration (use deploy-orchestration), Azure infrastructure provisioning (use @azure-portal-deploy)."
 ---
 
 # Backstage Deployment Skill
@@ -11,6 +11,7 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 > - `backstagedocs_get_page slug=deployment/docker` — Docker deployment guide
 > - `backstagedocs_get_page slug=deployment/k8s` — Kubernetes deployment guide
 > - `backstagedocs_get_page slug=auth/github/provider` — GitHub auth provider docs
+> - `backstagedocs_get_page slug=auth/microsoft/provider` — Microsoft auth provider docs
 > - `backstagedocs_search query="app-config"` — search configuration docs
 
 ---
@@ -22,7 +23,7 @@ Deploys the upstream open-source Backstage developer portal on Azure AKS or loca
 | **Platform** | Azure AKS (production) or Docker Desktop + kind (local) |
 | **Region** | East US 2 (`eastus2`) — PostgreSQL in Central US (`centralus`) |
 | **Image** | Custom-built from `backstage/` directory, stored in ACR |
-| **Auth** | GitHub OAuth + Guest (dev only) |
+| **Auth** | GitHub OAuth, Microsoft Entra ID, and Guest (dev only) |
 | **Catalog** | H1 Foundation + H2 Enhancement Golden Paths pre-loaded |
 | **Used by** | `@backstage-expert`, `@deploy` |
 
@@ -158,6 +159,8 @@ variable "location" {
 
 ## 4. GitHub App Setup
 
+For `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=enterprise-managed-users`, Entra ID handles user sign-in. GitHub App credentials are still required for technical GitHub integration: catalog sync, scaffolder writes, Actions, PRs, Codespaces, packages, and AI Impact metrics.
+
 ### Create GitHub App
 ```bash
 ./scripts/setup-github-app.sh --target backstage --org <GITHUB_ORG>
@@ -184,6 +187,21 @@ GITHUB_APP_ID=<numeric-app-id>
 GITHUB_APP_CLIENT_ID=<client-id>
 GITHUB_APP_CLIENT_SECRET=<client-secret>
 GITHUB_APP_PRIVATE_KEY=<contents-of-pem-file>
+```
+
+### Microsoft Entra ID Sign-In
+Environment variables:
+```
+AUTH_PROVIDER=entra
+GITHUB_IDENTITY_MODE=enterprise-managed-users
+ENTRA_TENANT_ID=<tenant-id>
+ENTRA_CLIENT_ID=<app-registration-client-id>
+ENTRA_CLIENT_SECRET=<client-secret>
+```
+
+Backstage callback URL:
+```
+https://<portal-url>/api/auth/microsoft/handler/frame
 ```
 
 ---

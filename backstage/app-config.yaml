@@ -19,8 +19,14 @@ backend:
     # Uncomment the following host directive to bind to specific interfaces
     # host: 127.0.0.1
   csp:
-    connect-src: ["'self'", 'http:', 'https:']
-    img-src: ["'self'", 'data:', 'https://avatars.githubusercontent.com', 'https://*.githubusercontent.com']
+    connect-src: ["'self'", "http:", "https:"]
+    img-src:
+      [
+        "'self'",
+        "data:",
+        "https://avatars.githubusercontent.com",
+        "https://*.githubusercontent.com",
+      ]
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
@@ -31,7 +37,7 @@ backend:
   # The production database configuration is stored in app-config.production.yaml
   database:
     client: better-sqlite3
-    connection: ':memory:'
+    connection: ":memory:"
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
 integrations:
@@ -47,67 +53,67 @@ integrations:
 
 proxy:
   endpoints:
-    '/github/api':
-      target: 'https://api.github.com'
+    "/github/api":
+      target: "https://api.github.com"
       headers:
-        Authorization: 'Bearer ${GITHUB_TOKEN}'
-        Accept: 'application/vnd.github+json'
-        X-GitHub-Api-Version: '2022-11-28'
-        User-Agent: 'Backstage'
+        Authorization: "Bearer ${GITHUB_TOKEN}"
+        Accept: "application/vnd.github+json"
+        X-GitHub-Api-Version: "2022-11-28"
+        User-Agent: "Backstage"
       changeOrigin: true
-      allowedMethods: ['GET']
+      allowedMethods: ["GET"]
       credentials: forward
 
-    '/github-api':
-      target: 'https://api.github.com'
+    "/github-api":
+      target: "https://api.github.com"
       headers:
-        Authorization: 'Bearer ${GITHUB_TOKEN}'
-        Accept: 'application/vnd.github+json'
-        X-GitHub-Api-Version: '2022-11-28'
-        User-Agent: 'Backstage'
+        Authorization: "Bearer ${GITHUB_TOKEN}"
+        Accept: "application/vnd.github+json"
+        X-GitHub-Api-Version: "2022-11-28"
+        User-Agent: "Backstage"
       changeOrigin: true
-      allowedMethods: ['GET']
+      allowedMethods: ["GET"]
       credentials: forward
 
     # AI Chat Agent — Python FastAPI backend with Claude SDK
-    '/agent-api':
-      target: 'http://localhost:8008'
+    "/agent-api":
+      target: "http://localhost:8008"
       changeOrigin: true
-      allowedMethods: ['GET', 'POST']
+      allowedMethods: ["GET", "POST"]
       credentials: forward
 
     # AI Impact Agent — Python FastAPI backend with MAF + ChromaDB
-    '/ai-impact':
-      target: 'http://localhost:8011'
+    "/ai-impact":
+      target: "http://localhost:8011"
       changeOrigin: true
-      allowedMethods: ['GET', 'POST']
+      allowedMethods: ["GET", "POST"]
       credentials: forward
 
     # ArgoCD — GitOps deployment tracking
-    '/argocd/api':
-      target: 'https://localhost:8443/api/v1'
+    "/argocd/api":
+      target: "https://localhost:8443/api/v1"
       changeOrigin: true
       secure: false
       headers:
-        Cookie: 'argocd.token=${ARGOCD_AUTH_TOKEN}'
+        Cookie: "argocd.token=${ARGOCD_AUTH_TOKEN}"
 
     # Grafana — Observability dashboards
-    '/grafana/api':
-      target: 'http://localhost:3000'
+    "/grafana/api":
+      target: "http://localhost:3000"
       changeOrigin: true
       headers:
-        Authorization: 'Bearer ${GRAFANA_TOKEN}'
+        Authorization: "Bearer ${GRAFANA_TOKEN}"
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
 # and an external cloud storage when deploying TechDocs for production use-case.
 # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
 techdocs:
-  builder: 'local' # Alternatives - 'external'
+  builder: "local" # Alternatives - 'external'
   generator:
-    runIn: 'docker' # Alternatives - 'local'
+    runIn: "docker" # Alternatives - 'local'
   publisher:
-    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+    type: "local" # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
@@ -126,6 +132,17 @@ auth:
           resolvers:
             - resolver: usernameMatchingUserEntityName
               dangerouslyAllowSignInWithoutUserInCatalog: true
+    # Microsoft Entra ID — required when AUTH_PROVIDER=entra
+    # Callback URL: http://localhost:7007/api/auth/microsoft/handler/frame
+    microsoft:
+      development:
+        clientId: ${ENTRA_CLIENT_ID:-}
+        clientSecret: ${ENTRA_CLIENT_SECRET:-}
+        tenantId: ${ENTRA_TENANT_ID:-}
+        signIn:
+          resolvers:
+            - resolver: emailMatchingUserEntityProfileEmail
+              dangerouslyAllowSignInWithoutUserInCatalog: true
 
 scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -139,7 +156,7 @@ kubernetes:
 argocd:
   baseUrl: https://localhost:8443
   appLocatorMethods:
-    - type: 'config'
+    - type: "config"
       instances:
         - name: local
           url: https://localhost:8443
@@ -178,7 +195,18 @@ catalog:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
   rules:
-    - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+    - allow:
+        [
+          Component,
+          System,
+          API,
+          Resource,
+          Location,
+          Domain,
+          Template,
+          User,
+          Group,
+        ]
   locations:
     # -----------------------------------------------------------------
     # Platform Self-Registration

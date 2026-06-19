@@ -16,54 +16,166 @@
   "properties": {
     "horizon": {
       "type": "string",
-      "enum": ["h1", "h2", "h3", "all"]
+      "enum": [
+        "h1",
+        "h2",
+        "h3",
+        "all"
+      ]
     },
     "environment": {
       "type": "string",
-      "enum": ["dev", "staging", "prod"]
+      "enum": [
+        "dev",
+        "staging",
+        "prod"
+      ]
     },
     "deployment_mode": {
       "type": "string",
-      "enum": ["express", "standard", "enterprise"]
+      "enum": [
+        "express",
+        "standard",
+        "enterprise"
+      ]
     },
     "portal_profile": {
       "type": "string",
       "description": "Backstage portal experience profile. base is the clean enterprise fork default; platform adds H2 pages; full adds H3 innovation packs; custom keeps the base portal and enables only the feature packs you select.",
-      "enum": ["base", "platform", "full", "custom"]
+      "enum": [
+        "base",
+        "platform",
+        "full",
+        "custom"
+      ]
     },
     "branding_profile": {
       "type": "string",
       "description": "Branding preset applied to the Backstage portal.",
-      "enum": ["neutral", "open-horizons", "custom"]
+      "enum": [
+        "neutral",
+        "open-horizons",
+        "custom"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "description": "Non-secret identity strategy selected by the wizard. Secrets stay in .env, Key Vault, or Kubernetes Secrets.",
+      "additionalProperties": false,
+      "properties": {
+        "auth_provider": {
+          "type": "string",
+          "description": "Backstage sign-in provider.",
+          "enum": [
+            "github",
+            "entra",
+            "guest"
+          ]
+        },
+        "github_identity_mode": {
+          "type": "string",
+          "description": "GitHub enterprise identity governance mode. enterprise-managed-users requires auth_provider=entra.",
+          "enum": [
+            "standard",
+            "saml-sso",
+            "enterprise-managed-users"
+          ]
+        },
+        "github_enterprise_slug": {
+          "type": "string",
+          "description": "Optional GitHub Enterprise Cloud slug used by agents and runbooks.",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "github_identity_mode": {
+                "const": "enterprise-managed-users"
+              }
+            },
+            "required": [
+              "github_identity_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "auth_provider": {
+                "const": "entra"
+              }
+            },
+            "required": [
+              "auth_provider"
+            ]
+          }
+        }
+      ]
     },
     "modules": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "enable_container_registry": {"type": "boolean"},
-        "enable_databases": {"type": "boolean"},
-        "enable_defender": {"type": "boolean"},
-        "enable_purview": {"type": "boolean"},
-        "enable_argocd": {"type": "boolean"},
-        "enable_external_secrets": {"type": "boolean"},
-        "enable_observability": {"type": "boolean"},
-        "enable_github_runners": {"type": "boolean"},
-        "enable_cost_management": {"type": "boolean"},
-        "enable_ai_foundry": {"type": "boolean"},
-        "enable_foundry_agents": {"type": "boolean"},
-        "enable_disaster_recovery": {"type": "boolean"}
+        "enable_container_registry": {
+          "type": "boolean"
+        },
+        "enable_databases": {
+          "type": "boolean"
+        },
+        "enable_defender": {
+          "type": "boolean"
+        },
+        "enable_purview": {
+          "type": "boolean"
+        },
+        "enable_argocd": {
+          "type": "boolean"
+        },
+        "enable_external_secrets": {
+          "type": "boolean"
+        },
+        "enable_observability": {
+          "type": "boolean"
+        },
+        "enable_github_runners": {
+          "type": "boolean"
+        },
+        "enable_cost_management": {
+          "type": "boolean"
+        },
+        "enable_ai_foundry": {
+          "type": "boolean"
+        },
+        "enable_foundry_agents": {
+          "type": "boolean"
+        },
+        "enable_disaster_recovery": {
+          "type": "boolean"
+        }
       }
     },
     "backstage_components": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "enable_ai_chat_plugin": {"type": "boolean"},
-        "enable_agent_api": {"type": "boolean"},
-        "enable_agent_api_impact": {"type": "boolean"},
-        "enable_agent_api_maf": {"type": "boolean"},
-        "enable_agent_api_sk": {"type": "boolean"},
-        "enable_mcp_ecosystem": {"type": "boolean"}
+        "enable_ai_chat_plugin": {
+          "type": "boolean"
+        },
+        "enable_agent_api": {
+          "type": "boolean"
+        },
+        "enable_agent_api_impact": {
+          "type": "boolean"
+        },
+        "enable_agent_api_maf": {
+          "type": "boolean"
+        },
+        "enable_agent_api_sk": {
+          "type": "boolean"
+        },
+        "enable_mcp_ecosystem": {
+          "type": "boolean"
+        }
       }
     },
     "feature_packs": {
@@ -71,12 +183,24 @@
       "description": "High-level Backstage feature packs selected by the wizard. These map to lower-level Backstage component toggles and rendered manifests.",
       "additionalProperties": false,
       "properties": {
-        "enable_branding_pack": {"type": "boolean"},
-        "enable_platform_pages": {"type": "boolean"},
-        "enable_observability_pages": {"type": "boolean"},
-        "enable_ai_chat": {"type": "boolean"},
-        "enable_ai_impact": {"type": "boolean"},
-        "enable_mcp_ecosystem": {"type": "boolean"}
+        "enable_branding_pack": {
+          "type": "boolean"
+        },
+        "enable_platform_pages": {
+          "type": "boolean"
+        },
+        "enable_observability_pages": {
+          "type": "boolean"
+        },
+        "enable_ai_chat": {
+          "type": "boolean"
+        },
+        "enable_ai_impact": {
+          "type": "boolean"
+        },
+        "enable_mcp_ecosystem": {
+          "type": "boolean"
+        }
       }
     },
     "golden_paths": {
@@ -90,25 +214,37 @@
     "agents": {
       "type": "array",
       "description": "Allowlist of Copilot Chat agent ids (file basenames without .agent.md). Empty list means include all agents in .github/agents/.",
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
       "uniqueItems": true
     },
     "skills": {
       "type": "array",
       "description": "Allowlist of skill folder names. Empty list means include all skills in .github/skills/.",
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
       "uniqueItems": true
     },
     "prompts": {
       "type": "array",
       "description": "Allowlist of prompt ids (file basenames without .prompt.md). Empty list means include all prompts in .github/prompts/.",
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
       "uniqueItems": true
     },
     "mcp_servers": {
       "type": "array",
       "description": "Allowlist of MCP server ids (file basenames without .ts) under mcp-servers/src/tools/. Empty list means include all servers.",
-      "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
       "uniqueItems": true
     }
   },

@@ -29,6 +29,8 @@ The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based 
 | **ADO Integration** | [ado-integration.agent.md](.github/agents/ado-integration.agent.md) | Azure DevOps PAT, repos, pipelines, boards |
 | **Hybrid Scenarios** | [hybrid-scenarios.agent.md](.github/agents/hybrid-scenarios.agent.md) | GitHub + ADO coexistence scenarios |
 
+Enterprise identity note: Open Horizons separates Backstage sign-in (`AUTH_PROVIDER=github|entra|guest`) from GitHub identity governance (`GITHUB_IDENTITY_MODE=standard|saml-sso|enterprise-managed-users`). Use `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=enterprise-managed-users` for GitHub Enterprise Managed Users; GitHub App/token credentials remain required for technical portal integration.
+
 ### How to Use
 
 In VS Code with GitHub Copilot Chat, mention an agent by name:

@@ -957,11 +957,14 @@ The wizard will ask for:
 | Platform Name | K8s resource prefix | `myplatform` |
 | Domain | Custom domain (optional) | `portal.contoso.com` |
 | Auth Provider | `github`, `entra`, or `guest` | `github` |
+| GitHub Identity Mode | `standard`, `saml-sso`, or `enterprise-managed-users` | `enterprise-managed-users` when Auth Provider is `entra` |
 | Container Registry | `ghcr` (default), `acr`, or `dockerhub` | `ghcr` |
 | Azure Subscription | Your Azure subscription ID | `xxxxxxxx-xxxx-...` |
 | AKS Cluster Name | Target AKS cluster | `aks-contoso-dev` |
 
 The wizard writes a `.env` file and optionally runs `scripts/render-k8s.sh` to generate all K8s manifests from templates in `backstage/k8s/templates/`.
+
+For GitHub Enterprise Managed Users, choose Entra ID as the auth provider and `enterprise-managed-users` as the GitHub identity mode. The Backstage callback URL for the Entra App Registration is `https://<portal-url>/api/auth/microsoft/handler/frame`. GitHub App or token credentials are still required for GitHub-backed integrations.
 
 > 💡 **Alternatively**, you can configure manually:
 >

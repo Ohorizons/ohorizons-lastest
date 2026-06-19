@@ -11,10 +11,11 @@ Design and implement a hybrid GitHub + Azure DevOps coexistence scenario.
 
 - **Scenario**: A (GitHub-first), B (ADO-first), or C (equal coexistence)
 - **Organizations**: GitHub org + ADO org
+- **Identity mode**: GitHub OAuth, Entra ID SAML SSO, or Entra ID + GitHub Enterprise Managed Users
 
 ## Expected Output
 
 - Scenario recommendation with trade-offs
-- Dual auth configuration
+- Auth and GitHub identity mode configuration
 - Hybrid catalog templates
 - Cross-platform pipeline integration

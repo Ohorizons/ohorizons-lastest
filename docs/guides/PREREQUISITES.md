@@ -161,6 +161,8 @@ Adds:
 
 - **GitHub Advanced Security (GHAS)** — secret scanning, code scanning (CodeQL), Dependabot in private repos
 - **Single Sign-On (SSO)** with Entra ID
+- **GitHub Enterprise Managed Users (EMU)** — optional enterprise identity mode where GitHub accounts are provisioned from Entra ID. Use `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users` in Open Horizons.
+- **SCIM provisioning** from Entra ID for EMU user and group lifecycle.
 - **SCIM** provisioning
 - **IP allow lists** & audit log streaming
 - **Larger Actions runners** (recommended for the platform's CI/CD load)
@@ -274,6 +276,7 @@ Print this and check off before running `scripts/install-wizard.sh`:
 
 - [ ] Organization created with Admin access
 - [ ] GitHub App or OAuth App created — Client ID + Secret captured
+- [ ] If using GitHub Enterprise Managed Users, EMU is enabled and Entra SAML/SCIM provisioning is configured
 - [ ] OIDC federated credential created for `Ohorizons/<your-fork>`
 - [ ] Branch protection rules ready (or will be set by `setup-branch-protection.sh`)
 

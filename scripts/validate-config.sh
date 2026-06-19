@@ -30,6 +30,7 @@ if [[ -z "$ENVIRONMENT" ]]; then
 fi
 
 TFVARS_FILE="$TERRAFORM_DIR/environments/${ENVIRONMENT}.tfvars"
+ENV_FILE=".env"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║       OPEN HORIZONS — Configuration Validation            ║${NC}"
@@ -44,6 +45,37 @@ else
   fail "Missing: $TFVARS_FILE"
   echo "  Create from template: cp $TERRAFORM_DIR/terraform.tfvars.example $TFVARS_FILE"
   exit 1
+fi
+
+# --- Check platform identity configuration ------------------------------------
+header "Platform Identity Configuration"
+if [[ -f "$ENV_FILE" ]]; then
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  AUTH_PROVIDER="${AUTH_PROVIDER:-github}"
+  GITHUB_IDENTITY_MODE="${GITHUB_IDENTITY_MODE:-standard}"
+  case "$AUTH_PROVIDER" in
+    github|entra|guest) pass "AUTH_PROVIDER=$AUTH_PROVIDER" ;;
+    *) fail "AUTH_PROVIDER must be github, entra, or guest" ;;
+  esac
+  case "$GITHUB_IDENTITY_MODE" in
+    standard|saml-sso|enterprise-managed-users) pass "GITHUB_IDENTITY_MODE=$GITHUB_IDENTITY_MODE" ;;
+    *) fail "GITHUB_IDENTITY_MODE must be standard, saml-sso, or enterprise-managed-users" ;;
+  esac
+  if [[ "$GITHUB_IDENTITY_MODE" == "enterprise-managed-users" && "$AUTH_PROVIDER" != "entra" ]]; then
+    fail "GITHUB_IDENTITY_MODE=enterprise-managed-users requires AUTH_PROVIDER=entra"
+  fi
+  if [[ "$AUTH_PROVIDER" == "entra" ]]; then
+    for var in ENTRA_TENANT_ID ENTRA_CLIENT_ID ENTRA_CLIENT_SECRET; do
+      if [[ -n "${!var:-}" ]]; then
+        pass "$var is set"
+      else
+        warn "$var is not set in $ENV_FILE; provide it through Key Vault or Kubernetes secret before deploy"
+      fi
+    done
+  fi
+else
+  warn "No .env found — skipping platform identity config validation"
 fi
 
 # --- Check required environment variables -------------------------------------

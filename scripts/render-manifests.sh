@@ -168,11 +168,19 @@ render_templates_to_temp_source() {
   local image_tag="${IMAGE_TAG:-v7.2.4}"
   local azure_openai_deployment="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
   local auth_provider="${AUTH_PROVIDER:-guest}"
+  local github_identity_mode="${GITHUB_IDENTITY_MODE:-standard}"
   local auth_fragment="$templates_dir/auth-${auth_provider}.yaml.fragment"
 
   if [[ ! -f "$auth_fragment" ]]; then
     log_warn "Unknown AUTH_PROVIDER '$auth_provider'; using guest auth fragment for fallback render."
     auth_fragment="$templates_dir/auth-guest.yaml.fragment"
+  fi
+  case "$github_identity_mode" in
+    standard|saml-sso|enterprise-managed-users) ;;
+    *) log_warn "Unknown GITHUB_IDENTITY_MODE '$github_identity_mode'; using standard for fallback render." ;;
+  esac
+  if [[ "$github_identity_mode" == "enterprise-managed-users" && "$auth_provider" != "entra" ]]; then
+    log_warn "GITHUB_IDENTITY_MODE=enterprise-managed-users requires AUTH_PROVIDER=entra; fallback render will not enforce EMU."
   fi
 
   local sed_expr=""

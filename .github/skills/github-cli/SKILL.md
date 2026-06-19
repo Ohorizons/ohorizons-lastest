@@ -12,6 +12,7 @@ description: "GitHub CLI operations for repository and workflow management. USE 
 ## Prerequisites
 - GitHub CLI installed and authenticated
 - Appropriate repository permissions
+- For GitHub Enterprise Managed Users, user accounts are governed by the enterprise IdP. Use GitHub App or token credentials for Backstage technical integration even when Backstage sign-in uses Microsoft Entra ID.
 
 ## Commands
 

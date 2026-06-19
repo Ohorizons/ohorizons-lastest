@@ -83,6 +83,7 @@ MCP_ECOSYSTEM_IMAGE="${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@${DOMAIN}}"
 GITHUB_ORG="${GITHUB_ORG:-local}"
 GITHUB_REPO="${GITHUB_REPO:-open-horizons-platform}"
+GITHUB_IDENTITY_MODE="${GITHUB_IDENTITY_MODE:-standard}"
 ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME:-${GITHUB_ORG}}"
 AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
 if [[ "$NO_GITHUB_MODE" == "true" ]]; then
@@ -95,6 +96,7 @@ log "Platform:  ${BOLD}${PLATFORM_NAME}${NC}"
 log "Domain:    ${BOLD}${DOMAIN}${NC}"
 log "GitHub:    ${BOLD}${GITHUB_ORG}/${GITHUB_REPO}${NC}"
 log "Auth:      ${BOLD}${AUTH_PROVIDER}${NC}"
+log "Identity:  ${BOLD}${GITHUB_IDENTITY_MODE}${NC}"
 log "Registry:  ${BOLD}$(echo "$BACKSTAGE_IMAGE" | cut -d/ -f1)${NC}"
 log "Tag:       ${BOLD}${IMAGE_TAG}${NC}"
 echo ""
@@ -132,7 +134,18 @@ if [[ ! -f "$AUTH_FRAGMENT" ]]; then
   log_err "Available: github, entra, guest"
   exit 1
 fi
-AUTH_BLOCK=$(cat "$AUTH_FRAGMENT")
+case "$GITHUB_IDENTITY_MODE" in
+  standard|saml-sso|enterprise-managed-users) ;;
+  *)
+    log_err "Unknown GITHUB_IDENTITY_MODE: ${GITHUB_IDENTITY_MODE}"
+    log_err "Available: standard, saml-sso, enterprise-managed-users"
+    exit 1
+    ;;
+esac
+if [[ "$GITHUB_IDENTITY_MODE" == "enterprise-managed-users" && "$AUTH_PROVIDER" != "entra" ]]; then
+  log_err "GITHUB_IDENTITY_MODE=enterprise-managed-users requires AUTH_PROVIDER=entra"
+  exit 1
+fi
 
 # --- Generate catalog locations from golden-paths ----------------------------
 generate_catalog_locations() {
@@ -227,7 +240,6 @@ log_ok "Rendered ${BOLD}${rendered}${NC} manifests from templates"
 # --- Validate YAML -----------------------------------------------------------
 if command -v kubectl &>/dev/null && [[ "$DRY_RUN" == false ]]; then
   log "Validating YAML syntax..."
-  errors=0
   for f in "$OUTPUT_DIR"/*.yaml; do
     if ! kubectl apply --dry-run=client -f "$f" &>/dev/null 2>&1; then
       log_warn "  ⚠ $f — may need cluster context for validation"
@@ -252,6 +264,11 @@ elif [[ "$AUTH_PROVIDER" == "entra" ]]; then
   echo "    --from-literal=ENTRA_CLIENT_ID='\$ENTRA_CLIENT_ID' \\"
   echo "    --from-literal=ENTRA_CLIENT_SECRET='\$ENTRA_CLIENT_SECRET' \\"
   echo "    --from-literal=ENTRA_TENANT_ID='\$ENTRA_TENANT_ID'"
+  if [[ "$GITHUB_IDENTITY_MODE" == "enterprise-managed-users" ]]; then
+    echo ""
+    echo "  # GitHub EMU mode: keep GitHub App/PAT credentials for catalog,"
+    echo "  # scaffolder, Actions, PRs, Codespaces, and AI Impact integrations."
+  fi
 else
   echo "    # Guest mode — no additional auth secrets needed"
 fi

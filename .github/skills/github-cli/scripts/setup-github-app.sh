@@ -3,7 +3,10 @@
 # OPEN HORIZONS PLATFORM - GITHUB APP SETUP
 # =============================================================================
 #
-# Creates and configures GitHub Apps and OAuth Apps for platform integrations
+# Creates and configures GitHub Apps and OAuth Apps for platform integrations.
+# With AUTH_PROVIDER=entra and GitHub Enterprise Managed Users, this remains
+# the technical GitHub integration path for catalog, scaffolder, Actions, PRs,
+# Codespaces, and packages; Entra handles user sign-in.
 # Supports Backstage, ArgoCD, and custom integrations
 #
 # Usage: ./scripts/setup-github-app.sh [options]
@@ -38,6 +41,8 @@ usage() {
 Usage: $(basename "$0") [OPTIONS]
 
 Create and configure GitHub Apps/OAuth Apps for platform integrations.
+In Entra ID + GitHub Enterprise Managed Users deployments, create a GitHub App
+for Backstage integration even though user login happens through Entra ID.
 
 OPTIONS:
     --github-org        GitHub organization name (required)
@@ -56,6 +61,12 @@ EXAMPLES:
     $(basename "$0") --github-org myorg --app-name myorg-backstage \\
         --homepage-url https://backstage.example.com \\
         --callback-url https://backstage.example.com/api/auth/github/handler/frame \\
+        --target backstage
+
+    # Create GitHub App for Backstage in Entra/EMU mode
+    $(basename "$0") --github-org myorg --app-name myorg-backstage \
+        --homepage-url https://backstage.example.com \
+        --callback-url https://backstage.example.com/api/auth/github/handler/frame \
         --target backstage
 
     # Create OAuth App for ArgoCD

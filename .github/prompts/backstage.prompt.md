@@ -1,5 +1,5 @@
 ---
-description: "Deploy and configure Backstage developer portal on AKS with GitHub OAuth, Golden Paths, and TechDocs. USE FOR: deploy Backstage, configure Backstage auth, register Golden Paths, setup TechDocs, Backstage on AKS."
+description: "Deploy and configure Backstage developer portal on AKS with GitHub OAuth or Microsoft Entra ID, Golden Paths, and TechDocs. USE FOR: deploy Backstage, configure Backstage auth, register Golden Paths, setup TechDocs, Backstage on AKS."
 agent: "backstage-expert"
 ---
 
@@ -17,11 +17,13 @@ Before configuring, consult official Backstage documentation via MCP ecosystem t
 ## Input
 
 - **Environment**: Target environment (dev, staging, prod)
-- **Auth**: GitHub OAuth or Guest (dev only)
+- **Auth**: GitHub OAuth, Microsoft Entra ID, or Guest (dev only)
+- **GitHub identity mode**: `standard`, `saml-sso`, or `enterprise-managed-users`
 - **Components**: Portal + Golden Paths + TechDocs
 
 ## Expected Output
 
 - Backstage running on AKS with ingress
-- GitHub OAuth configured
+- Selected auth provider configured
+- GitHub App/token integration configured where GitHub-backed catalog, scaffolder, Actions, PRs, Codespaces, packages, or AI Impact features are enabled
 - Golden Path templates registered in catalog

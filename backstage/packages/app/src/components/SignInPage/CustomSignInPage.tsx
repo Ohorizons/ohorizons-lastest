@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { SignInPageProps, githubAuthApiRef, useApi } from '@backstage/core-plugin-api';
+import { SignInPageProps, configApiRef, githubAuthApiRef, microsoftAuthApiRef, useApi } from '@backstage/core-plugin-api';
 import { UserIdentity } from '@backstage/core-components';
 import { Box, Button, CircularProgress, Typography, makeStyles } from '@material-ui/core';
 
@@ -523,10 +523,21 @@ const GitHubIcon = ({ size = 24 }: { size?: number }) => (
   </svg>
 );
 
+const MicrosoftIcon = ({ size = 24 }: { size?: number }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+    <rect x="2" y="2" width="9.5" height="9.5" fill="#F25022" />
+    <rect x="12.5" y="2" width="9.5" height="9.5" fill="#7FBA00" />
+    <rect x="2" y="12.5" width="9.5" height="9.5" fill="#00A4EF" />
+    <rect x="12.5" y="12.5" width="9.5" height="9.5" fill="#FFB900" />
+  </svg>
+);
+
 // ─── Component ───────────────────────────────────────────────────────────────
 const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
   const classes = useStyles();
+  const configApi = useApi(configApiRef);
   const githubAuthApi = useApi(githubAuthApiRef);
+  const microsoftAuthApi = useApi(microsoftAuthApiRef);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -574,20 +585,29 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
 
   const setSectionRef = (i: number) => (el: HTMLDivElement | null) => { sectionsRef.current[i] = el; };
 
+  const authEnvironment = configApi.getOptionalString('auth.environment') ?? 'development';
+  const hasMicrosoftProvider = Boolean(
+    configApi.getOptionalString(`auth.providers.microsoft.${authEnvironment}.clientId`) ||
+    configApi.getOptionalString('auth.providers.microsoft.development.clientId') ||
+    configApi.getOptionalString('auth.providers.microsoft.production.clientId'),
+  );
+  const signInAuthApi = hasMicrosoftProvider ? microsoftAuthApi : githubAuthApi;
+  const signInProviderLabel = hasMicrosoftProvider ? 'Microsoft Entra ID' : 'GitHub';
+
   const handleSignIn = useCallback(async () => {
     try {
       setError(undefined);
       setLoading(true);
-      const identityResponse = await githubAuthApi.getBackstageIdentity({ instantPopup: true });
-      if (!identityResponse) throw new Error('Could not resolve Backstage identity from GitHub sign-in');
-      const profile = await githubAuthApi.getProfile();
-      onSignInSuccess(UserIdentity.create({ identity: identityResponse.identity, profile, authApi: githubAuthApi }));
+      const identityResponse = await signInAuthApi.getBackstageIdentity({ instantPopup: true });
+      if (!identityResponse) throw new Error(`Could not resolve Backstage identity from ${signInProviderLabel} sign-in`);
+      const profile = await signInAuthApi.getProfile();
+      onSignInSuccess(UserIdentity.create({ identity: identityResponse.identity, profile, authApi: signInAuthApi }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'GitHub sign-in failed');
+      setError(e instanceof Error ? e.message : `${signInProviderLabel} sign-in failed`);
     } finally {
       setLoading(false);
     }
-  }, [githubAuthApi, onSignInSuccess]);
+  }, [onSignInSuccess, signInAuthApi, signInProviderLabel]);
 
   return (
     <Box className={classes.root}>
@@ -621,8 +641,8 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
 
           <div className={classes.heroBtns}>
             <Button className={classes.signInButton} onClick={handleSignIn} disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <GitHubIcon size={20} />}>
-              {loading ? 'Authenticating...' : 'Sign in with GitHub'}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : hasMicrosoftProvider ? <MicrosoftIcon size={20} /> : <GitHubIcon size={20} />}>
+              {loading ? 'Authenticating...' : `Sign in with ${signInProviderLabel}`}
             </Button>
             <a href="#platform" className={classes.heroSecondaryBtn}>
               Explore Platform →
@@ -658,9 +678,9 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
                 <div key={i} className={classes.termLine}>
                   <span className={
                     line.type === 'prompt' ? classes.termPrompt :
-                    line.type === 'agent' ? classes.termAgent :
-                    line.type === 'success' ? classes.termSuccess :
-                    classes.termOutput
+                      line.type === 'agent' ? classes.termAgent :
+                        line.type === 'success' ? classes.termSuccess :
+                          classes.termOutput
                   }>{line.text}</span>
                 </div>
               ))}
@@ -706,15 +726,15 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
           </div>
           {/* Controls bar */}
           <div className={classes.videoPlayerControls}>
-            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
             <span className={classes.videoPlayerTime}>0:35</span>
             <div className={classes.videoPlayerProgressTrack}>
               <div className={classes.videoPlayerProgressFill} />
             </div>
             <span className={classes.videoPlayerTime}>1:51</span>
-            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.5v7a4.47 4.47 0 0 0 2.5-3.5zM14 3.23v2.06A6.99 6.99 0 0 1 19 12a6.99 6.99 0 0 1-5 6.71v2.06A9.01 9.01 0 0 0 21 12a9.01 9.01 0 0 0-7-8.77z"/></svg>
-            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.5v7a4.47 4.47 0 0 0 2.5-3.5zM14 3.23v2.06A6.99 6.99 0 0 1 19 12a6.99 6.99 0 0 1-5 6.71v2.06A9.01 9.01 0 0 0 21 12a9.01 9.01 0 0 0-7-8.77z" /></svg>
+            <svg className={classes.videoPlayerIcon} viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" /></svg>
           </div>
         </div>
       </div>
@@ -907,15 +927,15 @@ const CustomSignInPage = ({ onSignInSuccess }: SignInPageProps) => {
 
       {/* ── Bottom Footer ── */}
       <div className={classes.bottomFooter}>
-       <div className={classes.bottomFooterInner}>
-        <div className={classes.bottomFooterLeft}>
-          <img src="/logo-msft-github.png" alt="Open Horizons" className={classes.bottomFooterLogo} />
-          <span className={classes.bottomFooterText}>Open Horizons — Agentic DevOps Platform</span>
+        <div className={classes.bottomFooterInner}>
+          <div className={classes.bottomFooterLeft}>
+            <img src="/logo-msft-github.png" alt="Open Horizons" className={classes.bottomFooterLogo} />
+            <span className={classes.bottomFooterText}>Open Horizons — Agentic DevOps Platform</span>
+          </div>
+          <div className={classes.bottomFooterRight}>
+            © 2026 Open Horizons — Enterprise Accelerator for Azure, GitHub &amp; Backstage OSS
+          </div>
         </div>
-        <div className={classes.bottomFooterRight}>
-          © 2026 Open Horizons — Enterprise Accelerator for Azure, GitHub &amp; Backstage OSS
-        </div>
-       </div>
       </div>
     </Box>
   );

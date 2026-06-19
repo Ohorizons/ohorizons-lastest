@@ -32,7 +32,7 @@ These are the only steps that differ when consuming Open Horizons as a template 
    scripts/install-wizard.sh
    ```
 
-   The wizard collects your org name, domain, auth provider, Azure details, and writes `.env`.
+   The wizard collects your org name, domain, auth provider, GitHub identity mode, Azure details, and writes `.env`.
 3. **Render K8s manifests** from your configuration:
 
    ```bash
@@ -40,7 +40,7 @@ These are the only steps that differ when consuming Open Horizons as a template 
    ```
 
    This generates all K8s manifests in `backstage/k8s/` from templates using your `.env` values.
-4. **GitHub permissions.** Ensure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read).
+4. **GitHub permissions.** Ensure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read). For GitHub Enterprise Managed Users, use `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`; do not remove GitHub App/token integration because Backstage still needs it for GitHub-backed features.
 5. **Azure prerequisites.** Register the resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
 6. **Create K8s secrets.** The `render-k8s.sh` script outputs the exact commands needed:
 

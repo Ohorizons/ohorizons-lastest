@@ -1,6 +1,6 @@
 # Custom Sign-In Page
 
-Full-screen landing and authentication page for the Open Horizons platform. Features a cinematic scrolling experience with platform overview, architecture layers, and multiple sign-in options (GitHub OAuth, Microsoft Entra ID, Guest).
+Full-screen landing and authentication page for the Open Horizons platform. Features a cinematic scrolling experience with platform overview, architecture layers, and provider-aware sign-in options (GitHub OAuth, Microsoft Entra ID, Guest).
 
 ## Features
 
@@ -15,8 +15,8 @@ Full-screen landing and authentication page for the Open Horizons platform. Feat
 - **FAQ Section** — 8 expandable Q&A items about the platform
 - **Tech Logo Strip** — Azure, GitHub, Backstage, Terraform, ArgoCD, Prometheus, Grafana, Kubernetes
 - **Sign-In Options**:
-  - GitHub OAuth (primary)
-  - Microsoft Entra ID (enterprise)
+  - GitHub OAuth
+  - Microsoft Entra ID (enterprise and GitHub EMU mode)
   - Guest access (demo mode)
 - **Scroll Reveal Animations** — Sections animate in via IntersectionObserver
 - **Microsoft 4-Color Bar** — Top border with Red, Green, Blue, Yellow gradient
@@ -27,7 +27,7 @@ Full-screen landing and authentication page for the Open Horizons platform. Feat
 
 ## Configuration
 
-Requires GitHub OAuth to be configured in `app-config.yaml`:
+Requires the selected provider to be configured in `app-config.yaml`. GitHub OAuth example:
 
 ```yaml
 auth:
@@ -42,6 +42,28 @@ auth:
 |---|---|
 | `GITHUB_CLIENT_ID` | GitHub OAuth App client ID |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret |
+
+Microsoft Entra ID example:
+
+```yaml
+auth:
+  providers:
+    microsoft:
+      development:
+        clientId: ${ENTRA_CLIENT_ID}
+        clientSecret: ${ENTRA_CLIENT_SECRET}
+        tenantId: ${ENTRA_TENANT_ID}
+```
+
+| Environment Variable | Purpose |
+|---|---|
+| `AUTH_PROVIDER` | Use `entra` for Microsoft Entra ID sign-in |
+| `GITHUB_IDENTITY_MODE` | Use `enterprise-managed-users` for GitHub EMU deployments |
+| `ENTRA_TENANT_ID` | Microsoft Entra tenant ID |
+| `ENTRA_CLIENT_ID` | Backstage App Registration client ID |
+| `ENTRA_CLIENT_SECRET` | Backstage App Registration client secret |
+
+GitHub Enterprise Managed Users deployments still require GitHub App or token integration for catalog, scaffolder, Actions, PRs, Codespaces, packages, and AI Impact features.
 
 ## Dependencies
 

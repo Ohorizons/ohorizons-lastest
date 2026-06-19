@@ -1,8 +1,8 @@
     auth:
-      environment: development
+      environment: production
       providers:
         github:
-          development:
+          production:
             clientId: ${GITHUB_APP_CLIENT_ID}
             clientSecret: ${GITHUB_APP_CLIENT_SECRET}
             scopes:

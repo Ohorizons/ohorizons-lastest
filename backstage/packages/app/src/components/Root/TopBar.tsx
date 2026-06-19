@@ -7,7 +7,7 @@ import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import SearchIcon from '@material-ui/icons/Search';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApi, githubAuthApiRef } from '@backstage/core-plugin-api';
+import { identityApiRef, useApi } from '@backstage/core-plugin-api';
 const useStyles = makeStyles({
   wrapper: {
     position: 'fixed',
@@ -197,24 +197,18 @@ const TopBar = () => {
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
 
-  let githubAuthApi: any;
-  try {
-    githubAuthApi = useApi(githubAuthApiRef);
-  } catch {
-    githubAuthApi = null;
-  }
+  const identityApi = useApi(identityApiRef);
 
   useEffect(() => {
-    if (githubAuthApi) {
-      githubAuthApi
-        .getProfile?.()
-        .then((profile: any) => {
-          if (profile?.displayName) setDisplayName(profile.displayName);
-          if (profile?.picture) setAvatarUrl(profile.picture);
-        })
-        .catch(() => {});
-    }
-  }, [githubAuthApi]);
+    identityApi
+      .getBackstageIdentity()
+      .then(identity => {
+        const entityName = identity.userEntityRef.split('/').pop() || 'user';
+        setDisplayName(entityName);
+        setAvatarUrl('');
+      })
+      .catch(() => { });
+  }, [identityApi]);
 
   return (
     <div className={classes.wrapper}>
@@ -272,12 +266,12 @@ const TopBar = () => {
               alt={displayName}
               className={classes.avatar}
             >
-              {!avatarUrl && (displayName?.substring(0, 2).toUpperCase() || 'GH')}
+              {!avatarUrl && (displayName?.substring(0, 2).toUpperCase() || 'OH')}
             </Avatar>
             {displayName && (
               <div className={classes.userInfo}>
                 <Typography className={classes.userName}>{displayName}</Typography>
-                <Typography className={classes.userRole}>GitHub User</Typography>
+                <Typography className={classes.userRole}>Platform User</Typography>
               </div>
             )}
           </Link>

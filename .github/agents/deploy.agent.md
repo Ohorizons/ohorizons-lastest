@@ -93,6 +93,7 @@ K8s manifests are generated from templates by `scripts/render-k8s.sh`.
 | Platform config | `.env` | All K8s manifests |
 | K8s templates | `backstage/k8s/templates/*.tmpl` | `backstage/k8s/*.yaml` |
 | Auth fragments | `auth-github/entra/guest.yaml.fragment` | ConfigMap auth block |
+| GitHub identity mode | `.env` / `.openhorizons-selection.yaml` | `standard`, `saml-sso`, or `enterprise-managed-users` process guidance |
 | Module selection | `.openhorizons-selection.yaml` | tfvars + app-config |
 
 **Pre-built images** available on GHCR: `ghcr.io/ohorizons/ohorizons-backstage`
@@ -106,7 +107,7 @@ Run the install wizard to collect platform configuration:
 ```bash
 scripts/install-wizard.sh
 ```
-This collects: org name, domain, auth provider, Azure resources, AI services.
+This collects: org name, domain, auth provider, GitHub identity mode, Azure resources, AI services.
 Writes to `.env` and optionally renders K8s manifests.
 
 ### Step 2: Render Manifests
@@ -188,7 +189,8 @@ When user requests a deployment, follow this exact sequence:
 
 1. **Initial Setup** — Run `./scripts/install-wizard.sh` to collect:
    - GitHub org/repo, platform name, domain
-   - Auth provider (GitHub OAuth / Entra ID / Guest)
+  - Auth provider (GitHub OAuth / Entra ID / Guest)
+  - GitHub identity mode (`standard`, `saml-sso`, `enterprise-managed-users`)
    - Container registry (GHCR public / custom ACR)
    - Azure subscription, resource group, AKS cluster
    - AI services config (optional)
@@ -216,4 +218,6 @@ For validation-run workflows, prefer phase scripts over ad-hoc command-by-comman
 - On TF error → `@terraform` for debugging
 - On Azure quota/provider/resource-state error → `@azure-portal-deploy`
 - On OPA/RBAC/public-access/secret issue → `@security`
-- On GitHub OAuth/App/GHAS/GHCR issue → `@github-integration`
+- On GitHub OAuth/App/EMU/GHAS/GHCR issue → `@github-integration`
+
+**Enterprise identity rule:** for GitHub Enterprise Managed Users, require `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`. Entra ID handles Backstage sign-in; GitHub App or token credentials remain required for catalog, scaffolder, Actions, PRs, Codespaces, packages, and AI Impact integrations.

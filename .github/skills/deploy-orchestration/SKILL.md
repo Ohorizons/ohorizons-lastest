@@ -23,6 +23,8 @@ description: "End-to-end platform deployment orchestration — prerequisites, Te
 scripts/install-wizard.sh
 
 # This writes .env and optionally renders K8s manifests.
+# For GitHub Enterprise Managed Users, select AUTH_PROVIDER=entra and
+# GITHUB_IDENTITY_MODE=enterprise-managed-users.
 # For CI/CD (non-interactive):
 scripts/install-wizard.sh --auto --selection-file .openhorizons-selection.yaml
 ```

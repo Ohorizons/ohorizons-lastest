@@ -163,6 +163,7 @@ The install wizard at [`scripts/install-wizard.sh`](../../scripts/install-wizard
 | Skills (28) | optional allowlist of skill folder names in `skills:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/skills/` |
 | Prompts (9) | optional allowlist of prompt ids in `prompts:` | empty list = include all | `golden-paths/common/agents/.rendered/.github/prompts/` |
 | MCP servers (17) | optional allowlist of MCP ids in `mcp_servers:` | empty list = include all | `golden-paths/common/agents/.rendered/mcp-servers/enabled.txt` |
+| Identity | `auth_provider` plus `github_identity_mode` (`standard`, `saml-sso`, `enterprise-managed-users`) | `github` + `standard` | `.env`, `.openhorizons-selection.yaml`, rendered auth config |
 
 ### Outputs
 
@@ -283,7 +284,7 @@ These steps differ when the client is consuming Open Horizons as a productized t
    scripts/install-wizard.sh
    ```
 
-   The wizard collects GitHub org/repo, domain, auth provider (GitHub/Entra/Guest), container registry, Azure details, and AI services configuration. It writes `.env` and optionally generates K8s manifests.
+  The wizard collects GitHub org/repo, domain, auth provider (GitHub/Entra/Guest), GitHub identity mode (`standard`, `saml-sso`, or `enterprise-managed-users`), container registry, Azure details, and AI services configuration. It writes `.env` and optionally generates K8s manifests.
 3. If the wizard didn't render manifests, run manually:
 
    ```bash
@@ -291,7 +292,7 @@ These steps differ when the client is consuming Open Horizons as a productized t
    ```
 
    This generates all K8s manifests from templates in `backstage/k8s/templates/` using the values from `.env`. No manual search-and-replace is needed.
-4. Make sure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read).
+4. Make sure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read). For GitHub Enterprise Managed Users, also set `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`; Entra handles Backstage sign-in while GitHub App/token credentials remain the technical integration path.
 5. Register Azure resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
 
 ## Stage 2 - Provision Infrastructure (L1)

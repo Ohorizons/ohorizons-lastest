@@ -283,6 +283,7 @@ Edit `.env` with your organization's details:
 | `GITHUB_ORG`, `GITHUB_REPO` | Your GitHub organization and repo name |
 | `DOMAIN` | Your custom domain. The fork-ready default is `openhorizons.example.com`; replace it before production. |
 | `AUTH_PROVIDER` | Authentication provider: `github`, `entra`, or `guest` |
+| `GITHUB_IDENTITY_MODE` | GitHub identity governance: `standard`, `saml-sso`, or `enterprise-managed-users`. Use `enterprise-managed-users` with `AUTH_PROVIDER=entra` for GitHub EMU. |
 | Azure details | Subscription, resource group, AKS cluster name |
 
 Or use the **interactive wizard** to configure everything in one step:
@@ -300,7 +301,9 @@ Wizard portal profiles:
 | `full` | H3 innovation rollout or full validation | Platform + AI Chat, AI Impact, MCP ecosystem |
 | `custom` | Pick plugins one by one | Base + only the custom plugins and pages you enable |
 
-After the base install, the wizard runs a **post-install enablement** step: it asks whether to turn on the Open Horizons custom plugins and pages and the standard Backstage public plugins, then collects only the integration data each choice needs (GitHub App, organization, Azure DevOps, Microsoft Entra ID, domain, and Azure OpenAI or Foundry for AI features).
+After the base install, the wizard runs a **post-install enablement** step: it asks whether to turn on the Open Horizons custom plugins and pages and the standard Backstage public plugins, then collects only the integration data each choice needs (GitHub App, organization, Azure DevOps, Microsoft Entra ID, GitHub identity mode including Enterprise Managed Users, domain, and Azure OpenAI or Foundry for AI features).
+
+For GitHub Enterprise Managed Users, set `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`. Entra ID becomes the Backstage sign-in authority; GitHub App or token credentials remain required for catalog sync, scaffolder writes, Actions, PRs, Codespaces, packages, and AI Impact metrics.
 
 ### 3. Generate & Deploy
 

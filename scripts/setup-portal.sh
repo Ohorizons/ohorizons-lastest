@@ -178,7 +178,8 @@ step4_github() {
   ok "GitHub org: $GITHUB_ORG"
 
   echo ""
-  info "GitHub App is needed for portal authentication and catalog integration."
+  info "GitHub App is needed for catalog/scaffolder integration, and for portal authentication only when AUTH_PROVIDER=github."
+  info "For AUTH_PROVIDER=entra with GitHub Enterprise Managed Users, Entra handles user sign-in and GitHub App credentials remain the technical integration path."
   info "If you don't have one yet, run: ./scripts/setup-github-app.sh --org $GITHUB_ORG"
 
   ask GITHUB_APP_ID "GitHub App ID (numeric)" "${GITHUB_APP_ID:-}"

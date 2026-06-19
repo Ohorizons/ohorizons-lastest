@@ -31,6 +31,7 @@ Follow the step-by-step instructions in `docs/guides/DEPLOYMENT_GUIDE.md`.
 
 **Before deployment, I need to know:**
 1. **Portal name:** What should the developer portal be called?
+2. **Identity strategy:** GitHub OAuth, Entra ID, or Entra ID + GitHub Enterprise Managed Users?
 
 Which option would you prefer? If you're not sure, I recommend:
 - **New to the platform** -> Option A (I'll guide you)
