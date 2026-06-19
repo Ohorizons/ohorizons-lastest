@@ -23,7 +23,7 @@ handoffs:
     send: false
   - label: "Azure Infrastructure"
     agent: azure-portal-deploy
-    prompt: "Provision Azure AKS, Key Vault, PostgreSQL for portal deployment."
+    prompt: "Validate Azure subscription readiness, providers, quotas, region/SKU availability, and live resource state for this deployment run."
     send: false
   - label: "GitHub Integration"
     agent: github-integration
