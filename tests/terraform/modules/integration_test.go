@@ -378,7 +378,7 @@ func TestIntegrationSizingProfiles(t *testing.T) {
 					"environment":         "dev",
 					"location":            "brazilsouth",
 					"resource_group_name": "rg-size-" + profile,
-					"kubernetes_version":  "1.29",
+					"kubernetes_version":  "1.34",
 					"sizing_profile":      profile,
 					"aks_subnet_id":       "/subscriptions/00000000/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/snet",
 				},

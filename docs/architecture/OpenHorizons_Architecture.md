@@ -118,7 +118,7 @@ flowchart TB
 
     subgraph L1["L1 Cloud Infrastructure"]
         aoai["Azure OpenAI<br/>gpt-5.1"]
-        redis["Azure Cache for Redis"]
+        redis["Azure Managed Redis"]
         cdb["Azure Cosmos DB"]
         appi["Application Insights"]
     end

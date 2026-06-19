@@ -1259,7 +1259,7 @@ Terraform will perform the following actions:
   # module.aks.azurerm_kubernetes_cluster.main will be created
   + resource "azurerm_kubernetes_cluster" "main" {
       + name                = "aks-contoso-dev"
-      + kubernetes_version  = "1.29"
+      + kubernetes_version  = "1.34"
       ...
     }
 

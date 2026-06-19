@@ -29,7 +29,7 @@ func TestAKSClusterModuleBasic(t *testing.T) {
 			"location":            "brazilsouth",
 			"customer_name":       "testaks",
 			"environment":         "dev",
-			"kubernetes_version":  "1.29",
+			"kubernetes_version":  "1.34",
 			"sku_tier":            "Standard",
 			"vnet_subnet_id":      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.Network/virtualNetworks/vnet-test/subnets/snet-aks",
 			"system_node_pool": map[string]interface{}{
@@ -68,7 +68,7 @@ func TestAKSClusterModuleBasic(t *testing.T) {
 func TestAKSClusterModuleKubernetesVersions(t *testing.T) {
 	t.Parallel()
 
-	versions := []string{"1.28", "1.29", "1.30"}
+	versions := []string{"1.32", "1.33", "1.34"}
 
 	for _, version := range versions {
 		version := version

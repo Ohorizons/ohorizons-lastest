@@ -217,7 +217,7 @@ Planes:
 
 - **Portal experience**: AI Chat, AI Impact, and GitHub Copilot.
 - **Agent runtime**: Agent API, model router, orchestrator agents, and MCP servers.
-- **Context and memory**: Shared Context Store, memory tiers, Azure Cache for Redis, and skills/agents.
+- **Context and memory**: Shared Context Store, memory tiers, Azure Managed Redis, and skills/agents.
 - **Governance**: trajectory logging, cost tracking, agent identity, and Content Safety.
 - **Azure AI Foundry**: Azure OpenAI, Foundry agent service, Azure AI Search, and Application Insights.
 
@@ -340,7 +340,7 @@ The Backstage catalog reads metadata from GitHub and Azure DevOps providers. Eac
 ### 6.4 Data and Context
 
 - PostgreSQL stores Backstage catalog and platform state.
-- Azure Cache for Redis supports semantic cache, vector memory, and session memory.
+- Azure Managed Redis supports semantic cache, vector memory, and session memory.
 - Azure AI Search supports RAG retrieval.
 - Purview provides data classification and governance scope.
 

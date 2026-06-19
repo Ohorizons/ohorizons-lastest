@@ -62,9 +62,14 @@ profiles:
       redis:
         enabled: true
         name: "${PROJECT}-${ENV}-redis"
-        sku: "Basic"
-        family: "C"
-        capacity: 0
+        # Azure Managed Redis (Microsoft.Cache/redisEnterprise)
+        sku_name: "Balanced_B0"
+        high_availability: false
+        minimum_tls_version: "1.2"
+        client_protocol: "Encrypted"
+        clustering_policy: "OSSCluster"
+        eviction_policy: "VolatileLRU"
+        modules: []
 
     ai_foundry:
       enabled: false # Optional for Small (H3 Innovation)
@@ -148,9 +153,14 @@ profiles:
       redis:
         enabled: true
         name: "${PROJECT}-${ENV}-redis"
-        sku: "Standard"
-        family: "C"
-        capacity: 1
+        # Azure Managed Redis (Microsoft.Cache/redisEnterprise)
+        sku_name: "Balanced_B1"
+        high_availability: false
+        minimum_tls_version: "1.2"
+        client_protocol: "Encrypted"
+        clustering_policy: "OSSCluster"
+        eviction_policy: "VolatileLRU"
+        modules: []
 
     ai_foundry:
       enabled: true
@@ -274,10 +284,14 @@ profiles:
       redis:
         enabled: true
         name: "${PROJECT}-${ENV}-redis"
-        sku: "Premium"
-        family: "P"
-        capacity: 1
-        zones: ["1", "2", "3"]
+        # Azure Managed Redis (Microsoft.Cache/redisEnterprise)
+        sku_name: "Balanced_B3"
+        high_availability: true
+        minimum_tls_version: "1.2"
+        client_protocol: "Encrypted"
+        clustering_policy: "OSSCluster"
+        eviction_policy: "VolatileLRU"
+        modules: ["RediSearch", "RedisJSON"]
 
       cosmos_db:
         enabled: true
@@ -412,10 +426,16 @@ profiles:
             sku: "Standard_D4ds_v5"
 
       redis:
-        sku: "Premium"
-        family: "P"
-        capacity: 3
-        geo_replication: true
+        enabled: true
+        name: "${PROJECT}-${ENV}-redis"
+        # Azure Managed Redis (Microsoft.Cache/redisEnterprise)
+        sku_name: "Balanced_B5"
+        high_availability: true
+        minimum_tls_version: "1.2"
+        client_protocol: "Encrypted"
+        clustering_policy: "OSSCluster"
+        eviction_policy: "VolatileLRU"
+        modules: ["RediSearch", "RedisJSON"]
 
       cosmos_db:
         enabled: true

@@ -106,7 +106,7 @@ The Open Horizons model organizes the platform into three layers with different 
 | **Defender** | Defender for Cloud | Threat protection | Recommended |
 | **Purview** | Microsoft Purview | Data governance | Optional |
 | **PostgreSQL** | Azure Database for PostgreSQL | Relational database | Optional |
-| **Redis** | Azure Cache for Redis | Caching | Optional |
+| **Redis** | Azure Managed Redis | Caching | Optional |
 
 #### H2: Enhancement Components
 

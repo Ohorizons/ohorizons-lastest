@@ -361,7 +361,7 @@ The module creates private DNS zones for Azure services:
 | `privatelink.azurecr.io` | Azure Container Registry |
 | `privatelink.vaultcore.azure.net` | Azure Key Vault |
 | `privatelink.postgres.database.azure.com` | PostgreSQL |
-| `privatelink.redis.cache.windows.net` | Redis Cache |
+| `privatelink.redis.azure.net` | Azure Managed Redis |
 | `privatelink.blob.core.windows.net` | Blob Storage |
 
 > 💡 **What Private DNS Zones Do**
@@ -404,7 +404,7 @@ The module creates private DNS zones for Azure services:
 | `location` | string | **Yes** | - | Azure region |
 | `customer_name` | string | **Yes** | - | Customer identifier |
 | `environment` | string | **Yes** | - | Environment |
-| `kubernetes_version` | string | No | `"1.29"` | Kubernetes version |
+| `kubernetes_version` | string | No | `"1.34"` | Kubernetes version (pin a supported minor; 1.29/1.30 are EOL) |
 | `sku_tier` | string | No | `"Standard"` | SKU tier (Free/Standard/Premium) |
 | `vnet_subnet_id` | string | **Yes** | - | Subnet for AKS nodes |
 | `pod_subnet_id` | string | No | `null` | Subnet for pods (CNI Overlay) |
@@ -531,8 +531,8 @@ module "aks" {
   customer_name       = var.customer_name
   environment         = var.environment
 
-  # Kubernetes version
-  kubernetes_version = "1.29"
+  # Kubernetes version (pin a supported minor; 1.29/1.30 are EOL)
+  kubernetes_version = "1.34"
   sku_tier           = "Standard"  # Use "Free" for dev
 
   # Network - connect to networking module
@@ -879,22 +879,23 @@ postgresql_config = {
 
 #### Redis Configuration
 
+The module provisions **Azure Managed Redis** (`Microsoft.Cache/redisEnterprise`)
+via the `azapi` provider, because classic Azure Cache for Redis is retiring for
+new creations.
+
 ```hcl
 redis_config = {
-  # Cache capacity (0-6 for Basic/Standard, 1-5 for Premium)
-  capacity = 1
-
-  # SKU family: C (Basic/Standard) or P (Premium)
-  family = "P"
-
-  # SKU name: Basic, Standard, Premium
-  sku_name = "Premium"
-
-  # Number of shards (Premium only)
-  shard_count = 1
-
-  # Cluster mode (Premium only)
-  enable_cluster = false
+  enabled             = true
+  # SKU family: Balanced_*, MemoryOptimized_*, ComputeOptimized_*, FlashOptimized_*
+  sku_name            = "Balanced_B1"
+  # High availability (disable only for dev/test; B0/B1 have no geo-replication)
+  high_availability   = true
+  minimum_tls_version = "1.2"
+  client_protocol     = "Encrypted"          # Encrypted (TLS) or Plaintext
+  clustering_policy   = "OSSCluster"         # OSSCluster or EnterpriseCluster
+  eviction_policy     = "VolatileLRU"
+  # Optional modules for vector / semantic cache
+  modules             = ["RediSearch", "RedisJSON"]
 }
 ```
 
@@ -943,11 +944,14 @@ module "databases" {
   # Enable Redis (optional)
   enable_redis = true
   redis_config = {
-    capacity      = 1
-    family        = "P"
-    sku_name      = "Premium"
-    shard_count   = 1
-    enable_cluster = false
+    enabled             = true
+    sku_name            = "Balanced_B1"
+    high_availability   = true
+    minimum_tls_version = "1.2"
+    client_protocol     = "Encrypted"
+    clustering_policy   = "OSSCluster"
+    eviction_policy     = "VolatileLRU"
+    modules             = []
   }
 
   # Private networking
@@ -2000,7 +2004,7 @@ module "aks" {
   location            = "brazilsouth"
   customer_name       = "dev"
   environment         = "dev"
-  kubernetes_version  = "1.29"
+  kubernetes_version  = "1.34"
   sku_tier            = "Free"  # Free tier for dev!
   vnet_subnet_id      = module.networking.aks_nodes_subnet_id
 

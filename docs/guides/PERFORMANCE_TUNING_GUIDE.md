@@ -91,8 +91,9 @@ This guide provides recommendations for optimizing the performance of the Open H
 # terraform.tfvars optimizations
 sku_tier = "Standard"  # Use Standard for production (SLA backed)
 
-# For high-throughput environments
-kubernetes_version = "1.29"  # Latest stable version
+# For high-throughput environments — pin a currently supported AKS minor
+# (Azure supports N, N-1, N-2; 1.29/1.30 are end-of-life).
+kubernetes_version = "1.34"
 
 # API server authorized IP ranges (reduces attack surface)
 api_server_authorized_ip_ranges = ["10.0.0.0/8", "YOUR_OFFICE_IP/32"]
@@ -372,15 +373,21 @@ postgresql_geo_redundant_backup = true
 
 ### Redis Caching Strategy
 
+The platform provisions **Azure Managed Redis** (`Microsoft.Cache/redisEnterprise`).
+Scale by choosing a larger SKU rather than a separate family/capacity pair.
+
 ```hcl
 # terraform.tfvars
-redis_sku_name = "Premium"
-redis_family = "P"
-redis_capacity = 1  # P1 = 6GB
-
-# Cluster mode for high throughput
-redis_cluster_enabled = true
-redis_shard_count = 2
+redis_config = {
+  enabled             = true
+  sku_name            = "Balanced_B3" # scale up: Balanced_B5/B10, or MemoryOptimized_M10+
+  high_availability   = true
+  minimum_tls_version = "1.2"
+  client_protocol     = "Encrypted"
+  clustering_policy   = "OSSCluster" # OSS clustering for high throughput
+  eviction_policy     = "VolatileLRU"
+  modules             = ["RediSearch", "RedisJSON"] # vector / semantic cache
+}
 ```
 
 ### Redis Best Practices

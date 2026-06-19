@@ -288,7 +288,10 @@ module "aks" {
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
-  kubernetes_version = "1.29"
+  # Pin a currently supported AKS minor (Azure supports N, N-1, N-2).
+  # 1.29/1.30 are end-of-life. Validate availability per region with
+  # `az aks get-versions --location <region>` and prefer an auto-upgrade channel.
+  kubernetes_version = "1.34"
 
   network_config = {
     vnet_id         = module.networking.vnet_id
