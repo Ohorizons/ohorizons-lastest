@@ -65,6 +65,20 @@ scripts/azure-validation-run.sh
 
 ## 3. Safety Gates
 
+### 3.1 Validation Scopes
+
+Use `--validation-scope` to choose how much integration to validate:
+
+| Scope | Purpose | GitHub inputs required? | What is disabled |
+|-------|---------|-------------------------|------------------|
+| `infra` | Azure-only infrastructure plan/apply: networking, AKS, ACR, Key Vault, PostgreSQL, Azure Managed Redis, observability, Defender, AI Foundry | No | ArgoCD, GitHub runners, Backstage/AI Chat runtime, MCP ecosystem, Foundry agents gateway, Purview, Cost Management, DR |
+| `platform` | Platform services without GitHub runners or AI runtime | Client GitHub org and admin group required | GitHub runners, AI Chat runtime, MCP ecosystem, Foundry agents gateway |
+| `full` | Full H1/H2/H3 integration | Yes: client GitHub org, GitHub token/app data, admin group | Nothing intentionally disabled |
+
+Do not invent GitHub values for `platform` or `full`. Use `infra` when the goal is to validate Azure infrastructure without real GitHub integration.
+
+### 3.2 Human Approval Gates
+
 The following phases are non-destructive and can run without approval:
 
 - `preflight`
@@ -223,7 +237,20 @@ scripts/azure-validation-run.sh \
   --environment prod \
   --domain-name <client-domain> \
   --github-org <client-github-org> \
+  --validation-scope full \
   --base-tfvars terraform/environments/production.tfvars
+```
+
+Run an Azure-only infrastructure plan without GitHub inputs:
+
+```bash
+scripts/azure-validation-run.sh \
+  --phase plan \
+  --run-id <run-id> \
+  --customer-name <client-name> \
+  --environment prod \
+  --domain-name <temporary-azure-dns-zone> \
+  --validation-scope infra
 ```
 
 Apply after human approval:

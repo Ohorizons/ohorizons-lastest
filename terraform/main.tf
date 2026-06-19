@@ -85,8 +85,8 @@ provider "azuread" {
 }
 
 provider "github" {
-  owner = var.github_org
-  token = var.github_token
+  owner = var.github_org != "" ? var.github_org : null
+  token = var.github_token != "" ? var.github_token : null
 }
 
 provider "kubernetes" {
@@ -340,7 +340,7 @@ module "aks" {
   enable_cost_analysis           = true
   enable_vertical_pod_autoscaler = true
 
-  admin_group_ids = [var.admin_group_id]
+  admin_group_ids = var.admin_group_id != "" ? [var.admin_group_id] : []
 
   private_dns_zone_id = module.networking.private_dns_zone_ids.aks
 
@@ -484,6 +484,7 @@ module "ai_foundry" {
 
   key_vault_id               = module.security.key_vault_id
   log_analytics_workspace_id = var.enable_observability ? module.observability[0].log_analytics_workspace_id : ""
+  enable_diagnostic_settings = var.enable_observability
 
   tags = local.common_tags
 

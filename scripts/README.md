@@ -31,8 +31,10 @@ This directory contains automation scripts for the Open Horizons Platform.
 
 ```bash
 ./azure-validation-run.sh --phase preflight --customer-name <client-name> --environment prod --location eastus2
-./azure-validation-run.sh --phase plan --run-id <run-id>
+./azure-validation-run.sh --phase plan --run-id <run-id> --customer-name <client-name> --domain-name <temporary-azure-dns-zone> --validation-scope infra
 ```
+
+Use `--validation-scope infra` when GitHub org/token/app credentials are not available. Use `platform` or `full` only with real client GitHub and Entra inputs.
 
 ### Setup Scripts
 

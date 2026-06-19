@@ -232,8 +232,11 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "alerts" {
       description = "Node {{ $labels.node }} CPU usage is above 85% for 5 minutes."
     }
 
-    action {
-      action_group_id = length(azurerm_monitor_action_group.alerts) > 0 ? azurerm_monitor_action_group.alerts[0].id : null
+    dynamic "action" {
+      for_each = length(azurerm_monitor_action_group.alerts) > 0 ? [azurerm_monitor_action_group.alerts[0].id] : []
+      content {
+        action_group_id = action.value
+      }
     }
   }
 

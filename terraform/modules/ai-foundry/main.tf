@@ -304,7 +304,7 @@ resource "azurerm_key_vault_secret" "content_safety_key" {
 # =============================================================================
 
 resource "azurerm_monitor_diagnostic_setting" "openai" {
-  count = var.openai_config.enabled && var.log_analytics_workspace_id != "" ? 1 : 0
+  count = var.enable_diagnostic_settings && var.openai_config.enabled ? 1 : 0
 
   name                       = "openai-diagnostics"
   target_resource_id         = azurerm_cognitive_account.openai[0].id
@@ -328,7 +328,7 @@ resource "azurerm_monitor_diagnostic_setting" "openai" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "search" {
-  count = var.ai_search_config.enabled && var.log_analytics_workspace_id != "" ? 1 : 0
+  count = var.enable_diagnostic_settings && var.ai_search_config.enabled ? 1 : 0
 
   name                       = "search-diagnostics"
   target_resource_id         = azurerm_search_service.main[0].id
@@ -363,6 +363,13 @@ resource "azurerm_cosmosdb_account" "foundry_memory" {
 
   consistency_policy {
     consistency_level = var.foundry_agents_config.cosmos_memory.consistency_level
+  }
+
+  backup {
+    type                = "Periodic"
+    interval_in_minutes = 240
+    retention_in_hours  = 720
+    storage_redundancy  = "Geo"
   }
 
   geo_location {

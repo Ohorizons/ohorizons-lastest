@@ -90,7 +90,7 @@ output "grafana_url" {
 
 output "ai_foundry_endpoint" {
   description = "Azure AI Foundry endpoint"
-  value       = var.enable_ai_foundry ? module.ai_foundry[0].endpoint : null
+  value       = var.enable_ai_foundry ? module.ai_foundry[0].openai_endpoint : null
 }
 
 # -----------------------------------------------------------------------------

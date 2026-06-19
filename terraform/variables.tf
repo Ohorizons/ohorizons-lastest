@@ -42,25 +42,27 @@ variable "azure_tenant_id" {
 }
 
 variable "admin_group_id" {
-  description = "Azure AD group ID for platform administrators"
+  description = "Azure AD / Entra ID group object ID for platform administrators. Required for platform/full validation; optional for Azure-only infrastructure planning."
   type        = string
+  default     = ""
 }
 
 variable "github_org" {
-  description = "GitHub organization name"
+  description = "GitHub organization name. Required when GitHub-integrated modules such as ArgoCD, Backstage, or GitHub runners are enabled."
   type        = string
+  default     = ""
 }
 
 variable "github_token" {
-  description = "GitHub personal access token (set via TF_VAR_github_token or -var)"
+  description = "GitHub personal access token (set via TF_VAR_github_token or -var). Required only when GitHub provider resources are enabled."
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "domain_name" {
-  description = "Base domain name for the platform (e.g. platform.contoso.com)"
+  description = "Base domain name for the platform (e.g. platform.contoso.com). For Azure-only validation, an explicit temporary Azure DNS zone name can be used, but it will not resolve publicly unless delegated."
   type        = string
-  default     = "internal.local"
 }
 
 # -----------------------------------------------------------------------------

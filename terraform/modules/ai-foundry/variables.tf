@@ -153,6 +153,12 @@ variable "log_analytics_workspace_id" {
   default     = ""
 }
 
+variable "enable_diagnostic_settings" {
+  description = "Enable diagnostic settings for AI Foundry resources. Set false when no Log Analytics workspace is deployed."
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

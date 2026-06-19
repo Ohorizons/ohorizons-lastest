@@ -30,6 +30,7 @@ locals {
 
   # Private DNS zones for Azure services
   private_dns_zones = {
+    "aks"               = "privatelink.${var.location}.azmk8s.io"
     "postgres"          = "privatelink.postgres.database.azure.com"
     "redis"             = "privatelink.redis.azure.net"
     "keyvault"          = "privatelink.vaultcore.azure.net"

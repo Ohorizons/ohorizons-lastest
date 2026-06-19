@@ -381,7 +381,9 @@ resource "azapi_resource" "governance_rules" {
 # =============================================================================
 
 resource "azapi_update_resource" "defender_for_aks" {
-  for_each = toset(var.aks_cluster_ids)
+  for_each = {
+    for index, cluster_id in var.aks_cluster_ids : tostring(index) => cluster_id
+  }
 
   type        = "Microsoft.ContainerService/managedClusters@2023-08-01"
   resource_id = each.value
