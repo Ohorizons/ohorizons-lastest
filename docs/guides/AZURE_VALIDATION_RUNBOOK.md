@@ -72,10 +72,11 @@ Use `--validation-scope` to choose how much integration to validate:
 | Scope | Purpose | GitHub inputs required? | What is disabled |
 |-------|---------|-------------------------|------------------|
 | `infra` | Azure-only infrastructure plan/apply: networking, AKS, ACR, Key Vault, PostgreSQL, Azure Managed Redis, observability, Defender, AI Foundry | No | ArgoCD, GitHub runners, Backstage/AI Chat runtime, MCP ecosystem, Foundry agents gateway, Purview, Cost Management, DR |
+| `nogithub` | H1/H2/H3 integration without GitHub SSO, GitHub runners, or GitHub catalog/OAuth | No GitHub inputs required, but AKS must already be applied and reachable | GitHub runners and GitHub SSO/catalog integration |
 | `platform` | Platform services without GitHub runners or AI runtime | Client GitHub org and admin group required | GitHub runners, AI Chat runtime, MCP ecosystem, Foundry agents gateway |
 | `full` | Full H1/H2/H3 integration | Yes: client GitHub org, GitHub token/app data, admin group | Nothing intentionally disabled |
 
-Do not invent GitHub values for `platform` or `full`. Use `infra` when the goal is to validate Azure infrastructure without real GitHub integration.
+Do not invent GitHub values for `platform` or `full`. Use `infra` when the goal is to validate Azure infrastructure without real GitHub integration. Use `nogithub` only after the `infra` plan has been applied and AKS credentials work, because it includes Kubernetes workloads.
 
 ### 3.2 Human Approval Gates
 
@@ -252,6 +253,20 @@ scripts/azure-validation-run.sh \
   --domain-name <temporary-azure-dns-zone> \
   --validation-scope infra
 ```
+
+After `infra` is applied and `validate-h1` passes, plan the no-GitHub integration layer:
+
+```bash
+scripts/azure-validation-run.sh \
+  --phase plan \
+  --run-id <run-id> \
+  --customer-name <client-name> \
+  --environment prod \
+  --domain-name <temporary-azure-dns-zone> \
+  --validation-scope nogithub
+```
+
+This phase is intentionally blocked until `kubectl cluster-info` succeeds. It prevents Terraform from failing later with a low-level Kubernetes provider REST client error.
 
 Apply after human approval:
 

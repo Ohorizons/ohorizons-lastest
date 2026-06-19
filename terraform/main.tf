@@ -125,11 +125,11 @@ locals {
   name_prefix = "${var.customer_name}-${var.environment}"
 
   common_tags = merge(var.tags, {
-    "open-horizons/customer"        = var.customer_name
-    "open-horizons/environment"     = var.environment
-    "open-horizons/deployment-mode" = var.deployment_mode
-    "open-horizons/managed-by"      = "terraform"
-    "open-horizons/version"         = "1.0.0"
+    "open-horizons-customer"        = var.customer_name
+    "open-horizons-environment"     = var.environment
+    "open-horizons-deployment-mode" = var.deployment_mode
+    "open-horizons-managed-by"      = "terraform"
+    "open-horizons-version"         = "1.0.0"
   })
 
   # Deployment mode configurations
@@ -539,6 +539,7 @@ module "argocd" {
   github_app_id            = var.github_app_id
   github_app_client_id     = var.github_app_client_id
   github_app_client_secret = var.github_app_client_secret
+  github_sso_enabled       = var.github_org != "" && var.github_app_client_id != "" && var.github_app_client_secret != ""
 
   admin_password_hash = var.argocd_admin_password
 

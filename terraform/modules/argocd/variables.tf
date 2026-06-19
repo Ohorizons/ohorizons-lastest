@@ -32,24 +32,34 @@ variable "domain_name" {
 variable "github_org" {
   description = "GitHub organization name"
   type        = string
+  default     = ""
 }
 
 variable "github_app_id" {
   description = "GitHub App ID for SSO"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "github_app_client_id" {
   description = "GitHub App Client ID"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "github_app_client_secret" {
   description = "GitHub App Client Secret"
   type        = string
+  default     = ""
   sensitive   = true
+}
+
+variable "github_sso_enabled" {
+  description = "Enable GitHub SSO and GitHub repository credential templates. Disable for no-GitHub validation scopes."
+  type        = bool
+  default     = true
 }
 
 variable "admin_password_hash" {

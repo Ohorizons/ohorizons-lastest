@@ -23,9 +23,9 @@ locals {
   name_prefix = "${var.customer_name}-${var.environment}"
 
   common_tags = merge(var.tags, {
-    "open-horizons/customer"    = var.customer_name
-    "open-horizons/environment" = var.environment
-    "open-horizons/component"   = "networking"
+    "open-horizons-customer"    = var.customer_name
+    "open-horizons-environment" = var.environment
+    "open-horizons-component"   = "networking"
   })
 
   # Private DNS zones for Azure services

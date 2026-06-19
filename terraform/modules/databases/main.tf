@@ -22,9 +22,9 @@ locals {
   name_prefix = "${var.customer_name}-${var.environment}"
 
   common_tags = merge(var.tags, {
-    "open-horizons/customer"    = var.customer_name
-    "open-horizons/environment" = var.environment
-    "open-horizons/component"   = "databases"
+    "open-horizons-customer"    = var.customer_name
+    "open-horizons-environment" = var.environment
+    "open-horizons-component"   = "databases"
   })
 
   # Production settings

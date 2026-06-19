@@ -26,9 +26,9 @@ locals {
   acr_name = replace("cr${local.name_prefix}", "-", "")
 
   common_tags = merge(var.tags, {
-    "open-horizons/customer"    = var.customer_name
-    "open-horizons/environment" = var.environment
-    "open-horizons/component"   = "container-registry"
+    "open-horizons-customer"    = var.customer_name
+    "open-horizons-environment" = var.environment
+    "open-horizons-component"   = "container-registry"
   })
 }
 

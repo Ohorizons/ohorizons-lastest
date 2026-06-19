@@ -142,7 +142,7 @@ Use this when you need a real Azure proof run with artifacts, agent handoffs, sc
 
 See the [Azure Validation Runbook](AZURE_VALIDATION_RUNBOOK.md) for gates, artifact structure, agent responsibilities, and cleanup.
 
-Use `--validation-scope infra` to validate Azure infrastructure without GitHub credentials. Use `--validation-scope full` only when the client GitHub organization, GitHub token/app credentials, and Entra admin group are available.
+Use `--validation-scope infra` to validate Azure infrastructure without GitHub credentials. After infra is applied and AKS credentials work, use `--validation-scope nogithub` to validate Kubernetes platform services without GitHub SSO/catalog/runners. Use `--validation-scope full` only when the client GitHub organization, GitHub token/app credentials, and Entra admin group are available.
 
 ### Option C: Manual Step-by-Step (Full Control)
 

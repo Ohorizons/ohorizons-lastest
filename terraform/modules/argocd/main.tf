@@ -26,10 +26,29 @@ locals {
 
   replicas = var.ha_enabled ? 3 : 1
 
+  github_rbac_policy = <<-EOT
+    # Admin access for GitHub org admins
+    g, ${var.github_org}:platform-admins, role:admin
+
+    # Read-only for all org members
+    g, ${var.github_org}:*, role:readonly
+
+    # Team-specific access (team name = ArgoCD project)
+    p, role:team-member, applications, get, */*, allow
+    p, role:team-member, applications, sync, */*, allow
+    p, role:team-member, applications, action/*, */*, allow
+    p, role:team-member, logs, get, */*, allow
+  EOT
+
+  local_rbac_policy = <<-EOT
+    # No external SSO configured for validation scope.
+    # Local admin access is controlled by argocdServerAdminPassword.
+  EOT
+
   common_labels = {
     "app.kubernetes.io/managed-by" = "terraform"
-    "open-horizons/customer"       = var.customer_name
-    "open-horizons/environment"    = var.environment
+    "open-horizons-customer"       = var.customer_name
+    "open-horizons-environment"    = var.environment
   }
 }
 
@@ -52,6 +71,8 @@ resource "kubernetes_namespace" "argocd" {
 # =============================================================================
 
 resource "kubernetes_secret" "github_app" {
+  count = var.github_sso_enabled ? 1 : 0
+
   metadata {
     name      = "argocd-github-app"
     namespace = kubernetes_namespace.argocd.metadata[0].name
@@ -387,7 +408,7 @@ resource "helm_release" "argocd" {
     # Dex (SSO)
     # -------------------------------------------------------------------------
     dex = {
-      enabled = true
+      enabled = var.github_sso_enabled
 
       resources = {
         requests = {
@@ -411,29 +432,9 @@ resource "helm_release" "argocd" {
       }
 
       # CM configuration
-      cm = {
+      cm = merge({
         # URL
         "url" = "https://${local.argocd_hostname}"
-
-        # Dex configuration for GitHub SSO
-        "dex.config" = yamlencode({
-          connectors = [
-            {
-              type = "github"
-              id   = "github"
-              name = "GitHub"
-              config = {
-                clientID     = "$dex.github.clientId"
-                clientSecret = "$dex.github.clientSecret"
-                orgs = [
-                  {
-                    name = var.github_org
-                  }
-                ]
-              }
-            }
-          ]
-        })
 
         # Resource tracking
         "application.resourceTrackingMethod" = "annotation"
@@ -453,25 +454,33 @@ resource "helm_release" "argocd" {
           end
           return hs
         EOT
-      }
+        }, var.github_sso_enabled ? {
+        # Dex configuration for GitHub SSO
+        "dex.config" = yamlencode({
+          connectors = [
+            {
+              type = "github"
+              id   = "github"
+              name = "GitHub"
+              config = {
+                clientID     = "$dex.github.clientId"
+                clientSecret = "$dex.github.clientSecret"
+                orgs = [
+                  {
+                    name = var.github_org
+                  }
+                ]
+              }
+            }
+          ]
+        })
+      } : {})
 
       # RBAC configuration
       rbac = {
         "policy.default" = "role:readonly"
 
-        "policy.csv" = <<-EOT
-          # Admin access for GitHub org admins
-          g, ${var.github_org}:platform-admins, role:admin
-          
-          # Read-only for all org members
-          g, ${var.github_org}:*, role:readonly
-          
-          # Team-specific access (team name = ArgoCD project)
-          p, role:team-member, applications, get, */*, allow
-          p, role:team-member, applications, sync, */*, allow
-          p, role:team-member, applications, action/*, */*, allow
-          p, role:team-member, logs, get, */*, allow
-        EOT
+        "policy.csv" = var.github_sso_enabled ? local.github_rbac_policy : local.local_rbac_policy
 
         "scopes" = "[groups]"
       }
@@ -482,13 +491,13 @@ resource "helm_release" "argocd" {
       }
 
       # Repository credentials (template)
-      credentialTemplates = {
+      credentialTemplates = var.github_sso_enabled ? {
         "github-https" = {
           url      = "https://github.com/${var.github_org}"
           password = "$github-app-client-secret"
           username = "not-used"
         }
-      }
+      } : {}
     }
   })]
 
@@ -514,8 +523,7 @@ resource "kubectl_manifest" "platform_project" {
     spec = {
       description = "Open Horizons Platform Components"
 
-      sourceRepos = [
-        "https://github.com/${var.github_org}/*",
+      sourceRepos = concat(var.github_org != "" ? ["https://github.com/${var.github_org}/*"] : [], [
         "https://charts.jetstack.io",
         "https://kubernetes.github.io/ingress-nginx",
         "https://prometheus-community.github.io/helm-charts",
@@ -523,7 +531,7 @@ resource "kubectl_manifest" "platform_project" {
         "https://jaegertracing.github.io/helm-charts",
         "https://charts.bitnami.com/bitnami",
         "registry-1.docker.io"
-      ]
+      ])
 
       destinations = [
         {

@@ -80,8 +80,9 @@ Options:
   --admin-group-id <id>       Entra admin group object id
   --github-org <org>          GitHub org
   --base-tfvars <path>        Base tfvars (default: terraform/environments/production.tfvars)
-  --validation-scope <scope>  infra | platform | full (default: full)
+  --validation-scope <scope>  infra | nogithub | platform | full (default: full)
                               infra: Azure-only resources, no GitHub token/org required
+                              nogithub: Azure + H2/H3 services that do not require GitHub SSO/runners
                               platform/full: require real client GitHub integration inputs
   --skip-provider-registration Do not register missing Azure providers in preflight
   --confirm-apply            Required for phase apply
@@ -168,8 +169,8 @@ load_azure_context_defaults() {
 require_plan_inputs() {
   require_customer_name
   load_azure_context_defaults
-  if [[ "$VALIDATION_SCOPE" != "infra" && "$VALIDATION_SCOPE" != "platform" && "$VALIDATION_SCOPE" != "full" ]]; then
-    write_error "$PHASE" "invalid_validation_scope" "deploy" "--validation-scope must be one of: infra, platform, full." ""
+  if [[ "$VALIDATION_SCOPE" != "infra" && "$VALIDATION_SCOPE" != "nogithub" && "$VALIDATION_SCOPE" != "platform" && "$VALIDATION_SCOPE" != "full" ]]; then
+    write_error "$PHASE" "invalid_validation_scope" "deploy" "--validation-scope must be one of: infra, nogithub, platform, full." ""
     write_status "$PHASE" "failed" "invalid_validation_scope" "deploy" false
     exit 2
   fi
@@ -177,7 +178,7 @@ require_plan_inputs() {
   [[ -n "$DOMAIN_NAME" ]] || missing+=("--domain-name <client-domain>")
   [[ -n "$SUBSCRIPTION_ID" ]] || missing+=("--subscription-id <subscription-id> or TF_VAR_azure_subscription_id")
   [[ -n "$TENANT_ID" ]] || missing+=("--tenant-id <tenant-id> or TF_VAR_azure_tenant_id")
-  if [[ "$VALIDATION_SCOPE" != "infra" ]]; then
+  if [[ "$VALIDATION_SCOPE" != "infra" && "$VALIDATION_SCOPE" != "nogithub" ]]; then
     [[ -n "$ADMIN_GROUP_ID" ]] || missing+=("--admin-group-id <entra-group-object-id> or TF_VAR_admin_group_id")
     [[ -n "$GITHUB_ORG" ]] || missing+=("--github-org <client-github-org> or TF_VAR_github_org")
   fi
@@ -318,7 +319,6 @@ deployment_mode       = "enterprise"
 
 enable_container_registry = true
 enable_databases          = true
-enable_defender           = true
 enable_observability      = true
 enable_ai_foundry         = true
 EOF_TFVARS
@@ -328,6 +328,7 @@ EOF_TFVARS
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = false
 enable_github_runners     = false
+enable_defender           = false
 enable_purview            = false
 enable_cost_management    = false
 enable_disaster_recovery  = false
@@ -341,14 +342,32 @@ enable_agent_api_sk       = false
 enable_mcp_ecosystem      = false
 EOF_TFVARS
       ;;
+    nogithub)
+      cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
+enable_argocd             = true
+enable_github_runners     = false
+enable_defender           = false
+enable_purview            = false
+enable_cost_management    = false
+enable_disaster_recovery  = false
+enable_external_secrets   = true
+enable_foundry_agents     = true
+enable_ai_chat_plugin     = true
+enable_agent_api          = true
+enable_agent_api_impact   = true
+enable_agent_api_maf      = false
+enable_agent_api_sk       = false
+enable_mcp_ecosystem      = true
+EOF_TFVARS
+      ;;
     platform)
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = true
 enable_github_runners     = false
+enable_defender           = true
 enable_purview            = false
 enable_cost_management    = false
 enable_disaster_recovery  = false
-enable_external_secrets   = false
 enable_external_secrets   = true
 enable_foundry_agents     = false
 enable_ai_chat_plugin     = false
@@ -363,6 +382,7 @@ EOF_TFVARS
       cat >> "$OVERRIDE_TFVARS" <<'EOF_TFVARS'
 enable_argocd             = true
 enable_github_runners     = true
+enable_defender           = true
 enable_purview            = true
 enable_cost_management    = true
 enable_disaster_recovery  = true
@@ -500,6 +520,14 @@ phase_plan() {
   run_logged "$phase_dir" "terraform-fmt-check" terraform fmt -recursive -check >/dev/null
   run_logged "$phase_dir" "terraform-init" terraform init -backend=false -input=false -no-color >/dev/null
   run_logged "$phase_dir" "terraform-validate" terraform validate -no-color >/dev/null
+
+  if [[ "$VALIDATION_SCOPE" != "infra" ]]; then
+    if ! kubectl cluster-info >/dev/null 2>&1; then
+      write_error "$PHASE" "infra_apply_required" "deploy" "Scope '$VALIDATION_SCOPE' includes Kubernetes workloads and requires a live AKS context. Apply and validate --validation-scope infra first, then rerun this phase after az aks get-credentials succeeds." "$phase_dir/terraform-validate.log"
+      write_status "$PHASE" "failed" "infra_apply_required" "deploy" false
+      exit 1
+    fi
+  fi
 
   if command -v tflint >/dev/null 2>&1; then
     run_logged "$phase_dir" "tflint" tflint --recursive --minimum-failure-severity=error >/dev/null

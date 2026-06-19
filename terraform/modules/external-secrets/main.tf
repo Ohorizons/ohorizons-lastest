@@ -25,7 +25,7 @@ locals {
   common_labels = {
     "app.kubernetes.io/managed-by" = "terraform"
     "app.kubernetes.io/part-of"    = "open-horizons-platform"
-    "platform.open-horizons/tier"  = "security"
+    "platform.open-horizons-tier"  = "security"
   }
 }
 
