@@ -19,18 +19,18 @@ output "postgresql_databases" {
 }
 
 output "redis_id" {
-  description = "Redis cache ID"
-  value       = var.redis_config.enabled ? azurerm_redis_cache.main[0].id : null
+  description = "Azure Managed Redis cluster ID"
+  value       = var.redis_config.enabled ? azapi_resource.redis_enterprise[0].id : null
 }
 
 output "redis_hostname" {
-  description = "Redis hostname"
-  value       = var.redis_config.enabled ? azurerm_redis_cache.main[0].hostname : null
+  description = "Azure Managed Redis cluster hostname"
+  value       = var.redis_config.enabled ? azapi_resource.redis_enterprise[0].output.properties.hostName : null
 }
 
 output "redis_ssl_port" {
-  description = "Redis SSL port"
-  value       = var.redis_config.enabled ? azurerm_redis_cache.main[0].ssl_port : null
+  description = "Azure Managed Redis SSL port"
+  value       = var.redis_config.enabled ? local.redis_port : null
 }
 
 output "redis_private_ip" {

@@ -173,17 +173,21 @@ cp ../.github/skills/mcp-ecosystem/SKILL.md ~/.openclaw/skills/mcp-ecosystem/SKI
 │  └──────────┬──────────────────────────┘    │
 │             │                               │
 │  ┌──────────▼──────────────────────────┐    │
-  │           Tool Modules (12)         │    │
-  │  A: spec-kit │ anthropics │ awesome │    │
+  │           Tool Modules (17)         │    │
+  │  A: spec-kit │ anthropics-skills    │    │
   │     agent-fw │ gh-aw │ agents-md    │    │
   │     github-copilot-docs             │    │
   │  B: backstage-docs │ -plugins │ -ui │    │
   │     spotify-backstage │ backstage-org│   │
+  │  C: microsoft-learn │ vscode-docs   │    │
+  │     github-docs │ anthropic-docs    │    │
+  │     azure-caf │ azure-waf           │    │
 │  └──────────┬──────────────────────────┘    │
 │             │                               │
 │  ┌──────────▼──────────────────────────┐    │
 │  │      Shared Library                 │    │
 │  │  github-fetcher │ cache │ types     │    │
+│  │  mcp-client (federation) │ html-utils│   │
 │  └─────────────────────────────────────┘    │
 │                                             │
 │  📁 /app/cache/ (Docker Volume)             │
@@ -193,8 +197,8 @@ cp ../.github/skills/mcp-ecosystem/SKILL.md ~/.openclaw/skills/mcp-ecosystem/SKI
          │
     ┌────┼────────┬──────────┬───────────┐
     │    │        │          │           │
- VS Code  Claude   Claude    OpenClaw
-         Desktop   Code     (via curl)
+ VS Code  AI Chat  GitHub    MS Learn MCP
+  Copilot  (AKS)   raw/API   · Claude docs
 ```
 
 ## Environment Variables

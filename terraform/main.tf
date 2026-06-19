@@ -380,12 +380,13 @@ module "databases" {
 
   redis_config = {
     enabled             = true
-    sku_name            = var.deployment_mode == "express" ? "Basic" : "Standard"
-    family              = "C"
-    capacity            = var.deployment_mode == "express" ? 0 : 1
-    enable_non_ssl_port = false
+    sku_name            = var.deployment_mode == "express" ? "Balanced_B0" : "Balanced_B1"
+    high_availability   = var.environment == "prod"
     minimum_tls_version = "1.2"
-    maxmemory_policy    = "volatile-lru"
+    client_protocol     = "Encrypted"
+    clustering_policy   = "OSSCluster"
+    eviction_policy     = "VolatileLRU"
+    modules             = []
   }
 
   key_vault_id = module.security.key_vault_id

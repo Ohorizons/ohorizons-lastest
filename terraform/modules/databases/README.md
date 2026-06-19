@@ -1,11 +1,11 @@
 # Databases Module
 
-Managed database services including PostgreSQL Flexible Server and Azure Cache for Redis.
+Managed database services including PostgreSQL Flexible Server and Azure Managed Redis.
 
 ## Features
 
 - Azure Database for PostgreSQL Flexible Server
-- Azure Cache for Redis
+- Azure Managed Redis (Microsoft.Cache/redisEnterprise, provisioned via azapi)
 - Private endpoint connectivity
 - High availability configuration
 - Automated backups with geo-redundancy
@@ -29,7 +29,7 @@ module "databases" {
 
   private_dns_zone_ids = {
     postgres = module.networking.private_dns_zone_ids["privatelink.postgres.database.azure.com"]
-    redis    = module.networking.private_dns_zone_ids["privatelink.redis.cache.windows.net"]
+    redis    = module.networking.private_dns_zone_ids["privatelink.redis.azure.net"]
   }
 
   postgresql_config = {
@@ -46,12 +46,13 @@ module "databases" {
 
   redis_config = {
     enabled             = true
-    sku_name            = "Premium"
-    family              = "P"
-    capacity            = 1
-    enable_non_ssl_port = false
+    sku_name            = "Balanced_B1"
+    high_availability   = true
     minimum_tls_version = "1.2"
-    maxmemory_policy    = "volatile-lru"
+    client_protocol     = "Encrypted"
+    clustering_policy   = "OSSCluster"
+    eviction_policy     = "VolatileLRU"
+    modules             = ["RediSearch", "RedisJSON"]
   }
 
   tags = module.naming.tags
@@ -64,6 +65,7 @@ module "databases" {
 |------|---------|
 | terraform | >= 1.5.0 |
 | azurerm | ~> 3.80 |
+| azapi | ~> 2.8 |
 | random | ~> 3.5 |
 
 ## Inputs
@@ -78,7 +80,7 @@ module "databases" {
 | key_vault_id | Key Vault ID for secrets | `string` | n/a | yes |
 | private_dns_zone_ids | Map of private DNS zone IDs | `map(string)` | n/a | yes |
 | postgresql_config | PostgreSQL configuration | `object` | n/a | yes |
-| redis_config | Redis configuration | `object` | n/a | yes |
+| redis_config | Azure Managed Redis configuration | `object` | n/a | yes |
 | tags | Resource tags | `map(string)` | `{}` | no |
 
 ## Outputs
@@ -87,9 +89,9 @@ module "databases" {
 |------|-------------|
 | postgresql_fqdn | PostgreSQL server FQDN |
 | postgresql_id | PostgreSQL server ID |
-| redis_hostname | Redis hostname |
-| redis_ssl_port | Redis SSL port |
-| redis_id | Redis cache ID |
+| redis_hostname | Azure Managed Redis cluster hostname |
+| redis_ssl_port | Azure Managed Redis SSL port |
+| redis_id | Azure Managed Redis cluster ID |
 
 ## PostgreSQL Configuration
 

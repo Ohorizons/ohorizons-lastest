@@ -14,11 +14,19 @@ tags: ["mcp", "context-engineering", "backstage", "agentic-devops"]
 > Companion skill: [mcp-ecosystem skill](../.github/skills/mcp-ecosystem/SKILL.md)
 
 The **MCP Ecosystem** is Open Horizons' own [Model Context Protocol](https://modelcontextprotocol.io)
-server. It exposes **61 tools across 12 modules** that fetch live, cached
+server. It exposes **79 tools across 17 modules** that fetch live, cached
 reference data — methodology, format specs, templates, UI components, plugin
-catalogs, and documentation — from curated upstream sources. It is the runtime
-that lets platform agents and the Backstage **AI Chat** ground answers in real,
-current upstream documentation instead of relying on model recall.
+catalogs, and **complete official documentation** — from curated upstream
+sources. Beyond methodology and Backstage references, it federates **Microsoft
+Learn** (all of Azure / AKS / AI Foundry / CAF / WAF), and scrapes **VS Code**,
+**GitHub**, and **Anthropic / Claude** docs. It is the runtime that lets platform
+agents and the Backstage **AI Chat** ground answers in real, current upstream
+documentation instead of relying on model recall.
+
+![Open Horizons · MCP Ecosystem Server architecture — 17 modules / 79 tools, three module groups, federated upstreams, and local-open / production-closed egress](../docs/assets/mcp-ecosystem-architecture.svg)
+
+> Editable source: [`docs/assets/mcp-ecosystem-architecture.drawio`](../docs/assets/mcp-ecosystem-architecture.drawio)
+> (draw.io, official Azure / GitHub icons). The Mermaid diagrams below detail each subsystem.
 
 ---
 
@@ -31,17 +39,21 @@ flowchart LR
         Agents["Platform agents<br/>orchestrator · sentinel · forge …"]
     end
     subgraph L3["L3 Context Engineering"]
-        ECO["MCP Ecosystem server<br/>:3100 /mcp · 12 modules · 61 tools"]
+        ECO["MCP Ecosystem server<br/>:3100 /mcp · 17 modules · 79 tools"]
         CACHE["On-disk cache<br/>cache.json · TTL 1h"]
     end
     subgraph UP["Upstream sources (read-only)"]
         GH["raw.githubusercontent.com<br/>GitHub Contents / Trees API"]
+        MSL["Microsoft Learn MCP<br/>learn.microsoft.com/api/mcp"]
+        CL["docs.claude.com<br/>llms.txt / llms-full.txt"]
     end
 
     AIChat -->|JSON-RPC over HTTP| ECO
     Agents -->|MCP client| ECO
     ECO --> CACHE
     ECO -->|fetch + cache| GH
+    ECO -->|federate · mcp-client.ts| MSL
+    ECO -->|fetchUrl| CL
 ```
 
 **Two distinct MCP surfaces** (do not conflate):
@@ -62,23 +74,26 @@ flowchart TB
         FACT["shared/server-factory.ts<br/>Express + Streamable HTTP<br/>per-session McpServer"]
         subgraph Shared["shared/"]
             CACHE["cache.ts<br/>Map + cache.json (TTL)"]
-            FETCH["github-fetcher.ts<br/>fetchRaw · listContents · listTree"]
+            FETCH["github-fetcher.ts<br/>fetchRaw · listContents · listTree · fetchUrl"]
+            MCPC["mcp-client.ts<br/>MCP federation client"]
             TYPES["types.ts"]
         end
-        subgraph Tools["src/tools/ — 12 modules"]
-            GA["Group A · Agent & AI frameworks (7)<br/>spec-kit · anthropics-skills · awesome-copilot<br/>agent-framework · gh-aw · agents-md · github-copilot-docs"]
+        subgraph Tools["src/tools/ — 17 modules"]
+            GA["Group A · Agent & AI frameworks (6)<br/>spec-kit · anthropics-skills · agent-framework<br/>gh-aw · agents-md · github-copilot-docs"]
             GB["Group B · Backstage ecosystem (5)<br/>backstage-docs · backstage-plugins · backstage-ui<br/>spotify-backstage · backstage-org"]
+            GC["Group C · Official documentation (6)<br/>microsoft-learn · vscode-docs · github-docs<br/>anthropic-docs · azure-caf · azure-waf"]
         end
     end
 
     FACT --> IDX --> Tools
     Tools --> FETCH --> CACHE
+    GC -.->|federate| MCPC
     Tools -.->|register| FACT
 ```
 
 - **`src/index.ts`** — composition root. `registerAllTools(server)` wires every
-  module's `register<Name>Tools(server)` in two groups (A: agent/AI frameworks,
-  B: Backstage ecosystem).
+  module's `register<Name>Tools(server)` in three groups (A: agent/AI frameworks,
+  B: Backstage ecosystem, C: official documentation).
 - **`src/shared/server-factory.ts`** — builds an `McpServer` (`mcp-ecosystem`
   v1.0.0, capabilities: tools/prompts/resources) and runs the Express HTTP host.
 - **`src/shared/`** — cross-cutting cache, GitHub fetchers, and types.
@@ -133,6 +148,13 @@ All upstream reads go through `shared/github-fetcher.ts` and are cached by
 - **`fetchRaw(owner, repo, path, branch)`** → `raw.githubusercontent.com`.
 - **`listContents(owner, repo, path, branch)`** → GitHub Contents API.
 - **`listTree(owner, repo, branch, prefix)`** → Git Trees API (recursive, one call).
+- **`fetchUrl(url)`** → arbitrary HTTPS GET (e.g. `docs.claude.com/llms.txt`).
+
+Group C's `microsoft-learn` module additionally **federates** a remote MCP server
+via `shared/mcp-client.ts` (`callRemoteMcpTool`): it performs the initialize →
+`Mcp-Session-Id` → `notifications/initialized` → `tools/call` handshake against
+`MSLEARN_MCP_URL` (default `https://learn.microsoft.com/api/mcp`) and handles both
+JSON and SSE responses.
 
 Cache characteristics:
 
@@ -146,15 +168,14 @@ Cache characteristics:
 
 ---
 
-## 5. Tool catalog (12 modules · 61 tools)
+## 5. Tool catalog (17 modules · 79 tools)
 
-### Group A — Agent & AI frameworks (7 modules · 30 tools)
+### Group A — Agent & AI frameworks (6 modules · 26 tools)
 
 | Module | Prefix | Count | Tools |
 | --- | --- | --- | --- |
 | spec-kit | `speckit_` | 5 | `get_phases`, `get_commands`, `get_methodology`, `get_philosophy`, `search` |
 | anthropics-skills | `anthropics_` | 5 | `list_skills`, `get_skill`, `get_skill_template`, `search_skills`, `get_spec` |
-| awesome-copilot | `awesome_` | 4 | `list_items`, `get_item`, `search`, `get_readme` |
 | agent-framework | `agentfw_` | 4 | `get_patterns`, `get_sample`, `search_docs`, `get_declarative_agents` |
 | gh-aw | `ghaw_` | 4 | `get_workflow_patterns`, `get_security_guidelines`, `get_contributing`, `get_agents_md` |
 | agents-md | `agentsmd_` | 3 | `get_format_spec`, `get_readme`, `get_section_templates` |
@@ -169,6 +190,17 @@ Cache characteristics:
 | `backstage-ui` | `backstageui_` | 8 | `list_components`, `get_component`, `get_api_report`, `get_readme`, `get_changelog`, `storybook_list_stories`, `storybook_get_story`, `storybook_search` |
 | `spotify-backstage` | `spotifybackstage_` | 6 | `list_sections`, `get_page`, `get_portal_docs`, `get_plugins_docs`, `get_core_features`, `discover_links` |
 | `backstage-org` | `backstageorg_` | 4 | `list_repos`, `get_repo_readme`, `search_repos`, `get_backstage_plugins` |
+
+### Group C — Official documentation (6 modules · 22 tools)
+
+| Module | Prefix | Count | Tools |
+| --- | --- | --- | --- |
+| `microsoft-learn` | `mslearn_` | 3 | `search`, `code_search`, `fetch` — federated via Microsoft Learn MCP (Azure / AKS / AI Foundry / CAF / WAF) |
+| `vscode-docs` | `vscode_` | 4 | `list_sections`, `get_page`, `search`, `get_copilot` |
+| `github-docs` | `ghdocs_` | 4 | `list_sections`, `list_pages`, `get_page`, `search` |
+| `anthropic-docs` | `anthropicdocs_` | 3 | `index`, `get_page`, `search` |
+| `azure-caf` | `caf_` | 4 | `list_sections`, `get_page`, `search`, `get_methodology` |
+| `azure-waf` | `waf_` | 4 | `list_pillars`, `get_pillar`, `get_page`, `search` |
 
 Full tool name = `prefix + suffix`, e.g. `speckit_get_phases`,
 `backstageui_storybook_search`.
@@ -188,11 +220,17 @@ advertises a curated subset of tools to the model.
 | Model-facing tool | Maps to ecosystem tool |
 | --- | --- |
 | `ecosystem_list_tools` | `tools/list` (discovery) |
-| `ecosystem_call_tool(name, args)` | any of the 61 tools |
+| `ecosystem_call_tool(name, args)` | any of the 79 tools |
 | `search_backstage_docs(query)` | `backstagedocs_search` |
 | `get_spec_kit_methodology()` | `speckit_get_methodology` |
 | `search_copilot_docs(query)` | `copilotdocs_search` |
-| `search_anthropic_docs(query)` | `anthropics_search_skills` |
+| `search_anthropic_docs(query)` | `anthropicdocs_search` |
+| `search_microsoft_learn(query)` | `mslearn_search` (federated) |
+| `fetch_microsoft_learn(url)` | `mslearn_fetch` |
+| `search_vscode_docs(query, section)` | `vscode_search` |
+| `search_github_docs(query, section)` | `ghdocs_search` |
+| `search_caf(query, section)` | `caf_search` |
+| `search_waf(query, section)` | `waf_search` |
 
 If the server is unreachable, the client **degrades gracefully** — the chat
 answers without grounding rather than failing the request.
@@ -359,7 +397,7 @@ no registry secret is needed in the pod.
    `register<Module>Tools(server: McpServer)`; register tools with
    `server.tool(name, description, zodSchema, handler)`.
 2. Fetch upstream via `shared/github-fetcher.ts`; never bypass the cache.
-3. Wire it into `src/index.ts` `registerAllTools()` under Group A or B.
+3. Wire it into `src/index.ts` `registerAllTools()` under Group A, B, or C.
 4. **Keep counts in sync** across: this file, [README.md](README.md), the
    [mcp-ecosystem skill](../.github/skills/mcp-ecosystem/SKILL.md),
    and the platform docs.

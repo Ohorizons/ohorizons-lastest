@@ -29,6 +29,9 @@ locals {
 
   # Production settings
   is_prod = var.environment == "prod"
+
+  # Azure Managed Redis exposes the cluster endpoint on a fixed port.
+  redis_port = 10000
 }
 
 # =============================================================================
@@ -43,12 +46,8 @@ resource "random_password" "postgresql" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-resource "random_password" "redis" {
-  count = var.redis_config.enabled ? 1 : 0
-
-  length  = 32
-  special = false
-}
+# Azure Managed Redis access keys are retrieved via the listKeys action
+# (azapi_resource_action.redis_keys); no generated password is required.
 
 # =============================================================================
 # POSTGRESQL FLEXIBLE SERVER
@@ -149,36 +148,71 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_services" {
 }
 
 # =============================================================================
-# REDIS CACHE
+# AZURE MANAGED REDIS (Microsoft.Cache/redisEnterprise)
 # =============================================================================
+#
+# Classic Azure Cache for Redis (azurerm_redis_cache) is retiring for new
+# creations, so the platform provisions Azure Managed Redis through azapi.
+# The cluster exposes the endpoint; a single "default" database carries the
+# protocol, clustering, eviction and (optional) RediSearch/RedisJSON modules
+# used by the agent semantic cache and vector memory.
 
-resource "azurerm_redis_cache" "main" {
+data "azurerm_resource_group" "main" {
+  name = var.resource_group_name
+}
+
+resource "azapi_resource" "redis_enterprise" {
   count = var.redis_config.enabled ? 1 : 0
 
-  name                = "redis-${local.name_prefix}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  type      = "Microsoft.Cache/redisEnterprise@2025-07-01"
+  name      = "redis-${local.name_prefix}"
+  parent_id = data.azurerm_resource_group.main.id
+  location  = var.location
 
-  capacity = var.redis_config.capacity
-  family   = var.redis_config.family
-  sku_name = var.redis_config.sku_name
-
-  enable_non_ssl_port = var.redis_config.enable_non_ssl_port
-  minimum_tls_version = var.redis_config.minimum_tls_version
-
-  redis_configuration {
-    maxmemory_policy = var.redis_config.maxmemory_policy
-
-    # Enable AOF persistence for Standard/Premium
-    aof_backup_enabled = var.redis_config.sku_name != "Basic"
+  body = {
+    sku = {
+      name = var.redis_config.sku_name
+    }
+    properties = {
+      minimumTlsVersion   = var.redis_config.minimum_tls_version
+      highAvailability    = var.redis_config.high_availability ? "Enabled" : "Disabled"
+      publicNetworkAccess = "Disabled"
+    }
   }
 
-  # Zones for Premium SKU
-  zones = var.redis_config.sku_name == "Premium" && local.is_prod ? ["1", "2", "3"] : null
-
-  public_network_access_enabled = false
+  response_export_values = ["properties.hostName"]
 
   tags = local.common_tags
+}
+
+resource "azapi_resource" "redis_database" {
+  count = var.redis_config.enabled ? 1 : 0
+
+  type      = "Microsoft.Cache/redisEnterprise/databases@2025-07-01"
+  name      = "default"
+  parent_id = azapi_resource.redis_enterprise[0].id
+
+  body = {
+    properties = {
+      clientProtocol   = var.redis_config.client_protocol
+      clusteringPolicy = var.redis_config.clustering_policy
+      evictionPolicy   = var.redis_config.eviction_policy
+      port             = local.redis_port
+      modules          = [for m in var.redis_config.modules : { name = m }]
+    }
+  }
+}
+
+# Retrieve the database access keys (listKeys action).
+resource "azapi_resource_action" "redis_keys" {
+  count = var.redis_config.enabled ? 1 : 0
+
+  type        = "Microsoft.Cache/redisEnterprise/databases@2025-07-01"
+  resource_id = azapi_resource.redis_database[0].id
+  action      = "listKeys"
+  method      = "POST"
+
+  response_export_values = ["primaryKey", "secondaryKey"]
 }
 
 # Redis Private Endpoint
@@ -192,9 +226,9 @@ resource "azurerm_private_endpoint" "redis" {
 
   private_service_connection {
     name                           = "redis-connection"
-    private_connection_resource_id = azurerm_redis_cache.main[0].id
+    private_connection_resource_id = azapi_resource.redis_enterprise[0].id
     is_manual_connection           = false
-    subresource_names              = ["redisCache"]
+    subresource_names              = ["redisEnterprise"]
   }
 
   private_dns_zone_group {
@@ -238,7 +272,7 @@ resource "azurerm_key_vault_secret" "redis_connection_string" {
   count = var.redis_config.enabled ? 1 : 0
 
   name         = "redis-connection-string"
-  value        = azurerm_redis_cache.main[0].primary_connection_string
+  value        = "${azapi_resource.redis_enterprise[0].output.properties.hostName}:${local.redis_port},password=${azapi_resource_action.redis_keys[0].output.primaryKey},ssl=True,abortConnect=False"
   key_vault_id = var.key_vault_id
 
   tags = local.common_tags
@@ -249,7 +283,7 @@ resource "azurerm_key_vault_secret" "redis_primary_key" {
   count = var.redis_config.enabled ? 1 : 0
 
   name         = "redis-primary-key"
-  value        = azurerm_redis_cache.main[0].primary_access_key
+  value        = azapi_resource_action.redis_keys[0].output.primaryKey
   key_vault_id = var.key_vault_id
 
   tags = local.common_tags

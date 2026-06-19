@@ -19,7 +19,10 @@ profiles:
     infrastructure:
       aks:
         name: "${PROJECT}-${ENV}-aks"
-        kubernetes_version: "1.30"
+        # Pin a currently supported AKS minor (Azure supports N, N-1, N-2).
+        # Validate against the official supported-versions list at deploy time
+        # and prefer an auto-upgrade channel for patches.
+        kubernetes_version: "1.34"
         node_pool:
           name: "system"
           node_count: 3
@@ -95,7 +98,7 @@ profiles:
     infrastructure:
       aks:
         name: "${PROJECT}-${ENV}-aks"
-        kubernetes_version: "1.30"
+        kubernetes_version: "1.34"
         node_pool:
           name: "system"
           node_count: 5
@@ -193,7 +196,7 @@ profiles:
     infrastructure:
       aks:
         name: "${PROJECT}-${ENV}-aks"
-        kubernetes_version: "1.30"
+        kubernetes_version: "1.34"
         node_pools:
           - name: "system"
             node_count: 3
@@ -338,7 +341,7 @@ profiles:
       primary:
         aks:
           name: "${PROJECT}-${ENV}-aks-primary"
-          kubernetes_version: "1.30"
+          kubernetes_version: "1.34"
           node_pools:
             - name: "system"
               node_count: 5

@@ -22,12 +22,12 @@ variable "customer_name" {
 }
 
 variable "environment" {
-  description = "Environment (dev, staging, prod)"
+  description = "Environment (poc, dev, staging, prod)"
   type        = string
 
   validation {
-    condition     = contains(["dev", "staging", "prod"], var.environment)
-    error_message = "Environment must be dev, staging, or prod."
+    condition     = contains(["poc", "dev", "staging", "prod"], var.environment)
+    error_message = "Environment must be poc, dev, staging, or prod."
   }
 }
 

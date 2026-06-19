@@ -298,6 +298,7 @@ When all boxes are checked, follow the [Master Installation Guide](MASTER_INSTAL
 
 ## Related Documentation
 
+- [Environment Sizing & Regions](ENVIRONMENT_SIZING.md) — per-scenario sizing, recommended regions, and the quota pre-check
 - [Master Installation Guide](MASTER_INSTALLATION.md) — end-to-end installation flow
 - [Deployment Guide](DEPLOYMENT_GUIDE.md) — 3 deploy options + 10 manual steps
 - [Wizard Guide](WIZARD_GUIDE.md) — what the install wizard collects

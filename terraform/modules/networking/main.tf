@@ -31,7 +31,7 @@ locals {
   # Private DNS zones for Azure services
   private_dns_zones = {
     "postgres"          = "privatelink.postgres.database.azure.com"
-    "redis"             = "privatelink.redis.cache.windows.net"
+    "redis"             = "privatelink.redis.azure.net"
     "keyvault"          = "privatelink.vaultcore.azure.net"
     "acr"               = "privatelink.azurecr.io"
     "blob"              = "privatelink.blob.core.windows.net"

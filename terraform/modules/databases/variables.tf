@@ -62,24 +62,26 @@ variable "postgresql_config" {
 }
 
 variable "redis_config" {
-  description = "Redis configuration"
+  description = "Azure Managed Redis (Microsoft.Cache/redisEnterprise) configuration. Classic Azure Cache for Redis is retiring; this module provisions Azure Managed Redis via azapi."
   type = object({
     enabled             = bool
-    sku_name            = string
-    family              = string
-    capacity            = number
-    enable_non_ssl_port = bool
-    minimum_tls_version = string
-    maxmemory_policy    = string
+    sku_name            = string       # Balanced_B0|Balanced_B1|Balanced_B3|MemoryOptimized_M10|ComputeOptimized_X3|FlashOptimized_A250 ...
+    high_availability   = bool         # Disable ONLY for dev/test. Balanced_B0/B1 have no geo-replication.
+    minimum_tls_version = string       # "1.2"
+    client_protocol     = string       # "Encrypted" (TLS) or "Plaintext"
+    clustering_policy   = string       # "OSSCluster" (default) or "EnterpriseCluster"
+    eviction_policy     = string       # "VolatileLRU" | "AllKeysLRU" | "NoEviction" ...
+    modules             = list(string) # ["RediSearch", "RedisJSON"] to enable vector / semantic cache
   })
   default = {
     enabled             = true
-    sku_name            = "Standard"
-    family              = "C"
-    capacity            = 1
-    enable_non_ssl_port = false
+    sku_name            = "Balanced_B0"
+    high_availability   = false
     minimum_tls_version = "1.2"
-    maxmemory_policy    = "volatile-lru"
+    client_protocol     = "Encrypted"
+    clustering_policy   = "OSSCluster"
+    eviction_policy     = "VolatileLRU"
+    modules             = []
   }
 }
 

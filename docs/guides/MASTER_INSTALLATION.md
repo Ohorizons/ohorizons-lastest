@@ -257,6 +257,8 @@ The manifest is validated against [`scripts/openhorizons-selection.schema.json`]
 ## Stage 0 - Prerequisites
 
 > **Detailed prerequisites guide:** [PREREQUISITES.md](PREREQUISITES.md) covers Azure tenant/subscription requirements, GitHub / GitHub Enterprise / Azure DevOps setup, t-shirt sizing (Small / Medium / Large / XLarge), region selection, cost estimates, and a pre-deployment checklist. Read it first.
+>
+> **Sizing & regions:** [ENVIRONMENT_SIZING.md](ENVIRONMENT_SIZING.md) maps the POC / dev / staging / production scenarios to concrete SKUs, recommends regions (Availability Zones + Azure-paired DR), and lists the quota pre-check to run before `terraform apply`.
 
 | Capability | Why it is required |
 |-----------|--------------------|

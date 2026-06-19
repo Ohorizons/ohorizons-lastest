@@ -23,9 +23,9 @@ variable "resource_group_name" {
 }
 
 variable "kubernetes_version" {
-  description = "Kubernetes version"
+  description = "AKS Kubernetes minor version. Pin a version that is currently in support (Azure supports N, N-1, N-2). Validate against the official supported-versions list before deploying and prefer an auto-upgrade channel for patches."
   type        = string
-  default     = "1.29"
+  default     = "1.34"
 }
 
 variable "sku_tier" {

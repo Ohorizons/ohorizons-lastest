@@ -29,6 +29,7 @@ These configuration files are referenced by Terraform modules and deployment scr
 
 | Document | Description |
 |----------|-------------|
+| [Environment Sizing & Regions](../docs/guides/ENVIRONMENT_SIZING.md) | Per-scenario sizing matrix, recommended regions, and quota pre-check |
 | [Performance Tuning Guide](../docs/guides/PERFORMANCE_TUNING_GUIDE.md) | Sizing recommendations and tuning |
 | [Module Reference](../docs/guides/MODULE_REFERENCE.md) | Terraform module configuration details |
 | [Administrator Guide](../docs/guides/ADMINISTRATOR_GUIDE.md) | Platform administration procedures |

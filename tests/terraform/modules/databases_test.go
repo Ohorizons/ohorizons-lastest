@@ -32,7 +32,7 @@ func TestDatabasesModuleBasic(t *testing.T) {
 			"key_vault_id":        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-test/providers/Microsoft.KeyVault/vaults/kv-test",
 			"private_dns_zone_ids": map[string]interface{}{
 				"postgres": "/subscriptions/00000000/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.postgres.database.azure.com",
-				"redis":    "/subscriptions/00000000/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.redis.cache.windows.net",
+				"redis":    "/subscriptions/00000000/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.redis.azure.net",
 			},
 			"enable_postgresql": true,
 			"enable_redis":      true,
@@ -52,7 +52,7 @@ func TestDatabasesModuleBasic(t *testing.T) {
 
 	// Verify PostgreSQL and Redis are planned
 	assert.Contains(t, planOutput, "azurerm_postgresql_flexible_server")
-	assert.Contains(t, planOutput, "azurerm_redis_cache")
+	assert.Contains(t, planOutput, "redis_enterprise")
 }
 
 // TestDatabasesModulePostgreSQLConfig tests PostgreSQL configuration
@@ -74,11 +74,11 @@ func TestDatabasesModulePostgreSQLConfig(t *testing.T) {
 			"enable_postgresql": true,
 			"enable_redis":      false,
 			"postgresql_config": map[string]interface{}{
-				"sku_name":         "GP_Standard_D2s_v3",
-				"version":          "15",
-				"storage_mb":       32768,
-				"backup_retention": 7,
-				"geo_redundant":    false,
+				"sku_name":          "GP_Standard_D2s_v3",
+				"version":           "15",
+				"storage_mb":        32768,
+				"backup_retention":  7,
+				"geo_redundant":     false,
 				"high_availability": false,
 			},
 		},
@@ -98,14 +98,12 @@ func TestDatabasesModuleRedisConfig(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name     string
-		sku      string
-		family   string
-		capacity int
+		name string
+		sku  string
 	}{
-		{"basic", "Basic", "C", 0},
-		{"standard", "Standard", "C", 1},
-		{"premium", "Premium", "P", 1},
+		{"balanced-b0", "Balanced_B0"},
+		{"balanced-b1", "Balanced_B1"},
+		{"memoryopt-m10", "MemoryOptimized_M10"},
 	}
 
 	for _, tc := range testCases {
@@ -128,9 +126,14 @@ func TestDatabasesModuleRedisConfig(t *testing.T) {
 					"enable_postgresql": false,
 					"enable_redis":      true,
 					"redis_config": map[string]interface{}{
-						"sku_name": tc.sku,
-						"family":   tc.family,
-						"capacity": tc.capacity,
+						"enabled":             true,
+						"sku_name":            tc.sku,
+						"high_availability":   false,
+						"minimum_tls_version": "1.2",
+						"client_protocol":     "Encrypted",
+						"clustering_policy":   "OSSCluster",
+						"eviction_policy":     "VolatileLRU",
+						"modules":             []interface{}{},
 					},
 				},
 				NoColor: true,
@@ -139,7 +142,7 @@ func TestDatabasesModuleRedisConfig(t *testing.T) {
 			terraform.Init(t, terraformOptions)
 			planOutput := terraform.Plan(t, terraformOptions)
 
-			assert.Contains(t, planOutput, "azurerm_redis_cache")
+			assert.Contains(t, planOutput, "redis_enterprise")
 		})
 	}
 }
