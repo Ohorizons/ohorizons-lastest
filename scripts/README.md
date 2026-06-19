@@ -10,6 +10,7 @@ This directory contains automation scripts for the Open Horizons Platform.
 
 | Script | Description | Usage |
 |--------|-------------|-------|
+| `azure-validation-run.sh` | Agent-supervised Azure validation run (preflight, plan, apply, H1/H2/H3 checks, inventory, docs, destroy) | `./azure-validation-run.sh --phase preflight --customer-name ohval --environment prod` |
 | `deploy-full.sh` | **Full automated deployment (recommended)** | `./deploy-full.sh --environment dev` |
 | `platform-bootstrap.sh` | Full platform deployment | `./platform-bootstrap.sh --environment dev` |
 | `bootstrap.sh` | H1 infrastructure setup | `./bootstrap.sh` |
@@ -23,6 +24,15 @@ This directory contains automation scripts for the Open Horizons Platform.
 | `validate-deployment.sh` | Post-deployment health check | `./validate-deployment.sh --environment prod` |
 | `validate-agents.sh` | Agent specifications validation | `./validate-agents.sh` |
 | `validate-docs.sh` | Documentation validation | `./validate-docs.sh` |
+
+### Agent-Supervised Azure Validation
+
+`azure-validation-run.sh` is the preferred script for real Azure proof runs where agents supervise the workflow. It writes artifacts to `runs/azure-validation/<run-id>/` and supports safe phases (`preflight`, `plan`, `validate-*`, `inventory`, `docs`) plus gated `apply` and `destroy`.
+
+```bash
+./azure-validation-run.sh --phase preflight --customer-name ohval --environment prod --location eastus2
+./azure-validation-run.sh --phase plan --run-id <run-id>
+```
 
 ### Setup Scripts
 

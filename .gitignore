@@ -215,6 +215,10 @@ github-token.txt
 logs/
 *.log
 
+# Agent-supervised Azure validation run artifacts (may contain subscription IDs,
+# resource IDs, sanitized logs, screenshots, and generated tfvars)
+runs/
+
 # Temp files
 tmp/
 temp/

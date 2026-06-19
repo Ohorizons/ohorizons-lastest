@@ -122,6 +122,26 @@ The `@deploy` agent walks you through each step interactively, running commands,
 
 **Best for:** Experienced users, CI/CD integration, repeatable deployments.
 
+### Option B2: Agent-Supervised Azure Validation Run
+
+Use this when you need a real Azure proof run with artifacts, agent handoffs, screenshots, inventory, and controlled cleanup. The script writes full logs under `runs/azure-validation/<run-id>/` and agents read only `status.json`, `errors.json`, `summary.md`, and focused log excerpts.
+
+```bash
+# Safe preflight and plan only (no resources created)
+./scripts/azure-validation-run.sh --phase preflight --customer-name ohval --environment prod --location eastus2
+./scripts/azure-validation-run.sh --phase plan --run-id <run-id> --customer-name ohval --environment prod
+
+# Apply only after reviewing the plan and approving cost/risk
+./scripts/azure-validation-run.sh --phase apply --run-id <run-id> --confirm-apply
+
+# Validate integration and collect evidence
+./scripts/azure-validation-run.sh --phase validate-all --run-id <run-id>
+./scripts/azure-validation-run.sh --phase inventory --run-id <run-id>
+./scripts/azure-validation-run.sh --phase docs --run-id <run-id>
+```
+
+See the [Azure Validation Runbook](AZURE_VALIDATION_RUNBOOK.md) for gates, artifact structure, agent responsibilities, and cleanup.
+
 ### Option C: Manual Step-by-Step (Full Control)
 
 Follow the rest of this guide — 10 detailed steps with copy-paste commands, explanations, and verification at each phase.

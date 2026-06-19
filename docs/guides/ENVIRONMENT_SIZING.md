@@ -54,6 +54,8 @@ var-file, fill in the required identifiers, and deploy.
 > node counts. The tables below are the **reference targets** each scenario aims for; tune them
 > for your workload and budget.
 
+For a real Azure proof run with preflight, plan, integration validation, evidence, and cleanup, use the [Azure Validation Runbook](AZURE_VALIDATION_RUNBOOK.md).
+
 ## 2. Sizing Matrix
 
 ### 2.1 AKS (Compute)

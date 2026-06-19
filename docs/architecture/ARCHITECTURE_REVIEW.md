@@ -398,7 +398,7 @@ python3 .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py \
   --require-icon --require-edge
 ```
 
-All 10 `.drawio` files pass XML, icon, and connector checks. All 10 SVG files were rendered to PNG with `rsvg-convert` for visual QA. The draw.io MCP server is configured in [../../.vscode/mcp.json](../../.vscode/mcp.json), and the MCP SDK imports successfully from the skill-local virtual environment.
+All 10 `.drawio` files pass XML, icon, and connector checks. All 10 SVG files were rendered to PNG with `rsvg-convert` for visual QA. The draw.io MCP server is configured through the local workspace `.vscode/mcp.json` when present, and the MCP SDK imports successfully from the skill-local virtual environment.
 
 ## References
 

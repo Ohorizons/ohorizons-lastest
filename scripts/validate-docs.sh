@@ -232,6 +232,7 @@ main() {
         -not -path './vendor/*'
         -not -path '*/.terraform/*'
         -not -path '*/.venv/*'
+        -not -path './runs/*'
         -not -path '*/golden-paths/common/agents/.rendered/*'
     )
 
