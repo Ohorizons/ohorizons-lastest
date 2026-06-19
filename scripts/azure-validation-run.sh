@@ -135,8 +135,10 @@ RESOURCE_GROUP="rg-${CUSTOMER_NAME}-${ENVIRONMENT}"
 
 require_customer_name() {
   if [[ -z "$CUSTOMER_NAME" ]]; then
-    write_error "$PHASE" "missing_customer_name" "deploy" "--customer-name is required. Use the real client/project short name." ""
+    local message="--customer-name is required. Use the real client/project short name."
+    write_error "$PHASE" "missing_customer_name" "deploy" "$message" ""
     write_status "$PHASE" "failed" "missing_customer_name" "deploy" false
+    echo "Error: $message" >&2
     exit 2
   fi
   if ! [[ "$CUSTOMER_NAME" =~ ^[a-z][a-z0-9-]{1,18}[a-z0-9]$ ]]; then
