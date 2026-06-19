@@ -85,6 +85,11 @@ GITHUB_ORG="${GITHUB_ORG:-local}"
 GITHUB_REPO="${GITHUB_REPO:-open-horizons-platform}"
 ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME:-${GITHUB_ORG}}"
 AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
+if [[ "$NO_GITHUB_MODE" == "true" ]]; then
+  BACKSTAGE_CONFIG_ARGS='"--config", "/app/config/app-config.override.yaml"'
+else
+  BACKSTAGE_CONFIG_ARGS='"--config", "app-config.yaml", "--config", "/app/config/app-config.override.yaml"'
+fi
 
 log "Platform:  ${BOLD}${PLATFORM_NAME}${NC}"
 log "Domain:    ${BOLD}${DOMAIN}${NC}"
@@ -115,6 +120,7 @@ add_replacement "__AGENT_API_IMPACT_IMAGE__" "$AGENT_API_IMPACT_IMAGE"
 add_replacement "__MCP_ECOSYSTEM_IMAGE__" "$MCP_ECOSYSTEM_IMAGE"
 add_replacement "__IMAGE_TAG__" "$IMAGE_TAG"
 add_replacement "__AZURE_OPENAI_DEPLOYMENT__" "$AZURE_OPENAI_DEPLOYMENT"
+add_replacement "__BACKSTAGE_CONFIG_ARGS__" "$BACKSTAGE_CONFIG_ARGS"
 
 # --- Build sed expression ----------------------------------------------------
 # (sed expression was built above via add_replacement calls)

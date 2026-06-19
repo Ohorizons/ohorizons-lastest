@@ -44,7 +44,7 @@ spec:
             capabilities:
               drop:
                 - ALL
-          command: ["node", "packages/backend", "--config", "app-config.yaml", "--config", "/app/config/app-config.override.yaml"]
+          command: ["node", "packages/backend", __BACKSTAGE_CONFIG_ARGS__]
           ports:
             - containerPort: 7007
               name: http

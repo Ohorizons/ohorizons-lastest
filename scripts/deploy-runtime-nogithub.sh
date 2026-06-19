@@ -34,6 +34,7 @@ MCP_ECOSYSTEM_IMAGE="ghcr.io/ohorizons/mcp-ecosystem"
 ORG_DISPLAY_NAME="Open Horizons"
 AZURE_OPENAI_DEPLOYMENT="gpt-5.1"
 APPLY_INGRESS=false
+ENABLE_MCP_ECOSYSTEM="${ENABLE_MCP_ECOSYSTEM:-auto}"
 
 usage() {
   cat <<'USAGE'
@@ -50,6 +51,8 @@ Optional:
   --platform-name NAME       Kubernetes resource prefix (default: open-horizons)
   --image-tag TAG            Image tag (default: v7.2.4)
   --apply-ingress            Also apply generated ingress.yaml and tls.yaml
+  --enable-mcp               Apply MCP Ecosystem even if image preflight cannot verify it
+  --disable-mcp              Skip MCP Ecosystem and delete any existing MCP deployment/service
   --help                     Show this help
 USAGE
 }
@@ -63,6 +66,9 @@ while [[ $# -gt 0 ]]; do
     --domain) DOMAIN="$2"; shift 2 ;;
     --platform-name) PLATFORM_NAME="$2"; shift 2 ;;
     --image-tag) IMAGE_TAG="$2"; shift 2 ;;
+    --mcp-ecosystem-image) MCP_ECOSYSTEM_IMAGE="$2"; shift 2 ;;
+    --enable-mcp) ENABLE_MCP_ECOSYSTEM=true; shift ;;
+    --disable-mcp) ENABLE_MCP_ECOSYSTEM=false; shift ;;
     --apply-ingress) APPLY_INGRESS=true; shift ;;
     --help|-h) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage; exit 1 ;;
@@ -155,6 +161,14 @@ write_env_var AZURE_OPENAI_DEPLOYMENT "$AZURE_OPENAI_DEPLOYMENT"
 echo "[runtime] Rendering no-GitHub manifests"
 NO_GITHUB_MODE=true "$REPO_ROOT/scripts/render-k8s.sh" --env-file "$tmp_env" >/tmp/open-horizons-render-runtime.log
 
+if [[ "$ENABLE_MCP_ECOSYSTEM" == "auto" ]]; then
+  if command -v docker >/dev/null 2>&1 && docker manifest inspect "${MCP_ECOSYSTEM_IMAGE}:${IMAGE_TAG}" >/dev/null 2>&1; then
+    ENABLE_MCP_ECOSYSTEM=true
+  else
+    ENABLE_MCP_ECOSYSTEM=false
+  fi
+fi
+
 echo "[runtime] Applying namespaces"
 kubectl apply -f "$REPO_ROOT/backstage/k8s/namespace.yaml"
 
@@ -185,8 +199,16 @@ kubectl apply -f "$REPO_ROOT/backstage/k8s/deployment.yaml"
 kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-service.yaml"
 kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-deployment.yaml"
 kubectl apply -f "$REPO_ROOT/backstage/k8s/agent-api-impact-deployment.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-deployment.yaml"
-kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-networkpolicy.yaml"
+if [[ "$ENABLE_MCP_ECOSYSTEM" == true ]]; then
+  kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-deployment.yaml"
+  kubectl apply -f "$REPO_ROOT/backstage/k8s/mcp-ecosystem-networkpolicy.yaml"
+else
+  echo "[runtime] Skipping MCP Ecosystem; image is not available or --disable-mcp was set"
+  kubectl -n ai-services delete deployment mcp-ecosystem --ignore-not-found=true
+  kubectl -n ai-services delete service mcp-ecosystem --ignore-not-found=true
+  kubectl -n ai-services delete serviceaccount mcp-ecosystem --ignore-not-found=true
+  kubectl -n ai-services delete networkpolicy mcp-ecosystem --ignore-not-found=true
+fi
 
 if [[ "$APPLY_INGRESS" == true ]]; then
   kubectl apply -f "$REPO_ROOT/backstage/k8s/tls.yaml"
@@ -197,7 +219,9 @@ echo "[runtime] Waiting for deployments"
 kubectl rollout status deployment/"${PLATFORM_NAME}"-backstage -n backstage --timeout=300s
 kubectl rollout status deployment/"${PLATFORM_NAME}"-agent-api -n ai-services --timeout=300s
 kubectl rollout status deployment/"${PLATFORM_NAME}"-agent-api-impact -n ai-services --timeout=300s
-kubectl rollout status deployment/mcp-ecosystem -n ai-services --timeout=300s
+if [[ "$ENABLE_MCP_ECOSYSTEM" == true ]]; then
+  kubectl rollout status deployment/mcp-ecosystem -n ai-services --timeout=300s
+fi
 
 echo "[runtime] Runtime deployment complete"
 kubectl get deploy,svc -n backstage
