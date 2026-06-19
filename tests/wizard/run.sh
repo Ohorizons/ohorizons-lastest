@@ -455,6 +455,75 @@ rm -f "$fa_ok"
 assert "valid foundry_agents exit code" "$ec" "0"
 
 echo
+echo "Test 27: valid Entra ID plus GitHub EMU identity passes"
+entra_emu="$(mktemp)"
+cat > "$entra_emu" <<'YAML'
+horizon: h2
+environment: dev
+deployment_mode: standard
+identity:
+  auth_provider: entra
+  github_identity_mode: enterprise-managed-users
+modules:
+  enable_container_registry: true
+  enable_argocd: true
+backstage_components:
+  enable_ai_chat_plugin: false
+  enable_agent_api: false
+golden_paths:
+  - h1-foundation/basic-cicd
+YAML
+rm -f "$manifest_path"
+"$WIZARD" --environment dev --auto --selection-file "$entra_emu" >/dev/null 2>&1
+ec=$?
+rm -f "$entra_emu"
+assert "valid Entra plus EMU exit code" "$ec" "0"
+assert "manifest auth_provider=entra" "$(yq '.identity.auth_provider' "$manifest_path")" "entra"
+assert "manifest github_identity_mode=enterprise-managed-users" "$(yq '.identity.github_identity_mode' "$manifest_path")" "enterprise-managed-users"
+
+echo
+echo "Test 28: GitHub auth with EMU identity exits 2"
+github_emu="$(mktemp)"
+cat > "$github_emu" <<'YAML'
+horizon: h2
+environment: dev
+deployment_mode: standard
+identity:
+  auth_provider: github
+  github_identity_mode: enterprise-managed-users
+modules:
+  enable_container_registry: true
+backstage_components: {}
+golden_paths:
+  - h1-foundation/basic-cicd
+YAML
+"$WIZARD" --environment dev --auto --selection-file "$github_emu" >/dev/null 2>&1
+ec=$?
+rm -f "$github_emu"
+assert "GitHub auth with EMU exit code" "$ec" "2"
+
+echo
+echo "Test 29: guest auth with EMU identity exits 2"
+guest_emu="$(mktemp)"
+cat > "$guest_emu" <<'YAML'
+horizon: h2
+environment: dev
+deployment_mode: standard
+identity:
+  auth_provider: guest
+  github_identity_mode: enterprise-managed-users
+modules:
+  enable_container_registry: true
+backstage_components: {}
+golden_paths:
+  - h1-foundation/basic-cicd
+YAML
+"$WIZARD" --environment dev --auto --selection-file "$guest_emu" >/dev/null 2>&1
+ec=$?
+rm -f "$guest_emu"
+assert "guest auth with EMU exit code" "$ec" "2"
+
+echo
 echo "Summary: $PASS passed, $FAIL failed"
 if [[ "$FAIL" -gt 0 ]]; then exit 1; fi
 exit 0

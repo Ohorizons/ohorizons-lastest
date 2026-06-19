@@ -86,7 +86,7 @@ server:
 
     # Repository credentials
     repositories: |
-      - url: https://github.com/${GITHUB_ORG}/open-horizons-platform.git
+      - url: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git
         passwordSecret:
           name: github-credentials
           key: password

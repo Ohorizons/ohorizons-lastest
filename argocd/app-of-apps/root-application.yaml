@@ -32,7 +32,7 @@ spec:
   project: platform
   
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
     targetRevision: main
     path: platform/apps
     
@@ -74,8 +74,8 @@ spec:
   
   # Source repositories
   sourceRepos:
-    - https://github.com/${GITHUB_ORG}/gitops-config.git
-    - https://github.com/${GITHUB_ORG}/golden-paths.git
+    - https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
+    - https://github.com/${GITHUB_ORG}/${GOLDEN_PATHS_REPO}.git
     - https://charts.jetstack.io
     - https://kubernetes.github.io/ingress-nginx
     - https://prometheus-community.github.io/helm-charts
@@ -579,7 +579,7 @@ spec:
   project: platform
   
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
     targetRevision: main
     path: platform/backstage
     
@@ -610,7 +610,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
         revision: main
         files:
           - path: "teams/*/team.yaml"
@@ -626,7 +626,7 @@ spec:
       project: platform
       
       source:
-        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
         targetRevision: main
         path: 'teams/{{team.name}}/namespaces'
         
@@ -653,7 +653,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
         revision: main
         directories:
           - path: "teams/*/apps/*"
@@ -671,7 +671,7 @@ spec:
       project: '{{path[1]}}'  # Team name from path
       
       source:
-        repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+        repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
         targetRevision: main
         path: '{{path}}'
         
@@ -705,7 +705,7 @@ spec:
   project: platform
   
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/gitops-config.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITOPS_REPO}.git
     targetRevision: main
     path: platform/cert-manager/cluster-issuers
     

@@ -4,7 +4,7 @@ This directory contains ArgoCD application manifests and configuration for GitOp
 
 ## Directory Structure
 
-```
+```text
 argocd/
 ├── app-of-apps/
 │   └── root-application.yaml    # Root ApplicationSet
@@ -55,16 +55,28 @@ kubectl apply -f app-of-apps/root-application.yaml
 
 ### Repository URL
 
-Before deploying, update the repository URL placeholders:
+Before deploying, update or render the repository URL placeholders:
 
 ```yaml
-# Replace GITHUB_ORG_PLACEHOLDER with your organization
-repoURL: https://github.com/GITHUB_ORG_PLACEHOLDER/open-horizons-platform.git
+# Replace placeholders with your organization and repository names.
+repoURL: https://github.com/GITHUB_ORG_PLACEHOLDER/GITHUB_REPO_PLACEHOLDER.git
 ```
+
+For the app-of-apps flow, use these placeholders consistently:
+
+| Placeholder | Meaning | Example |
+|-------------|---------|---------|
+| `${GITHUB_ORG}` | Customer GitHub organization | `contoso` |
+| `${GITHUB_REPO}` | Customer fork of this repository | `open-horizons-platform` |
+| `${GITOPS_REPO}` | Customer GitOps repository, if separate | `platform-gitops` |
+| `${GOLDEN_PATHS_REPO}` | Golden Paths repository, if separate | `golden-paths` |
+
+Single-repository deployments can set `${GITOPS_REPO}` and `${GOLDEN_PATHS_REPO}` to the same value as `${GITHUB_REPO}`.
 
 ### Secret Store
 
 The ClusterSecretStore requires:
+
 - Azure Key Vault URL
 - Workload Identity configured on AKS
 - Service account with federation

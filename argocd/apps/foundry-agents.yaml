@@ -36,7 +36,7 @@ spec:
   project: platform
 
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/ohorizons-lastest.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git
     targetRevision: main
     path: foundry/k8s
 

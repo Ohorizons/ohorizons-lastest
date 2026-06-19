@@ -212,7 +212,7 @@ spec:
   project: platform-infrastructure
 
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/open-horizons-platform.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git
     targetRevision: HEAD
     path: policies/kubernetes/constraint-templates
     directory:
@@ -263,7 +263,7 @@ spec:
   project: platform-infrastructure
 
   source:
-    repoURL: https://github.com/${GITHUB_ORG}/open-horizons-platform.git
+    repoURL: https://github.com/${GITHUB_ORG}/${GITHUB_REPO}.git
     targetRevision: HEAD
     path: policies/kubernetes/constraints
     directory:

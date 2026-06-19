@@ -20,14 +20,14 @@ This directory contains automation scripts for the Open Horizons Platform.
 | Script | Description | Usage |
 |--------|-------------|-------|
 | `validate-prerequisites.sh` | CLI tools verification | `./validate-prerequisites.sh` |
-| `validate-config.sh` | Configuration validation | `./validate-config.sh --config terraform.tfvars` |
+| `validate-config.sh` | Configuration validation | `./validate-config.sh --environment dev` |
 | `validate-deployment.sh` | Post-deployment health check | `./validate-deployment.sh --environment prod` |
 | `validate-agents.sh` | Agent specifications validation | `./validate-agents.sh` |
 | `validate-docs.sh` | Documentation validation | `./validate-docs.sh` |
 
 ### Agent-Supervised Azure Validation
 
-`azure-validation-run.sh` is the preferred script for real Azure proof runs where agents supervise the workflow. It writes artifacts to `runs/azure-validation/<run-id>/` and supports safe phases (`preflight`, `plan`, `validate-*`, `inventory`, `docs`) plus gated `apply` and `destroy`.
+`azure-validation-run.sh` is the preferred script for real Azure proof runs where agents supervise the workflow. It writes artifacts to `runs/azure-validation/<run-id>/` and supports safe phases (`preflight`, `plan`, `validate-*`, `inventory`, `docs`) plus gated `apply` and `destroy`. Agent-facing evidence should use the generated `*.sanitized.json` artifacts instead of raw Terraform plan or output JSON.
 
 ```bash
 ./azure-validation-run.sh --phase preflight --customer-name <client-name> --environment prod --location eastus2

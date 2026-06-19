@@ -240,6 +240,7 @@ module "security" {
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
   tenant_id           = var.azure_tenant_id
+  portal_domain_name  = var.domain_name
 
   aks_oidc_issuer_url         = module.aks.oidc_issuer_url
   enable_aad_app_registration = var.github_org != "" && (var.enable_argocd || var.enable_ai_chat_plugin || var.enable_agent_api)

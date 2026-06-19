@@ -43,8 +43,9 @@ if [[ "$PHASE" == "h1" || "$PHASE" == "all" ]]; then
     if [[ "$PHASE" == "h1" ]]; then exit 1; fi
   fi
 
-  NODE_COUNT=$(kubectl get nodes --no-headers 2>/dev/null | wc -l | tr -d ' ')
-  READY_COUNT=$(kubectl get nodes --no-headers 2>/dev/null | grep -c " Ready" || echo 0)
+  NODE_JSON=$(kubectl get nodes -o json 2>/dev/null || echo '{"items":[]}')
+  NODE_COUNT=$(printf '%s' "$NODE_JSON" | jq '.items | length' 2>/dev/null || echo 0)
+  READY_COUNT=$(printf '%s' "$NODE_JSON" | jq '[.items[]? | select(any(.status.conditions[]?; .type == "Ready" and .status == "True"))] | length' 2>/dev/null || echo 0)
   if [[ "$READY_COUNT" -gt 0 ]]; then
     pass "Nodes: $READY_COUNT/$NODE_COUNT Ready"
   else

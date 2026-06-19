@@ -113,6 +113,8 @@ Required top-level artifacts:
 | `errors.json` | Structured, sanitized error list |
 | `summary.md` | Human-readable timeline |
 | `fixes.md` | Agent-written root cause, remediation, validation, retry result |
+| `tfplan.sanitized.json` | Agent-safe Terraform plan view with secrets and subscription IDs masked |
+| `terraform-output.sanitized.json` | Agent-safe Terraform output view with sensitive outputs redacted |
 
 Phase folders:
 
@@ -127,6 +129,8 @@ Phase folders:
 08-docs/
 10-destroy/
 ```
+
+Agents and reviewers should prefer `*.sanitized.json` files when available. Raw plan, output, kubeconfig, and CLI evidence can contain tenant-specific identifiers or secrets and must remain in ignored run folders.
 
 ## 5. Phase Sequence
 

@@ -70,7 +70,7 @@ Usage:
   scripts/azure-validation-run.sh --phase destroy --run-id <run-id> --confirm-destroy --destroy-confirm-text <client-name>-prod
 
 Options:
-  --phase <name>              preflight | plan | apply | validate-h1 | validate-h2 | validate-h3 | validate-all | inventory | docs | destroy | all-safe
+  --phase <name>              preflight | plan | apply | validate-h1 | validate-h2 | validate-h3 | validate-all | inventory | docs | evidence | destroy | all-safe | redact-artifact | write-validation-tfvars
   --run-id <id>               Existing or desired run id (default: <customer>-<env>-<UTC timestamp>)
   --customer-name <name>      Required: real client/project short name (lowercase, 3-20 chars)
   --environment <env>         Terraform environment override (default: prod)
@@ -94,9 +94,16 @@ Options:
   --auto-approve             Pass -auto-approve to terraform apply/destroy after confirm flag
   --disable-zones            Set disable_availability_zones=true in generated tfvars
   --create-external-secret-store Create External Secrets ClusterSecretStore after ESO CRDs are installed
+  --input <path>              Input JSON for redact-artifact
+  --output <path>             Output JSON for redact-artifact
+  --artifact-type <type>      terraform-plan | terraform-output | generic-json
   --help                     Show help
 USAGE
 }
+
+ARTIFACT_INPUT=""
+ARTIFACT_OUTPUT=""
+ARTIFACT_TYPE="generic-json"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -121,10 +128,17 @@ while [[ $# -gt 0 ]]; do
     --auto-approve) AUTO_APPROVE=true; shift ;;
     --disable-zones) DISABLE_ZONES=true; shift ;;
     --create-external-secret-store) CREATE_EXTERNAL_SECRET_STORE=true; shift ;;
+    --input) ARTIFACT_INPUT="$2"; shift 2 ;;
+    --output) ARTIFACT_OUTPUT="$2"; shift 2 ;;
+    --artifact-type) ARTIFACT_TYPE="$2"; shift 2 ;;
     --help|-h) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 2 ;;
   esac
 done
+
+if [[ "$PHASE" == "redact-artifact" && -z "$RUN_ID" ]]; then
+  RUN_ID="redact-artifact"
+fi
 
 if [[ -z "$RUN_ID" ]]; then
   if [[ -z "$CUSTOMER_NAME" ]]; then
@@ -312,6 +326,41 @@ run_logged() {
     exit "$exit_code"
   fi
   echo "$log_file"
+}
+
+redact_json_artifact() {
+  local input_file="$1" output_file="$2" artifact_type="$3"
+  if [[ ! -f "$input_file" ]]; then
+    echo "Input file not found: $input_file" >&2
+    return 2
+  fi
+  case "$artifact_type" in
+    terraform-plan|terraform-output|generic-json) ;;
+    *) echo "Unsupported artifact type: $artifact_type" >&2; return 2 ;;
+  esac
+  command -v jq >/dev/null 2>&1 || { echo "Required tool not found: jq" >&2; return 1; }
+  mkdir -p "$(dirname "$output_file")"
+  jq '
+    def sensitive_key:
+      ascii_downcase
+      | test("password|passwd|secret|token|private[_-]?key|client[_-]?secret|kube[_-]?config|certificate|certificate-authority-data|access[_-]?key|primary[_-]?key|secondary[_-]?key|connection[_-]?string|bcrypt|api[_-]?key|result");
+    def mask_string:
+      gsub("/subscriptions/[0-9A-Fa-f-]+/"; "/subscriptions/REDACTED/")
+      | gsub("[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}"; "REDACTED-GUID")
+      | gsub("ghp_[A-Za-z0-9_]+"; "REDACTED")
+      | gsub("github_pat_[A-Za-z0-9_]+"; "REDACTED")
+      | gsub("-----BEGIN [^-]+-----[\\s\\S]*-----END [^-]+-----"; "REDACTED");
+    walk(
+      if type == "object" then
+        (if (.sensitive == true and has("value")) then .value = "REDACTED" else . end)
+        | with_entries(select((.key | sensitive_key) | not))
+      elif type == "string" then
+        mask_string
+      else
+        .
+      end
+    )
+  ' "$input_file" > "$output_file"
 }
 
 write_validation_tfvars() {
@@ -579,6 +628,8 @@ phase_plan() {
 
   terraform show -json "$PLAN_FILE" > "$PLAN_JSON"
   cp "$PLAN_JSON" "$phase_dir/tfplan.json"
+  redact_json_artifact "$PLAN_JSON" "$RUN_DIR/tfplan.sanitized.json" terraform-plan
+  cp "$RUN_DIR/tfplan.sanitized.json" "$phase_dir/tfplan.sanitized.json"
 
   if command -v jq >/dev/null 2>&1; then
     jq '[.resource_changes[]? | {address, type, actions: .change.actions}]' "$PLAN_JSON" > "$phase_dir/resource-changes-summary.json"
@@ -630,6 +681,9 @@ phase_apply() {
     run_logged "$phase_dir" "terraform-apply" terraform apply "$PLAN_FILE" >/dev/null
   fi
   terraform output -json > "$phase_dir/terraform-output.json" 2> "$phase_dir/terraform-output.err" || true
+  if [[ -s "$phase_dir/terraform-output.json" ]]; then
+    redact_json_artifact "$phase_dir/terraform-output.json" "$phase_dir/terraform-output.sanitized.json" terraform-output || true
+  fi
   cd "$PROJECT_DIR"
   write_status "$PHASE" "passed" "" "deploy" true
   append_summary "Apply passed"
@@ -663,26 +717,32 @@ phase_validate_h1() {
   mkdir -p "$phase_dir"
   clear_errors
   write_status "$PHASE" "running"
+  for tool in az terraform kubectl jq; do require_tool "$tool"; done
   if ! configure_kubectl "$phase_dir"; then
     write_error "$PHASE" "aks_credentials_failed" "azure-portal-deploy" "Could not configure AKS credentials from Terraform outputs." "$phase_dir/az-aks-get-credentials.log"
     write_status "$PHASE" "failed" "aks_credentials" "azure-portal-deploy" true
     exit 1
   fi
-  kubectl get nodes -o wide > "$phase_dir/kubectl-nodes.txt" 2> "$phase_dir/kubectl-nodes.err" || true
+  kubectl get nodes -o json > "$phase_dir/kubectl-nodes.json" 2> "$phase_dir/kubectl-nodes.err" || true
   if grep -q 'Forbidden' "$phase_dir/kubectl-nodes.err" 2>/dev/null; then
     append_summary "kubectl RBAC forbidden; retrying H1 validation with AKS admin credentials"
     configure_kubectl "$phase_dir" true || true
-    kubectl get nodes -o wide > "$phase_dir/kubectl-nodes.txt" 2> "$phase_dir/kubectl-nodes.err" || true
+    kubectl get nodes -o json > "$phase_dir/kubectl-nodes.json" 2> "$phase_dir/kubectl-nodes.err" || true
   fi
+  kubectl get nodes -o wide > "$phase_dir/kubectl-nodes.txt" 2> "$phase_dir/kubectl-nodes-wide.err" || true
   kubectl get pods -A -o wide > "$phase_dir/kubectl-pods-all.txt" 2> "$phase_dir/kubectl-pods-all.err" || true
   kubectl get events -A --sort-by=.lastTimestamp > "$phase_dir/kubectl-events.txt" 2> "$phase_dir/kubectl-events.err" || true
-  if ! grep -q ' Ready ' "$phase_dir/kubectl-nodes.txt" 2>/dev/null; then
-    write_error "$PHASE" "nodes_not_ready" "sre" "No AKS nodes reported Ready." "$phase_dir/kubectl-nodes.txt"
+  local node_count ready_count
+  node_count="$(jq '.items | length' "$phase_dir/kubectl-nodes.json" 2>/dev/null || echo 0)"
+  ready_count="$(jq '[.items[]? | select(any(.status.conditions[]?; .type == "Ready" and .status == "True"))] | length' "$phase_dir/kubectl-nodes.json" 2>/dev/null || echo 0)"
+  printf '{"nodes":%s,"ready":%s}\n' "$node_count" "$ready_count" > "$phase_dir/node-readiness-summary.json"
+  if [[ "$ready_count" -le 0 ]]; then
+    write_error "$PHASE" "nodes_not_ready" "sre" "No AKS nodes reported Ready." "$phase_dir/kubectl-nodes.json"
     write_status "$PHASE" "failed" "nodes_not_ready" "sre" true
     exit 1
   fi
   write_status "$PHASE" "passed" "" "sre" true
-  append_summary "H1 validation passed"
+  append_summary "H1 validation passed ($ready_count/$node_count nodes Ready)"
 }
 
 phase_validate_h2() {
@@ -696,6 +756,20 @@ phase_validate_h2() {
     kubectl get namespace "$ns" -o json > "$phase_dir/ns-${ns}.json" 2> "$phase_dir/ns-${ns}.err" || true
     kubectl get pods -n "$ns" -o wide > "$phase_dir/pods-${ns}.txt" 2> "$phase_dir/pods-${ns}.err" || true
   done
+  if grep -Rni 'Forbidden' "$phase_dir"/*.err >/dev/null 2>&1; then
+    append_summary "kubectl RBAC forbidden during H2 validation; retrying with AKS admin credentials"
+    configure_kubectl "$phase_dir" true || true
+    for ns in argocd observability external-secrets backstage ai-services; do
+      kubectl get namespace "$ns" -o json > "$phase_dir/ns-${ns}.json" 2> "$phase_dir/ns-${ns}.err" || true
+      kubectl get pods -n "$ns" -o wide > "$phase_dir/pods-${ns}.txt" 2> "$phase_dir/pods-${ns}.err" || true
+    done
+  fi
+  if grep -Rni 'Forbidden' "$phase_dir"/*.err >/dev/null 2>&1; then
+    grep -Rni 'Forbidden' "$phase_dir"/*.err > "$phase_dir/kubernetes-rbac-errors.txt" || true
+    write_error "$PHASE" "kubernetes_rbac_forbidden" "sre" "H2 Kubernetes RBAC errors detected after admin retry." "$phase_dir/kubernetes-rbac-errors.txt"
+    write_status "$PHASE" "failed" "kubernetes_rbac_forbidden" "sre" true
+    exit 1
+  fi
   if grep -RniE 'CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError' "$phase_dir" >/dev/null 2>&1; then
     grep -RniE 'CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError' "$phase_dir" > "$phase_dir/pod-errors.txt" || true
     write_error "$PHASE" "pod_errors" "sre" "H2 pod errors detected." "$phase_dir/pod-errors.txt"
@@ -717,6 +791,18 @@ phase_validate_h3() {
   az search service list -o json > "$phase_dir/search-services.json" 2> "$phase_dir/search-services.err" || true
   kubectl get pods -n ai-services -o wide > "$phase_dir/pods-ai-services.txt" 2> "$phase_dir/pods-ai-services.err" || true
   kubectl get svc -n ai-services -o wide > "$phase_dir/services-ai-services.txt" 2> "$phase_dir/services-ai-services.err" || true
+  if grep -Rni 'Forbidden' "$phase_dir"/*.err >/dev/null 2>&1; then
+    append_summary "kubectl RBAC forbidden during H3 validation; retrying with AKS admin credentials"
+    configure_kubectl "$phase_dir" true || true
+    kubectl get pods -n ai-services -o wide > "$phase_dir/pods-ai-services.txt" 2> "$phase_dir/pods-ai-services.err" || true
+    kubectl get svc -n ai-services -o wide > "$phase_dir/services-ai-services.txt" 2> "$phase_dir/services-ai-services.err" || true
+  fi
+  if grep -Rni 'Forbidden' "$phase_dir"/*.err >/dev/null 2>&1; then
+    grep -Rni 'Forbidden' "$phase_dir"/*.err > "$phase_dir/kubernetes-rbac-errors.txt" || true
+    write_error "$PHASE" "kubernetes_rbac_forbidden" "sre" "H3 Kubernetes RBAC errors detected after admin retry." "$phase_dir/kubernetes-rbac-errors.txt"
+    write_status "$PHASE" "failed" "kubernetes_rbac_forbidden" "sre" true
+    exit 1
+  fi
   if [[ -s "$phase_dir/pods-ai-services.txt" ]] && grep -qE 'CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError' "$phase_dir/pods-ai-services.txt"; then
     write_error "$PHASE" "h3_pod_errors" "sre" "H3 pod errors detected." "$phase_dir/pods-ai-services.txt"
     write_status "$PHASE" "failed" "h3_pod_errors" "sre" true
@@ -734,8 +820,12 @@ phase_inventory() {
   write_status "$PHASE" "running"
   az resource list -g "$RESOURCE_GROUP" -o json > "$phase_dir/resources.json" 2> "$phase_dir/resources.err" || true
   terraform -chdir="$TERRAFORM_DIR" output -json > "$phase_dir/terraform-output.json" 2> "$phase_dir/terraform-output.err" || true
+  if [[ -s "$phase_dir/terraform-output.json" ]]; then
+    redact_json_artifact "$phase_dir/terraform-output.json" "$phase_dir/terraform-output.sanitized.json" terraform-output || true
+  fi
   if command -v jq >/dev/null 2>&1 && [[ -s "$phase_dir/resources.json" ]]; then
     jq '[.[] | {name, type, location, id}]' "$phase_dir/resources.json" > "$phase_dir/resources-summary.json" || true
+    redact_json_artifact "$phase_dir/resources-summary.json" "$phase_dir/resources-summary.sanitized.json" generic-json || true
     jq -r '.[] | [.type, .name, .location] | @tsv' "$phase_dir/resources.json" > "$phase_dir/resources.tsv" || true
   fi
   write_status "$PHASE" "passed" "" "azure-portal-deploy" true
@@ -775,6 +865,66 @@ MD
   append_summary "Documentation artifact generated: $phase_dir/resource-inventory.md"
 }
 
+phase_evidence() {
+  PHASE="evidence"
+  local phase_dir="$RUN_DIR/09-evidence"
+  local files_dir="$phase_dir/files"
+  mkdir -p "$files_dir"
+  clear_errors
+  write_status "$PHASE" "running"
+
+  local candidate relative target
+  for candidate in \
+    "$STATUS_FILE" \
+    "$ERRORS_FILE" \
+    "$SUMMARY_FILE" \
+    "$FIXES_FILE" \
+    "$RUN_DIR/01-plan/tfplan.sanitized.json" \
+    "$RUN_DIR/02-apply/terraform-output.sanitized.json" \
+    "$RUN_DIR/07-inventory/terraform-output.sanitized.json" \
+    "$RUN_DIR/07-inventory/resources-summary.sanitized.json" \
+    "$RUN_DIR/08-docs/resource-inventory.md"; do
+    [[ -f "$candidate" ]] || continue
+    relative="${candidate#$RUN_DIR/}"
+    target="$files_dir/$relative"
+    mkdir -p "$(dirname "$target")"
+    case "$candidate" in
+      *.md|*.txt|*.log)
+        perl -pe 's#/subscriptions/[0-9A-Fa-f-]+/#/subscriptions/REDACTED/#g; s/[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}/REDACTED-GUID/g' "$candidate" > "$target"
+        ;;
+      *)
+        cp "$candidate" "$target"
+        ;;
+    esac
+  done
+
+  {
+    echo '{'
+    echo "  \"run_id\": \"$RUN_ID\","
+    echo "  \"generated_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\","
+    echo '  "files": ['
+    local first=true
+    while IFS= read -r file; do
+      local rel hash
+      rel="${file#$files_dir/}"
+      hash="$(shasum -a 256 "$file" | awk '{print $1}')"
+      if [[ "$first" == true ]]; then
+        first=false
+      else
+        echo ','
+      fi
+      printf '    {"path":"%s","sha256":"%s"}' "$rel" "$hash"
+    done < <(find "$files_dir" -type f | sort)
+    echo
+    echo '  ]'
+    echo '}'
+  } > "$phase_dir/evidence-manifest.json"
+
+  tar -czf "$phase_dir/evidence.tar.gz" -C "$files_dir" .
+  write_status "$PHASE" "passed" "" "deploy" true
+  append_summary "Evidence bundle generated: $phase_dir/evidence.tar.gz"
+}
+
 phase_destroy() {
   PHASE="destroy"
   local phase_dir="$RUN_DIR/10-destroy"
@@ -802,6 +952,23 @@ phase_destroy() {
   append_summary "Destroy completed"
 }
 
+phase_redact_artifact() {
+  PHASE="redact-artifact"
+  if [[ -z "$ARTIFACT_INPUT" || -z "$ARTIFACT_OUTPUT" ]]; then
+    echo "redact-artifact requires --input <path> and --output <path>" >&2
+    exit 2
+  fi
+  redact_json_artifact "$ARTIFACT_INPUT" "$ARTIFACT_OUTPUT" "$ARTIFACT_TYPE"
+}
+
+phase_write_validation_tfvars() {
+  PHASE="write-validation-tfvars"
+  clear_errors
+  write_status "$PHASE" "running"
+  write_validation_tfvars
+  write_status "$PHASE" "passed" "" "deploy" true
+}
+
 case "$PHASE" in
   preflight) phase_preflight ;;
   plan) phase_plan ;;
@@ -812,8 +979,11 @@ case "$PHASE" in
   validate-all) phase_validate_h1; phase_validate_h2; phase_validate_h3 ;;
   inventory) phase_inventory ;;
   docs) phase_docs ;;
+  evidence) phase_evidence ;;
   destroy) phase_destroy ;;
   all-safe) phase_preflight; phase_plan ;;
+  redact-artifact) phase_redact_artifact ;;
+  write-validation-tfvars) phase_write_validation_tfvars ;;
   *) echo "Unsupported phase: $PHASE" >&2; usage; exit 2 ;;
 esac
 

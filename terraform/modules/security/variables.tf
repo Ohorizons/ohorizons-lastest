@@ -74,6 +74,11 @@ variable "enable_aad_app_registration" {
   default     = true
 }
 
+variable "portal_domain_name" {
+  description = "Portal DNS name used for Microsoft Entra ID redirect URIs. Backstage is hosted at https://<portal_domain_name>."
+  type        = string
+}
+
 variable "subnet_id" {
   description = "Subnet ID for private endpoint"
   type        = string

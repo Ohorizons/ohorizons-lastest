@@ -113,15 +113,45 @@ confirm() {
 }
 
 save_checkpoint() {
-  echo "$1" > "$CHECKPOINT_FILE"
+  cat > "$CHECKPOINT_FILE" <<JSON
+{
+  "last_phase": $1,
+  "environment": "$ENVIRONMENT",
+  "horizon": "$HORIZON",
+  "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+JSON
 }
 
 load_checkpoint() {
-  if [[ -f "$CHECKPOINT_FILE" ]]; then
-    cat "$CHECKPOINT_FILE"
-  else
+  if [[ ! -f "$CHECKPOINT_FILE" ]]; then
     echo "0"
+    return 0
   fi
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "  jq is required to resume from checkpoint." >&2
+    exit 1
+  fi
+  if ! jq -e 'type == "object" and has("last_phase")' "$CHECKPOINT_FILE" >/dev/null 2>&1; then
+    echo "  Legacy checkpoint format detected at $CHECKPOINT_FILE; safe resume requires JSON metadata." >&2
+    echo "  Re-run without --resume to start from phase 0." >&2
+    exit 1
+  fi
+  local checkpoint_environment checkpoint_horizon checkpoint_phase
+  checkpoint_environment="$(jq -r '.environment // ""' "$CHECKPOINT_FILE")"
+  checkpoint_horizon="$(jq -r '.horizon // ""' "$CHECKPOINT_FILE")"
+  checkpoint_phase="$(jq -r '.last_phase // 0' "$CHECKPOINT_FILE")"
+  if [[ "$checkpoint_environment" != "$ENVIRONMENT" ]]; then
+    echo "  Checkpoint environment ($checkpoint_environment) differs from --environment ($ENVIRONMENT)." >&2
+    echo "  Re-run without --resume or use the matching environment." >&2
+    exit 1
+  fi
+  if [[ "$checkpoint_horizon" != "$HORIZON" ]]; then
+    echo "  Checkpoint horizon ($checkpoint_horizon) differs from --horizon ($HORIZON)." >&2
+    echo "  Re-run without --resume or use the matching horizon." >&2
+    exit 1
+  fi
+  echo "$checkpoint_phase"
 }
 
 tf_plan() {
