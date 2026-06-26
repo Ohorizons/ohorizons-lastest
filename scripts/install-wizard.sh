@@ -959,6 +959,9 @@ PY
       cp "$target" "${target}.bak.$(date -u +%Y%m%dT%H%M%SZ)"
     fi
     mv "$tmp" "$target"
+    if command -v terraform >/dev/null 2>&1; then
+      terraform fmt "$target" >/dev/null 2>&1 || log_warn "terraform fmt could not format $target"
+    fi
     log_ok "Wrote $target"
   else
     rm -f "$tmp"

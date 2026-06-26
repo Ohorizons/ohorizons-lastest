@@ -776,8 +776,26 @@ phase_validate_h2() {
     write_status "$PHASE" "failed" "pod_errors" "sre" true
     exit 1
   fi
+  if [[ "$VALIDATION_SCOPE" == "nogithub" || "$VALIDATION_SCOPE" == "platform" || "$VALIDATION_SCOPE" == "full" ]]; then
+    local required_ns missing_components=()
+    for required_ns in argocd external-secrets backstage; do
+      if grep -qi 'NotFound' "$phase_dir/ns-${required_ns}.err" 2>/dev/null || [[ ! -s "$phase_dir/ns-${required_ns}.json" ]]; then
+        missing_components+=("namespace/${required_ns}")
+        continue
+      fi
+      if ! grep -q ' Running ' "$phase_dir/pods-${required_ns}.txt" 2>/dev/null; then
+        missing_components+=("pods/${required_ns}")
+      fi
+    done
+    if [[ "${#missing_components[@]}" -gt 0 ]]; then
+      printf '%s\n' "${missing_components[@]}" > "$phase_dir/missing-required-components.txt"
+      write_error "$PHASE" "missing_required_components" "sre" "H2 required components are missing or unhealthy for validation scope $VALIDATION_SCOPE." "$phase_dir/missing-required-components.txt"
+      write_status "$PHASE" "failed" "missing_required_components" "sre" true
+      exit 1
+    fi
+  fi
   write_status "$PHASE" "passed" "" "sre" true
-  append_summary "H2 validation passed or optional namespaces absent"
+  append_summary "H2 validation passed for scope $VALIDATION_SCOPE"
 }
 
 phase_validate_h3() {
@@ -807,6 +825,23 @@ phase_validate_h3() {
     write_error "$PHASE" "h3_pod_errors" "sre" "H3 pod errors detected." "$phase_dir/pods-ai-services.txt"
     write_status "$PHASE" "failed" "h3_pod_errors" "sre" true
     exit 1
+  fi
+  if [[ "$VALIDATION_SCOPE" == "nogithub" || "$VALIDATION_SCOPE" == "full" ]]; then
+    local required_app missing_apps=()
+    for required_app in agent-api agent-api-impact mcp-ecosystem; do
+      if ! grep -E "${required_app}.* Running " "$phase_dir/pods-ai-services.txt" >/dev/null 2>&1; then
+        missing_apps+=("pod/${required_app}")
+      fi
+      if ! grep -E "${required_app}" "$phase_dir/services-ai-services.txt" >/dev/null 2>&1; then
+        missing_apps+=("service/${required_app}")
+      fi
+    done
+    if [[ "${#missing_apps[@]}" -gt 0 ]]; then
+      printf '%s\n' "${missing_apps[@]}" > "$phase_dir/missing-required-components.txt"
+      write_error "$PHASE" "missing_required_components" "sre" "H3 required components are missing or unhealthy for validation scope $VALIDATION_SCOPE." "$phase_dir/missing-required-components.txt"
+      write_status "$PHASE" "failed" "missing_required_components" "sre" true
+      exit 1
+    fi
   fi
   write_status "$PHASE" "passed" "" "sre" true
   append_summary "H3 validation completed"

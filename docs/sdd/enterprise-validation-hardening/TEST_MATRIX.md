@@ -29,7 +29,7 @@ tags: ["test-matrix", "TDD", "evidence"]
 | AC-07 | Terraform plan redaction | Automated | `bash tests/validation/redaction.sh` | Passed |
 | AC-08 | Ready nodes pass | Automated | `bash tests/validation/validate-h1-node-check.sh` | Passed |
 | AC-09 | No Ready nodes fail | Automated | `bash tests/validation/validate-h1-node-check.sh` | Passed |
-| AC-10 | Missing enabled H2/H3 fails | Automated | `bash tests/validation/scope-aware-components.sh` | Planned |
+| AC-10 | Missing enabled H2/H3 fails | Automated | `bash tests/validation/scope-aware-components.sh` | Passed |
 | AC-11 | Resume mismatch fails | Automated | `bash tests/deploy/resume.sh` | Passed |
 | AC-12 | ArgoCD URLs fork-ready | Automated | `bash tests/validation/fork-ready-argocd.sh` | Passed |
 | AC-13 | Live validate-all/inventory/docs | Live evidence | `runs/azure-validation/contoso-prod-nogithub-finalcheck` sanitized evidence | Passed |

@@ -62,8 +62,8 @@ tags: ["tasks", "TDD", "validation"]
 - [x] T-040 Add Kubernetes node JSON fixtures.
 - [x] T-041 Add `tests/validation/validate-h1-node-check.sh`.
 - [x] T-042 Replace node readiness text parsing with JSON parsing.
-- [ ] T-043 Add scope-aware H2 checks.
-- [ ] T-044 Add scope-aware H3 checks.
+- [x] T-043 Add scope-aware H2 checks.
+- [x] T-044 Add scope-aware H3 checks.
 - [x] T-045 Verify live validation phase remains non-mutating.
 
 ## Phase 5: Entra Terraform Callback
