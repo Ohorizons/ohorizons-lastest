@@ -17,10 +17,12 @@ Idempotent: safe to run more than once.
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 import re
 
-DASH_DIR = pathlib.Path(__file__).resolve().parent.parent / "grafana" / "dashboards" / "context-platform"
+DASH_DIR = pathlib.Path(__file__).resolve().parent.parent / \
+    "grafana" / "dashboards" / "context-platform"
 
 RESOURCE_VAR = "${appInsightsResource}"
 
@@ -30,8 +32,18 @@ RESOURCE_RE = re.compile(
     r"/subscriptions/[0-9a-fA-F-]+/resourceGroups/[^/\"]+/providers/"
     r"[Mm]icrosoft\.[Ii]nsights/components/[^\"]+"
 )
-SUBSCRIPTION_RE = re.compile(r"REDACTED-SUBSCRIPTION-ID")
-RG_RE = re.compile(r"rg-openhorizons-example")
+# Optional scrub targets for a specific leftover subscription ID or resource group.
+# Set these env vars when re-running against dashboards that still embed a real Azure
+# subscription GUID or resource group name. They default to disabled so this transform
+# never carries a real tenant identifier in source control.
+_DEMO_SUBSCRIPTION_ID = os.environ.get(
+    "OPENHORIZONS_DEMO_SUBSCRIPTION_ID", "").strip()
+_DEMO_RESOURCE_GROUP = os.environ.get(
+    "OPENHORIZONS_DEMO_RESOURCE_GROUP", "").strip()
+SUBSCRIPTION_RE = re.compile(
+    re.escape(_DEMO_SUBSCRIPTION_ID)) if _DEMO_SUBSCRIPTION_ID else None
+RG_RE = re.compile(re.escape(_DEMO_RESOURCE_GROUP)
+                   ) if _DEMO_RESOURCE_GROUP else None
 
 PROD_COMMENT = (
     "Context Platform reference dashboard. Bind the App Insights resource via the "
@@ -60,17 +72,23 @@ APPINSIGHTS_VAR = {
 
 def clean_text(value: str) -> str:
     value = RESOURCE_RE.sub(RESOURCE_VAR, value)
-    value = value.replace("appi-openhorizons-example", "your App Insights component")
-    value = SUBSCRIPTION_RE.sub("${subscription}", value)
-    value = RG_RE.sub("your resource group", value)
+    value = value.replace("appi-openhorizons-example",
+                          "your App Insights component")
+    if SUBSCRIPTION_RE is not None:
+        value = SUBSCRIPTION_RE.sub("${subscription}", value)
+    if RG_RE is not None:
+        value = RG_RE.sub("your resource group", value)
     # Drop Acme demo-agent phrasing, keep the platform-agents statement.
-    value = re.sub(r"\(17 platform \+ 5 [Aa]cme[^)]*\)", "(platform + tenant agents)", value)
-    value = value.replace("17 platform Copilot agents + 5 Acme demo agents", "the platform Copilot agents")
+    value = re.sub(r"\(17 platform \+ 5 [Aa]cme[^)]*\)",
+                   "(platform + tenant agents)", value)
+    value = value.replace(
+        "17 platform Copilot agents + 5 Acme demo agents", "the platform Copilot agents")
     value = value.replace("5 Acme demo agents", "tenant agents")
     value = value.replace("Acme demo agents", "tenant agents")
     value = value.replace("Acme agents", "tenant agents")
     value = value.replace("Acme agent", "tenant agent")
-    value = value.replace("Demo data via TestData; wire to App Insights once telemetry is seeded.", "Bind to App Insights once telemetry is flowing.")
+    value = value.replace("Demo data via TestData; wire to App Insights once telemetry is seeded.",
+                          "Bind to App Insights once telemetry is flowing.")
     value = value.replace("Acme DEV", "your")
     # Genericise any remaining demo-client tokens (CSV sample rows, panel aliases)
     # into a neutral 'tenant' placeholder that partners replace per client.

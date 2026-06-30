@@ -303,6 +303,14 @@ terraform/environments/*.tfvars.bak.*
 # Open Horizons render-manifests output
 backstage/k8s/.rendered/
 
+# Local Azure Storage emulator (Azurite) artifacts — never commit; they embed
+# absolute local paths and local emulator state.
+__azurite_db*.json
+__azurite_db*__.json
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+
 # Golden Path skeleton build artifacts (generated; must never be committed)
 golden-paths/**/bin/
 golden-paths/**/obj/
