@@ -65,7 +65,7 @@ The container binds to `127.0.0.1:8010`, mounts Docker socket for Stdio MCPs, an
 
 - **Namespace**: `backstage`
 - **Service**: `agent-api-maf` (port 8010)
-- **Image**: `acropenhorizonsdev.azurecr.io/ohorizons-agent-api:v7.1.0-demo` (MAF variant)
+- **Image**: `ghcr.io/ohorizons/ohorizons-agent-api:v7.2.4` (MAF variant)
 - **Backstage proxy**: `/api/proxy/agent-api` → `http://agent-api-maf:8010`
 - **Runtime deps**: Node.js 22 LTS and Docker CLI installed in container for MCP Stdio tools
 

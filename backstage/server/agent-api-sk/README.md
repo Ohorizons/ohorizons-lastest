@@ -59,7 +59,7 @@ The container binds to `127.0.0.1:8009` and joins the `ohorizons-platform` Docke
 
 - **Namespace**: `backstage`
 - **Service**: `agent-api-sk` (port 8009)
-- **Image**: `acropenhorizonsdev.azurecr.io/ohorizons-agent-api:v7.1.0-demo` (SK variant)
+- **Image**: `ghcr.io/ohorizons/ohorizons-agent-api:v7.2.4` (SK variant)
 - **Backstage proxy**: `/api/proxy/agent-api` → `http://agent-api-sk:8009`
 
 ## Configuration

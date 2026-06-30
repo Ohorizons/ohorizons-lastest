@@ -154,6 +154,6 @@
 <circle cx="681" cy="1596" r="5.5" fill="#969CA4"/>
 <text x="694.0" y="1600.0" font-size="10" font-weight="400" fill="#5E636B" text-anchor="start">Telemetry / response</text>
 <text x="70.0" y="1633.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Solid line: control/request · Dashed line: async, response, or telemetry · Numbers show the primary flow</text>
-<text x="70.0" y="1660.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Open Horizons · Microsoft Azure + GitHub</text>
+<text x="70.0" y="1660.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Microsoft Azure + GitHub</text>
 <text x="2630.0" y="1660.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="end">Official Microsoft Azure (draw.io azure2) and GitHub icons</text>
 </svg>

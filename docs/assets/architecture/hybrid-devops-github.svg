@@ -206,6 +206,6 @@
 <circle cx="713" cy="1616" r="5.5" fill="#F25022"/>
 <text x="726.0" y="1620.0" font-size="10" font-weight="400" fill="#5E636B" text-anchor="start">GitOps</text>
 <text x="70.0" y="1653.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Solid line: control/request · Dashed line: async, response, or telemetry · Numbers show the primary flow</text>
-<text x="70.0" y="1680.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Open Horizons · Microsoft Azure + GitHub</text>
+<text x="70.0" y="1680.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Microsoft Azure + GitHub</text>
 <text x="2530.0" y="1680.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="end">Official Microsoft Azure (draw.io azure2) and GitHub icons</text>
 </svg>

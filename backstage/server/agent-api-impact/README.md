@@ -65,7 +65,7 @@ The container binds to `127.0.0.1:8011` with a persistent `impact-data` volume f
 
 - **Namespace**: `backstage`
 - **Service**: `agent-api-impact` (port 8011)
-- **Image**: `acropenhorizonsdev.azurecr.io/ohorizons-agent-api-impact:v7.1.0-demo`
+- **Image**: `ghcr.io/ohorizons/ohorizons-agent-api-impact:v7.2.4`
 - **Backstage proxy**: `/api/proxy/agent-api-impact` → `http://agent-api-impact:8011`
 - **Auth on AKS**: Workload Identity for Azure OpenAI; GitHub token via Key Vault
 

@@ -199,6 +199,6 @@
 <circle cx="667" cy="1636" r="5.5" fill="#FFB900"/>
 <text x="680.0" y="1640.0" font-size="10" font-weight="400" fill="#5E636B" text-anchor="start">Observability</text>
 <text x="70.0" y="1673.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Solid line: control/request · Dashed line: async, response, or telemetry · Numbers show the primary flow</text>
-<text x="70.0" y="1700.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Open Horizons · Microsoft Azure + GitHub</text>
+<text x="70.0" y="1700.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="start">Open Horizons · Microsoft Azure + GitHub</text>
 <text x="2530.0" y="1700.0" font-size="10" font-weight="400" fill="#969CA4" text-anchor="end">Official Microsoft Azure (draw.io azure2) and GitHub icons</text>
 </svg>
