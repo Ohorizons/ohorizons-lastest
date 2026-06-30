@@ -70,10 +70,6 @@ check_doc_standards() {
         "agentic-devops-platform"
         "threehorizons"
         "backstage-demo"
-        "Agentic DevOps Platform"
-        "Agentic DevOps Platform"
-        "Open Horizons"
-        "hello@ohorizons.io"
         "Microsoft Confidential"
         "Runbook de"
         "Métricas"
@@ -81,10 +77,25 @@ check_doc_standards() {
         "Correlacao"
     )
 
+    local forbidden_regexes=(
+        "Software[[:space:]]+G[B]B[[:space:]]+Americas"
+        "G[l]obal[[:space:]]+Black[[:space:]]+Belt"
+        "P[a]ula[[:space:]]+Silva"
+        "p[a]ulasilva@microsoft[.]com"
+        "p[a]ulasilva-ms"
+    )
+
     local term
     for term in "${forbidden_terms[@]}"; do
         if grep -q "$term" "$source_file"; then
             log_error "$rel_source → forbidden term '$term'"
+        fi
+    done
+
+    local regex
+    for regex in "${forbidden_regexes[@]}"; do
+        if grep -Eiq "$regex" "$source_file"; then
+            log_error "$rel_source → forbidden pattern '$regex'"
         fi
     done
 
