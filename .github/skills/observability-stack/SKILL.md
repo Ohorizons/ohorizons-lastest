@@ -79,7 +79,9 @@ kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 909
 curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets | length'
 
 # Verify Grafana datasources
-curl -s -u admin:prom-operator http://localhost:3000/api/datasources | jq '.[].name'
+GRAFANA_USER="${GRAFANA_USER:-admin}"
+GRAFANA_PASSWORD="${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD from your secret store}"
+curl -s -u "${GRAFANA_USER}:${GRAFANA_PASSWORD}" http://localhost:3000/api/datasources | jq '.[].name'
 ```
 
 ## Day-2 Operations
@@ -108,7 +110,9 @@ kubectl get pods -n monitoring -l app.kubernetes.io/name=grafana
 kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 
 # List data sources
-curl -s -u admin:prom-operator http://localhost:3000/api/datasources | jq '.[].name'
+GRAFANA_USER="${GRAFANA_USER:-admin}"
+GRAFANA_PASSWORD="${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD from your secret store}"
+curl -s -u "${GRAFANA_USER}:${GRAFANA_PASSWORD}" http://localhost:3000/api/datasources | jq '.[].name'
 ```
 
 ### Alert Management

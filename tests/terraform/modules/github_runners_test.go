@@ -17,6 +17,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testGitHubAppPrivateKey = "test-github-app-private-key-placeholder"
+
 // TestGitHubRunnersModuleBasic tests basic GitHub Runners configuration
 func TestGitHubRunnersModuleBasic(t *testing.T) {
 	t.Parallel()
@@ -30,7 +32,7 @@ func TestGitHubRunnersModuleBasic(t *testing.T) {
 			"github_org":                 "test-org",
 			"github_app_id":              "12345",
 			"github_app_installation_id": "67890",
-			"github_app_private_key":     "-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----",
+			"github_app_private_key":     testGitHubAppPrivateKey,
 			"tags": map[string]interface{}{
 				"Environment": "test",
 				"ManagedBy":   "Terratest",
@@ -61,7 +63,7 @@ func TestGitHubRunnersModuleScaleSets(t *testing.T) {
 			"github_org":                 "test-org",
 			"github_app_id":              "12345",
 			"github_app_installation_id": "67890",
-			"github_app_private_key":     "-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----",
+			"github_app_private_key":     testGitHubAppPrivateKey,
 			"runner_groups": map[string]interface{}{
 				"default": map[string]interface{}{
 					"min_runners":   2,
@@ -132,7 +134,7 @@ func TestGitHubRunnersModuleControllerReplicas(t *testing.T) {
 					"github_org":                 "test-org",
 					"github_app_id":              "12345",
 					"github_app_installation_id": "67890",
-					"github_app_private_key":     "-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----",
+					"github_app_private_key":     testGitHubAppPrivateKey,
 					"controller_replicas":        tc.replicas,
 				},
 				NoColor: true,
@@ -157,7 +159,7 @@ func TestGitHubRunnersModuleCustomImage(t *testing.T) {
 			"github_org":                 "test-org",
 			"github_app_id":              "12345",
 			"github_app_installation_id": "67890",
-			"github_app_private_key":     "-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----",
+			"github_app_private_key":     testGitHubAppPrivateKey,
 			"acr_login_server":           "myacr.azurecr.io",
 			"custom_runner_image":        "myacr.azurecr.io/custom-runner:latest",
 		},
@@ -191,7 +193,7 @@ func TestGitHubRunnersModuleEnvironments(t *testing.T) {
 					"github_org":                 "test-org",
 					"github_app_id":              "12345",
 					"github_app_installation_id": "67890",
-					"github_app_private_key":     "-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----",
+					"github_app_private_key":     testGitHubAppPrivateKey,
 				},
 				NoColor: true,
 			})

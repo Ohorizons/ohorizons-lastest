@@ -31,7 +31,7 @@ Sanitized evidence must mask or remove:
 - Azure subscription IDs and full resource IDs.
 - Kubeconfig, certificates, certificate authority data, client keys, and bearer tokens.
 - GitHub tokens including `ghp_`, `github_pat_`, installation tokens, and app private keys.
-- Passwords, connection strings, access keys, primary/secondary keys, and API keys.
+- Passwords, connection strings, storage credential material, paired service credentials, and API credential material.
 - Entra client secrets and private keys.
 - PEM blocks and long opaque credential-like strings.
 
