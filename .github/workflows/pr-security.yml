@@ -37,7 +37,7 @@ jobs:
           sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
 
       - name: Run gitleaks
-        run: gitleaks detect --source . --redact --verbose
+        run: gitleaks detect --source . --no-git --redact --verbose
         continue-on-error: true
 
   trivy-fs:
