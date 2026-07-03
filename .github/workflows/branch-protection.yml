@@ -47,16 +47,24 @@ jobs:
   validate-pr-source:
     name: Validate PR Source
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    if: github.event_name == 'pull_request'
     steps:
       - name: Check PR source branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          echo "PR from: ${{ github.head_ref }}"
-          echo "PR to: ${{ github.base_ref }}"
+          echo "PR from: $HEAD_REF"
+          echo "PR to: $BASE_REF"
 
-          if [[ "${{ github.head_ref }}" != "develop" ]]; then
+          if [[ "$BASE_REF" != "main" ]]; then
+            echo "Source branch validation is only enforced for PRs to main."
+            exit 0
+          fi
+
+          if [[ "$HEAD_REF" != "develop" ]]; then
             echo "::error::PRs to main must come from develop branch only!"
-            echo "::error::Current source branch: ${{ github.head_ref }}"
+            echo "::error::Current source branch: $HEAD_REF"
             exit 1
           fi
 
@@ -187,6 +195,9 @@ jobs:
     needs: [validate-pr-source, pr-quality, commit-check]
     steps:
       - name: Generate PR Summary
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
           echo "## Pull Request Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -198,5 +209,5 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Branch Flow" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ github.head_ref }} --> ${{ github.base_ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "$HEAD_REF --> $BASE_REF" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

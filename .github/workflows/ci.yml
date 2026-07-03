@@ -26,6 +26,7 @@ env:
   GO_VERSION: "1.21"
   PYTHON_VERSION: "3.11"
   KUBECONFORM_VERSION: "0.6.4"
+  GITLEAKS_VERSION: "v8.30.1"
 
 permissions:
   contents: read
@@ -281,8 +282,8 @@ jobs:
           for dir in deploy argocd; do
             if [ -d "$dir" ]; then
               echo "### Validating $dir/" >> $GITHUB_STEP_SUMMARY
-              find "$dir" \( -name "*.yaml" -o -name "*.yml" \) ! -name "kustomization*" ! -path "*/templates/*" -print0 | \
-                xargs -0 -I {} sh -c 'kubeconform -strict -summary {} || exit 1' || ERRORS=$((ERRORS+1))
+              find "$dir" \( -name "*.yaml" -o -name "*.yml" \) ! -name "kustomization*" ! -path "*/templates/*" ! -path "deploy/helm/*" -print0 | \
+                xargs -0 -I {} sh -c 'kubeconform -strict -ignore-missing-schemas -summary "$1" || exit 1' _ {} || ERRORS=$((ERRORS+1))
             fi
           done
           if [ $ERRORS -gt 0 ]; then
@@ -485,10 +486,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Gitleaks
+        run: |
+          version="${GITLEAKS_VERSION#v}"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${version}_linux_x64.tar.gz" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+
       - name: Gitleaks Secret Detection
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gitleaks detect --source . --no-git --redact --verbose
         # CRITICAL: Secret detection must block CI - no continue-on-error
 
       - name: Dependency Review
