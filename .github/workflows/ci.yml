@@ -506,6 +506,7 @@ jobs:
 
       - name: OSSF Scorecard
         if: github.event_name != 'pull_request'
+        timeout-minutes: 5
         uses: ossf/scorecard-action@v2.3.1
         with:
           results_file: scorecard.sarif
