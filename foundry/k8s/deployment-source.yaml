@@ -54,8 +54,11 @@ spec:
               mountPath: /src
             - name: app
               mountPath: /opt/app
+            - name: tmp
+              mountPath: /tmp
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             capabilities:
               drop: ["ALL"]
@@ -164,18 +167,22 @@ spec:
             failureThreshold: 3
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             capabilities:
               drop: ["ALL"]
           volumeMounts:
             - name: app
               mountPath: /opt/app
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: source
           configMap:
             name: foundry-agents-source
         - name: app
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
 ---
 apiVersion: v1

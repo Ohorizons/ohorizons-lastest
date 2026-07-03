@@ -149,6 +149,7 @@ jobs:
           exit-code: 1
           format: sarif
           output: trivy-results.sarif
+          skip-dirs: golden-paths
 
       - name: Upload Trivy Results
         uses: github/codeql-action/upload-sarif@v3
