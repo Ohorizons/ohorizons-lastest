@@ -414,6 +414,8 @@ jobs:
         continue-on-error: true # Documentation lint is a soft check
 
       - name: Check Links
+        timeout-minutes: 5
+        continue-on-error: true # Link checking is informational and can be delayed by external sites
         uses: lycheeverse/lychee-action@v2
         with:
           args: --verbose --no-progress --exclude-all-private './**/*.md'

@@ -2,8 +2,8 @@
 title: "Open Horizons - Master Installation Guide"
 description: "Complete installation guide for the Agentic DevOps Platform accelerator: every layer, every functionality, end-to-end. The single source of truth when adopting Open Horizons in a client environment."
 author: "Platform Engineering"
-date: "2026-05-05"
-version: "1.0.0"
+date: "2026-07-03"
+version: "1.1.0"
 status: "approved"
 tags: ["installation", "accelerator", "master-guide", "platform-engineering", "agentic-devops"]
 ---
@@ -226,10 +226,12 @@ Exit codes: `0` success, `1` usage error, `2` dependency rule violation, `3` val
 The portal runtime is the **Open Horizons distribution of Backstage OSS**: the
 upstream Backstage app (release `1.48.3`) built with the Open Horizons custom
 plugins and pages, published to `ghcr.io/ohorizons/ohorizons-backstage` under a
-pinned, immutable tag (for example `v7.2.4`). Deployments always reference a
+pinned, immutable tag (for example `v7.2.5`). Deployments always reference a
 pinned tag; `latest` is never used. The `image_tag` variable in
 [`terraform/modules/backstage`](../../terraform/modules/backstage/) rejects
 `latest` by validation.
+
+Client forks can also publish fork-owned images through [release-images.yml](../../.github/workflows/release-images.yml). The workflow resolves the GHCR namespace from the fork owner, for example `ghcr.io/<client-org-lowercase>/ohorizons-backstage:v7.2.5`. Before using it, configure GHCR package access as described in [PREREQUISITES.md](PREREQUISITES.md#ghcr-package-access-for-forks). The image scan publishes SARIF and warnings by default; clients can make the Trivy step blocking if their release policy requires it.
 
 The installer separates the **base install** from **plugin enablement**:
 
@@ -293,7 +295,8 @@ These steps differ when the client is consuming Open Horizons as a productized t
 
    This generates all K8s manifests from templates in `backstage/k8s/templates/` using the values from `.env`. No manual search-and-replace is needed.
 4. Make sure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read). For GitHub Enterprise Managed Users, also set `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`; Entra handles Backstage sign-in while GitHub App/token credentials remain the technical integration path.
-5. Register Azure resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
+5. Configure GHCR package access for the fork if the client will publish its own runtime images. See [PREREQUISITES.md - GHCR Package Access for Forks](PREREQUISITES.md#ghcr-package-access-for-forks).
+6. Register Azure resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
 
 ## Stage 2 - Provision Infrastructure (L1)
 
