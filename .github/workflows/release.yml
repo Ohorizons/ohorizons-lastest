@@ -85,7 +85,9 @@ jobs:
           cp -r deploy dist/
           cp -r config dist/
           cp -r .github dist/
-          cp docs/*.md dist/
+          if [ -d docs ]; then
+            cp -r docs dist/
+          fi
           cp README.md dist/
           cp LICENSE dist/ 2>/dev/null || echo "MIT License" > dist/LICENSE
 
