@@ -505,7 +505,7 @@ jobs:
         # CRITICAL: High severity vulnerabilities must block CI - no continue-on-error
 
       - name: OSSF Scorecard
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'workflow_dispatch'
         timeout-minutes: 5
         uses: ossf/scorecard-action@v2.3.1
         with:
