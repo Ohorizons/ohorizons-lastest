@@ -69,6 +69,7 @@ env:
   TF_VAR_location: ${{ vars.AZURE_LOCATION || 'brazilsouth' }}
   TF_VAR_domain_name: ${{ vars.DOMAIN_NAME || 'openhorizons.example.com' }}
   TF_VAR_github_org: ${{ github.repository_owner }}
+  GITLEAKS_VERSION: "v8.30.1"
 
 jobs:
   # ===========================================================================
@@ -140,7 +141,7 @@ jobs:
           soft_fail: false
 
       - name: Run Trivy Config Scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: config
           scan-ref: .
@@ -155,10 +156,15 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
+      - name: Install Gitleaks
+        run: |
+          version="${GITLEAKS_VERSION#v}"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${version}_linux_x64.tar.gz" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gitleaks detect --source . --redact --verbose
 
       - name: OPA Policy Check
         run: |
