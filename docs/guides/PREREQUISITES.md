@@ -2,8 +2,8 @@
 title: "Open Horizons — Prerequisites & Sizing Guide"
 description: "Single source of truth for Azure tenant/subscription requirements, GitHub Enterprise / Azure DevOps setup, t-shirt sizing, regional availability, and integration prerequisites for deploying Open Horizons."
 author: "Platform Engineering"
-date: "2026-05-07"
-version: "1.0.0"
+date: "2026-07-03"
+version: "1.1.0"
 status: "approved"
 tags: ["prerequisites", "sizing", "azure", "github", "ado", "installation"]
 ---
@@ -154,6 +154,34 @@ XLarge profile assumes **2 regions** (e.g. East US 2 primary + West US 3 seconda
 | **App permissions** | `repo`, `workflow`, `admin:org` (read), `contents:write`, `metadata:read`, `pull_requests:write` | Set during App creation |
 | **OIDC federation** to Azure | Keyless deploy from GitHub Actions | [Setup script](../../scripts/setup-identity-federation.sh) |
 | **Branch protection** rules | Required for Golden Path repos | [Setup script](../../scripts/setup-branch-protection.sh) |
+| **GHCR package write access** | Publishing fork-owned runtime images | Package settings for each container package |
+| **Actions workflow permissions** | Release images, SARIF upload, provenance, signing | Repository settings and workflow `permissions` block |
+
+### GHCR Package Access for Forks
+
+Open Horizons publishes seven runtime images from the `release-images` workflow:
+
+- `ohorizons-backstage`
+- `ohorizons-agent-api`
+- `ohorizons-agent-api-impact`
+- `ohorizons-agent-api-maf`
+- `ohorizons-agent-api-sk`
+- `mcp-ecosystem`
+- `ohorizons-foundry-agents`
+
+In client forks, the workflow publishes these images under the fork owner namespace: `ghcr.io/<client-org-lowercase>/<image>:<tag>`. Confirm the following before cutting a client release tag:
+
+| Check | Expected configuration |
+|---|---|
+| Repository Actions permissions | Workflows can read contents and write packages |
+| Package access | The platform repository is connected to each package with `write` or `admin` access |
+| Existing package inheritance | If inheritance is disabled, add the repository manually under **Package settings > Manage Actions access** |
+| SARIF upload | Workflow has `security-events: write` |
+| Signing and provenance | Workflow has `id-token: write` and `attestations: write` |
+
+If a workflow fails with `permission_denied: write_package`, the fix is administrative, not code-level: open the affected GHCR package, go to package settings, and grant this repository Actions access with `write` or `admin` permission. GitHub may return `404` from the package-permissions API when the token is not an administrator for that package, so verify in the UI when API automation cannot see the package permissions.
+
+The release image scan is intentionally advisory by default. Trivy still uploads SARIF and emits warnings for `CRITICAL` or `HIGH` findings, but image publication is not blocked. Organizations that require blocking image vulnerability gates can remove `continue-on-error` from the Trivy image scan step in [release-images.yml](../../.github/workflows/release-images.yml).
 
 ### GitHub Enterprise Cloud (recommended)
 

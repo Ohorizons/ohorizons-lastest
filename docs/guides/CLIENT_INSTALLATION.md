@@ -2,8 +2,8 @@
 title: "Open Horizons Client Installation Guide"
 description: "How a client receives Open Horizons as a productized template, points it at their org, and starts using the wizard. Install steps live in DEPLOYMENT_GUIDE.md."
 author: "Platform Engineering"
-date: "2026-05-05"
-version: "1.1.0"
+date: "2026-07-03"
+version: "1.2.0"
 status: "approved"
 tags: ["installation", "client", "template", "backstage"]
 ---
@@ -41,21 +41,62 @@ These are the only steps that differ when consuming Open Horizons as a template 
 
    This generates all K8s manifests in `backstage/k8s/` from templates using your `.env` values.
 4. **GitHub permissions.** Ensure the GitHub App or PAT used by Backstage has `repo`, `workflow`, and `admin:org` (read). For GitHub Enterprise Managed Users, use `AUTH_PROVIDER=entra` and `GITHUB_IDENTITY_MODE=enterprise-managed-users`; do not remove GitHub App/token integration because Backstage still needs it for GitHub-backed features.
-5. **Azure prerequisites.** Register the resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
-6. **Create K8s secrets.** The `render-k8s.sh` script outputs the exact commands needed:
+5. **GHCR package access.** If the client fork will publish its own container images, confirm that GitHub Actions has package write access for every `ghcr.io/<client-org>/<image>` package. New packages usually inherit repository access. Existing packages, migrated packages, or packages with inheritance disabled must be connected manually under package settings.
+6. **Azure prerequisites.** Register the resource providers listed in [DEPLOYMENT_GUIDE.md, Step 1.2](DEPLOYMENT_GUIDE.md#12-register-required-azure-resource-providers).
+7. **Create K8s secrets.** The `render-k8s.sh` script outputs the exact commands needed:
 
    ```bash
    kubectl create secret generic backstage-secrets --namespace backstage ...
    kubectl create secret generic agent-api-secrets --namespace ai-services ...
    ```
 
-7. **Deploy the platform.** Pick one of the three options:
+8. **Deploy the platform.** Pick one of the three options:
    - Agent-guided (`@deploy Deploy the platform to my AKS cluster`).
    - Automated script (`./scripts/install-wizard.sh --next-step deploy`).
    - Manual step-by-step (Steps 1-10 of the deployment guide).
-8. **Configure Azure OIDC for the platform repo** with [`scripts/setup-identity-federation.sh`](../../scripts/setup-identity-federation.sh) so the platform CI workflows can deploy without long-lived credentials.
+9. **Configure Azure OIDC for the platform repo** with [`scripts/setup-identity-federation.sh`](../../scripts/setup-identity-federation.sh) so the platform CI workflows can deploy without long-lived credentials.
 
 After the platform is up, the wizard takes over for everything developers create. See [WIZARD_GUIDE.md](WIZARD_GUIDE.md).
+
+## Fork Readiness and GHCR Images
+
+Client forks have two supported image paths:
+
+1. **Bootstrap from public Open Horizons images** using pinned tags such as `v7.2.5` for evaluation and install rehearsal.
+2. **Publish client-owned images** from the fork by running the `release-images` workflow. The workflow publishes to `ghcr.io/<client-org-lowercase>/<image>:<tag>` so client forks do not push into the `ohorizons` namespace.
+
+Before running `release-images` in a fork, verify these package settings in GitHub:
+
+| Setting | Required value |
+|---|---|
+| Repository workflow permissions | Read and write permissions |
+| Package access | Add the platform repository under **Package settings > Manage Actions access** with `write` or `admin` permission |
+| Workflow permissions | `packages: write`, `attestations: write`, `id-token: write`, and `security-events: write` |
+| Tag format | `vX.Y.Z` for releases, for example `v7.2.5` |
+
+The image workflow builds, pushes, attests, signs, and scans each image. Trivy image scanning uploads SARIF and emits warnings for `CRITICAL` or `HIGH` findings. The scan is advisory in the release workflow so images are still published for validation; client security policy can make this blocking again by removing `continue-on-error` from the Trivy step in [release-images.yml](../../.github/workflows/release-images.yml).
+
+Use this command after the fork is configured:
+
+```bash
+gh workflow run release-images.yml --ref main -f tag=v7.2.5
+```
+
+Then confirm each package has the tag:
+
+```bash
+for image in \
+   ohorizons-backstage \
+   ohorizons-agent-api \
+   ohorizons-agent-api-impact \
+   ohorizons-agent-api-maf \
+   ohorizons-agent-api-sk \
+   mcp-ecosystem \
+   ohorizons-foundry-agents; do
+   gh api "orgs/<client-org>/packages/container/${image}/versions" \
+      --jq '.[] | select(.metadata.container.tags[]? == "v7.2.5") | .name'
+done
+```
 
 ## What the Wizard Adds on Top of the Platform
 
@@ -75,6 +116,7 @@ Generated repositories that opted into Azure deployment ship a copy of [`scripts
 | Add a new Golden Path | [`golden-paths/README.md`](../../golden-paths/README.md) |
 | Add or update a Copilot agent or skill | [`AGENTS.md`](../../AGENTS.md), [`.github/agents/`](../../.github/agents/) |
 | Roll the Backstage container image | [`backstage/Dockerfile.acr`](../../backstage/Dockerfile.acr), [`release-images.yml`](../../.github/workflows/release-images.yml) workflow |
+| Publish all runtime images | [`release-images.yml`](../../.github/workflows/release-images.yml), GHCR package access configured for the fork |
 | Validate templates and links | `bash scripts/validate-scaffolder-templates.sh golden-paths`, `bash scripts/validate-docs.sh --include-skeletons` |
 | Audit drift between intent and code | `bash scripts/measure-intent-drift.sh` |
 | Troubleshoot a deployment | [TROUBLESHOOTING_GUIDE.md](TROUBLESHOOTING_GUIDE.md) |
@@ -88,6 +130,8 @@ Generated repositories that opted into Azure deployment ship a copy of [`scripts
 - [Golden Paths README](../../golden-paths/README.md)
 - [Azure OIDC Setup](../../golden-paths/common/azure-infrastructure/docs/azure-oidc.md)
 - [AGENTS Catalog](../../AGENTS.md)
+- [GitHub Packages: Configuring package access control and visibility](https://docs.github.com/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility)
+- [GitHub Actions: Workflow syntax permissions](https://docs.github.com/actions/reference/workflows-and-actions/workflow-syntax#permissions)
 
 ---
 
