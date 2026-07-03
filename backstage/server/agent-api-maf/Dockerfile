@@ -3,7 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install Node.js (for npx-based MCP servers) + Docker CLI (for docker-based MCPs)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN groupadd --system app && useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin app && \
+    apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg && \
     # Node.js 22 LTS
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
@@ -16,6 +17,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN chown -R app:app /app
+
+USER app
 
 EXPOSE 8010
 
