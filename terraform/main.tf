@@ -18,38 +18,40 @@
 terraform {
   required_version = ">= 1.5.0"
 
+  # Constraints are upper-bounded on purpose: azurerm 4.x, helm 3.x and kubernetes 3.x
+  # carry breaking changes this configuration has not been migrated to.
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.75"
+      version = "~> 3.117"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = ">= 2.45"
+      version = "~> 2.53"
     }
     azapi = {
       source  = "azure/azapi"
-      version = ">= 1.9"
+      version = "~> 2.8"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.23"
+      version = "~> 2.38"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.11"
+      version = "~> 2.17"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = ">= 1.14"
+      version = "~> 1.19"
     }
     github = {
       source  = "integrations/github"
-      version = ">= 5.40"
+      version = "~> 6.11"
     }
     random = {
       source  = "hashicorp/random"
-      version = ">= 3.5"
+      version = "~> 3.8"
     }
   }
 

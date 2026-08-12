@@ -226,12 +226,12 @@ Exit codes: `0` success, `1` usage error, `2` dependency rule violation, `3` val
 The portal runtime is the **Open Horizons distribution of Backstage OSS**: the
 upstream Backstage app (release `1.48.3`) built with the Open Horizons custom
 plugins and pages, published to `ghcr.io/ohorizons/ohorizons-backstage` under a
-pinned, immutable tag (for example `v7.2.5`). Deployments always reference a
+pinned, immutable tag (for example `v7.2.6`). Deployments always reference a
 pinned tag; `latest` is never used. The `image_tag` variable in
 [`terraform/modules/backstage`](../../terraform/modules/backstage/) rejects
 `latest` by validation.
 
-Client forks can also publish fork-owned images through [release-images.yml](../../.github/workflows/release-images.yml). The workflow resolves the GHCR namespace from the fork owner, for example `ghcr.io/<client-org-lowercase>/ohorizons-backstage:v7.2.5`. Before using it, configure GHCR package access as described in [PREREQUISITES.md](PREREQUISITES.md#ghcr-package-access-for-forks). The image scan publishes SARIF and warnings by default; clients can make the Trivy step blocking if their release policy requires it.
+Client forks can also publish fork-owned images through [release-images.yml](../../.github/workflows/release-images.yml). The workflow resolves the GHCR namespace from the fork owner, for example `ghcr.io/<client-org-lowercase>/ohorizons-backstage:v7.2.6`. Before using it, configure GHCR package access as described in [PREREQUISITES.md](PREREQUISITES.md#ghcr-package-access-for-forks). The image scan publishes SARIF and warnings by default; clients can make the Trivy step blocking if their release policy requires it.
 
 The installer separates the **base install** from **plugin enablement**:
 

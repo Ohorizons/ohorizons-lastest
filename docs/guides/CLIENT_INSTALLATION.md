@@ -62,8 +62,20 @@ After the platform is up, the wizard takes over for everything developers create
 
 Client forks have two supported image paths:
 
-1. **Bootstrap from public Open Horizons images** using pinned tags such as `v7.2.5` for evaluation and install rehearsal.
+1. **Bootstrap from public Open Horizons images** using the pinned tags below for evaluation and install rehearsal.
 2. **Publish client-owned images** from the fork by running the `release-images` workflow. The workflow publishes to `ghcr.io/<client-org-lowercase>/<image>:<tag>` so client forks do not push into the `ohorizons` namespace.
+
+Published tags are not uniform across images, because the MCP ecosystem, the MAF/SK agent APIs and the Foundry gateway ship on a separate cadence:
+
+| Image | Published tag | `.env` variable |
+|---|---|---|
+| `ohorizons-backstage` | `v7.2.6` | `IMAGE_TAG` |
+| `ohorizons-agent-api` | `v7.2.6` | `IMAGE_TAG` |
+| `ohorizons-agent-api-impact` | `v7.2.6` | `IMAGE_TAG` |
+| `mcp-ecosystem` | `v7.2.5` | `MCP_ECOSYSTEM_TAG` |
+| `ohorizons-agent-api-maf` | `v7.2.5` | `MCP_ECOSYSTEM_TAG` |
+| `ohorizons-agent-api-sk` | `v7.2.5` | `MCP_ECOSYSTEM_TAG` |
+| `ohorizons-foundry-agents` | `v7.2.5` | `MCP_ECOSYSTEM_TAG` |
 
 Before running `release-images` in a fork, verify these package settings in GitHub:
 
@@ -72,29 +84,30 @@ Before running `release-images` in a fork, verify these package settings in GitH
 | Repository workflow permissions | Read and write permissions |
 | Package access | Add the platform repository under **Package settings > Manage Actions access** with `write` or `admin` permission |
 | Workflow permissions | `packages: write`, `attestations: write`, `id-token: write`, and `security-events: write` |
-| Tag format | `vX.Y.Z` for releases, for example `v7.2.5` |
+| Tag format | `vX.Y.Z` for releases, for example `v7.2.6` |
 
 The image workflow builds, pushes, attests, signs, and scans each image. Trivy image scanning uploads SARIF and emits warnings for `CRITICAL` or `HIGH` findings. The scan is advisory in the release workflow so images are still published for validation; client security policy can make this blocking again by removing `continue-on-error` from the Trivy step in [release-images.yml](../../.github/workflows/release-images.yml).
 
 Use this command after the fork is configured:
 
 ```bash
-gh workflow run release-images.yml --ref main -f tag=v7.2.5
+gh workflow run release-images.yml --ref main -f tag=v7.2.6
 ```
 
-Then confirm each package has the tag:
+Then confirm each package has the expected tag:
 
 ```bash
-for image in \
-   ohorizons-backstage \
-   ohorizons-agent-api \
-   ohorizons-agent-api-impact \
-   ohorizons-agent-api-maf \
-   ohorizons-agent-api-sk \
-   mcp-ecosystem \
-   ohorizons-foundry-agents; do
-   gh api "orgs/<client-org>/packages/container/${image}/versions" \
-      --jq '.[] | select(.metadata.container.tags[]? == "v7.2.5") | .name'
+check_tag() {
+   gh api "orgs/<client-org>/packages/container/$1/versions" \
+      --jq ".[] | select(.metadata.container.tags[]? == \"$2\") | .name"
+}
+
+for image in ohorizons-backstage ohorizons-agent-api ohorizons-agent-api-impact; do
+   check_tag "$image" v7.2.6
+done
+
+for image in mcp-ecosystem ohorizons-agent-api-maf ohorizons-agent-api-sk ohorizons-foundry-agents; do
+   check_tag "$image" v7.2.5
 done
 ```
 

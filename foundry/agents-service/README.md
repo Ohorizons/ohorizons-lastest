@@ -62,8 +62,8 @@ curl -X POST localhost:8080/v1/agents/architect/chat \
 ## Container build
 
 ```bash
-docker build -t ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.4 .
-docker push ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.4
+docker build -t ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.5 .
+docker push ghcr.io/ohorizons/ohorizons-foundry-agents:v7.2.5
 ```
 
 ## Deploy on AKS/ARO

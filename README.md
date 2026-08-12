@@ -311,16 +311,27 @@ For GitHub Enterprise Managed Users, set `AUTH_PROVIDER=entra` and `GITHUB_IDENT
 # Generate K8s manifests from your .env config
 scripts/render-k8s.sh
 
-# Create the required K8s secrets
+# Create the required K8s secrets.
+# render-k8s.sh prints the exact commands for your auth provider.
 kubectl create secret generic backstage-secrets \
   --namespace backstage \
-  --from-env-file=.env
+  --from-literal=GITHUB_TOKEN="$GITHUB_TOKEN" \
+  --from-literal=BACKEND_SECRET="$(openssl rand -hex 32)"
 
 # Deploy to your AKS cluster
 kubectl apply -f backstage/k8s/
 ```
 
-> **Open Horizons distribution of Backstage** — the runtime image is the upstream Backstage OSS app built with the Open Horizons custom plugins and pages, published to `ghcr.io/ohorizons/*` under a pinned, immutable tag (for example `v7.2.4`). No local build is required, and `latest` is never deployed. Customers who need their own supply chain can rebuild the same distribution into their registry.
+> Never create the Secret with `--from-env-file=.env`. That file also holds Azure and Terraform settings that do not belong in a workload Secret. In production, source these values from Key Vault through External Secrets.
+
+For a full platform install (Terraform, AKS, ArgoCD, Backstage), use the orchestrated path. It applies Terraform in phases, which a single `terraform apply` cannot do because the Kubernetes and Helm providers are configured from AKS outputs:
+
+```bash
+scripts/deploy-full.sh --environment dev --dry-run
+scripts/deploy-full.sh --environment dev
+```
+
+> **Open Horizons distribution of Backstage** — the runtime image is the upstream Backstage OSS app built with the Open Horizons custom plugins and pages, published to `ghcr.io/ohorizons/*` under a pinned, immutable tag (`v7.2.6` for `ohorizons-backstage`, `ohorizons-agent-api` and `ohorizons-agent-api-impact`; `v7.2.5` for `mcp-ecosystem` and the Foundry gateway). No local build is required, and `latest` is never deployed. Customers who need their own supply chain can rebuild the same distribution into their registry.
 
 Alternatively, use the Copilot deploy agent from VS Code:
 

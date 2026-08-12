@@ -190,6 +190,68 @@ tf_apply() {
   terraform apply "$plan_file"
 }
 
+ARGOCD_RENDER_DIR="$PROJECT_DIR/argocd/.rendered"
+
+# Substitutes ${VAR} placeholders in the ArgoCD manifests and fails closed on leftovers.
+render_argocd() {
+  local env_file="$PROJECT_DIR/.env"
+
+  if [[ ! -f "$env_file" ]]; then
+    echo -e "  ${RED}Missing $env_file — run scripts/install-wizard.sh first.${NC}"
+    return 1
+  fi
+  if ! command -v envsubst >/dev/null 2>&1; then
+    echo -e "  ${RED}envsubst not found. Install gettext (brew install gettext).${NC}"
+    return 1
+  fi
+
+  rm -rf "$ARGOCD_RENDER_DIR"
+  mkdir -p "$ARGOCD_RENDER_DIR/apps"
+
+  # Subshell so the .env values never leak into the remaining deployment phases.
+  (
+    set -a
+    # shellcheck disable=SC1090
+    source "$env_file"
+    set +a
+
+    : "${GITOPS_REPO:=${GITHUB_REPO:-}}"
+    : "${GOLDEN_PATHS_REPO:=${GITHUB_REPO:-}}"
+    : "${DNS_ZONE_NAME:=${DOMAIN:-}}"
+    : "${CUSTOMER_NAME:=${PLATFORM_NAME:-}}"
+    export GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME CUSTOMER_NAME
+
+    shell_format=""
+    for var in GITHUB_ORG GITHUB_REPO GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME \
+               CUSTOMER_NAME DNS_ZONE_RESOURCE_GROUP AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID \
+               EXTERNAL_DNS_CLIENT_ID ESO_CLIENT_ID GRAFANA_ADMIN_PASSWORD; do
+      if [[ -n "${!var:-}" ]]; then
+        shell_format="${shell_format}\${${var}} "
+      fi
+    done
+
+    envsubst "$shell_format" \
+      < "$PROJECT_DIR/argocd/app-of-apps/root-application.yaml" \
+      > "$ARGOCD_RENDER_DIR/root-application.yaml"
+
+    for app in "$PROJECT_DIR/argocd/apps"/*.yaml; do
+      [[ -f "$app" ]] || continue
+      envsubst "$shell_format" < "$app" > "$ARGOCD_RENDER_DIR/apps/$(basename "$app")"
+    done
+  ) || return 1
+
+  local unresolved
+  unresolved="$(grep -RhoE '\$\{[A-Z0-9_]+\}' "$ARGOCD_RENDER_DIR" | sort -u || true)"
+  if [[ -n "$unresolved" ]]; then
+    echo -e "  ${RED}Unresolved variables in rendered ArgoCD manifests:${NC}"
+    echo "$unresolved" | sed 's/^/    - /'
+    echo "  Set them in .env and re-run."
+    return 1
+  fi
+
+  echo -e "  ${GREEN}✓${NC} ArgoCD manifests rendered to argocd/.rendered"
+}
+
 # ==============================================================================
 # DESTROY MODE
 # ==============================================================================
@@ -253,7 +315,8 @@ fi
 if [[ "$LAST_PHASE" -lt 3 ]]; then
   phase 2 "Terraform Init"
   cd "$TERRAFORM_DIR"
-  terraform init -input=false -upgrade
+  # No -upgrade: .terraform.lock.hcl is the pinned, tested provider set.
+  terraform init -input=false
   terraform validate
   echo -e "  ${GREEN}✓${NC} Terraform initialized and validated"
   save_checkpoint 3
@@ -343,6 +406,30 @@ if [[ "$LAST_PHASE" -lt 6 ]] && [[ "$HORIZON" == "h2" || "$HORIZON" == "all" ]] 
   fi
 fi
 
+# --- Phase 5c: Bootstrap ArgoCD app-of-apps ----------------------------------
+if [[ "$LAST_PHASE" -lt 6 ]] && [[ "$HORIZON" == "h2" || "$HORIZON" == "all" ]] && ! $DRY_RUN; then
+  echo -e "  ${BLUE}Rendering ArgoCD manifests...${NC}"
+  render_argocd || exit 1
+
+  if command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1; then
+    echo -e "  ${BLUE}Bootstrapping ArgoCD app-of-apps...${NC}"
+    kubectl apply -f "$ARGOCD_RENDER_DIR/root-application.yaml" || {
+      echo -e "  ${RED}Failed to apply the ArgoCD root application.${NC}"
+      exit 1
+    }
+    for app in external-secrets gatekeeper; do
+      [[ -f "$ARGOCD_RENDER_DIR/apps/${app}.yaml" ]] || continue
+      kubectl apply -f "$ARGOCD_RENDER_DIR/apps/${app}.yaml" || {
+        echo -e "  ${RED}Failed to apply ArgoCD app: ${app}.${NC}"
+        exit 1
+      }
+    done
+    echo -e "  ${GREEN}✓${NC} ArgoCD applications applied"
+  else
+    echo -e "  ${YELLOW}!${NC} No live cluster context; skipping ArgoCD bootstrap."
+  fi
+fi
+
 # --- Phase 6: Verify H2 ------------------------------------------------------
 if [[ "$LAST_PHASE" -lt 7 ]] && [[ "$HORIZON" == "h2" || "$HORIZON" == "all" ]] && ! $DRY_RUN; then
   phase 6 "Verify H2 Enhancement"
@@ -374,6 +461,19 @@ if [[ "$LAST_PHASE" -lt 8 ]] && [[ "$HORIZON" == "h3" || "$HORIZON" == "all" ]];
   else
     echo -e "  ${YELLOW}!${NC} AI Foundry disabled in ${ENVIRONMENT}.tfvars"
     echo "  To enable: set enable_ai_foundry = true and re-run"
+  fi
+
+  if ! $DRY_RUN && grep -q 'enable_foundry_agents.*=.*true' "environments/${ENVIRONMENT}.tfvars"; then
+    if [[ ! -f "$ARGOCD_RENDER_DIR/apps/foundry-agents.yaml" ]]; then
+      render_argocd || exit 1
+    fi
+    if command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1; then
+      echo -e "  ${BLUE}Applying ArgoCD app: foundry-agents...${NC}"
+      kubectl apply -f "$ARGOCD_RENDER_DIR/apps/foundry-agents.yaml" || {
+        echo -e "  ${RED}Failed to apply ArgoCD app: foundry-agents.${NC}"
+        exit 1
+      }
+    fi
   fi
 
   save_checkpoint 8

@@ -29,7 +29,7 @@ set -euo pipefail
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
-DEFAULT_IMAGE="ghcr.io/ohorizons/mcp-ecosystem:v7.2.4"
+DEFAULT_IMAGE="ghcr.io/ohorizons/mcp-ecosystem:v7.2.5"
 DEFAULT_PORT="3100"
 
 SERVICE_NAME="mcp-ecosystem"
@@ -155,7 +155,7 @@ cat > "${COMPOSE_FILE}" <<'COMPOSE_EOF'
 # Per-user, always-on MCP Ecosystem server bound to localhost only.
 services:
   mcp-ecosystem:
-    image: ${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem:v7.2.4}
+    image: ${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem:v7.2.5}
     container_name: mcp-ecosystem
     restart: unless-stopped
     ports:

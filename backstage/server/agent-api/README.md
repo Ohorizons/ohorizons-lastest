@@ -63,7 +63,7 @@ The container binds to `127.0.0.1:8008` and joins the `ohorizons-platform` Docke
 
 - **Namespace**: `backstage`
 - **Service**: `agent-api` (port 8008)
-- **Image**: `ghcr.io/ohorizons/ohorizons-agent-api:v7.2.4`
+- **Image**: `ghcr.io/ohorizons/ohorizons-agent-api:v7.2.6`
 - **Backstage proxy**: `/api/proxy/agent-api` → `http://agent-api:8008`
 - **Auth on AKS**: Workload Identity (no API key needed)
 

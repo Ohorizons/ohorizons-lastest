@@ -165,8 +165,10 @@ render_templates_to_temp_source() {
   local agent_api_image="${AGENT_API_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api}"
   local agent_api_impact_image="${AGENT_API_IMPACT_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api-impact}"
   local mcp_ecosystem_image="${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}"
-  local image_tag="${IMAGE_TAG:-v7.2.4}"
-  local azure_openai_deployment="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
+  local image_tag="${IMAGE_TAG:-v7.2.6}"
+  local mcp_ecosystem_tag="${MCP_ECOSYSTEM_TAG:-$image_tag}"
+  local azure_openai_deployment="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
+  local backstage_config_args='"--config", "app-config.yaml", "--config", "/app/config/app-config.override.yaml"'
   local auth_provider="${AUTH_PROVIDER:-guest}"
   local github_identity_mode="${GITHUB_IDENTITY_MODE:-standard}"
   local auth_fragment="$templates_dir/auth-${auth_provider}.yaml.fragment"
@@ -200,8 +202,10 @@ render_templates_to_temp_source() {
   add_replacement "__AGENT_API_IMAGE__" "$agent_api_image"
   add_replacement "__AGENT_API_IMPACT_IMAGE__" "$agent_api_impact_image"
   add_replacement "__MCP_ECOSYSTEM_IMAGE__" "$mcp_ecosystem_image"
+  add_replacement "__MCP_ECOSYSTEM_TAG__" "$mcp_ecosystem_tag"
   add_replacement "__IMAGE_TAG__" "$image_tag"
   add_replacement "__AZURE_OPENAI_DEPLOYMENT__" "$azure_openai_deployment"
+  add_replacement "__BACKSTAGE_CONFIG_ARGS__" "$backstage_config_args"
 
   local tmpl filename output content unresolved auth_block
   auth_block="$(cat "$auth_fragment")"

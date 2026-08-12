@@ -86,6 +86,8 @@ GITHUB_REPO="${GITHUB_REPO:-open-horizons-platform}"
 GITHUB_IDENTITY_MODE="${GITHUB_IDENTITY_MODE:-standard}"
 ORG_DISPLAY_NAME="${ORG_DISPLAY_NAME:-${GITHUB_ORG}}"
 AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
+# MCP ecosystem is released on its own cadence; falls back to IMAGE_TAG for ACR forks.
+MCP_ECOSYSTEM_TAG="${MCP_ECOSYSTEM_TAG:-$IMAGE_TAG}"
 if [[ "$NO_GITHUB_MODE" == "true" ]]; then
   BACKSTAGE_CONFIG_ARGS='"--config", "/app/config/app-config.override.yaml"'
 else
@@ -99,6 +101,7 @@ log "Auth:      ${BOLD}${AUTH_PROVIDER}${NC}"
 log "Identity:  ${BOLD}${GITHUB_IDENTITY_MODE}${NC}"
 log "Registry:  ${BOLD}$(echo "$BACKSTAGE_IMAGE" | cut -d/ -f1)${NC}"
 log "Tag:       ${BOLD}${IMAGE_TAG}${NC}"
+log "MCP tag:   ${BOLD}${MCP_ECOSYSTEM_TAG}${NC}"
 echo ""
 
 # --- Build sed expression directly -------------------------------------------
@@ -120,6 +123,7 @@ add_replacement "__BACKSTAGE_IMAGE__" "$BACKSTAGE_IMAGE"
 add_replacement "__AGENT_API_IMAGE__" "$AGENT_API_IMAGE"
 add_replacement "__AGENT_API_IMPACT_IMAGE__" "$AGENT_API_IMPACT_IMAGE"
 add_replacement "__MCP_ECOSYSTEM_IMAGE__" "$MCP_ECOSYSTEM_IMAGE"
+add_replacement "__MCP_ECOSYSTEM_TAG__" "$MCP_ECOSYSTEM_TAG"
 add_replacement "__IMAGE_TAG__" "$IMAGE_TAG"
 add_replacement "__AZURE_OPENAI_DEPLOYMENT__" "$AZURE_OPENAI_DEPLOYMENT"
 add_replacement "__BACKSTAGE_CONFIG_ARGS__" "$BACKSTAGE_CONFIG_ARGS"

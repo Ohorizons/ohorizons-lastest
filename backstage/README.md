@@ -15,7 +15,7 @@ immutable container image.
 | --- | --- |
 | Backstage OSS release | `1.48.3` (see [`backstage.json`](backstage.json)) |
 | Distribution image | `ghcr.io/ohorizons/ohorizons-backstage` |
-| Current pinned tag | `v7.2.4` |
+| Current pinned tag | `v7.2.6` |
 | Image build | [Dockerfile.acr](Dockerfile.acr) and [release-images workflow](../.github/workflows/release-images.yml) |
 
 To move to a newer Backstage release, bump the `@backstage/*` dependencies and

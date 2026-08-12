@@ -48,13 +48,13 @@ variable "image_repository" {
 }
 
 variable "image_tag" {
-  description = "Pinned, immutable image tag for the Open Horizons Backstage distribution (for example v7.2.4). Mutable tags such as 'latest' are rejected."
+  description = "Pinned, immutable image tag for the Open Horizons Backstage distribution (for example v7.2.6). Mutable tags such as 'latest' are rejected."
   type        = string
-  default     = "v7.2.4"
+  default     = "v7.2.6"
 
   validation {
     condition     = var.image_tag != "" && var.image_tag != "latest"
-    error_message = "image_tag must be a pinned, immutable tag (for example v7.2.4). The mutable tag 'latest' is not allowed in any environment."
+    error_message = "image_tag must be a pinned, immutable tag (for example v7.2.6). The mutable tag 'latest' is not allowed in any environment."
   }
 }
 
