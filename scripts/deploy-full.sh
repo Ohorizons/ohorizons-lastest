@@ -205,36 +205,40 @@ render_argocd() {
     return 1
   fi
 
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
-
-  : "${GITOPS_REPO:=${GITHUB_REPO:-}}"
-  : "${GOLDEN_PATHS_REPO:=${GITHUB_REPO:-}}"
-  : "${DNS_ZONE_NAME:=${DOMAIN:-}}"
-  : "${CUSTOMER_NAME:=${PLATFORM_NAME:-}}"
-  export GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME CUSTOMER_NAME
-
-  local shell_format="" var
-  for var in GITHUB_ORG GITHUB_REPO GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME \
-             CUSTOMER_NAME DNS_ZONE_RESOURCE_GROUP AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID \
-             EXTERNAL_DNS_CLIENT_ID ESO_CLIENT_ID GRAFANA_ADMIN_PASSWORD; do
-    [[ -n "${!var:-}" ]] && shell_format="${shell_format}\${${var}} "
-  done
-
   rm -rf "$ARGOCD_RENDER_DIR"
   mkdir -p "$ARGOCD_RENDER_DIR/apps"
 
-  envsubst "$shell_format" \
-    < "$PROJECT_DIR/argocd/app-of-apps/root-application.yaml" \
-    > "$ARGOCD_RENDER_DIR/root-application.yaml"
+  # Subshell so the .env values never leak into the remaining deployment phases.
+  (
+    set -a
+    # shellcheck disable=SC1090
+    source "$env_file"
+    set +a
 
-  local app
-  for app in "$PROJECT_DIR/argocd/apps"/*.yaml; do
-    [[ -f "$app" ]] || continue
-    envsubst "$shell_format" < "$app" > "$ARGOCD_RENDER_DIR/apps/$(basename "$app")"
-  done
+    : "${GITOPS_REPO:=${GITHUB_REPO:-}}"
+    : "${GOLDEN_PATHS_REPO:=${GITHUB_REPO:-}}"
+    : "${DNS_ZONE_NAME:=${DOMAIN:-}}"
+    : "${CUSTOMER_NAME:=${PLATFORM_NAME:-}}"
+    export GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME CUSTOMER_NAME
+
+    shell_format=""
+    for var in GITHUB_ORG GITHUB_REPO GITOPS_REPO GOLDEN_PATHS_REPO DNS_ZONE_NAME \
+               CUSTOMER_NAME DNS_ZONE_RESOURCE_GROUP AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID \
+               EXTERNAL_DNS_CLIENT_ID ESO_CLIENT_ID GRAFANA_ADMIN_PASSWORD; do
+      if [[ -n "${!var:-}" ]]; then
+        shell_format="${shell_format}\${${var}} "
+      fi
+    done
+
+    envsubst "$shell_format" \
+      < "$PROJECT_DIR/argocd/app-of-apps/root-application.yaml" \
+      > "$ARGOCD_RENDER_DIR/root-application.yaml"
+
+    for app in "$PROJECT_DIR/argocd/apps"/*.yaml; do
+      [[ -f "$app" ]] || continue
+      envsubst "$shell_format" < "$app" > "$ARGOCD_RENDER_DIR/apps/$(basename "$app")"
+    done
+  ) || return 1
 
   local unresolved
   unresolved="$(grep -RhoE '\$\{[A-Z0-9_]+\}' "$ARGOCD_RENDER_DIR" | sort -u || true)"

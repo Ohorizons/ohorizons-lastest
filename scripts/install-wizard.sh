@@ -1116,10 +1116,7 @@ persist_audit() {
 render_primitives() {
   local source="$REPO_ROOT/golden-paths/common/agents"
   local target="$source/.rendered"
-  if [[ ! -d "$source" ]]; then
-    log_warn "Skipping primitive render: $source not found."
-    return 0
-  fi
+  # `$source` only holds the ignored .rendered output, so it can be absent in a fresh clone.
   rm -rf "$target"
   mkdir -p "$target/.github/agents" "$target/.github/skills" "$target/.github/prompts" "$target/mcp-servers"
 
