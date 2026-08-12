@@ -85,9 +85,18 @@ export TF_VAR_github_token="..."
 ### Phase 4: Deploy
 ```bash
 cd terraform
+# Never use -upgrade: .terraform.lock.hcl holds the pinned, tested provider set.
 terraform init
-terraform plan -var-file=environments/dev.tfvars -out=deploy.tfplan
-terraform apply deploy.tfplan
+
+# H1 first. The kubernetes/helm/kubectl providers read module.aks outputs, so a
+# single-pass apply on an empty subscription fails at plan time.
+terraform plan -var-file=environments/dev.tfvars -out=h1.tfplan
+terraform apply h1.tfplan
+
+# H2 modules, once AKS exists
+terraform apply -var-file=environments/dev.tfvars \
+  -target=module.argocd -target=module.observability \
+  -target=module.external_secrets -target=module.databases
 ```
 
 ### Phase 5: Verify

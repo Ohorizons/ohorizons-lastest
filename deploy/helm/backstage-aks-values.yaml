@@ -18,7 +18,7 @@ backstage:
   image:
     registry: ${BACKSTAGE_IMAGE_REGISTRY:-ghcr.io}
     repository: ${BACKSTAGE_IMAGE_REPOSITORY:-ohorizons/ohorizons-backstage}
-    tag: ${IMAGE_TAG:-v7.2.4}
+    tag: ${IMAGE_TAG:-v7.2.6}
     pullPolicy: IfNotPresent
 
   resources:
@@ -58,9 +58,9 @@ backstage:
           width: 28
         theme:
           dark:
-            primaryColor: '#4CC2FF'
+            primaryColor: "#4CC2FF"
           light:
-            primaryColor: '#0078D4'
+            primaryColor: "#0078D4"
     organization:
       name: Open Horizons — Agentic DevOps Platform
     backend:
@@ -71,7 +71,7 @@ backstage:
         allow:
           - host: raw.githubusercontent.com
       csp:
-        img-src: ["'self'", 'data:', 'https:']
+        img-src: ["'self'", "data:", "https:"]
         upgrade-insecure-requests: false
       cors:
         origin: https://${BACKSTAGE_HOST}
@@ -116,7 +116,18 @@ backstage:
     # ── Software Catalog ────────────────────────────────────────────
     catalog:
       rules:
-        - allow: [Component, System, API, Resource, Location, Domain, Template, User, Group]
+        - allow:
+            [
+              Component,
+              System,
+              API,
+              Resource,
+              Location,
+              Domain,
+              Template,
+              User,
+              Group,
+            ]
       locations:
         - type: url
           target: https://raw.githubusercontent.com/${GITHUB_ORG}/${GITHUB_REPO}/${GITHUB_BRANCH:-main}/backstage/catalog-info.yaml
