@@ -302,6 +302,7 @@ terraform/environments/*.tfvars.bak.*
 
 # Open Horizons render-manifests output
 backstage/k8s/.rendered/
+argocd/.rendered/
 
 # Local Azure Storage emulator (Azurite) artifacts — never commit; they embed
 # absolute local paths and local emulator state.

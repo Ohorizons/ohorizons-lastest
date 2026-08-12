@@ -26,11 +26,12 @@ RESOURCE_GROUP=""
 AKS_NAME=""
 DOMAIN=""
 PLATFORM_NAME="open-horizons"
-IMAGE_TAG="v7.2.4"
+IMAGE_TAG="v7.2.6"
 BACKSTAGE_IMAGE="ghcr.io/ohorizons/ohorizons-backstage"
 AGENT_API_IMAGE="ghcr.io/ohorizons/ohorizons-agent-api"
 AGENT_API_IMPACT_IMAGE="ghcr.io/ohorizons/ohorizons-agent-api-impact"
 MCP_ECOSYSTEM_IMAGE="ghcr.io/ohorizons/mcp-ecosystem"
+MCP_ECOSYSTEM_TAG="v7.2.5"
 ORG_DISPLAY_NAME="Open Horizons"
 AZURE_OPENAI_DEPLOYMENT="gpt-5.1"
 APPLY_INGRESS=false
@@ -49,7 +50,8 @@ Required:
 
 Optional:
   --platform-name NAME       Kubernetes resource prefix (default: open-horizons)
-  --image-tag TAG            Image tag (default: v7.2.4)
+  --image-tag TAG            Image tag (default: v7.2.6)
+  --mcp-ecosystem-tag TAG    MCP Ecosystem image tag (default: v7.2.5)
   --apply-ingress            Also apply generated ingress.yaml and tls.yaml
   --enable-mcp               Apply MCP Ecosystem even if image preflight cannot verify it
   --disable-mcp              Skip MCP Ecosystem and delete any existing MCP deployment/service
@@ -57,7 +59,7 @@ Optional:
 
 Notes:
   MCP is skipped by default when its image is not publicly pullable. For private
-  ACR deployments, publish mcp-ecosystem:v7.2.4 into the target ACR first and
+  ACR deployments, publish mcp-ecosystem:v7.2.5 into the target ACR first and
   pass --mcp-ecosystem-image <acr>.azurecr.io/mcp-ecosystem --enable-mcp.
 USAGE
 }
@@ -71,6 +73,7 @@ while [[ $# -gt 0 ]]; do
     --domain) DOMAIN="$2"; shift 2 ;;
     --platform-name) PLATFORM_NAME="$2"; shift 2 ;;
     --image-tag) IMAGE_TAG="$2"; shift 2 ;;
+    --mcp-ecosystem-tag) MCP_ECOSYSTEM_TAG="$2"; shift 2 ;;
     --mcp-ecosystem-image) MCP_ECOSYSTEM_IMAGE="$2"; shift 2 ;;
     --enable-mcp) ENABLE_MCP_ECOSYSTEM=true; shift ;;
     --disable-mcp) ENABLE_MCP_ECOSYSTEM=false; shift ;;
@@ -160,6 +163,7 @@ write_env_var ORG_DISPLAY_NAME "$ORG_DISPLAY_NAME"
 write_env_var AUTH_PROVIDER "guest"
 write_env_var GITHUB_IDENTITY_MODE "standard"
 write_env_var IMAGE_TAG "$IMAGE_TAG"
+write_env_var MCP_ECOSYSTEM_TAG "$MCP_ECOSYSTEM_TAG"
 write_env_var GITHUB_ORG "local"
 write_env_var GITHUB_REPO "open-horizons-platform"
 write_env_var BACKSTAGE_IMAGE "$BACKSTAGE_IMAGE"
@@ -172,7 +176,7 @@ echo "[runtime] Rendering no-GitHub manifests"
 NO_GITHUB_MODE=true "$REPO_ROOT/scripts/render-k8s.sh" --env-file "$tmp_env" >/tmp/open-horizons-render-runtime.log
 
 if [[ "$ENABLE_MCP_ECOSYSTEM" == "auto" ]]; then
-  if command -v docker >/dev/null 2>&1 && docker manifest inspect "${MCP_ECOSYSTEM_IMAGE}:${IMAGE_TAG}" >/dev/null 2>&1; then
+  if command -v docker >/dev/null 2>&1 && docker manifest inspect "${MCP_ECOSYSTEM_IMAGE}:${MCP_ECOSYSTEM_TAG}" >/dev/null 2>&1; then
     ENABLE_MCP_ECOSYSTEM=true
   else
     ENABLE_MCP_ECOSYSTEM=false

@@ -165,7 +165,7 @@ render_templates_to_temp_source() {
   local agent_api_image="${AGENT_API_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api}"
   local agent_api_impact_image="${AGENT_API_IMPACT_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api-impact}"
   local mcp_ecosystem_image="${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}"
-  local image_tag="${IMAGE_TAG:-v7.2.4}"
+  local image_tag="${IMAGE_TAG:-v7.2.6}"
   local azure_openai_deployment="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
   local auth_provider="${AUTH_PROVIDER:-guest}"
   local github_identity_mode="${GITHUB_IDENTITY_MODE:-standard}"

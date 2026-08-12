@@ -24,12 +24,16 @@ The platform is organized into three adoption stages:
 
 | Image | Tag | Registry |
 |-------|-----|----------|
-| `ohorizons-backstage` | `v7.2.4` | GHCR (public) |
-| `ohorizons-agent-api` | `v7.2.4` | GHCR (public) |
-| `ohorizons-agent-api-impact` | `v7.2.4` | GHCR (public) |
-| `mcp-ecosystem` | `v7.2.4` | GHCR (public) |
+| `ohorizons-backstage` | `v7.2.6` | GHCR (public) |
+| `ohorizons-agent-api` | `v7.2.6` | GHCR (public) |
+| `ohorizons-agent-api-impact` | `v7.2.6` | GHCR (public) |
+| `mcp-ecosystem` | `v7.2.5` | GHCR (public) |
+| `ohorizons-agent-api-maf` | `v7.2.5` | GHCR (public) |
+| `ohorizons-agent-api-sk` | `v7.2.5` | GHCR (public) |
+| `ohorizons-foundry-agents` | `v7.2.5` | GHCR (public) |
 
 **Tag format**: `v<semver>-<suffix>` — Never use `:latest` in deployment manifests.
+The MCP ecosystem, the MAF/SK agent APIs and the Foundry gateway ship on a separate cadence; use `MCP_ECOSYSTEM_TAG` in `.env` to pin them independently of `IMAGE_TAG`.
 
 ## Infrastructure
 
@@ -170,13 +174,19 @@ Identity configuration separates Backstage sign-in from GitHub governance: `AUTH
 ./scripts/deploy-full.sh --environment dev
 ```
 
-**Option C — Manual:**
+**Option C — Manual (phased):**
 ```bash
 cd terraform
-terraform init
-terraform plan -var-file=environments/dev.tfvars
-terraform apply -var-file=environments/dev.tfvars
+terraform init            # never -upgrade: .terraform.lock.hcl is the tested provider set
+terraform plan -var-file=environments/dev.tfvars -out=h1.tfplan
+terraform apply h1.tfplan
+# H2 modules need the AKS outputs, so apply them after H1:
+terraform apply -var-file=environments/dev.tfvars \
+  -target=module.argocd -target=module.observability \
+  -target=module.external_secrets -target=module.databases
 ```
+
+> The `kubernetes`, `helm` and `kubectl` providers are configured from `module.aks` outputs. A single-pass `terraform apply` on an empty subscription fails at plan time; always apply H1 before the H2 modules, or use `scripts/deploy-full.sh`.
 
 ### Running validation
 ```bash

@@ -1298,8 +1298,10 @@ prompt_initial_setup() {
     MCP_ECOSYSTEM_IMAGE="${ACR_NAME}.azurecr.io/mcp-ecosystem"
   fi
 
-  read -r -p "  Image tag [v7.2.4]: " IMAGE_TAG
-  IMAGE_TAG="${IMAGE_TAG:-v7.2.4}"
+  read -r -p "  Image tag [v7.2.6]: " IMAGE_TAG
+  IMAGE_TAG="${IMAGE_TAG:-v7.2.6}"
+  read -r -p "  MCP ecosystem tag [v7.2.5]: " MCP_ECOSYSTEM_TAG
+  MCP_ECOSYSTEM_TAG="${MCP_ECOSYSTEM_TAG:-v7.2.5}"
 
   echo
 
@@ -1318,8 +1320,8 @@ prompt_initial_setup() {
   enable_ai="$(prompt_yn "  Enable AI services (Chat & Impact plugins)?" "true")"
   if [[ "$enable_ai" == "true" ]]; then
     read -r -p "  Azure OpenAI Endpoint: " AZURE_OPENAI_ENDPOINT
-    read -r -p "  Azure OpenAI Deployment [gpt-4o]: " AZURE_OPENAI_DEPLOYMENT
-    AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}"
+    read -r -p "  Azure OpenAI Deployment [gpt-5.1]: " AZURE_OPENAI_DEPLOYMENT
+    AZURE_OPENAI_DEPLOYMENT="${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}"
   fi
 
   # --- Write .env ---
@@ -1358,6 +1360,7 @@ AGENT_API_IMAGE=${AGENT_API_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api}
 AGENT_API_IMPACT_IMAGE=${AGENT_API_IMPACT_IMAGE:-ghcr.io/ohorizons/ohorizons-agent-api-impact}
 MCP_ECOSYSTEM_IMAGE=${MCP_ECOSYSTEM_IMAGE:-ghcr.io/ohorizons/mcp-ecosystem}
 IMAGE_TAG=${IMAGE_TAG}
+MCP_ECOSYSTEM_TAG=${MCP_ECOSYSTEM_TAG:-$IMAGE_TAG}
 
 # Azure Infrastructure
 AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-}
@@ -1368,7 +1371,7 @@ AKS_CLUSTER_NAME=${AKS_CLUSTER_NAME:-}
 # AI Services
 AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
 AZURE_OPENAI_API_KEY=
-AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT:-gpt-4o}
+AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT:-gpt-5.1}
 
 # Observability
 ARGOCD_AUTH_TOKEN=
