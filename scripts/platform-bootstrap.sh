@@ -288,7 +288,7 @@ deploy_h1_foundation() {
     # Deploy H1 Foundation via root module
     log INFO "Deploying H1 Foundation infrastructure..."
     cd "${ACCELERATOR_ROOT}/terraform"
-    terraform init -upgrade
+    terraform init
     terraform apply -auto-approve \
         -var-file="environments/${ENVIRONMENT}.tfvars" \
         -target=module.networking \
@@ -513,7 +513,7 @@ destroy_platform() {
     # Destroy via root module
     log INFO "Destroying all infrastructure via root Terraform module..."
     cd "${ACCELERATOR_ROOT}/terraform"
-    terraform init -upgrade
+    terraform init
     terraform destroy -auto-approve \
         -var-file="environments/${ENVIRONMENT}.tfvars" || true
     

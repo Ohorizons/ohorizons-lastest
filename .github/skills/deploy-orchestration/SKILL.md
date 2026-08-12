@@ -162,9 +162,10 @@ kubectl port-forward svc/prometheus-grafana -n observability 3000:80
 
 ### Terraform init fails
 ```bash
-# Clear cache and retry
-rm -rf terraform/.terraform terraform/.terraform.lock.hcl
-terraform init -upgrade
+# Clear the provider cache but keep .terraform.lock.hcl — deleting it drops the
+# pinned provider set and can pull a breaking major version.
+rm -rf terraform/.terraform
+terraform init
 ```
 
 ### Terraform plan fails with variable errors
