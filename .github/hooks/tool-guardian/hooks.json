@@ -4,9 +4,11 @@
     "preToolUse": [
       {
         "type": "command",
-        "bash": ".github/hooks/specky/scripts/scope-guard.sh",
+        "bash": "hooks/tool-guardian/guard-tool.sh",
         "cwd": ".",
-        "env": {},
+        "env": {
+          "GUARD_MODE": "block"
+        },
         "timeoutSec": 10
       }
     ]

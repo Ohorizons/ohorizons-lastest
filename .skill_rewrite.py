@@ -452,3 +452,1039 @@ kubectl rollout status deployment/backstage -n backstage --timeout=300s
 - [ ] Verified rollout, pods, and events after mutation.
 '''
 # continuing in appended file for remaining skills
+files['markdown-writer'] = '''---
+name: markdown-writer
+description: "Use when creating or restructuring Markdown documents such as README, ADR, specification, guide, changelog, runbook, RFC, technical documentation, or PPTX/PowerPoint-to-Markdown reading editions. Produces Markdown with YAML frontmatter, versioning, change log, table of contents, references, and quality checks. DO NOT USE FOR: editable draw.io/SVG architecture diagrams with official icons (use azure-architecture-diagrams), Mermaid architecture document validation/Definition-of-Done checks (use architecture-doc), creating PPTX presentations, Word documents, PDFs, or image-only diagrams. Triggers include \"write a README\", \"create an ADR\", \"draft a guide\", and \"convert PPTX to Markdown\"."
+---
+
+# Markdown Writer
+
+Use this skill to create professional Markdown deliverables in English with stable structure, metadata, readable prose, and repository-aware file placement. It produces a complete document draft or rewrite, plus a quality report for frontmatter, headings, links, code fences, and references.
+
+> [!NOTE]
+> This skill depends on file-system write access for requested Markdown outputs and, for PowerPoint conversion, `markitdown` or an available MarkItDown MCP tool. It does not require cloud authentication unless the source material is stored behind an authenticated service.
+
+## When to invoke
+
+- "Write a README for this component."
+- "Create an ADR for this architecture decision."
+- "Draft a deployment guide in Markdown."
+- "Convert this PowerPoint deck into a Markdown reading edition."
+- "Rewrite this runbook with a table of contents and references."
+
+## Prerequisites
+
+- The document type is known: README, ADR, specification, guide, changelog, runbook, RFC, or general technical document.
+- The destination path is known or can be inferred from existing repository conventions such as `docs/`, `docs/guides/`, or `docs/architecture/`.
+- Source material is available in the workspace or provided by the user.
+- For PPTX conversion, the source deck path exists and speaker notes are preserved when the converter exposes them.
+
+## Workflow steps
+
+### Step 1: Confirm document intent and destination
+
+1. Identify audience, purpose, status, owner, and expected output path.
+2. Inspect nearby documents under `docs/`, `docs/guides/`, and `docs/architecture/` for naming and structure conventions.
+3. Do not create a new planning file unless the user requested a document artifact.
+
+### Step 2: Select the document structure
+
+Use one of these structures and avoid placeholder sections.
+
+| Document type | Required sections |
+| --- | --- |
+| README | Overview, Quick Start, Prerequisites, Installation, Usage, Configuration, Contributing, License. |
+| ADR | Status, Context, Decision, Consequences, References. |
+| Specification | Overview, Scope, Requirements, Design, Security, Testing, References. |
+| Guide | Overview, Prerequisites, Step-by-step Instructions, Troubleshooting, References. |
+| Runbook | Overview, Symptoms, Diagnosis, Resolution, Prevention, Escalation, References. |
+
+### Step 3: Write mandatory frontmatter
+
+```yaml
+---
+title: "Document Title"
+description: "One-sentence summary of the document purpose."
+author: "Open Horizons"
+date: "YYYY-MM-DD"
+version: "1.0.0"
+status: "draft"
+tags: ["open-horizons"]
+---
+```
+
+### Step 4: Build the Markdown body
+
+- Use exactly one `#` H1.
+- Include a change log for versioned documents.
+- Include a table of contents for documents with more than three major sections.
+- Keep paragraphs under four sentences.
+- Use descriptive links and a `## References` section.
+- Specify a language on every fenced code block.
+
+### Step 5: Convert PPTX decks when requested
+
+1. Use MarkItDown first when available.
+2. Treat raw extraction as source material, not final output.
+3. Preserve every slide in order, including speaker notes.
+4. Remove extraction noise such as image placeholders, repeated headers, and page numbers.
+5. Render each slide as readable prose with a short `Shown on the slide:` list only when useful.
+
+### Step 6: Classify document risk
+
+| Risk | Meaning |
+| --- | --- |
+| High | Public-facing, compliance, security, architecture, or release documentation. |
+| Medium | Team guide, runbook, specification, or ADR with operational impact. |
+| Low | Internal draft, formatting-only rewrite, or local conversion. |
+
+### Step 7: Review and save
+
+Before writing, confirm overwrite intent if the target file already exists. For new files, use the repository's existing documentation tree, not an ad hoc location.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Destination path is unclear | Propose the closest existing docs directory and wait for direction if multiple choices exist. |
+| Source PPTX cannot be parsed | Report the converter error and preserve any partial extracted text separately in the response only. |
+| Existing document would be overwritten | Ask for explicit overwrite approval or choose a new filename. |
+| Missing source references | Mark claims as assumptions or omit them. |
+| Broken internal link | Fix the link if the target exists; otherwise report it in the quality section. |
+
+## Output template
+
+```markdown
+## Markdown Delivery Report
+
+**Document:** <title>
+**Type:** <README|ADR|Guide|Runbook|Specification|Other>
+**Path:** <path>
+**Status:** <draft|review|approved>
+
+### Structure
+- Frontmatter: <present|missing>
+- H1 count: <count>
+- Table of contents: <present|not needed|missing>
+- References: <present|missing>
+
+### Quality Findings
+- <finding>
+
+### Next Steps
+1. <next step>
+```
+
+## Quality gate
+
+- [ ] YAML frontmatter includes title, description, author, date, version, status, and tags.
+- [ ] Exactly one H1 is present.
+- [ ] Heading levels do not skip.
+- [ ] Table of contents is present when needed.
+- [ ] Code fences specify a language.
+- [ ] Links are descriptive and references are cited.
+- [ ] No placeholder text remains.
+- [ ] No emojis or pictographs are present.
+'''
+files['mcp-ecosystem'] = '''---
+name: mcp-ecosystem
+description: "Use when querying the local MCP Ecosystem reference server for live upstream documentation, methodology, templates, Backstage resources, GitHub Copilot customization, Microsoft Learn, Azure CAF/WAF, VS Code docs, GitHub docs, Anthropic docs, or SDD/spec-kit guidance. Produces sourced reference lookups, tool selection, server health checks, and AI Chat wiring guidance. DO NOT USE FOR: general web search, live cloud or repository operations, infra MCP servers such as Azure/GitHub/Terraform/Kubernetes/Helm, or non-reference queries. Triggers include \"search Microsoft Learn through MCP\", \"use the ecosystem server\", \"ground this in Backstage docs\", and \"list MCP ecosystem tools\"."
+---
+
+# MCP Ecosystem
+
+Use this skill to operate the Open Horizons local MCP Ecosystem reference server implemented in `mcp-servers/src/tools/`. The server exposes 79 documentation tools across 17 modules and helps agents ground SDD, Backstage, GitHub, Microsoft Learn, Azure CAF/WAF, VS Code, and Anthropic answers in upstream sources.
+
+> [!NOTE]
+> This skill depends on the MCP Ecosystem server at `http://localhost:3100/mcp`, Node.js, Docker when using `mcp-servers/` local compose workflows, optional `GH_TOKEN` for higher GitHub API limits, and `.github/mcp.json` registration. It does not perform live cloud mutations.
+
+## When to invoke
+
+- "Search Microsoft Learn through the MCP Ecosystem server."
+- "Ground this Backstage template answer in official docs."
+- "List the tools exposed by mcp-ecosystem."
+- "Check whether AI Chat can call the ecosystem tools."
+- "Use spec-kit methodology from the local MCP server."
+
+## Prerequisites
+
+- `mcp-servers/src/tools/` exists and contains the registered tool modules.
+- `.github/mcp.json` includes `mcp-ecosystem` with URL `http://localhost:3100/mcp`.
+- For local runtime, `mcp-servers/README.md`, `mcp-servers/USAGE.md`, and `mcp-servers/ARCHITECTURE.md` exist.
+- Optional `GH_TOKEN` is configured when GitHub-backed documentation tools need higher rate limits.
+- The query is a reference/documentation task, not a cloud operation.
+
+## Workflow steps
+
+### Step 1: Confirm this is a reference lookup
+
+Use this server for documentation and methodology. Do not use it for Azure, GitHub, Terraform, Kubernetes, or Helm operations that need live state.
+
+### Step 2: Verify server registration and health
+
+```bash
+test -f .github/mcp.json
+test -d mcp-servers/src/tools
+curl -s http://localhost:3100/health
+```
+
+If the server is not running locally, use the repo's documented workflow.
+
+```bash
+cd mcp-servers
+make up
+make health
+```
+
+### Step 3: Select the narrowest tool family
+
+| Need | Tool family |
+| --- | --- |
+| SDD and spec-kit | `speckit_*` |
+| Backstage docs, catalog, templates, plugins, UI | `backstagedocs_*`, `backstageplugins_*`, `backstageui_*` |
+| Microsoft Learn, CAF, WAF | `mslearn_*`, `caf_*`, `waf_*` |
+| GitHub docs and Copilot customization | `ghdocs_*`, `copilotdocs_*` |
+| VS Code docs | `vscode_*` |
+| Anthropic and Claude docs | `anthropicdocs_*`, `anthropics_*` |
+
+### Step 4: Call list or search before fetching a page
+
+List all tools with JSON-RPC over HTTP.
+
+```bash
+curl -s http://localhost:3100/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Call a specific tool only after selecting the narrowest match.
+
+```bash
+curl -s http://localhost:3100/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"speckit_get_phases","arguments":{}}}'
+```
+
+### Step 5: Classify reference confidence
+
+| Confidence | Meaning |
+| --- | --- |
+| High | Fetched directly from an official upstream source through a targeted ecosystem tool. |
+| Medium | Search result snippet from an official source that needs a follow-up fetch. |
+| Low | Server unavailable, stale cache, or query answered without ecosystem grounding. |
+
+### Step 6: Wire AI Chat only with existing anchors
+
+Use the existing client at `backstage/server/agent-api/tools/mcp_ecosystem.py`. In-cluster runtime uses the `mcp-ecosystem` service described in `mcp-servers/ARCHITECTURE.md`.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Server health check fails | Start with `cd mcp-servers && make up`, then rerun `make health`. |
+| Tool is not found | Call `tools/list` and select an available tool; do not invent tool names. |
+| GitHub rate limit is hit | Set `GH_TOKEN` and retry after cache or rate-limit recovery. |
+| Cache may be stale | Report cache staleness and fetch the specific page again when possible. |
+| Query needs live infrastructure state | Stop and route to the appropriate CLI skill instead. |
+
+## Output template
+
+```markdown
+## MCP Ecosystem Lookup Report
+
+**Query:** <query>
+**Server:** `http://localhost:3100/mcp`
+**Tools used:** <tool names>
+**Confidence:** <High|Medium|Low>
+
+### Sources
+- <source URL or tool result reference>
+
+### Answer
+<grounded answer>
+
+### Gaps
+- <missing source or follow-up>
+```
+
+## Quality gate
+
+- [ ] Confirmed the task is reference lookup, not live operations.
+- [ ] Verified `.github/mcp.json` and `mcp-servers/src/tools/` anchors.
+- [ ] Used `tools/list` when the exact tool was unclear.
+- [ ] Cited official upstream sources returned by the tool.
+- [ ] Reported cache or server availability limitations.
+- [ ] Kept counts aligned with source: 17 modules and 79 tools.
+'''
+files['observability-stack'] = '''---
+name: observability-stack
+description: "Use when deploying or operating the Open Horizons observability stack: Prometheus, Grafana, Alertmanager, Loki-adjacent logging checks, dashboards, service monitors, alert rules, and day-2 monitoring diagnostics. Produces deployment plans, Helm/Kubernetes commands, dashboard and alert validation, and health reports. DO NOT USE FOR: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use deploy-orchestration). Triggers include \"deploy monitoring\", \"configure Grafana dashboards\", \"check Prometheus targets\", and \"troubleshoot alerts\"."
+---
+
+# Observability Stack
+
+Use this skill to deploy, validate, and troubleshoot Open Horizons monitoring assets using `deploy/helm/monitoring/values.yaml`, `deploy/helm/service-monitors.yaml`, `deploy/helm/sre-alerts.yaml`, `grafana/dashboards/`, and `terraform/modules/observability/`. It produces a risk-ranked plan, approved commands, and a health report.
+
+> [!NOTE]
+> This skill depends on `kubectl`, `helm`, cluster credentials, access to the monitoring namespace, and Grafana or Prometheus credentials from the approved secret store. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Deploy the observability stack to the cluster."
+- "Check whether Prometheus targets are healthy."
+- "Load the dashboards from grafana/dashboards."
+- "Validate the SRE alert rules."
+- "Troubleshoot why Grafana is not reachable."
+
+## Prerequisites
+
+- `kubectl config current-context` points to the intended cluster.
+- `helm version` succeeds.
+- `deploy/helm/monitoring/values.yaml` exists.
+- `deploy/helm/service-monitors.yaml` and `deploy/helm/sre-alerts.yaml` exist when applying Open Horizons monitoring resources.
+- `grafana/dashboards/` exists for dashboard inventory.
+
+## Workflow steps
+
+### Step 1: Inspect current monitoring state
+
+```bash
+kubectl get namespaces
+kubectl get pods -n monitoring
+helm list -n monitoring
+kubectl get pods -n observability
+```
+
+Use whichever namespace exists. Do not create or mutate namespaces until the confirmation gate.
+
+### Step 2: Validate repository monitoring assets
+
+```bash
+test -f deploy/helm/monitoring/values.yaml
+test -f deploy/helm/service-monitors.yaml
+test -f deploy/helm/sre-alerts.yaml
+test -d grafana/dashboards
+```
+
+### Step 3: Preview Helm deployment
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --values deploy/helm/monitoring/values.yaml \
+  --dry-run
+```
+
+### Step 4: Preview Kubernetes monitoring resources
+
+```bash
+kubectl apply -f deploy/helm/service-monitors.yaml --dry-run=client -o yaml
+kubectl apply -f deploy/helm/sre-alerts.yaml --dry-run=client -o yaml
+kubectl diff -f deploy/helm/service-monitors.yaml
+kubectl diff -f deploy/helm/sre-alerts.yaml
+```
+
+### Step 5: Classify observability risk
+
+| Risk | Meaning |
+| --- | --- |
+| High | Installing or upgrading monitoring stack, changing alert routes, deleting PVCs, or modifying production alerts. |
+| Medium | Applying ServiceMonitor, PrometheusRule, dashboard ConfigMap, or scrape configuration changes. |
+| Low | Reading pods, targets, dashboards, logs, events, or rendering dry-runs. |
+
+### Step 6: User confirmation gate
+
+```text
+Observability action: <install|upgrade|apply-rules|apply-dashboards>
+Cluster context: <context>
+Namespace: <monitoring|observability>
+Assets: deploy/helm/monitoring/values.yaml, deploy/helm/service-monitors.yaml, deploy/helm/sre-alerts.yaml, grafana/dashboards/
+Risk: <High|Medium|Low>
+Proceed with observability mutation? (y/n)
+```
+
+> [!IMPORTANT]
+> Only install, upgrade, apply, delete, or modify observability resources after an explicit affirmative response. On a negative, ambiguous, or missing response, do not mutate the cluster; output dry-run findings and stop.
+
+### Step 7: Execute approved deployment or update
+
+```bash
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --values deploy/helm/monitoring/values.yaml \
+  --wait --timeout 15m
+kubectl apply -f deploy/helm/service-monitors.yaml
+kubectl apply -f deploy/helm/sre-alerts.yaml
+```
+
+### Step 8: Verify health and targets
+
+```bash
+kubectl get pods -n monitoring
+kubectl get servicemonitor -A
+kubectl get prometheusrule -A
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
+```
+
+Then query Prometheus locally when the port-forward is running.
+
+```bash
+curl -s 'http://localhost:9090/api/v1/targets'
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Monitoring namespace is absent | Treat install as High risk and require approval before creating it. |
+| Helm dry-run fails | Report values or chart errors and stop before mutation. |
+| CRDs are missing | Install or upgrade kube-prometheus-stack only after approval. |
+| Prometheus targets are down | Report target labels, scrape URL, and last error. |
+| Grafana credentials are unavailable | Do not guess credentials; request retrieval from the approved secret store. |
+
+## Output template
+
+```markdown
+## Observability Report
+
+**Cluster context:** <context>
+**Namespace:** <namespace>
+**Action:** <inspect|install|upgrade|apply|troubleshoot>
+**Risk:** <High|Medium|Low>
+
+### Asset Validation
+- `deploy/helm/monitoring/values.yaml`: <present|missing>
+- `deploy/helm/service-monitors.yaml`: <present|missing>
+- `deploy/helm/sre-alerts.yaml`: <present|missing>
+- `grafana/dashboards/`: <present|missing>
+
+### Health
+- Prometheus: <status>
+- Grafana: <status>
+- Alertmanager: <status>
+- Targets: <summary>
+
+### Findings
+- <finding>
+```
+
+## Quality gate
+
+- [ ] Confirmed cluster context and monitoring namespace.
+- [ ] Verified all referenced monitoring files and directories exist.
+- [ ] Ran Helm dry-run before install or upgrade.
+- [ ] Ran Kubernetes dry-run or diff before applying rules or monitors.
+- [ ] Received explicit approval before mutating monitoring resources.
+- [ ] Verified pods, ServiceMonitors, PrometheusRules, and targets after mutation.
+'''
+files['pipeline-diagnostics'] = '''---
+name: pipeline-diagnostics
+description: "Use when diagnosing GitHub Actions CI/CD failures, failed workflow runs, build errors, deploy job failures, skipped workflows, queue delays, and failed job logs. Produces workflow evidence, failed step identification, root-cause analysis, and remediation steps. DO NOT USE FOR: test analysis (use test-coverage), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli). Triggers include \"diagnose this workflow failure\", \"why did CI fail\", \"inspect failed GitHub Actions logs\", and \"debug the deploy pipeline\"."
+---
+
+# Pipeline Diagnostics
+
+Use this skill to analyze GitHub Actions workflow runs from real `gh` output and repository workflow files under `.github/workflows/`. It produces a concise diagnosis with failed job, failed step, likely root cause, and the next remediation owner.
+
+> [!NOTE]
+> This skill depends on the `gh` CLI, authenticated GitHub access, and workflow visibility for the target repository. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Diagnose this failed GitHub Actions run."
+- "Why did the deploy pipeline fail?"
+- "Inspect the failed job logs for this workflow."
+- "Explain why the workflow was skipped."
+- "Find the root cause of this CI error."
+
+## Prerequisites
+
+- `gh auth status` succeeds.
+- The repository owner/name, workflow name, run ID, branch, or PR number is known.
+- `.github/workflows/` exists in the repository.
+- The user wants CI/CD diagnosis rather than test coverage analysis or Kubernetes troubleshooting.
+
+## Workflow steps
+
+### Step 1: Identify the run
+
+```bash
+gh run list --limit 10
+gh run list --status failure --limit 5
+```
+
+If the user provides a PR, inspect checks first.
+
+```bash
+gh pr checks <pr-number>
+```
+
+### Step 2: Fetch failed job evidence
+
+```bash
+gh run view <run-id>
+gh run view <run-id> --log-failed
+```
+
+Collect workflow name, run number, branch, event, failed job, failed step, and the first actionable error line.
+
+### Step 3: Classify failure severity
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Required check blocks merge or deployment, security scan failed, or release workflow failed. |
+| High | Main CI failed on a protected branch or repeat failure affects multiple PRs. |
+| Medium | PR-only failure with clear remediation and no production impact. |
+| Low | Skipped, cancelled, neutral, or documentation-only check issue. |
+
+### Step 4: Diagnose by pattern
+
+| Pattern | Evidence | Next action |
+| --- | --- | --- |
+| Dependency install | Fails in `npm ci`, `pip install`, or package restore | Check lock file and registry errors. |
+| Build or compile | Type, import, or compiler error | Identify file and line, then fix or hand off to code owner. |
+| Test failure | Test runner reports failed tests | Use `test-coverage` for detailed test analysis. |
+| Docker failure | `docker build` or push error | Check Dockerfile paths, image tags, and registry auth. |
+| Deployment failure | `kubectl`, `helm`, or Azure step failed | Route to `kubectl-cli`, `helm-cli`, or `azure-cli`. |
+
+### Step 5: Recommend rerun only when appropriate
+
+Rerun failed jobs only when evidence indicates flake, transient infrastructure, or external service failure.
+
+```bash
+gh run rerun <run-id> --failed
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Run ID is missing | List recent runs and ask the user to identify the target if ambiguous. |
+| GitHub auth fails | Ask the operator to run `gh auth login`; do not infer logs. |
+| Logs are unavailable | Use run summary, job status, and workflow file evidence; state the limitation. |
+| Failure is a test assertion | Stop CI diagnosis and use `test-coverage` for test-specific analysis. |
+| Failure is a live cluster error | Summarize the pipeline evidence and route to `kubectl-cli` or `helm-cli`. |
+
+## Output template
+
+```markdown
+## Pipeline Diagnosis
+
+**Workflow:** <workflow>
+**Run:** <run-id>
+**Branch:** <branch>
+**Event:** <event>
+**Severity:** <Critical|High|Medium|Low>
+
+### Failed Job and Step
+| Job | Step | Conclusion | Evidence |
+| --- | --- | --- | --- |
+| <job> | <step> | <conclusion> | <log excerpt> |
+
+### Root Cause
+<analysis>
+
+### Remediation
+1. <step>
+
+### Handoff
+- <skill or owner>
+```
+
+## Quality gate
+
+- [ ] Used real `gh` run or PR check data.
+- [ ] Identified workflow, run, failed job, and failed step.
+- [ ] Included one actionable log excerpt or stated why logs were unavailable.
+- [ ] Classified severity.
+- [ ] Recommended rerun only when justified by evidence.
+'''
+files['prerequisites'] = '''---
+name: prerequisites
+description: "Use when validating local or CI prerequisites for Open Horizons deployments: CLI presence, versions, authentication, Azure/GitHub access, Docker, Node.js, and optional ArgoCD or kubelogin readiness. Produces a prerequisite checklist, missing-tool report, and installation guidance. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli). Triggers include \"validate prerequisites\", \"check my CLI tools\", \"am I ready to deploy\", and \"install missing tools\"."
+allowed-tools:
+- shell
+---
+
+# Prerequisites
+
+Use this skill to validate the operator workstation or CI runner before Open Horizons deployment. It produces a tool and authentication report using the repository scripts `scripts/validate-prerequisites.sh`, `.github/skills/prerequisites/scripts/validate-prerequisites.sh`, and `.github/skills/prerequisites/scripts/validate-cli-prerequisites.sh`.
+
+> [!NOTE]
+> This skill depends on shell access, Bash 4 or newer for the skill-local scripts, and installed or installable CLIs such as `az`, `terraform`, `kubectl`, `helm`, `gh`, `jq`, `yq`, `git`, and `curl`. It does not use an MCP server.
+
+## When to invoke
+
+- "Validate prerequisites before deployment."
+- "Check whether this machine has the required CLIs."
+- "Am I authenticated to Azure and GitHub?"
+- "Show what tools are missing for Open Horizons."
+- "Prepare a runner for platform validation."
+
+## Prerequisites
+
+- Shell execution is allowed.
+- The repository root is the working directory.
+- For authentication checks, the operator expects `az account show` and `gh auth status` to be meaningful.
+- Installing missing tools requires explicit user approval and package-manager access.
+
+## Workflow steps
+
+### Step 1: Run the repository prerequisite validator
+
+```bash
+./scripts/validate-prerequisites.sh
+```
+
+### Step 2: Run skill-local validators when deeper CLI detail is needed
+
+```bash
+.github/skills/prerequisites/scripts/validate-prerequisites.sh
+.github/skills/prerequisites/scripts/validate-cli-prerequisites.sh
+```
+
+### Step 3: Inspect required tool categories
+
+| Category | Tools |
+| --- | --- |
+| Cloud and IaC | `az`, `terraform` |
+| Kubernetes | `kubectl`, `helm`, `kubelogin`, `argocd` |
+| GitHub | `gh`, `git` |
+| Utilities | `jq`, `yq`, `curl` |
+| Local runtime | `docker`, `node`, `npx` |
+
+### Step 4: Classify readiness
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Required tool missing or Azure/GitHub auth unavailable for requested deployment. |
+| High | Required version is too old or cluster auth helper is missing. |
+| Medium | Optional but recommended tool is missing. |
+| Low | Cosmetic warning or version could not be parsed but tool runs. |
+
+### Step 5: User confirmation gate for installation
+
+```text
+Missing tools: <tools>
+Install command or package manager: <command>
+Scope: local workstation or CI runner
+Proceed with installing missing prerequisites? (y/n)
+```
+
+> [!IMPORTANT]
+> Only install tools or modify the local environment after an explicit affirmative response. On a negative, ambiguous, or missing response, do not install anything; output the missing-tool report and stop.
+
+### Step 6: Re-run validation after approved installation
+
+```bash
+./scripts/validate-prerequisites.sh
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Bash version is too old | Report that Bash 4 or newer is required for skill-local scripts. |
+| `az` is not authenticated | Ask the operator to run `az login` and select the correct subscription. |
+| `gh` is not authenticated | Ask the operator to run `gh auth login`. |
+| Package manager is unavailable | Provide manual install links or commands without executing them. |
+| Script exits non-zero | Preserve the failed section and list exact missing tools. |
+
+## Output template
+
+```markdown
+## Prerequisites Report
+
+**Environment:** <local|CI>
+**Overall readiness:** <Ready|Blocked|Partial>
+
+### Tool Status
+| Tool | Status | Version | Required action |
+| --- | --- | --- | --- |
+| <tool> | <present|missing|auth-needed> | <version> | <action> |
+
+### Findings
+- <finding>
+
+### Next Steps
+1. <step>
+```
+
+## Quality gate
+
+- [ ] Ran `./scripts/validate-prerequisites.sh` or explained why it could not run.
+- [ ] Verified the skill-local script paths exist before referencing them.
+- [ ] Reported missing tools and authentication gaps separately.
+- [ ] Did not install anything without explicit approval.
+- [ ] Re-ran validation after any approved installation.
+'''
+files['requirements-engineer'] = '''---
+name: requirements-engineer
+description: "Use when eliciting, analyzing, complementing, or validating functional and non-functional requirements before SDD initialization. Produces FRD and NFRD artifacts, gap analysis, assumptions, priorities, measurable acceptance signals, and a Specky handoff block. DO NOT USE FOR: code, implementation, or CONSTITUTION.md generation, which belongs to sdd_init or sdd-spec-engineer. Triggers include \"write requirements\", \"create an FRD\", \"create an NFRD\", \"validate these requirements\", and \"prepare input for sdd_init\"."
+---
+
+# Requirements Engineer
+
+Use this skill to turn raw product input into production-grade Functional Requirements Document (FRD) and Non-Functional Requirements Document (NFRD) content ready for Spec-Driven Development. It produces gap analysis, critical questions, assumptions, prioritized requirements, validation results, and a handoff block for `sdd_init`.
+
+> [!NOTE]
+> This skill depends on user-provided product context and repository templates under `golden-paths/common/templates/` when aligning with Open Horizons SDD conventions. It does not shell out to a CLI or require an MCP server by default.
+
+## When to invoke
+
+- "Write the FRD and NFRD for this feature."
+- "Validate these requirements before sdd_init."
+- "Turn these notes into measurable requirements."
+- "Find gaps in this product brief."
+- "Prepare Specky input from this epic."
+
+## Prerequisites
+
+- Raw notes, problem statement, PRD, user story, or stakeholder description is available.
+- The project type can be identified as greenfield, brownfield, modernization, legacy migration, API, mobile, data platform, SaaS, internal tool, CLI, or infrastructure.
+- Critical scope boundaries, user roles, and primary user actions are known or can be asked as at most three questions.
+- The output path is known if files are to be created.
+
+## Workflow steps
+
+### Step 1: Classify project type
+
+| Type | Signal | Required emphasis |
+| --- | --- | --- |
+| Greenfield | New product or build from scratch | Success criteria and non-goals. |
+| Brownfield | Existing system or extension | Current state, delta scope, backward compatibility. |
+| Modernization | Rewrite, migrate, or modernize | Source system, parity, cutover, rollback. |
+| API or platform | API, SDK, developer portal | Consumers, versioning, rate limits. |
+| SaaS | Tenant or subscription language | Tenant isolation and onboarding. |
+| Infrastructure | Platform, AKS, Terraform, environment | Operational constraints and access model. |
+
+### Step 2: Detect critical gaps
+
+Ask at most three questions for missing critical facts. Document all other assumptions.
+
+| Gap | Severity | Action |
+| --- | --- | --- |
+| User roles and permissions | Critical | Ask before writing final requirements. |
+| Primary user action | Critical | Ask before writing final requirements. |
+| Scope boundary | Critical | Ask before writing final requirements. |
+| Authentication strategy | High | Assume only if the user accepts the assumption. |
+| Performance target | High | Propose measurable defaults and mark as assumptions. |
+
+### Step 3: Write functional requirements
+
+Rules for every FR:
+
+- State what the system must do, not how it is implemented.
+- Use `must` in FR text.
+- Include priority P0, P1, P2, or P3.
+- Include an observable acceptance signal.
+- Organize by domain, not by UI screen or implementation layer.
+
+### Step 4: Write non-functional requirements
+
+Include measurable targets for performance, security, availability, testability, CI/CD, observability, accessibility, localization, data retention, compliance, and technology constraints.
+
+### Step 5: Validate the artifacts
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Missing role, primary action, scope boundary, or testable P0 requirement. |
+| High | Vague quality target, missing security method, or no deployment context. |
+| Medium | Weak assumption, missing non-goal, or unclear priority. |
+| Low | Formatting or terminology issue. |
+
+### Step 6: Produce Specky handoff
+
+Use the existing SDD templates in `golden-paths/common/templates/` as downstream context. Do not generate `CONSTITUTION.md`; hand off to `sdd-spec-engineer` or `sdd_init`.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Critical context is missing | Ask up to three focused questions and pause finalization. |
+| User asks for implementation | Redirect to SDD or implementation workflow after requirements are approved. |
+| Requirements include technology choices | Move them to NFRD technology constraints unless they are true business constraints. |
+| Too many P0 items | Recommend scope reduction to 5-15 P0 requirements. |
+| Acceptance signal is vague | Rewrite with observable pass/fail criteria. |
+
+## Output template
+
+```markdown
+## Requirements Delivery Report
+
+**Project:** <name>
+**Project type:** <type>
+**Artifacts:** FRD, NFRD
+**Readiness for sdd_init:** <Yes|No>
+
+### Gap Analysis
+| Gap | Severity | Resolution |
+| --- | --- | --- |
+| <gap> | <severity> | <resolution> |
+
+### Summary
+- Functional requirements: <count>
+- Non-functional requirements: <count>
+- Assumptions: <count>
+
+### Specky Handoff
+FRD: <path-or-title>
+NFRD: <path-or-title>
+Feature name: <kebab-case>
+Open questions: <questions>
+```
+
+## Quality gate
+
+- [ ] Project type is identified.
+- [ ] Critical gaps are resolved or explicitly blocked.
+- [ ] Every FR uses `must` and has priority plus acceptance signal.
+- [ ] NFRs are measurable and include deployment context.
+- [ ] Assumptions are documented with consequences.
+- [ ] Specky handoff is present and does not create `CONSTITUTION.md`.
+'''
+files['sdd-spec-engineer'] = '''---
+name: sdd-spec-engineer
+description: "Use when orchestrating Spec-Driven Development from approved requirements into SDD artifacts: specification, design, task plan, traceability matrix, EARS acceptance criteria, Mermaid architecture, and pre-implementation quality gates. Produces SPECIFICATION, DESIGN, TASKS, and ANALYSIS-style deliverables for coding-agent handoff. DO NOT USE FOR: standalone FRD/NFRD authoring before sdd_init (use requirements-engineer), INVEST user story decomposition or GitHub Issue creation (use story-planning), Foundry runtime/provisioning detail (use ai-foundry-operations or foundry-agent-blueprint), or general agentic architecture trade-off decisions (use agentic-architecture-patterns). Triggers include \"spec this\", \"run SDD\", \"create a task plan\", and \"write EARS requirements\"."
+---
+
+# SDD Spec Engineer
+
+Use this skill to transform approved requirements into Spec-Driven Development artifacts using EARS notation and the repository templates in `golden-paths/common/templates/`. It produces traceable specification, design, tasks with `[P]` markers, and a quality-gate analysis suitable for coding-agent handoff.
+
+> [!NOTE]
+> This skill depends on repository references `.github/skills/sdd-spec-engineer/references/ears-notation.md`, `.github/skills/sdd-spec-engineer/references/spec-templates.md`, and SDD templates in `golden-paths/common/templates/`. It does not require a CLI or MCP server by default.
+
+## When to invoke
+
+- "Spec this feature using SDD."
+- "Create EARS requirements and a design for this change."
+- "Generate a task plan with parallel markers."
+- "Analyze this spec for traceability gaps."
+- "Prepare implementation handoff after requirements approval."
+
+## Prerequisites
+
+- FRD/NFRD or equivalent approved requirements exist.
+- Scope boundaries and non-goals are known.
+- `golden-paths/common/templates/CONSTITUTION.md`, `golden-paths/common/templates/SPECIFICATION.md`, and `golden-paths/common/templates/IMPLEMENTATION_PLAN.md` exist.
+- Reference files under `.github/skills/sdd-spec-engineer/references/` exist.
+
+## Workflow steps
+
+### Step 1: Load SDD references
+
+Read `.github/skills/sdd-spec-engineer/references/ears-notation.md` and `.github/skills/sdd-spec-engineer/references/spec-templates.md` before authoring.
+
+### Step 2: Confirm feature scope
+
+1. Name the feature with a sequential folder-friendly slug such as `001-feature-name`.
+2. Confirm included and excluded requirements.
+3. Identify constraints from the approved NFRD.
+
+### Step 3: Write EARS requirements
+
+Use only these patterns:
+
+- Ubiquitous: `The <system> shall <response>.`
+- Event-driven: `When <trigger>, the <system> shall <response>.`
+- State-driven: `While <state>, the <system> shall <response>.`
+- Unwanted behavior: `If <condition>, then the <system> shall <response>.`
+- Optional feature: `Where <feature is included>, the <system> shall <response>.`
+
+### Step 4: Produce design and task artifacts
+
+- Design includes architecture overview, Mermaid diagram, components, data model, interfaces, risks, and trade-offs.
+- Tasks are atomic, sequenced, and trace to requirements.
+- Use `[P]` only for tasks that can run in parallel without file or state conflicts.
+
+### Step 5: Classify specification findings
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Requirement has no task, task has no requirement, or acceptance criteria are not testable. |
+| High | Design omits security, data model, or integration needed by P0 requirements. |
+| Medium | Task ordering, naming, or parallel marker issue. |
+| Low | Formatting, wording, or traceability table polish. |
+
+### Step 6: Pre-implementation gate
+
+```text
+Artifacts ready: Requirements, Design, Tasks, Analysis
+Traceability: <complete|incomplete>
+Open questions: <count>
+Proceed to implementation handoff? (y/n)
+```
+
+> [!IMPORTANT]
+> Only hand off to implementation after explicit approval and a complete traceability matrix. On a negative, ambiguous, or missing response, stop at the artifact review and list unresolved gaps.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Requirements are missing | Route to `requirements-engineer` before SDD artifact generation. |
+| EARS criteria are vague | Rewrite into one atomic, observable EARS sentence. |
+| Mermaid diagram is malformed | Simplify the diagram and validate syntax before delivery. |
+| Task lacks traceability | Add requirement references or remove the task. |
+| Too many sequential tasks | Recheck independence and mark safe tasks with `[P]`. |
+
+## Output template
+
+```markdown
+## SDD Artifact Report
+
+**Feature:** <feature-slug>
+**Artifacts:** <Requirements|Design|Tasks|Analysis>
+**Traceability:** <complete|incomplete>
+
+### Findings
+| Finding | Severity | Fix |
+| --- | --- | --- |
+| <finding> | <severity> | <fix> |
+
+### Handoff
+- Requirements approved: <yes|no>
+- Design reviewed: <yes|no>
+- Tasks ready: <yes|no>
+- Open questions: <questions>
+```
+
+## Quality gate
+
+- [ ] Loaded EARS and spec template references.
+- [ ] Used only EARS acceptance patterns.
+- [ ] Included design, tasks, and analysis where requested.
+- [ ] Every requirement traces to at least one design component and task.
+- [ ] Every task traces to a requirement.
+- [ ] Implementation handoff is gated on explicit approval.
+'''
+files['story-planning'] = '''---
+name: story-planning
+description: "Use when decomposing epics into INVEST user stories, mapping personas, writing acceptance criteria, grooming backlog items, or creating GitHub Issues for sprint-ready work. Produces story maps, issue bodies, labels, duplicate checks, and optional GitHub Issues. DO NOT USE FOR: test analysis (use test-coverage), pipeline diagnostics (use pipeline-diagnostics), Azure infrastructure design (use azure-infrastructure). Triggers include \"decompose this epic\", \"write user stories\", \"create GitHub issues for these stories\", and \"prepare sprint backlog\"."
+---
+
+# Story Planning
+
+Use this skill to decompose epics into INVEST-compliant user stories and, after approval, create GitHub Issues with consistent labels and acceptance criteria. It produces a story map, duplicate-check summary, issue-ready Markdown bodies, and optional `gh issue create` commands.
+
+> [!NOTE]
+> This skill depends on the `gh` CLI and authenticated GitHub access when creating or inspecting GitHub Issues. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Break this epic into user stories."
+- "Create GitHub Issues for these stories."
+- "Check whether these stories meet INVEST."
+- "Prepare sprint-ready backlog items."
+- "Find duplicate issues before we create new stories."
+
+## Prerequisites
+
+- Epic description, target personas, and expected business outcome are available.
+- Repository owner/name is known for GitHub Issue operations.
+- `gh auth status` succeeds if querying or creating issues.
+- Labels are known or can be proposed, such as `user-story`, `epic:<name>`, and `priority:<level>`.
+
+## Workflow steps
+
+### Step 1: Understand the epic
+
+Capture problem, target users, desired outcome, constraints, and out-of-scope items.
+
+### Step 2: Identify personas
+
+Common Open Horizons personas include Developer, SRE, Platform Engineer, Tech Lead, Product Owner, Security Engineer, and Backstage Portal Admin.
+
+### Step 3: Decompose into INVEST stories
+
+| INVEST criterion | Check |
+| --- | --- |
+| Independent | Story can deliver value without hidden dependency. |
+| Negotiable | Implementation details are not over-specified. |
+| Valuable | Benefit is clear to a persona or business goal. |
+| Estimable | Scope is clear enough for team estimation. |
+| Small | Fits within one sprint. |
+| Testable | Acceptance criteria are observable. |
+
+### Step 4: Check for duplicate issues
+
+```bash
+gh issue list --search "<keywords>" --state open
+gh issue list --label "epic:<name>" --state open
+```
+
+### Step 5: Classify story readiness
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Story lacks persona, value, or acceptance criteria. |
+| High | Duplicate likely exists or story is too large for a sprint. |
+| Medium | Labels, priority, or dependency needs refinement. |
+| Low | Wording or formatting issue. |
+
+### Step 6: User confirmation gate for GitHub Issue creation
+
+```text
+Repository: <owner>/<repo>
+Epic: <epic>
+Stories to create: <count>
+Labels: user-story, epic:<name>, priority:<level>
+Proceed with creating GitHub Issues? (y/n)
+```
+
+> [!IMPORTANT]
+> Only create GitHub Issues after an explicit affirmative response. On a negative, ambiguous, or missing response, do not create issues; output the issue-ready story bodies and stop.
+
+### Step 7: Create approved issues
+
+```bash
+gh issue create --title "Story: <title>" --body "<markdown body>" --label "user-story,epic:<name>,priority:<level>"
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Epic lacks persona or value | Ask a focused question before creating stories. |
+| More than eight stories are needed | Recommend splitting the epic. |
+| Duplicate issue exists | Link the duplicate and do not create a new issue unless approved. |
+| GitHub auth fails | Ask the operator to run `gh auth login`. |
+| Label does not exist | Create issue without the missing label only if the user approves; otherwise stop. |
+
+## Output template
+
+```markdown
+## Epic Decomposition Report
+
+**Epic:** <name>
+**Personas:** <personas>
+**Stories:** <count>
+**GitHub Issues Created:** <yes|no>
+
+### Stories
+| # | Title | Persona | INVEST status | Labels |
+| --- | --- | --- | --- | --- |
+| 1 | <title> | <persona> | <pass|needs work> | `user-story` |
+
+### Duplicate Check
+- <result>
+
+### Next Steps
+1. <step>
+```
+
+## Quality gate
+
+- [ ] Every story has persona, capability, and benefit.
+- [ ] Every story has 3-5 acceptance criteria.
+- [ ] INVEST criteria were checked.
+- [ ] Duplicate issues were searched before creation.
+- [ ] No story point estimates were invented.
+- [ ] Explicit approval was received before creating GitHub Issues.
+'''
