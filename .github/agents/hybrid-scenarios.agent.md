@@ -2,10 +2,11 @@
 name: hybrid-scenarios
 description: "Use this agent when a user asks to choose or implement a GitHub plus Azure DevOps coexistence scenario for Open Horizons. Hybrid integration architect — designs and implements GitHub + Azure DevOps coexistence scenarios (A/B/C) with dual auth, hybrid templates, and cross-platform catalog. USE FOR: hybrid GitHub ADO scenario, dual authentication, cross-platform catalog, scenario A B C selection, GitHub ADO coexistence. DO NOT USE FOR: GitHub-only setup (use @github-integration), ADO-only setup (use @ado-integration), infrastructure provisioning (use @azure-portal-deploy)."
 tools:
-  - search
+  - view
+  - grep
+  - glob
   - edit
-  - execute
-  - read
+  - bash
 user-invocable: true
 handoffs:
   - label: "GitHub Setup"

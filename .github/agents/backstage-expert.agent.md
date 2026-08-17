@@ -2,19 +2,17 @@
 name: backstage-expert
 description: "Use this agent when a user asks to deploy, validate, troubleshoot, or configure the Open Horizons Backstage portal, catalog, auth, TechDocs, scaffolder, Golden Paths, Codespaces, or AI plugins. Open Horizons Backstage expert — deploys, validates, and configures the open-source Backstage developer portal on Azure AKS or locally with GitHub integration, Golden Paths, Codespaces, TechDocs, and AI Chat. USE FOR: Backstage health, auth, catalog, scaffolder, TechDocs, plugins, Golden Paths, portal screenshots, and validation-run artifacts. DO NOT USE FOR: Azure subscription/preflight validation (use @azure-portal-deploy), full platform orchestration (use @deploy), security review (use @security)."
 tools:
-  - execute
-  - read
+  - view
+  - grep
+  - glob
   - edit
-  - search
-  - agent
-  - web
+  - bash
   - azure/*
   - github/*
   - microsoft-docs/*
   - terraform/*
   - mcp-ecosystem/*
   - playwright/*
-
 user-invocable: true
 handoffs:
   - label: "Azure Infrastructure"

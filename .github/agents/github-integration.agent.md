@@ -2,10 +2,11 @@
 name: github-integration
 description: "Use this agent when a user asks to configure GitHub Apps, organization discovery, GHAS, Actions, Packages, GHCR, or GitHub-side Backstage integration for Open Horizons. GitHub platform integration specialist — configures GitHub Apps, org discovery, GHAS security, Actions CI/CD, and Packages for developer portals. USE FOR: create GitHub App, configure org discovery, enable GHAS, setup GitHub Actions, configure GitHub Packages, GitHub supply chain security. DO NOT USE FOR: Azure DevOps integration (use @ado-integration), hybrid scenarios (use @hybrid-scenarios), Backstage deployment (use @backstage-expert)."
 tools:
-  - search
+  - view
+  - grep
+  - glob
   - edit
-  - execute
-  - read
+  - bash
 user-invocable: true
 handoffs:
   - label: "Backstage Config"

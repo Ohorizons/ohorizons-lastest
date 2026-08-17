@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -23,6 +24,8 @@ PROMPTS_DIR = GITHUB_DIR / "prompts"
 SKILLS_DIR = GITHUB_DIR / "skills"
 INSTRUCTIONS_DIR = GITHUB_DIR / "instructions"
 ISSUE_TEMPLATE_DIR = GITHUB_DIR / "ISSUE_TEMPLATE"
+DOCS_DIR = GITHUB_DIR / "docs"
+MCP_CONFIG = GITHUB_DIR / "mcp.json"
 
 VALID_AGENT_FIELDS = {
     "description",
@@ -34,7 +37,6 @@ VALID_AGENT_FIELDS = {
     "user-invocable",
     "disable-model-invocation",
     "handoffs",
-    "agents",
     "mcp-servers",
     "metadata",
 }
@@ -44,17 +46,67 @@ VALID_SKILL_FIELDS = {
     "description",
     "license",
     "allowed-tools",
+    "user-invocable",
+    "disable-model-invocation",
+    "argument-hint",
+    "metadata",
+    "tags",
 }
-VALID_INSTRUCTION_FIELDS = {"description", "applyTo", "excludeAgent"}
+VALID_INSTRUCTION_FIELDS = {"description", "applyTo", "excludeAgent", "name"}
 VALID_SKILL_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 AGENT_LABEL = re.compile(r"agent:([a-zA-Z0-9_.-]+)")
 PROMPT_TEMPLATE_VAR = re.compile(r"\{\{[^}]+\}\}")
 SKILL_NAME_TOKEN = re.compile(r"\b[a-z0-9]+(?:-[a-z0-9]+)+\b")
 SKILL_PATH = re.compile(r"\.\./skills/([a-z0-9]+(?:-[a-z0-9]+)*)/SKILL\.md")
-PORTABLE_TOOL_ALIASES = {"execute", "read", "edit", "search", "agent", "web", "todo"}
-MCP_TOOL = re.compile(r"^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*/(?:[A-Za-z0-9_.-]+|\*)$")
+VALID_TOOL_TOKENS = {
+    "*",
+    "read",
+    "view",
+    "create",
+    "edit",
+    "editFiles",
+    "execute",
+    "bash",
+    "shell",
+    "runCommands",
+    "agent",
+    "task",
+    "grep",
+    "glob",
+    "lsp",
+    "powershell",
+    "read_powershell",
+    "stop_powershell",
+    "read_bash",
+    "stop_bash",
+    "list_bash",
+    "web_fetch",
+    "web_search",
+    "session_store_sql",
+    "fetch_copilot_cli_documentation",
+    "context_board",
+    "write_agent",
+    "read_agent",
+    "list_agents",
+}
+NO_OP_TOOL_REPLACEMENTS = {
+    "search": "use `grep` and `glob`",
+    "web": "use `web_fetch` and `web_search`",
+    "todo": "remove it; `sql` is always available for task lists",
+    "all": "use `*` or omit `tools`",
+    "terminal": "use `bash`",
+    "run": "use `bash`, `execute`, `shell`, or `runCommands`",
+    "codebase": "use `grep` and `glob`",
+    "changes": "use `grep`, `glob`, and `view`",
+    "fetch": "use `web_fetch`",
+    "githubRepo": "use a configured GitHub MCP tool such as `github/*`",
+    "search/codebase": "use `grep` and `glob`",
+}
+REDUNDANT_FLOOR_TOOL_TOKENS = {"sql", "skill"}
+MCP_TOOL = re.compile(r"^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$")
 TOOLS_BLOAT_THRESHOLD = 25
 MAX_AGENT_BODY_CHARS = 30_000
+MAX_SKILL_BODY_LINES = 500
 
 
 class ValidationReport:
@@ -92,6 +144,19 @@ def display_path(path: Path) -> str:
         return str(path.relative_to(REPO_ROOT))
     except ValueError:
         return str(path)
+
+
+def is_installable_primitive(path: Path) -> bool:
+    """Exclude documentation samples from installed primitive validation."""
+    try:
+        path.relative_to(DOCS_DIR)
+        return False
+    except ValueError:
+        return True
+
+
+def installable_paths(pattern: str, base: Path) -> list[Path]:
+    return sorted(path for path in base.glob(pattern) if is_installable_primitive(path))
 
 
 def parse_frontmatter_fallback(frontmatter: str) -> dict[str, Any]:
@@ -145,7 +210,7 @@ def error_unknown_agent_fields(
 ) -> None:
     for field in sorted(set(metadata) - VALID_AGENT_FIELDS):
         if field == "infer":
-            report.warn(path, "deprecated frontmatter field `infer`; remove it")
+            report.error(path, "retired frontmatter field `infer`; remove it")
         elif field == "infer_tools":
             report.error(path, "invalid frontmatter field `infer_tools`; use `tools`")
         elif field == "user-invokable":
@@ -153,6 +218,8 @@ def error_unknown_agent_fields(
                 path,
                 "unsupported frontmatter field `user-invokable`; use `user-invocable`",
             )
+        elif field in {"mode", "hidden", "agents", "agent", "title"}:
+            report.error(path, f"invalid agent frontmatter field `{field}`; remove it")
         else:
             report.error(path, f"unknown frontmatter field `{field}`")
 
@@ -192,7 +259,7 @@ def matches_apply_to(pattern: str, tracked_file: str) -> bool:
 
 def collect_agent_names(report: ValidationReport) -> set[str]:
     agent_names = {"ask", "agent", "plan"}
-    for path in sorted(AGENTS_DIR.glob("*.agent.md")):
+    for path in installable_paths("*.agent.md", AGENTS_DIR):
         parsed = split_frontmatter(path, report)
         if not parsed:
             continue
@@ -205,19 +272,41 @@ def collect_agent_names(report: ValidationReport) -> set[str]:
 
 
 def collect_skill_names() -> set[str]:
-    return {path.parent.name for path in SKILLS_DIR.glob("*/SKILL.md")}
+    return {path.parent.name for path in installable_paths("*/SKILL.md", SKILLS_DIR)}
 
 
-def validate_agents(agent_names: set[str], skill_names: set[str], report: ValidationReport) -> None:
-    for path in sorted(AGENTS_DIR.glob("*.agent.md")):
+def collect_mcp_server_keys(report: ValidationReport) -> set[str]:
+    if not MCP_CONFIG.exists():
+        return set()
+    try:
+        loaded = json.loads(MCP_CONFIG.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        report.error(MCP_CONFIG, f"invalid JSON: {exc}")
+        return set()
+    if not isinstance(loaded, dict):
+        report.error(MCP_CONFIG, "root must be a JSON object")
+        return set()
+    servers = loaded.get("mcpServers", {})
+    if not isinstance(servers, dict):
+        report.error(MCP_CONFIG, "`mcpServers` must be an object")
+        return set()
+    return set(servers)
+
+
+def validate_agents(
+    agent_names: set[str],
+    skill_names: set[str],
+    mcp_server_keys: set[str],
+    report: ValidationReport,
+) -> None:
+    for path in installable_paths("*.agent.md", AGENTS_DIR):
         parsed = split_frontmatter(path, report)
         if not parsed:
             continue
         metadata, body = parsed
         error_unknown_agent_fields(path, metadata, report)
-        require_string(path, metadata, "name", report)
         require_string(path, metadata, "description", report)
-        validate_agent_tools(path, metadata, report)
+        validate_agent_tools(path, metadata, mcp_server_keys, report)
         validate_agent_handoffs(path, metadata, agent_names, report)
         validate_agent_skill_references(path, body, skill_names, report)
 
@@ -230,7 +319,12 @@ def validate_agents(agent_names: set[str], skill_names: set[str], report: Valida
             )
 
 
-def validate_agent_tools(path: Path, metadata: dict[str, Any], report: ValidationReport) -> None:
+def validate_agent_tools(
+    path: Path,
+    metadata: dict[str, Any],
+    mcp_server_keys: set[str],
+    report: ValidationReport,
+) -> None:
     tools = metadata.get("tools")
     if tools is not None and not isinstance(tools, (list, str)):
         report.error(path, "`tools` must be a list or comma-separated string")
@@ -251,17 +345,38 @@ def validate_agent_tools(path: Path, metadata: dict[str, Any], report: Validatio
             report.error(path, "`tools` entries must be non-empty strings")
             continue
         tool = tool.strip()
-        if tool == "vscode":
+        if tool in NO_OP_TOOL_REPLACEMENTS:
             report.error(
                 path,
-                "`tools` includes invalid bare `vscode`; use portable aliases or MCP tools",
+                f"AG017: `tools` token `{tool}` grants nothing and is silently dropped; "
+                f"{NO_OP_TOOL_REPLACEMENTS[tool]}",
             )
-        elif tool not in PORTABLE_TOOL_ALIASES and not MCP_TOOL.match(tool):
+            continue
+        if tool in REDUNDANT_FLOOR_TOOL_TOKENS:
             report.warn(
                 path,
-                f"`tools` entry `{tool}` is not a portable alias or MCP tool form "
-                "`server/*`/`server/tool`",
+                f"AG017: `tools` token `{tool}` is always available; listing it is harmless but pointless",
             )
+            continue
+        if tool in VALID_TOOL_TOKENS:
+            continue
+
+        mcp_match = MCP_TOOL.match(tool)
+        if mcp_match:
+            server_key = mcp_match.group(1).split("/", 1)[0]
+            if mcp_server_keys and server_key not in mcp_server_keys:
+                report.error(
+                    path,
+                    f"AG017: MCP `tools` token `{tool}` uses unknown server `{server_key}`; "
+                    "add it to `.github/mcp.json` or fix the token",
+                )
+            continue
+
+        report.warn(
+            path,
+            f"AG017: `tools` entry `{tool}` is not a recognized Copilot token or MCP "
+            "tool form `server/*`/`server/tool`",
+        )
 
 
 def validate_agent_handoffs(
@@ -301,11 +416,16 @@ def validate_agent_skill_references(
             in_skill_section = bool(re.search(r"\bskills?\b", stripped, re.IGNORECASE))
 
         candidates = set(SKILL_PATH.findall(line))
-        if in_skill_section:
+        explicit_skill_context = bool(
+            re.search(r"(?:^|[./])skills?/|SKILL\.md|\bskills?\b", line, re.IGNORECASE)
+        )
+        if in_skill_section and explicit_skill_context:
             candidates.update(SKILL_NAME_TOKEN.findall(line))
 
         for candidate in sorted(candidates):
-            if candidate not in skill_names:
+            if candidate in skill_names:
+                continue
+            if candidate in SKILL_PATH.findall(line) or explicit_skill_context:
                 report.error(
                     path,
                     f"line {line_number}: references unknown skill `{candidate}`; "
@@ -314,7 +434,7 @@ def validate_agent_skill_references(
 
 
 def validate_prompts(agent_names: set[str], report: ValidationReport) -> None:
-    for path in sorted(PROMPTS_DIR.glob("*.prompt.md")):
+    for path in installable_paths("*.prompt.md", PROMPTS_DIR):
         parsed = split_frontmatter(path, report)
         if not parsed:
             continue
@@ -340,7 +460,7 @@ def validate_prompts(agent_names: set[str], report: ValidationReport) -> None:
 
 
 def validate_skills(report: ValidationReport) -> None:
-    for path in sorted(SKILLS_DIR.glob("*/SKILL.md")):
+    for path in installable_paths("*/SKILL.md", SKILLS_DIR):
         parsed = split_frontmatter(path, report)
         if not parsed:
             continue
@@ -364,23 +484,33 @@ def validate_skills(report: ValidationReport) -> None:
                     "between alphanumeric groups",
                 )
         description = metadata.get("description")
-        if isinstance(description, str) and not 10 <= len(description) <= 1024:
-            report.error(path, "`description` must be 10-1024 characters long")
+        if isinstance(description, str) and not 1 <= len(description) <= 1024:
+            report.error(path, "`description` must be 1-1024 characters long")
         if not body:
             report.error(path, "empty skill body")
+        line_count = len(path.read_text(encoding="utf-8").splitlines())
+        if line_count > MAX_SKILL_BODY_LINES:
+            report.warn(
+                path,
+                f"SKILL.md is {line_count} lines; keep SKILL.md under {MAX_SKILL_BODY_LINES} "
+                "lines and move bulk content to resources",
+            )
 
 
 def validate_instructions(tracked_files: list[str], report: ValidationReport) -> None:
-    for path in sorted(INSTRUCTIONS_DIR.glob("*.instructions.md")):
+    for path in installable_paths("*.instructions.md", INSTRUCTIONS_DIR):
         parsed = split_frontmatter(path, report)
         if not parsed:
             continue
         metadata, _ = parsed
         warn_unknown_fields(path, metadata, VALID_INSTRUCTION_FIELDS, report)
-        require_string(path, metadata, "description", report)
         apply_to = metadata.get("applyTo")
         if not isinstance(apply_to, str) or not apply_to.strip():
-            report.error(path, "missing or empty `applyTo`")
+            report.warn(
+                path,
+                "missing or empty `applyTo`; optional by spec, but repo convention expects it "
+                "so instructions auto-apply",
+            )
         elif apply_to.strip() in {"**", "**/*"}:
             report.error(path, "`applyTo` is too broad")
         else:
@@ -428,18 +558,19 @@ def main() -> int:
     report = ValidationReport()
     agent_names = collect_agent_names(report)
     skill_names = collect_skill_names()
+    mcp_server_keys = collect_mcp_server_keys(report)
     tracked_files = git_tracked_files(report)
-    validate_agents(agent_names, skill_names, report)
+    validate_agents(agent_names, skill_names, mcp_server_keys, report)
     validate_prompts(agent_names, report)
     validate_skills(report)
     validate_instructions(tracked_files, report)
     validate_issue_template_labels(agent_names, report, args.strict)
 
     print("Validated customization primitives:")
-    print(f"  Agents: {len(list(AGENTS_DIR.glob('*.agent.md')))}")
-    print(f"  Prompts: {len(list(PROMPTS_DIR.glob('*.prompt.md')))}")
-    print(f"  Skills: {len(list(SKILLS_DIR.glob('*/SKILL.md')))}")
-    print(f"  Instructions: {len(list(INSTRUCTIONS_DIR.glob('*.instructions.md')))}")
+    print(f"  Agents: {len(installable_paths('*.agent.md', AGENTS_DIR))}")
+    print(f"  Prompts: {len(installable_paths('*.prompt.md', PROMPTS_DIR))}")
+    print(f"  Skills: {len(installable_paths('*/SKILL.md', SKILLS_DIR))}")
+    print(f"  Instructions: {len(installable_paths('*.instructions.md', INSTRUCTIONS_DIR))}")
     report.print()
 
     if report.errors:

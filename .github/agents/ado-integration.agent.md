@@ -2,10 +2,11 @@
 name: ado-integration
 description: "Use this agent when a user asks to configure Azure DevOps PATs, repository discovery, pipelines, boards, service connections, or Copilot Standalone guidance for Open Horizons. Azure DevOps integration specialist — configures ADO PAT, repository discovery, pipeline creation, boards integration, and Copilot Standalone licensing for developer portals. USE FOR: configure ADO, Azure DevOps PAT, ADO pipelines, ADO boards, ADO repository discovery, Copilot Standalone licensing, ADO integration. DO NOT USE FOR: GitHub integration (use @github-integration), Terraform infrastructure (use @terraform), Backstage deployment (use @backstage-expert)."
 tools:
-  - search
+  - view
+  - grep
+  - glob
   - edit
-  - execute
-  - read
+  - bash
 user-invocable: true
 handoffs:
   - label: "Backstage Config"

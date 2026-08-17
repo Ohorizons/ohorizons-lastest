@@ -2,10 +2,11 @@
 name: security
 description: "Use this agent when a user asks for Open Horizons security review, compliance validation, secrets analysis, RBAC review, or vulnerability assessment. Security compliance specialist — audits deployment, code, and infrastructure for OWASP Top 10, CIS benchmarks, Zero Trust, RBAC, and vulnerability scanning. USE FOR: security review, OWASP scan, vulnerability assessment, RBAC audit, secrets detection, compliance check, Zero Trust validation. DO NOT USE FOR: deployment orchestration (use @deploy), Terraform authoring (use @terraform), post-deploy reliability checks (use @sre)."
 tools:
-  - search
+  - view
+  - grep
+  - glob
   - edit
-  - execute
-  - read
+  - bash
 user-invocable: true
 handoffs:
   - label: "Deploy Remediation"
