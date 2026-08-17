@@ -2,9 +2,9 @@
 description: "{{WHAT_THIS_AGENT_DOES}} Use when {{WHEN_TO_SELECT_THIS_AGENT}}."
 tools:
   - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - search    # Official/VS Code search alias; pair with grep + glob for CLI coverage
+  - grep      # Official compatible alias of search; local CLI native
+  - glob      # Official compatible alias of search; local CLI native
 ---
 
 # {{AGENT_DISPLAY_NAME}}
@@ -16,15 +16,12 @@ Delete this section after configuring the agent.
 1. Replace every `{{UPPER_SNAKE_CASE}}` placeholder and remove optional sections that do not apply.
 2. Keep `name` omitted unless the display name must differ from the `.agent.md` filename. Do not add `model` unless a fixed model is an intentional deployment requirement.
 3. Choose capabilities explicitly:
-   - **Consultative/read-only:** keep `tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code` and retain the read-only write policy below.
+   - **Consultative/read-only:** keep the default union of `read`, `search`, `grep`, and `glob` and retain the read-only write policy below.
    - **Editing:** add `edit` and define exact writable and protected paths below.
    - **Command execution:** add `execute` only when shell commands are necessary.
-   - **Delegation or web access:** add `agent`, `web_fetch`, or `web_search` only when the procedure requires them.
-4. Use only valid CLI tool tokens. In particular, do not substitute the no-op tokens `search` or `web` for the explicit tools above.
+   - **Delegation:** add `agent` only when the procedure requires subagents.
+   - **Web access:** add `web` plus `web_fetch` and/or `web_search` so VS Code and CLI both keep web capability.
+4. Author dual-surface agents with the union of VS Code and CLI tokens. `search` is the official/VS Code search alias, while `grep` and `glob` preserve search in the locally observed CLI behavior.
 
 ## Mission
 

@@ -2,12 +2,12 @@
 name: security
 description: "Use this agent when a user asks for Open Horizons security review, compliance validation, secrets analysis, RBAC review, or vulnerability assessment. Security compliance specialist — audits deployment, code, and infrastructure for OWASP Top 10, CIS benchmarks, Zero Trust, RBAC, and vulnerability scanning. USE FOR: security review, OWASP scan, vulnerability assessment, RBAC audit, secrets detection, compliance check, Zero Trust validation. DO NOT USE FOR: deployment orchestration (use @deploy), Terraform authoring (use @terraform), post-deploy reliability checks (use @sre)."
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # official alias (Read, NotebookRead); VS Code tool set
+  - search    # official alias; grep + glob below are its documented compatible aliases
+  - edit      # official alias (Edit, MultiEdit, Write); VS Code tool set
+  - execute   # official alias (shell, Bash, powershell); VS Code tool set
+  - grep      # compatible alias of search; kept for CLI parity
+  - glob      # compatible alias of search; kept for CLI parity
 user-invocable: true
 handoffs:
   - label: "Deploy Remediation"

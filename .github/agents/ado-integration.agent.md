@@ -2,12 +2,12 @@
 name: ado-integration
 description: "Use this agent when a user asks to configure Azure DevOps PATs, repository discovery, pipelines, boards, service connections, or Copilot Standalone guidance for Open Horizons. Azure DevOps integration specialist — configures ADO PAT, repository discovery, pipeline creation, boards integration, and Copilot Standalone licensing for developer portals. USE FOR: configure ADO, Azure DevOps PAT, ADO pipelines, ADO boards, ADO repository discovery, Copilot Standalone licensing, ADO integration. DO NOT USE FOR: GitHub integration (use @github-integration), Terraform infrastructure (use @terraform), Backstage deployment (use @backstage-expert)."
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # official alias (Read, NotebookRead); VS Code tool set
+  - search    # official alias; grep + glob below are its documented compatible aliases
+  - edit      # official alias (Edit, MultiEdit, Write); VS Code tool set
+  - execute   # official alias (shell, Bash, powershell); VS Code tool set
+  - grep      # compatible alias of search; kept for CLI parity
+  - glob      # compatible alias of search; kept for CLI parity
 user-invocable: true
 handoffs:
   - label: "Backstage Config"

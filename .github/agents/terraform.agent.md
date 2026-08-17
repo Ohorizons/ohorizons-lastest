@@ -2,12 +2,12 @@
 name: terraform
 description: "Use this agent when a user asks to write, refactor, validate, or explain Open Horizons Azure Terraform. Azure Infrastructure as Code specialist using Terraform — writes modules, validates plans, manages state, and follows AVM patterns. USE FOR: write Terraform module, terraform plan, create AKS module, Terraform state management, AVM module, Terraform validation. DO NOT USE FOR: deployment orchestration or apply execution (use @deploy), security review (use @security), post-deploy verification (use @sre)."
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # official alias (Read, NotebookRead); VS Code tool set
+  - search    # official alias; grep + glob below are its documented compatible aliases
+  - edit      # official alias (Edit, MultiEdit, Write); VS Code tool set
+  - execute   # official alias (shell, Bash, powershell); VS Code tool set
+  - grep      # compatible alias of search; kept for CLI parity
+  - glob      # compatible alias of search; kept for CLI parity
   - terraform/*
 user-invocable: true
 handoffs:

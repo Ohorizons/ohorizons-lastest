@@ -79,24 +79,59 @@ errors, which is precisely why they are dangerous: a misspelled tool list degrad
 ### 1.3 `tools:` vocabulary
 
 `tools:` is an **allow-list filter**, not an additive grant. Omitting it gives the agent the full tool set;
-declaring it restricts the agent to the listed tokens. **Unrecognized or unavailable tokens are silently
-ignored** by both surfaces, so a misspelled or single-surface-only tool list can remove capability without
-an error.
+declaring it restricts the agent to the listed tokens. **Unrecognized or unavailable tokens are ignored** by
+design so product-specific tools can be listed in a shared agent profile without breaking another surface.
+That compatibility behavior is useful, but it also means a wrong or incomplete tool list can remove capability
+without an error.
 
-This section is intentionally surface-aware because `.github/agents/*.agent.md` is read by both VS Code
-Copilot and GitHub Copilot CLI. CLI findings below are **measured against CLI 1.0.81-0**. VS Code findings
-are documented at <https://code.visualstudio.com/docs/agent-customization/custom-agents> and
-<https://code.visualstudio.com/docs/agent-customization/tool-sets>. VS Code documents predefined tool sets
-such as `read`, `search`, `edit`, `execute`, `web`, and `agent`; namespaced tool IDs such as
-`search/codebase`, `search/usages`, `search/changes`, `read/problems`, `read/terminalLastCommand`, and
-`web/fetch`; and the rule that unavailable tools in a custom agent are ignored.
+This section is intentionally surface-aware because `.github/agents/*.agent.md` is read by VS Code Copilot,
+GitHub.com, and GitHub Copilot CLI. Treat the two evidence streams below separately:
 
-Every row below was measured against CLI 1.0.81-0 by declaring a single token and dumping the resulting
-tool schema; the validation evidence is summarized in this section because this repository does not ship a separate HARNESS-VALIDATION.md file.
+- **Official documentation:** GitHub's custom agents configuration reference states that its YAML frontmatter
+  applies to agent profiles in GitHub.com, the Copilot CLI, and supported IDEs. It documents tool aliases
+  `read`, `search`, `edit`, `execute`, `agent`, `web`, and `todo`, says aliases are case-insensitive, and says
+  all unrecognized tool names are ignored. Source:
+  <https://docs.github.com/en/copilot/reference/custom-agents-configuration>.
+- **VS Code documentation:** VS Code documents predefined tool sets such as `read`, `search`, `edit`,
+  `execute`, `web`, and `agent`, plus namespaced tool IDs such as `search/codebase`, `search/usages`,
+  `search/changes`, `read/problems`, `read/terminalLastCommand`, and `web/fetch`. Sources:
+  <https://code.visualstudio.com/docs/agent-customization/custom-agents> and
+  <https://code.visualstudio.com/docs/agent-customization/tool-sets>.
+- **Local CLI observation:** a local probe against Copilot CLI 1.0.81-0 reported that `search`, `web`, and
+  `todo` granted no additional local tools, while `grep`, `glob`, `web_fetch`, and `web_search` did. A probe
+  of the local bundle did not locate the official alias table strings, so the discrepancy is unresolved; the
+  alias layer may live server-side or in a component not inspected.
+
+Do not read the local observation as a settled claim that `search` or `web` are invalid. The official
+cross-surface alias table says they are valid primary aliases; the local bundle measurement says they did not
+expand in that one local CLI probe.
+
+#### Official alias vocabulary
+
+The GitHub reference documents this alias vocabulary for custom agents:
+
+| Primary alias | Compatible aliases | Documented mapping or scope | Purpose |
+| --- | --- | --- | --- |
+| `execute` | `shell`, `Bash`, `powershell` | Shell tools: `bash` or `powershell` | Execute a command in the appropriate shell. |
+| `read` | `Read`, `NotebookRead` | `view` | Read file contents. |
+| `edit` | `Edit`, `MultiEdit`, `Write`, `NotebookEdit` | Edit tools such as `str_replace`, `str_replace_editor` | Allow file edits. |
+| `search` | `Grep`, `Glob` | `search` | Search for files or text in files. |
+| `agent` | `custom-agent`, `Task` | Custom agent tools | Invoke another custom agent. |
+| `web` | `WebSearch`, `WebFetch` | Not currently applicable for cloud agent | Fetch URLs and perform web search. |
+| `todo` | `TodoWrite` | Not currently applicable for cloud agent; supported by VS Code | Structured task lists. |
+
+`Grep` and `Glob` are therefore documented compatible aliases of `search`; using `grep` and `glob` for CLI
+coverage is not an off-spec workaround.
+
+#### Local CLI 1.0.81-0 observation
+
+Every row below was measured locally against CLI 1.0.81-0 by declaring a single token and dumping the
+resulting tool schema. Because this conflicts with the official alias table for `search`, `web`, and `todo`,
+treat it as a local observation until the alias-layer implementation is located.
 
 **Always-on floor** (present even when every token is invalid): `skill`, `sql`.
 
-| Token | Net tools granted beyond the floor |
+| Token | Net tools granted beyond the floor in local CLI probe |
 | --- | --- |
 | `*` | everything (22 beyond floor) — equivalent to omitting `tools:` |
 | `read` / `view` | `view` |
@@ -112,71 +147,84 @@ tool schema; the validation evidence is summarized in this section because this 
 | `fetch_copilot_cli_documentation` | `fetch_copilot_cli_documentation` |
 | `write_agent`, `read_agent`, `list_agents`, `read_bash`, `stop_bash`, `list_bash` | the same-named tool |
 
-#### Portability matrix
-
-| Capability | VS Code token | Copilot CLI token | Portable single token? |
-| --- | --- | --- | --- |
-| Read files | `read` | `read` -> `view` | yes |
-| Search code | `search` | `grep`, `glob` | **no — list both** |
-| Edit files | `edit` | `edit` -> `create` + `edit` | yes |
-| Run commands | `execute` | `execute` -> `bash` family | yes |
-| Delegate to subagents | `agent` | `agent` -> `task` family | yes |
-| Fetch web page | `web` | `web_fetch` | **no — list both** |
-| Web search | `web` | `web_search` | **no — list both** |
-
-#### Surface-specific tokens
-
-**VS Code-valid but CLI no-op.** These are legitimate VS Code tokens or tool IDs documented by VS Code, but
-CLI 1.0.81-0 grants no capability for them unless a CLI-native companion is also present:
-
-- Tool sets: `search`, `web`.
-- Namespaced VS Code tool IDs: `search/codebase`, `search/usages`, `search/changes`, `read/problems`,
-  `read/terminalLastCommand`, `web/fetch`, and other VS Code or extension IDs selected from the VS Code
-  Configure Tools picker.
-
-**CLI-measured no-op and not documented as VS Code predefined tool sets in the cited docs.** Treat these as
-invalid for Open Horizons unless a future VS Code extension or workspace tool-set file explicitly defines them:
-`todo`, `all`, `terminal`, `run`, `codebase`, `changes`, `fetch`, `githubRepo`.
-`sql` and `skill` are also no-ops as `tools:` tokens, but harmlessly so: they are already in the CLI floor.
-
-MCP / namespaced CLI tools use `server/tool` or `server/*`, matching BUNDLE regex
-`^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$` — for example `github-mcp-server/search_code`.
-
 GitHub's own CLI 1.0.81-0 built-in agent definitions also use these direct tokens:
 `context_board`, `lsp`, `powershell`, `read_powershell`, `stop_powershell`, in addition to the table above.
 They are BUNDLE-confirmed tokens, but their concrete availability depends on the host surface.
 
+#### Portability matrix
+
+| Capability | VS Code / official alias token | Local CLI companion token | Portable single token? |
+| --- | --- | --- | --- |
+| Read files | `read` | `read` -> `view` | yes |
+| Search code | `search` | `grep`, `glob` | **uncertain — list both** |
+| Edit files | `edit` | `edit` -> `create` + `edit` | yes |
+| Run commands | `execute` | `execute` -> `bash` family | yes |
+| Delegate to subagents | `agent` | `agent` -> `task` family | yes |
+| Fetch web page | `web` | `web_fetch` | **uncertain — list both** |
+| Web search | `web` | `web_search` | **uncertain — list both** |
+| Structured task lists | `todo` | CLI floor includes `sql`; local probe found no extra `todo` tool | surface-specific |
+
+#### Surface-specific and namespaced tools
+
+VS Code-valid tool IDs such as `search/codebase`, `search/usages`, `search/changes`, `read/problems`,
+`read/terminalLastCommand`, `web/fetch`, and extension-provided `namespace/tool` IDs are legitimate to author.
+They may be ignored by CLI unless that CLI surface has a matching MCP or product tool, so pair them with
+portable aliases or CLI-native companions when a capability must work everywhere.
+
+MCP / namespaced CLI tools use `server/tool` or `server/*`, matching BUNDLE regex
+`^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$` — for example `github-mcp-server/search_code`.
+
+The remaining tokens previously seen in examples — `all`, `terminal`, `run`, `codebase`, `changes`, `fetch`,
+`githubRepo` — are not in the official GitHub alias table, the cited VS Code predefined tool-set list, or the
+local CLI-native token list. Prefer documented aliases instead. If a future VS Code extension, workspace tool
+set, or MCP server defines one of these names, it can be used deliberately; otherwise the name will be ignored
+by design. Validators should warn on these unknown tokens rather than treating them as hard schema errors.
+
+`sql` and `skill` are also no-ops as `tools:` tokens in the local CLI probe, but harmlessly so: they are already
+in the CLI floor.
+
 #### Repository authoring rule
 
-For dual-surface repository agents, author the **union** of VS Code and CLI vocabularies whenever a capability
-has no portable single token. A portable read-only search agent should use this pattern:
+For dual-surface repository agents, author the **union** of VS Code / official aliases and CLI-observed native
+companions whenever a capability has unresolved or surface-specific behavior. Use this pattern and remove
+capabilities the agent does not need:
 
 ```yaml
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash family
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # VS Code and official alias; local CLI alias -> view
+  - search    # Official/VS Code search alias; local CLI observation was unresolved
+  - edit      # VS Code and official alias; local CLI alias -> create, edit
+  - execute   # VS Code and official alias; local CLI alias -> bash family
+  - grep      # Official compatible alias of search; local CLI native search tool
+  - glob      # Official compatible alias of search; local CLI native search tool
 ```
 
 Add `web` plus `web_fetch` and/or `web_search` together when a dual-surface agent needs web access.
 
-> **Danger:** removing `search` silently breaks search in VS Code; removing `grep`/`glob` silently breaks
-> search in the CLI. Removing `web` silently breaks VS Code web tools; removing `web_fetch`/`web_search`
-> silently breaks CLI web tools. Neither surface reports an error — capability just disappears. This is the
-> harness's most dangerous silent failure mode.
+This union form is correct under both hypotheses:
 
-Rule `AG017` must therefore be companion-aware, not a flat ban: `search` is an error only when neither
-`grep` nor `glob` is present, and `web` is an error only when neither `web_fetch` nor `web_search` is present.
-VS Code namespaced tool IDs such as `search/codebase` are allowed when intentionally paired with CLI-native
-companions for dual-surface agents.
+- If the official alias layer works in the CLI, `search` provides search and `grep`/`glob` are redundant but
+  harmless documented compatible aliases.
+- If the local observation reflects the active CLI behavior, `grep`/`glob` provide search and `search` is
+  harmlessly ignored.
+- VS Code consumes `read`, `search`, `edit`, `execute`, `web`, and `agent` as tool sets or aliases.
+- Either way the agent keeps the intended capability on every surface, and unrecognized names are ignored by
+  explicit design.
+
+> **Danger:** removing `search` can silently break search in VS Code or any surface using the official alias
+> layer; removing `grep`/`glob` can silently break search in a CLI surface matching the local observation.
+> Removing `web` can silently break VS Code web tools; removing `web_fetch`/`web_search` can silently break CLI
+> web tools. Neither surface is required to report an error — capability can just disappear.
+
+Rule `AG017` must therefore be companion-aware, not a flat ban: `search` should warn or fail only when neither
+`grep` nor `glob` is present, and `web` only when neither `web_fetch` nor `web_search` is present. Officially
+documented tokens such as `todo` and VS Code namespaced tool IDs such as `search/codebase` must not be treated
+as junk.
 
 **Recommendation.** For a general-purpose agent, omit `tools:` entirely (or use `['*']`) so it keeps full
-capability as the CLI adds tools. Declare an explicit list only when you deliberately want to restrict the
-agent, and then list both surfaces for non-portable capabilities: `search` with `grep`/`glob`, and `web` with
-`web_fetch`/`web_search`.
+capability as each surface adds tools. Declare an explicit list only when you deliberately want to restrict the
+agent, and then list both surfaces for unresolved or non-portable capabilities: `search` with `grep`/`glob`, and
+`web` with `web_fetch`/`web_search`.
 
 ### 1.4 `model:`
 

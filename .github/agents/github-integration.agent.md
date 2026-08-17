@@ -2,12 +2,12 @@
 name: github-integration
 description: "Use this agent when a user asks to configure GitHub Apps, organization discovery, GHAS, Actions, Packages, GHCR, or GitHub-side Backstage integration for Open Horizons. GitHub platform integration specialist — configures GitHub Apps, org discovery, GHAS security, Actions CI/CD, and Packages for developer portals. USE FOR: create GitHub App, configure org discovery, enable GHAS, setup GitHub Actions, configure GitHub Packages, GitHub supply chain security. DO NOT USE FOR: Azure DevOps integration (use @ado-integration), hybrid scenarios (use @hybrid-scenarios), Backstage deployment (use @backstage-expert)."
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # official alias (Read, NotebookRead); VS Code tool set
+  - search    # official alias; grep + glob below are its documented compatible aliases
+  - edit      # official alias (Edit, MultiEdit, Write); VS Code tool set
+  - execute   # official alias (shell, Bash, powershell); VS Code tool set
+  - grep      # compatible alias of search; kept for CLI parity
+  - glob      # compatible alias of search; kept for CLI parity
 user-invocable: true
 handoffs:
   - label: "Backstage Config"

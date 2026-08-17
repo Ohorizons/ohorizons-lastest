@@ -82,20 +82,20 @@ Prompts are intentionally not in the CLI path above. In VS Code, a user can star
 
 ## Tool vocabulary: why agent `tools` lists look redundant
 
-Custom agent `tools` frontmatter is intentionally authored as the union of VS Code and Copilot CLI vocabularies. Both surfaces silently ignore tokens they do not recognize, so a list can be valid for both surfaces while looking redundant.
+The official [GitHub custom agents configuration reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration) defines case-insensitive tool aliases for agent profiles in GitHub.com, Copilot CLI, and supported IDEs. Its primary aliases are `read`, `search`, `edit`, `execute`, `agent`, `web`, and `todo`; unrecognized tool names are ignored by design so product-specific tools can coexist in one profile.
 
 | Capability | VS Code token | Copilot CLI token | Portable? |
 | --- | --- | --- | --- |
-| Read files and workspace context | `read` | `read` alias or `view` | Yes, `read` works on both surfaces. |
-| Search code | `search` | `grep`, `glob` | Use the union: `search`, `grep`, and `glob`. |
-| Edit files | `edit` | `edit` alias, plus `create` when needed | Yes, `edit` works on both surfaces for edits. |
-| Execute commands | `execute` | `execute` alias or `bash` family | Yes, `execute` works on both surfaces. |
-| Delegate to agents | `agent` | `agent` alias or `task` family | Yes, `agent` works on both surfaces. |
-| Fetch web content | `web` or `web/fetch` | `web_fetch` | Use the union: `web` and `web_fetch`. |
-| Search the web | `web` | `web_search` | Use the union: `web` and `web_search`. |
+| Read files and workspace context | `read` | `read` | Yes. |
+| Search files or text | `search` | `search`, with compatible aliases `Grep` and `Glob` | Yes; this repo also lists `grep` and `glob` as defence-in-depth. |
+| Edit files | `edit` | `edit` | Yes. |
+| Execute commands | `execute` | `execute` | Yes. |
+| Delegate to agents | `agent` | `agent` | Yes. |
+| Fetch web content | `web` | `web`, with compatible alias `WebFetch` | Yes; this repo may also list `web_fetch` for measured CLI compatibility. |
+| Search the web | `web` | `web`, with compatible alias `WebSearch` | Yes; this repo may also list `web_search` for measured CLI compatibility. |
 
 > [!WARNING]
-> Removing `search` breaks VS Code search capability. Removing `grep` or `glob` breaks Copilot CLI search capability. Neither surface reports this as an error; capability silently disappears. This is the most dangerous failure mode in this harness.
+> Tool tokens fail silently: a wrong or unsupported name removes capability with no error on any surface. This is the most dangerous failure mode in this harness, so this repository pins a union of documented aliases and measured CLI-native companions.
 
 The common portable pattern for read, search, edit, and execute agents is:
 
@@ -109,11 +109,11 @@ tools:
   - glob
 ```
 
-VS Code consumes `read`, `search`, `edit`, and `execute`. Copilot CLI consumes `read`, `edit`, `execute`, `grep`, and `glob`; `search` is a CLI no-op but is covered by `grep` and `glob`.
+`Grep` and `Glob` are documented compatible aliases of `search`, so listing `grep` and `glob` is on-spec. Local measurement against Copilot CLI 1.0.81-0 suggested `search` alone might not grant search capability; the union makes the agent correct under both the official alias contract and the measured local runtime. Because unrecognized names are ignored by explicit design, the union cannot create a runtime error.
 
 Do not copy VS Code prompt tool IDs such as `search/codebase`, `search/usages`, `read/problems`, `read/terminalLastCommand`, `web/fetch`, or `vscode/askQuestions` into CLI-relevant agent frontmatter. Do not copy CLI-native names such as `grep`, `glob`, `web_fetch`, or `web_search` into VS Code prompt frontmatter unless that exact tool ID exists in the VS Code tool picker. Prompts and agents use different tool vocabularies.
 
-Measured CLI behavior is documented in [Copilot harness specification section 1.3](docs/COPILOT-HARNESS-SPEC.md#13-tools-vocabulary). The validator enforces this through rule AG017: `search` is an error only when `grep` and `glob` are absent; `web` is an error only when `web_fetch` and `web_search` are absent.
+Measured CLI behavior is documented in [Copilot harness specification section 1.3](docs/COPILOT-HARNESS-SPEC.md#13-tools-vocabulary). The validator enforces this through rule AG017: `search` is flagged only when no CLI-native companion, `grep` or `glob`, is present; `web` is flagged only when `web_fetch` and `web_search` are absent; `todo` is valid; genuinely unknown tokens are warnings; unknown MCP servers remain errors.
 
 ## Precedence and composition rules
 

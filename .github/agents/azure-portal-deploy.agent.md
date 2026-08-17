@@ -2,12 +2,12 @@
 name: azure-portal-deploy
 description: "Use this agent when a user asks to validate Azure subscription readiness, quotas, providers, SKUs, AKS access, or live resource state for Open Horizons. Azure infrastructure validation specialist for Open Horizons deployments — validates subscription context, provider registration, quotas, region/SKU availability, Azure resource state, AKS access, Key Vault/ACR/PostgreSQL/Managed Redis/AI Foundry readiness, and Azure-side failures. USE FOR: Azure preflight, quota checks, resource provider registration, Azure resource troubleshooting, AKS credential acquisition, Azure inventory. DO NOT USE FOR: Terraform module authoring (use @terraform), full orchestration (use @deploy), Backstage configuration (use @backstage-expert)."
 tools:
-  - read      # VS Code tool set; CLI alias -> view
-  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
-  - edit      # VS Code tool set; CLI alias -> create, edit
-  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
-  - grep      # CLI native; ignored by VS Code
-  - glob      # CLI native; ignored by VS Code
+  - read      # official alias (Read, NotebookRead); VS Code tool set
+  - search    # official alias; grep + glob below are its documented compatible aliases
+  - edit      # official alias (Edit, MultiEdit, Write); VS Code tool set
+  - execute   # official alias (shell, Bash, powershell); VS Code tool set
+  - grep      # compatible alias of search; kept for CLI parity
+  - glob      # compatible alias of search; kept for CLI parity
   - azure/*
 user-invocable: true
 handoffs:
