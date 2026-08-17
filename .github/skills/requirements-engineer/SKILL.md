@@ -1,6 +1,6 @@
 ---
 name: requirements-engineer
-description: 'Use when eliciting, analyzing, complementing, or validating functional and non-functional requirements before SDD initialization. Produces FRD and NFRD artifacts, gap analysis, assumptions, priorities, measurable acceptance signals, and a Specky handoff block. DO NOT USE FOR: code, implementation, or CONSTITUTION.md generation, which belongs to sdd_init or sdd-spec-engineer. Triggers include "write requirements", "create an FRD", "create an NFRD", "validate these requirements", and "prepare input for sdd_init".'
+description: 'Use when eliciting, analyzing, complementing, or validating functional and non-functional requirements before SDD initialization. Produces FRD and NFRD artifacts, gap analysis, assumptions, priorities, measurable acceptance signals, and a Specky handoff block. DO NOT USE FOR: code, implementation, or `golden-paths/common/templates/CONSTITUTION.md` generation, which belongs to sdd_init or sdd-spec-engineer. Triggers include "write requirements", "create an FRD", "create an NFRD", "validate these requirements", and "prepare input for sdd_init".'
 ---
 
 # Requirements Engineer
@@ -18,14 +18,14 @@ Use this skill to turn raw product input into production-grade Functional Requir
 - "Find gaps in this product brief."
 - "Prepare Specky input from this epic."
 
-## Prerequisites
+## Prerequisites and context
 
 - Raw notes, problem statement, PRD, user story, or stakeholder description is available.
 - The project type can be identified as greenfield, brownfield, modernization, legacy migration, API, mobile, data platform, SaaS, internal tool, CLI, or infrastructure.
 - Critical scope boundaries, user roles, and primary user actions are known or can be asked as at most three questions.
 - The output path is known if files are to be created.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Classify project type
 
@@ -75,7 +75,7 @@ Include measurable targets for performance, security, availability, testability,
 
 ### Step 6: Produce Specky handoff
 
-Use the existing SDD templates in `golden-paths/common/templates/` as downstream context. Do not generate `CONSTITUTION.md`; hand off to `sdd-spec-engineer` or `sdd_init`.
+Use the existing SDD templates in `golden-paths/common/templates/` as downstream context. Do not generate `golden-paths/common/templates/CONSTITUTION.md`; hand off to `sdd-spec-engineer` or `sdd_init`.
 
 ```text
 Requirements action: <create|update>
@@ -87,7 +87,13 @@ Proceed with writing requirements artifacts? (y/n)
 > [!IMPORTANT]
 > Only create or update FRD/NFRD files after an explicit affirmative response when the user has not already requested file creation. On a negative, ambiguous, or missing response, do not write files; output the artifact drafts and stop.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: code, implementation, or `golden-paths/common/templates/CONSTITUTION.md` generation, which belongs to sdd_init or sdd-spec-engineer.
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -98,6 +104,8 @@ Proceed with writing requirements artifacts? (y/n)
 | Acceptance signal is vague | Rewrite with observable pass/fail criteria. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Requirements Delivery Report
@@ -131,4 +139,9 @@ Open questions: <questions>
 - [ ] Every FR uses `must` and has priority plus acceptance signal.
 - [ ] NFRs are measurable and include deployment context.
 - [ ] Assumptions are documented with consequences.
-- [ ] Specky handoff is present and does not create `CONSTITUTION.md`.
+- [ ] Specky handoff is present and does not create `golden-paths/common/templates/CONSTITUTION.md`.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

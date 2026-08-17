@@ -16,14 +16,14 @@ This workflow maps an agent use case to Azure AI Foundry Agent Service primitive
 - "Plan threads, memory, evaluation, and tracing for a Foundry agent."
 - "Choose Foundry connections for Azure AI Search and Redis."
 
-## Prerequisites
+## Prerequisites and context
 - Agent goal, users, tools, data sources, and safety requirements are known.
 - Target Azure AI Foundry project or environment is identified.
 - Model candidates and regional constraints are available or can be verified.
 - Related repository paths exist: `foundry/agents-service/`, `foundry/k8s/`, and `terraform/modules/ai-foundry/`.
 - User approval is available before creating blueprint artifacts or provisioning follow-ups.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm agent blueprint scope
 ```text
@@ -78,7 +78,13 @@ Proceed with creating or updating blueprint artifacts? (y/n)
 | Medium | Missing cache policy, unclear thread retention, or incomplete tool schemas. |
 | Low | Naming, documentation, or handoff gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: general agent architecture trade-off analysis (use agentic-architecture-patterns), Redis cache design (use azure-managed-redis-cache), or hands-on Azure provisioning (use ai-foundry-operations).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Foundry capability is unclear | Verify current Microsoft Learn docs and state uncertainty. |
@@ -87,6 +93,8 @@ Proceed with creating or updating blueprint artifacts? (y/n)
 | Provisioning is requested | Produce the blueprint and route execution to `ai-foundry-operations`. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Foundry Agent Blueprint
 
@@ -118,3 +126,8 @@ Proceed with creating or updating blueprint artifacts? (y/n)
 - [ ] Current Foundry capability and quota assumptions are sourced or labeled as assumptions.
 - [ ] High-risk tools and data boundaries have mitigations.
 - [ ] Provisioning execution is routed to the operations skill.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

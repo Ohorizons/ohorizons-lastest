@@ -5,7 +5,22 @@ description: "Use when editing Dockerfiles for Backstage, FastAPI agent services
 
 # Dockerfile Conventions — Backstage, Agent APIs, and MCP Images
 
-This file activates when you edit any repository `Dockerfile`, including Backstage backend, FastAPI agent APIs, Foundry gateway, MCP servers, and Golden Path skeletons. It teaches how to build secure, reproducible containers that match Open Horizons runtime expectations. It does **not** cover local service wiring, which belongs to [Docker Compose standards](docker-compose.instructions.md), Kubernetes deployment controls, which belong to [Kubernetes standards](kubernetes.instructions.md), TypeScript package code, which belongs to [TypeScript standards](typescript.instructions.md), Python API code, which belongs to [Python standards](python.instructions.md), or build scripts, which belong to [Shell script standards](shell.instructions.md).
+This file activates when you edit any repository `Dockerfile`, including Backstage backend, FastAPI agent APIs, Foundry gateway, MCP servers, and Golden Path skeletons. It teaches how to build secure, reproducible containers that match Open Horizons runtime expectations. It does **not** cover local service wiring, which belongs to the `docker-compose` instructions, Kubernetes deployment controls, which belong to the `kubernetes` instructions, TypeScript package code, which belongs to the `typescript` instructions, Python API code, which belongs to the `python` instructions, or build scripts, which belong to the `shell` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/Dockerfile"` for existing local patterns.
+2. This `dockerfile` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for dockerfile conventions — backstage, agent apis, and mcp images. Use the `deploy-orchestration` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!NOTE]
 > The Backstage backend Dockerfile is executed with `backstage/` as the build context after `yarn install --immutable`, `yarn tsc`, and `yarn build:backend`.
@@ -80,7 +95,7 @@ COPY . .
 
 ## Runtime Contract
 
-Document ports with `EXPOSE`, use exec-form `CMD`, and align health endpoints with [Kubernetes standards](kubernetes.instructions.md) and [Docker Compose standards](docker-compose.instructions.md).
+Document ports with `EXPOSE`, use exec-form `CMD`, and align health endpoints with the `kubernetes` instructions and the `docker-compose` instructions.
 
 ```dockerfile
 # Wrong: shell form obscures signals and argument boundaries.
@@ -92,7 +107,7 @@ EXPOSE 8008
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -112,7 +127,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
 | Keep Backstage image creation aligned with `yarn build:backend` outputs | Rebuild the whole monorepo inside unrelated service images. |
 | Document exposed ports | Depend on implicit runtime ports. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Base image tags are explicit and compatible with repository runtime versions.
 - [ ] Runtime user is non-root and copied files have appropriate ownership.

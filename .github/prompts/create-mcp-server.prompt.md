@@ -2,7 +2,6 @@
 name: "create-mcp-server"
 description: "Create or extend the repository-native MCP ecosystem server with typed tools, validation, documentation, and client registration guidance."
 argument-hint: "server_name=my-mcp-server language=TypeScript transport=HTTP tools_description='describe the tools'"
-tools: ["read", "search", "edit", "execute", "web", "mcp-ecosystem/*"]
 ---
 
 # /create-mcp-server
@@ -41,6 +40,8 @@ Invoke this when the team needs a new MCP tool module, resource surface, or serv
 - I will not edit agents, skills, instructions, workflows, or docs outside the prompt-requested MCP implementation scope.
 
 ## Output Format
+Approved workspace edit. Modify only files required by the prompt scope, then return a chat summary with changed paths and validation evidence.
+
 Return the scaffold or change summary in this shape:
 
 ````markdown

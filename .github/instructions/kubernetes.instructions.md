@@ -5,7 +5,22 @@ description: "Use when editing Kubernetes, Helm, Kustomize, ArgoCD, and AKS depl
 
 # Kubernetes Conventions — AKS Manifests, Helm Values, and ArgoCD Apps
 
-This file activates when you edit manifests under `backstage/k8s/`, `deploy/`, `argocd/`, `kubernetes/`, `k8s/`, or `helm/`. It teaches Open Horizons conventions for AKS workloads, ArgoCD applications, Helm values, labels, probes, resources, security contexts, service accounts, RBAC, and network policies. It does **not** cover Azure infrastructure provisioning, which belongs to [Terraform standards](terraform.instructions.md), image construction, which belongs to [Dockerfile standards](dockerfile.instructions.md), local-only Compose services, which belong to [Docker Compose standards](docker-compose.instructions.md), shell manifest rendering scripts, which belong to [Shell script standards](shell.instructions.md), or application code, which belongs to [Python standards](python.instructions.md) and [TypeScript standards](typescript.instructions.md).
+This file activates when you edit manifests under `backstage/k8s/`, `deploy/`, `argocd/`, `kubernetes/`, `k8s/`, or `helm/`. It teaches Open Horizons conventions for AKS workloads, ArgoCD applications, Helm values, labels, probes, resources, security contexts, service accounts, RBAC, and network policies. It does **not** cover Azure infrastructure provisioning, which belongs to the `terraform` instructions, image construction, which belongs to the `dockerfile` instructions, local-only Compose services, which belong to the `docker-compose` instructions, shell manifest rendering scripts, which belong to the `shell` instructions, or application code, which belongs to the `python` instructions and the `typescript` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "deploy/**/*.yaml,argocd/**/*.yaml,backstage/k8s/*.yaml,backstage/k8s/templates/*.yaml.tmpl,**/kubernetes/**,**/k8s/**,**/helm/**"` for existing local patterns.
+2. This `kubernetes` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for kubernetes conventions — aks manifests, helm values, and argocd apps. Use the `kubectl-cli` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > Kubernetes manifests are the production runtime contract for Open Horizons on AKS. Keep security, resources, identity, probes, and labels explicit.
@@ -160,7 +175,7 @@ destination:
   namespace: ai-services
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -181,7 +196,7 @@ destination:
 | Put operational differences in overlays or Helm values | Fork upstream charts unnecessarily. |
 | Validate rendered templates with repository scripts | Edit generated manifests and forget the template. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Every workload has labels, requests, limits, probes, and a non-root security context.
 - [ ] Images are pinned to approved tags or template variables, never `latest`.

@@ -3,7 +3,7 @@ name: "architecture-review"
 description: "Review plan.md against the Azure Well-Architected pillars and produce prioritized, cited findings."
 argument-hint: "feature=NNN-feature-name"
 agent: "enterprise-architect"
-tools: ["read", "search"]
+tools: ["view", "grep", "glob"]
 ---
 # /architecture-review
 

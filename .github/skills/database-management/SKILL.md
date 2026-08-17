@@ -16,14 +16,14 @@ This workflow performs safe database health, connectivity, backup, restore, and 
 - "Test whether the application can connect to the database."
 - "Review database migration readiness before deployment."
 
-## Prerequisites
+## Prerequisites and context
 - Azure CLI authenticated for Azure PostgreSQL metadata.
 - `psql` installed for direct PostgreSQL checks.
 - Database host, database name, and approved credentials available.
 - Network path available from the execution environment.
 - Explicit approval before restore, migration, schema mutation, or data-changing SQL.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Identify database scope
 ```bash
@@ -80,7 +80,13 @@ Proceed with the database mutation? (y/n)
 | Medium | Slow queries, large tables without maintenance plan, or missing monitoring alerts. |
 | Low | Documentation, naming, or routine maintenance gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Azure infrastructure provisioning (use azure-cli), Terraform IaC (use terraform-cli), or full platform deployment (use deploy-orchestration).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Connection fails | Check DNS, firewall/private endpoint, SSL mode, username, and secret source. |
@@ -89,6 +95,8 @@ Proceed with the database mutation? (y/n)
 | Query may expose data | Replace it with aggregate or metadata-only SQL. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Database Health Report
 
@@ -116,3 +124,8 @@ Proceed with the database mutation? (y/n)
 - [ ] Secrets and row-level sensitive data are not printed.
 - [ ] Backup, connectivity, SSL, and access posture are reported.
 - [ ] Mutating operations include a rollback or restore plan.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

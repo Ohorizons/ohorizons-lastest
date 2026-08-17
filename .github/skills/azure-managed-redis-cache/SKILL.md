@@ -16,14 +16,14 @@ This workflow turns an agent cache or memory requirement into an Azure Managed R
 - "Add session state for agent runs using Redis."
 - "Choose the Redis SKU for cache, memory, and tenant isolation."
 
-## Prerequisites
+## Prerequisites and context
 - Cache or memory role is known: key-value cache, semantic cache, vector memory, or session store.
 - Target region, environment, network posture, and data sensitivity are known.
 - Azure CLI is authenticated if deploying.
 - Bicep file exists at `.github/skills/azure-managed-redis-cache/scripts/redis-managed.bicep`.
 - Reference files exist under `.github/skills/azure-managed-redis-cache/references/`.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Classify the Redis role
 | Need | Redis role | Reference |
@@ -79,7 +79,13 @@ az deployment group create \
 | Medium | Missing private DNS, unclear vector schema, or no cache observability. |
 | Low | Naming, tagging, or documentation gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: general agent architecture (use agentic-architecture-patterns), Foundry agent runtime design (use foundry-agent-blueprint), or general Azure infrastructure (use azure-infrastructure).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | SKU is unavailable | Verify current regional SKU availability and choose an approved alternative. |
@@ -88,6 +94,8 @@ az deployment group create \
 | Public access is required temporarily | Add an expiration, network restriction, and risk note. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Azure Managed Redis Design
 
@@ -120,3 +128,8 @@ az deployment group create --resource-group <resource-group> --template-file .gi
 - [ ] Paid deployment or SKU changes have explicit confirmation.
 - [ ] Tenant isolation and TTL policy are defined.
 - [ ] Bicep path and all references exist in the repository.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

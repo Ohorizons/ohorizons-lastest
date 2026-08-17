@@ -16,13 +16,13 @@ This workflow turns an AI-native use case into a documented architecture decisio
 - "Choose the right model routing, memory, cache, and RAG strategy."
 - "Map this agent design to Azure AI Foundry, Redis, tools, and MCP."
 
-## Prerequisites
+## Prerequisites and context
 - A use case, users, data sensitivity, runtime target, latency goal, and cost ceiling.
 - Repository context available in `CODEMAP.md`, `backstage/server/agent-api/memory/context_store.py`, and `backstage/server/agent-api/memory/tiers.py`.
 - Reference files available in `.github/skills/agentic-architecture-patterns/references/`.
 - Current vendor documentation available for quoted limits, pricing, and model capability claims.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm design scope
 1. Identify the target runtime: Azure AI Foundry Agent Service, AKS service, GitHub Actions automation, or Backstage agent API.
@@ -80,7 +80,13 @@ Read the applicable reference files before making recommendations:
 - Use `azure-architecture-diagrams` for draw.io and SVG diagrams.
 - Use `architecture-doc` to validate Mermaid architecture documents.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: hands-on Foundry provisioning or RAG operations (use ai-foundry-operations or foundry-agent-blueprint), requirements writing (use requirements-engineer), story decomposition (use story-planning), or final diagrams (use azure-architecture-diagrams).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Scope is unclear | State assumptions, ask only for missing facts, and avoid writing files. |
@@ -89,6 +95,8 @@ Read the applicable reference files before making recommendations:
 | Recommendation overlaps another skill | Stop at the design boundary and route to the companion skill. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Agentic Architecture Decision Record
 
@@ -123,3 +131,8 @@ Read the applicable reference files before making recommendations:
 - [ ] Risks are classified with concrete mitigations.
 - [ ] No unsourced limits, prices, or benchmark claims are included.
 - [ ] Handoffs point only to valid Open Horizons skills or repository paths.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

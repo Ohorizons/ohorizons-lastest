@@ -5,7 +5,22 @@ description: "Use when editing GitHub Issue Forms for Open Horizons agent routin
 
 # Issue Form Conventions — Agent Routing and Safe Intake
 
-This file activates when you edit YAML issue forms under `.github/ISSUE_TEMPLATE/`. It teaches how Open Horizons collects structured deployment, infrastructure, security, SRE, and portal requests for Agent Router and IssueOps. It does **not** cover workflow implementation, which belongs to [GitHub Actions standards](github-actions.instructions.md), agent and prompt schemas, which belong to [Agent customization standards](agent-files.instructions.md), shell automation invoked by IssueOps, which belongs to [Shell script standards](shell.instructions.md), or Terraform and Kubernetes implementation details, which belong to [Terraform standards](terraform.instructions.md) and [Kubernetes standards](kubernetes.instructions.md).
+This file activates when you edit YAML issue forms under `.github/ISSUE_TEMPLATE/`. It teaches how Open Horizons collects structured deployment, infrastructure, security, SRE, and portal requests for Agent Router and IssueOps. It does **not** cover workflow implementation, which belongs to the `github-actions` instructions, agent and prompt schemas, which belong to the `agent-files` instructions, shell automation invoked by IssueOps, which belongs to the `shell` instructions, or Terraform and Kubernetes implementation details, which belong to the `terraform` instructions and the `kubernetes` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: ".github/ISSUE_TEMPLATE/*.yml"` for existing local patterns.
+2. This `issue-forms` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for issue form conventions — agent routing and safe intake. Use the `issue-ops` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > Issue forms are public intake surfaces in many repositories. Never ask users to paste secrets, tokens, passwords, private keys, kubeconfigs, or connection strings.
@@ -81,7 +96,7 @@ description: "List GitHub handles of approvers (required for staging/prod)"
 > [!WARNING]
 > Do not auto-trigger destructive or production operations from a form without an explicit approval, environment, and workflow label gate.
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -101,7 +116,7 @@ description: "List GitHub handles of approvers (required for staging/prod)"
 | Keep issue titles machine-scannable, such as `[DEPLOY]` | Use ambiguous titles that hide request type. |
 | Link related guides in markdown blocks when needed | Paste long operational runbooks into every form. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Labels use canonical `agent:<id>` and supported `workflow:<name>` values.
 - [ ] Required fields cover routing, environment, scope, and approval needs.

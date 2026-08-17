@@ -3,7 +3,7 @@ name: "archaeology-kickoff"
 description: "Starts Stage 1 — guides the team through the legacy folder and produces an initial inventory."
 argument-hint: "path=01-archaeology/legacy-sifap/"
 agent: "archaeologist"
-tools: ["read", "search", "edit"]
+tools: ["view", "grep", "glob", "edit"]
 ---
 # /archaeology-kickoff
 

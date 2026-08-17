@@ -18,7 +18,7 @@ Use this skill to operate the repository's IssueOps dispatcher, which maps slash
 - "Validate the IssueOps workflow before we use it."
 - "Show the output that the dispatcher will post back to the issue."
 
-## Prerequisites
+## Prerequisites and context
 
 - `.github/workflows/issue-ops.yml` exists and listens for issue comments that start with `/`.
 - `.github/skills/issue-ops/dispatcher.py` exists and contains the active `COMMAND_MAP`.
@@ -26,7 +26,7 @@ Use this skill to operate the repository's IssueOps dispatcher, which maps slash
 - `gh auth status` succeeds when inspecting issues or workflow runs.
 - The target issue and repository are known.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Identify the requested command
 
@@ -86,7 +86,13 @@ gh run view <run-id> --log-failed
 2. If the dispatcher reports `Script not found`, treat the command as safely rejected.
 3. If validation failed, hand off remediation to `validation-scripts`, `kubectl-cli`, or `pipeline-diagnostics` based on the failing command output.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: manual script execution (use validation-scripts), Backstage deployment (use backstage-deployment), full platform deployment (use deploy-orchestration).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -97,6 +103,8 @@ gh run view <run-id> --log-failed
 | Workflow run fails | Use `gh run view <run-id> --log-failed` and summarize the failing step. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## IssueOps Dispatch Report
@@ -127,3 +135,8 @@ gh run view <run-id> --log-failed
 - [ ] Rejected unsafe shell syntax in arguments.
 - [ ] Received explicit approval before dispatching or posting comments.
 - [ ] Reviewed workflow logs for failed dispatches.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -16,14 +16,14 @@ This workflow creates official-icon architecture diagrams for Open Horizons, del
 - "Export a deployment diagram as SVG and keep the source editable."
 - "Show the system context for the Foundry, Redis, Backstage, and AKS design."
 
-## Prerequisites
+## Prerequisites and context
 - A verified service map or architecture scope.
 - Output location agreed with the user before creating files.
 - Reference files available in `.github/skills/azure-architecture-diagrams/references/`.
 - Scripts available at `.github/skills/azure-architecture-diagrams/scripts/drawio_mcp_server.py` and `.github/skills/azure-architecture-diagrams/scripts/validate_drawio.py`.
 - Official icon sources confirmed through `.github/skills/azure-architecture-diagrams/references/icon-catalogs.md`.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm diagram scope and output files
 ```text
@@ -77,7 +77,13 @@ python .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py <di
 | Medium | Icons, grouping, or connector labels can confuse implementation or review decisions. |
 | Low | Layout readability, naming, or export quality issues. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: validating Mermaid architecture documents (use architecture-doc), writing Markdown documents or PPTX conversions (use markdown-writer), or hand-crafted non-icon SVG infographics (use svg-professional).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | MCP server cannot start | Fall back to hand-authored `.drawio` using `references/drawio-format.md`. |
@@ -86,6 +92,8 @@ python .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py <di
 | Output path is unclear | Ask for the target path and do not create files until confirmed. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Architecture Diagram Delivery
 
@@ -113,3 +121,8 @@ python .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py <di
 - [ ] Official icon usage follows repository references.
 - [ ] Validation script passes for the `.drawio` source.
 - [ ] Boundaries, connectors, labels, and trust zones are readable.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

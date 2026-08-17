@@ -3,7 +3,6 @@ name: "azure-infra"
 description: "Validate Azure subscription readiness and infrastructure dependencies for Open Horizons AKS, Key Vault, PostgreSQL, ACR, Managed Redis, and AI Foundry."
 argument-hint: "environment=dev region=eastus2 components=AKS,KeyVault,PostgreSQL,ACR azure_context=<subscription-id>"
 agent: "azure-portal-deploy"
-tools: ["read", "search", "execute", "azure/*"]
 ---
 
 # /azure-infra
@@ -12,7 +11,7 @@ tools: ["read", "search", "execute", "azure/*"]
 Validate and prepare the Azure-side prerequisites that Open Horizons needs before Terraform, Kubernetes, and Backstage deployment can proceed safely.
 
 ## When to Invoke
-Invoke this before `/deploy-platform`, when an Azure validation run reports provider, quota, region, resource, or AKS access issues, or when confirming a subscription is ready for H1 Foundation infrastructure.
+Invoke this before the `deploy-platform` prompt, when an Azure validation run reports provider, quota, region, resource, or AKS access issues, or when confirming a subscription is ready for H1 Foundation infrastructure.
 
 ## Preconditions
 - Azure CLI access is available to an authorized operator for `${input:azure_context:subscription name or ID}`.
@@ -40,6 +39,8 @@ Invoke this before `/deploy-platform`, when an Azure validation run reports prov
 - I will not print keys, passwords, connection strings, tokens, or Key Vault secret values.
 
 ## Output Format
+Chat response only. Do not create or modify workspace files from this prompt.
+
 Return an Azure readiness report in this shape:
 
 ````markdown
@@ -68,7 +69,7 @@ Return an Azure readiness report in this shape:
 - [ ] Provider, quota, SKU, and component readiness are summarized.
 - [ ] Terraform ownership or import/remediation guidance is clear for every gap.
 - [ ] No secret values are displayed.
-- [ ] Next step is routed to `/terraform`, `/backstage`, or `/deploy-platform` as appropriate.
+- [ ] Next step is routed to the `terraform` prompt, the `backstage` prompt, or the `deploy-platform` prompt as appropriate.
 
 ## Prompt Body
 You are the `@azure-portal-deploy` agent. Focus on Azure subscription and resource readiness for Open Horizons, not Terraform module authoring or Backstage application configuration.
@@ -81,7 +82,7 @@ You are the `@azure-portal-deploy` agent. Focus on Azure subscription and resour
 
 **Step 4 - Classify every gap.** For each missing or unhealthy resource, state whether Terraform should create it, Terraform should import it, Azure must be remediated, or another agent owns the fix.
 
-**Step 5 - Provide safe next actions.** Recommend `./scripts/validate-prerequisites.sh`, `./scripts/validate-config.sh --environment ${input:environment:dev, staging, or prod}`, or `/deploy-platform` only when readiness evidence supports it.
+**Step 5 - Provide safe next actions.** Recommend `./scripts/validate-prerequisites.sh`, `./scripts/validate-config.sh --environment ${input:environment:dev, staging, or prod}`, or the `deploy-platform` prompt only when readiness evidence supports it.
 
 ## Invocation Example
 ```text

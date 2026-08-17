@@ -5,7 +5,22 @@ description: "Use when editing Open Horizons Bash automation, validation, deploy
 
 # Shell Script Conventions — Automation, Validation, and Deployment
 
-This file activates when you edit repository shell scripts, especially under `scripts/` and skill helper scripts. It teaches how Open Horizons structures strict Bash, argument parsing, `.env` loading, validation, dry-run behavior, logging, and safe command execution. It does **not** cover Python validators or APIs, which belong to [Python standards](python.instructions.md), GitHub workflow YAML that invokes scripts, which belongs to [GitHub Actions standards](github-actions.instructions.md), Terraform authoring, which belongs to [Terraform standards](terraform.instructions.md), Kubernetes manifests rendered by scripts, which belong to [Kubernetes standards](kubernetes.instructions.md), or Docker packaging, which belongs to [Dockerfile standards](dockerfile.instructions.md).
+This file activates when you edit repository shell scripts, especially under `scripts/` and skill helper scripts. It teaches how Open Horizons structures strict Bash, argument parsing, `.env` loading, validation, dry-run behavior, logging, and safe command execution. It does **not** cover Python validators or APIs, which belong to the `python` instructions, GitHub workflow YAML that invokes scripts, which belongs to the `github-actions` instructions, Terraform authoring, which belongs to the `terraform` instructions, Kubernetes manifests rendered by scripts, which belong to the `kubernetes` instructions, or Docker packaging, which belongs to the `dockerfile` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/*.sh"` for existing local patterns.
+2. This `shell` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for shell script conventions — automation, validation, and deployment. Use the `validation-scripts` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > Scripts may mutate Azure, Kubernetes, GitHub, or generated manifests. Validate inputs first, support dry-run where practical, and fail closed.
@@ -111,7 +126,7 @@ kubectl_args=(apply -f "$MANIFEST")
 kubectl "${kubectl_args[@]}"
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -131,7 +146,7 @@ kubectl "${kubectl_args[@]}"
 | Report missing variable names | Print token or connection string values. |
 | Call existing Python, Terraform, Helm, or kubectl tools rather than reimplementing them in Bash | Hide complex parsing in fragile shell pipelines. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Script uses Bash strict mode and repository-relative paths.
 - [ ] `--help` works and unknown arguments fail non-zero.

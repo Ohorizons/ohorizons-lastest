@@ -18,7 +18,7 @@ Use this skill to operate Open Horizons Terraform under `terraform/`, including 
 - "Inspect Terraform state for the AKS module."
 - "Destroy this environment after approval."
 
-## Prerequisites
+## Prerequisites and context
 
 - `terraform version` succeeds.
 - `az account show` or the configured workload identity is available.
@@ -26,7 +26,7 @@ Use this skill to operate Open Horizons Terraform under `terraform/`, including 
 - The target environment is known.
 - Apply and destroy actions have explicit user approval.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm scope and backend posture
 
@@ -100,7 +100,13 @@ terraform apply -var-file=environments/dev.tfvars   -target=module.argocd   -tar
 ./scripts/validate-deployment.sh --environment dev
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Azure CLI operations (use azure-cli), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -111,6 +117,8 @@ terraform apply -var-file=environments/dev.tfvars   -target=module.argocd   -tar
 | State lock is held | Report lock ID and owner; do not force-unlock without explicit approval. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Terraform Operation Report
@@ -140,3 +148,8 @@ terraform apply -var-file=environments/dev.tfvars   -target=module.argocd   -tar
 - [ ] Reviewed a saved plan before mutation.
 - [ ] Received explicit approval before apply or destroy.
 - [ ] Ran relevant validation scripts after approved apply.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -5,7 +5,22 @@ description: "Use when editing Docker Compose files for local Open Horizons agen
 
 # Docker Compose Conventions — Local Agent and MCP Services
 
-This file activates when you edit `docker-compose.yml` files such as `backstage/server/docker-compose.yml`, `mcp-servers/docker-compose.yml`, and Golden Path MCP skeletons. It teaches how Open Horizons wires local agent APIs, MCP ecosystem services, ports, health checks, networks, and developer-only mounts. It does **not** cover image construction, which belongs to [Dockerfile standards](dockerfile.instructions.md), production Kubernetes manifests, which belong to [Kubernetes standards](kubernetes.instructions.md), shell orchestration around Compose, which belongs to [Shell script standards](shell.instructions.md), or TypeScript service code inside Backstage packages, which belongs to [TypeScript standards](typescript.instructions.md).
+This file activates when you edit `docker-compose.yml` files such as `backstage/server/docker-compose.yml`, `mcp-servers/docker-compose.yml`, and Golden Path MCP skeletons. It teaches how Open Horizons wires local agent APIs, MCP ecosystem services, ports, health checks, networks, and developer-only mounts. It does **not** cover image construction, which belongs to the `dockerfile` instructions, production Kubernetes manifests, which belong to the `kubernetes` instructions, shell orchestration around Compose, which belongs to the `shell` instructions, or TypeScript service code inside Backstage packages, which belongs to the `typescript` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/docker-compose.yml"` for existing local patterns.
+2. This `docker-compose` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for docker compose conventions — local agent and mcp services. Use the `backstage-deployment` and `mcp-ecosystem` skills for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!NOTE]
 > Compose is for local development and validation. Production runtime configuration belongs in `backstage/k8s/`, `deploy/helm/`, and ArgoCD applications.
@@ -105,7 +120,7 @@ volumes:
     driver: local
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -125,7 +140,7 @@ volumes:
 | Keep Docker image details in the referenced `Dockerfile` | Duplicate build logic in Compose commands. |
 | Use named networks for multi-service communication | Depend on legacy `links` or implicit names. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Services have descriptive names and stable `container_name` values where existing scripts expect them.
 - [ ] Host ports are localhost-bound or explicitly justified.

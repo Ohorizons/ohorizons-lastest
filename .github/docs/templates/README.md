@@ -1,26 +1,26 @@
 # Primitive Authoring Templates
 
 These templates are starting points for four Copilot customization formats. They are not an exhaustive
-list of every type supported by the harness. `docs/COPILOT-HARNESS-SPEC.md` is the authority for the
+list of every type supported by the harness. `../COPILOT-HARNESS-SPEC.md` is the authority for the
 three formats discovered by GitHub Copilot CLI; prompt files are a VS Code feature.
 
 | Template | Canonical source in this repository | Purpose | Support |
 | --- | --- | --- | --- |
-| [agent.template.md](agent.template.md) | `library/agents/<name>.agent.md` | Define a persona, judgment boundary, and operating posture. | Copilot CLI and VS Code |
-| [instructions.template.md](instructions.template.md) | `library/instructions/<name>.instructions.md` | Apply passive conventions to matching files. | Copilot CLI and VS Code |
-| [skill.template.md](skill.template.md) | `library/skills/<name>/SKILL.md` | Package a reusable procedure, review, or specialized capability. | Copilot CLI and VS Code |
-| [prompt.template.md](prompt.template.md) | `library/prompts/<name>.prompt.md` | Run a focused, user-selected action with VS Code runtime inputs. | **VS Code only; not a CLI primitive** |
+| [agent.template.md](agent.template.md) | `.github/agents/<name>.agent.md` | Define a persona, judgment boundary, and operating posture. | Copilot CLI and VS Code |
+| [instructions.template.md](instructions.template.md) | `.github/instructions/<name>.instructions.md` | Apply passive conventions to matching files. | Copilot CLI and VS Code |
+| [skill.template.md](skill.template.md) | `.github/skills/<name>/SKILL.md` | Package a reusable procedure, review, or specialized capability. | Copilot CLI and VS Code |
+| [prompt.template.md](prompt.template.md) | `.github/prompts/<name>.prompt.md` | Run a focused, user-selected action with VS Code runtime inputs. | **VS Code only; not a CLI primitive** |
 
 ## Short authoring workflow
 
 1. Copy the appropriate template to its canonical source location:
 
    ```sh
-   cp docs/templates/agent.template.md library/agents/example-name.agent.md
-   cp docs/templates/instructions.template.md library/instructions/example-name.instructions.md
-   mkdir -p library/skills/example-name
-   cp docs/templates/skill.template.md library/skills/example-name/SKILL.md
-   cp docs/templates/prompt.template.md library/prompts/example-name.prompt.md
+   cp .github/docs/templates/agent.template.md .github/agents/example-name.agent.md
+   cp .github/docs/templates/instructions.template.md .github/instructions/example-name.instructions.md
+   mkdir -p .github/skills/example-name
+   cp .github/docs/templates/skill.template.md .github/skills/example-name/SKILL.md
+   cp .github/docs/templates/prompt.template.md .github/prompts/example-name.prompt.md
    ```
 
 2. Replace every visible `{{UPPER_SNAKE_CASE}}` authoring placeholder. Search the completed file or skill
@@ -158,32 +158,14 @@ These forms have different meanings:
 
 ## Validation and synchronization
 
-For agents, instructions, and skills under `library/`, run:
+For agents, instructions, skills, and prompts under `.github/`, run the Open Horizons validator:
 
 ```sh
-python3 library/scripts/validate_primitives.py
+python3 .github/skills/validation-scripts/scripts/validate-agents.py --strict
 ```
 
-After changing a primitive included in the generated catalog, regenerate and check it:
+The same command is wired into `.github/workflows/validate-agents.yml`. It is the only repository primitive validator documented here.
 
-```sh
-python3 library/scripts/generate_catalog.py
-python3 library/scripts/generate_catalog.py --check
-```
+This repository does not include catalog-generation or plugin-component synchronization scripts. Do not run or document `generate_catalog.py`, `sync_plugin_components.py`, or `validate_primitives.py` for Open Horizons unless those scripts are added in a future change.
 
-When a plugin package contains generated copies of a shared agent or skill, synchronize from the
-canonical `library/agents/` or `library/skills/` source and check for drift:
-
-```sh
-python3 library/scripts/sync_plugin_components.py
-python3 library/scripts/sync_plugin_components.py --check
-```
-
-With their default paths, the validator checks `library/agents/`, `library/instructions/`,
-`library/skills/`, `library/plugins/`, and `library/hooks/` plus installed repository hook configs. The
-catalog generator reads those five library trees. Neither script validates `docs/templates/` directly,
-and neither includes prompts.
-
-For prompts, keep `library/prompts/<name>.prompt.md` as this repository's source, publish or copy it to
-`.github/prompts/<name>.prompt.md` for VS Code discovery when applicable, and test it in VS Code. These
-repository scripts do not provide a prompt publishing command.
+The validator is intended for installed primitives under `.github/agents/`, `.github/instructions/`, `.github/skills/`, and `.github/prompts/`. It does not treat `.github/docs/` templates or references as installed primitives. For prompts, author directly in `.github/prompts/<name>.prompt.md` for VS Code discovery and test the prompt in VS Code.

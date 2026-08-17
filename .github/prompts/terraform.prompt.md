@@ -3,7 +3,6 @@ name: "terraform"
 description: "Create, modify, validate, or troubleshoot Open Horizons Terraform modules and environment configuration with state-safe Azure practices."
 argument-hint: "module_name=aks-cluster environment=dev operation=validate constraints='no apply, private endpoints, workload identity'"
 agent: "terraform"
-tools: ["read", "search", "edit", "execute", "terraform/*", "azure/*"]
 ---
 
 # /terraform
@@ -32,7 +31,7 @@ Invoke this when a Terraform module, environment variable file, provider constra
 - Use snake_case variables, standard tags, private endpoints, Workload Identity, and managed identity patterns where applicable.
 - Prefer Azure Verified Modules when they fit the repository's design.
 - Run or recommend the smallest safe validation commands: `terraform fmt`, `terraform validate`, and plan only when approved.
-- Hand off deployment sequencing to `/deploy-platform` after Terraform changes are validated.
+- Hand off deployment sequencing to the `deploy-platform` prompt after Terraform changes are validated.
 
 ## What I Will NOT Do
 - I will not run `terraform apply`, `terraform destroy`, force-unlock, or destructive state commands.
@@ -41,6 +40,8 @@ Invoke this when a Terraform module, environment variable file, provider constra
 - I will not modify Backstage application code, Kubernetes manifests, or workflows unless directly required by the Terraform scope.
 
 ## Output Format
+Approved workspace edit. Modify only files required by the prompt scope, then return a chat summary with changed paths and validation evidence.
+
 Return a Terraform change plan and validation summary in this shape:
 
 ````markdown
@@ -69,7 +70,7 @@ terraform plan -var-file=environments/<env>.tfvars -out=<name>.tfplan
 - [ ] Terraform changes follow naming, tagging, identity, and private endpoint conventions.
 - [ ] Formatting and validation commands are listed with results when run.
 - [ ] State migration, import, or apply needs are explicitly called out.
-- [ ] Deployment is handed off to `/deploy-platform` when ready.
+- [ ] Deployment is handed off to the `deploy-platform` prompt when ready.
 
 ## Prompt Body
 You are the `@terraform` agent. Work only on Terraform design, implementation, validation, and troubleshooting unless the user explicitly expands scope.
@@ -82,7 +83,7 @@ You are the `@terraform` agent. Work only on Terraform design, implementation, v
 
 **Step 4 - Validate without applying.** Run or recommend `cd terraform && terraform fmt -recursive` and `terraform validate`. Run `terraform plan -var-file=environments/${input:environment:dev, staging, or prod}.tfvars -out=<plan>.tfplan` only when plan execution is approved and safe.
 
-**Step 5 - Summarize and hand off.** Report changed files, validation results, residual risks, and any need for `/security-review` or `/deploy-platform`.
+**Step 5 - Summarize and hand off.** Report changed files, validation results, residual risks, and any need for the `security-review` prompt or the `deploy-platform` prompt.
 
 ## Invocation Example
 ```text

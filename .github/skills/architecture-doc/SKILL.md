@@ -1,8 +1,6 @@
 ---
 name: architecture-doc
 description: "Use when validating a Mermaid-based Open Horizons architecture document before presentation; produces a pass/fail report for required sections, five diagrams, Mermaid structure, seven explanation parts, and copy conventions. DO NOT USE FOR: creating editable draw.io/SVG cloud diagrams with official icons (use azure-architecture-diagrams), or writing general Markdown, README, ADR, runbook, or PPTX conversion content (use markdown-writer). Triggers include \"validate this architecture document\", \"check the Mermaid diagrams\", \"quality gate this Architecture.md\"."
-allowed-tools:
-- shell
 ---
 
 # Architecture Doc
@@ -18,13 +16,13 @@ This workflow validates an `{app}_Architecture.md` deliverable against the Open 
 - "Quality gate `Payment_Platform_Architecture.md`."
 - "Review this architecture doc against the Open Horizons Definition of Done."
 
-## Prerequisites
+## Prerequisites and context
 - The architecture Markdown file exists in the repository.
 - The file is intended to follow the `{app}_Architecture.md` convention.
 - Python 3 is available.
 - The validation script exists at `.github/skills/architecture-doc/scripts/validate_arch.py`.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm target document
 1. Identify the exact Markdown file path supplied by the user.
@@ -72,7 +70,13 @@ Proceed with updating the document? (y/n)
 > [!IMPORTANT]
 > Only modify the architecture document or add validation notes if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the validation report and stop.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: creating editable draw.io/SVG cloud diagrams with official icons (use azure-architecture-diagrams), or writing general Markdown, README, ADR, runbook, or PPTX conversion content (use markdown-writer).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Target file is missing | Report the missing path and do not run the validator. |
@@ -81,6 +85,8 @@ Proceed with updating the document? (y/n)
 | Mermaid still may not render | Recommend rendering in the target Markdown viewer after the structural gate passes. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Architecture Document Validation Report
 
@@ -108,3 +114,8 @@ python .github/skills/architecture-doc/scripts/validate_arch.py <App_Architectur
 - [ ] Non-zero exits are treated as blocking errors.
 - [ ] Every required section and diagram is accounted for.
 - [ ] No repository file is modified without explicit confirmation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

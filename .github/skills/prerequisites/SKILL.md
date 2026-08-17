@@ -1,8 +1,6 @@
 ---
 name: prerequisites
 description: 'Use when validating local or CI prerequisites for Open Horizons deployments: CLI presence, versions, authentication, Azure/GitHub access, Docker, Node.js, and optional ArgoCD or kubelogin readiness. Produces a prerequisite checklist, missing-tool report, and installation guidance. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli). Triggers include "validate prerequisites", "check my CLI tools", "am I ready to deploy", and "install missing tools".'
-allowed-tools:
-- shell
 ---
 
 # Prerequisites
@@ -20,14 +18,14 @@ Use this skill to validate the operator workstation or CI runner before Open Hor
 - "Show what tools are missing for Open Horizons."
 - "Prepare a runner for platform validation."
 
-## Prerequisites
+## Prerequisites and context
 
 - Shell execution is allowed.
 - The repository root is the working directory.
 - For authentication checks, the operator expects `az account show` and `gh auth status` to be meaningful.
 - Installing missing tools requires explicit user approval and package-manager access.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Run the repository prerequisite validator
 
@@ -79,7 +77,13 @@ Proceed with installing missing prerequisites? (y/n)
 ./scripts/validate-prerequisites.sh
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -90,6 +94,8 @@ Proceed with installing missing prerequisites? (y/n)
 | Script exits non-zero | Preserve the failed section and list exact missing tools. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Prerequisites Report
@@ -116,3 +122,8 @@ Proceed with installing missing prerequisites? (y/n)
 - [ ] Reported missing tools and authentication gaps separately.
 - [ ] Did not install anything without explicit approval.
 - [ ] Re-ran validation after any approved installation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -5,7 +5,22 @@ description: "Use when editing Open Horizons Backstage TypeScript packages, Reac
 
 # TypeScript Conventions — Backstage App, Plugins, and API Clients
 
-This file activates when you edit TypeScript or TSX files in the Backstage workspace and related plugin packages. It teaches Open Horizons conventions for Backstage routes, plugin registration, React components, typed API clients, SSE parsing, package scripts, and validation. It does **not** cover container packaging for TypeScript services, which belongs to [Dockerfile standards](dockerfile.instructions.md), local service orchestration, which belongs to [Docker Compose standards](docker-compose.instructions.md), Python agent APIs consumed by Backstage, which belong to [Python standards](python.instructions.md), or Kubernetes runtime manifests, which belong to [Kubernetes standards](kubernetes.instructions.md).
+This file activates when you edit TypeScript or TSX files in the Backstage workspace and related plugin packages. It teaches Open Horizons conventions for Backstage routes, plugin registration, React components, typed API clients, SSE parsing, package scripts, and validation. It does **not** cover container packaging for TypeScript services, which belongs to the `dockerfile` instructions, local service orchestration, which belongs to the `docker-compose` instructions, Python agent APIs consumed by Backstage, which belong to the `python` instructions, or Kubernetes runtime manifests, which belong to the `kubernetes` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/*.ts,**/*.tsx"` for existing local patterns.
+2. This `typescript` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for typescript conventions — backstage app, plugins, and api clients. Use the `backstage-deployment` and `test-coverage` skills for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!NOTE]
 > The Backstage workspace uses Node `22 || 24`, Yarn `4.4.1`, TypeScript `~5.8.0`, React 18, and Backstage CLI lint, build, and test commands from `backstage/package.json`.
@@ -113,7 +128,7 @@ yarn workspace app test
 yarn build:all
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -133,7 +148,7 @@ yarn build:all
 | Use `Record<string, unknown>` for untrusted tool data | Use `any` across API boundaries. |
 | Run targeted workspace checks before broad builds | Add new lint or formatter tools for a single change. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Code lives under a package or plugin path included by `backstage/tsconfig.json`.
 - [ ] Routes and plugin registrations use Backstage APIs.

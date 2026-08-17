@@ -18,7 +18,7 @@ Use this skill to operate the Open Horizons local MCP Ecosystem reference server
 - "Check whether AI Chat can call the ecosystem tools."
 - "Use spec-kit methodology from the local MCP server."
 
-## Prerequisites
+## Prerequisites and context
 
 - `mcp-servers/src/tools/` exists and contains the registered tool modules.
 - `.github/mcp.json` includes `mcp-ecosystem` with URL `http://localhost:3100/mcp`.
@@ -26,7 +26,7 @@ Use this skill to operate the Open Horizons local MCP Ecosystem reference server
 - Optional `GH_TOKEN` is configured when GitHub-backed documentation tools need higher rate limits.
 - The query is a reference/documentation task, not a cloud operation.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm this is a reference lookup
 
@@ -85,7 +85,13 @@ curl -s http://localhost:3100/mcp   -H 'Content-Type: application/json'   -H 'Ac
 
 Use the existing client at `backstage/server/agent-api/tools/mcp_ecosystem.py`. In-cluster runtime uses the `mcp-ecosystem` service described in `mcp-servers/ARCHITECTURE.md`.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: general web search, live cloud or repository operations, infra MCP servers such as Azure/GitHub/Terraform/Kubernetes/Helm, or non-reference queries.
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -96,6 +102,8 @@ Use the existing client at `backstage/server/agent-api/tools/mcp_ecosystem.py`. 
 | Query needs live infrastructure state | Stop and route to the appropriate CLI skill instead. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## MCP Ecosystem Lookup Report
@@ -123,3 +131,8 @@ Use the existing client at `backstage/server/agent-api/tools/mcp_ecosystem.py`. 
 - [ ] Cited official upstream sources returned by the tool.
 - [ ] Reported cache or server availability limitations.
 - [ ] Kept counts aligned with source: 17 modules and 79 tools.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -3,7 +3,6 @@ name: "deploy-platform"
 description: "Orchestrate Open Horizons deployment across H1, H2, and H3 with repository validation scripts, Terraform phases, Kubernetes manifests, and handoffs."
 argument-hint: "environment=dev horizon=all deployment_option=automated portal_name='Open Horizons' identity_strategy=entra"
 agent: "deploy"
-tools: ["read", "search", "edit", "execute", "agent", "azure/*", "terraform/*"]
 ---
 
 # /deploy-platform
@@ -40,9 +39,11 @@ Invoke this when the team is ready to run a guided, automated, or manual deploym
 - I will not use `latest` image tags in deployment manifests.
 - I will not bypass validation scripts or continue past failed prerequisites without recording the blocker.
 - I will not print or commit secrets; use Key Vault, External Secrets, and secret references.
-- I will not author specialized Terraform modules directly; use `/terraform` for module implementation.
+- I will not author specialized Terraform modules directly; use the `terraform` prompt for module implementation.
 
 ## Output Format
+Chat response only. Do not create or modify workspace files from this prompt.
+
 Return a deployment run plan and status table in this shape:
 
 ````markdown
@@ -80,7 +81,7 @@ You are the `@deploy` agent. Orchestrate the deployment, coordinate specialist a
 
 **Step 4 - Execute the selected path.** For automated dry run, use `./scripts/deploy-full.sh --environment ${input:environment:dev, staging, or prod} --horizon ${input:horizon:h1, h2, h3, or all} --dry-run`. For approved deployment, remove `--dry-run` only after approval. For manual deployment, use `docs/guides/DEPLOYMENT_GUIDE.md` and preserve H1 before H2 sequencing.
 
-**Step 5 - Verify and summarize.** Run or request `./scripts/validate-deployment.sh --environment ${input:environment:dev, staging, or prod}`, capture blockers, and hand off reliability checks to `/troubleshoot-incident` or `@sre` when needed.
+**Step 5 - Verify and summarize.** Run or request `./scripts/validate-deployment.sh --environment ${input:environment:dev, staging, or prod}`, capture blockers, and hand off reliability checks to the `troubleshoot-incident` prompt or `@sre` when needed.
 
 ## Invocation Example
 ```text

@@ -17,14 +17,14 @@ This workflow performs focused GitHub operations through `gh`, including reposit
 - "Configure a GitHub App for Backstage technical integration."
 - "List releases or tags for this repository."
 
-## Prerequisites
+## Prerequisites and context
 - `gh auth status` succeeds for the intended host and account.
 - Repository context is set with `gh repo view` or `gh repo set-default`.
 - Required repository permissions are available.
 - For Enterprise Managed Users, user sign-in may use Entra while GitHub App or token credentials remain required for technical portal integration.
 - Explicit approval is available before creating issues, PRs, repos, comments, workflow dispatches, merges, or app changes.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Verify auth and repository context
 ```bash
@@ -99,7 +99,13 @@ gh run view <run-id> --json url,conclusion,status
 | Medium | Missing labels, incomplete issue body, failed checks, or insufficient token scopes. |
 | Low | Formatting, metadata, or notification gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Azure DevOps integration (use ado-integration), Terraform operations (use terraform-cli), or Kubernetes operations (use kubectl-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Not authenticated | Run `gh auth login` or configure an approved token, then verify `gh auth status`. |
@@ -108,6 +114,8 @@ gh run view <run-id> --json url,conclusion,status
 | Workflow run fails | Capture run URL, failing job, and logs summary; route pipeline diagnosis if needed. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # GitHub CLI Operation Report
 
@@ -133,3 +141,8 @@ gh run view <run-id> --json url,conclusion,status
 - [ ] User confirmation is captured before creating or changing GitHub artifacts.
 - [ ] URLs and statuses are reported for created or inspected artifacts.
 - [ ] Secrets and tokens are never printed.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

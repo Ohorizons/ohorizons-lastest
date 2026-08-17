@@ -18,7 +18,7 @@ Use this skill to deploy, validate, and troubleshoot Open Horizons monitoring as
 - "Validate the SRE alert rules."
 - "Troubleshoot why Grafana is not reachable."
 
-## Prerequisites
+## Prerequisites and context
 
 - `kubectl config current-context` points to the intended cluster.
 - `helm version` succeeds.
@@ -26,7 +26,7 @@ Use this skill to deploy, validate, and troubleshoot Open Horizons monitoring as
 - `deploy/helm/service-monitors.yaml` and `deploy/helm/sre-alerts.yaml` exist when applying Open Horizons monitoring resources.
 - `grafana/dashboards/` exists for dashboard inventory.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Inspect current monitoring state
 
@@ -110,7 +110,13 @@ Then query Prometheus locally when the port-forward is running.
 curl -s 'http://localhost:9090/api/v1/targets'
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use deploy-orchestration).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -121,6 +127,8 @@ curl -s 'http://localhost:9090/api/v1/targets'
 | Grafana credentials are unavailable | Do not guess credentials; request retrieval from the approved secret store. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Observability Report
@@ -154,3 +162,8 @@ curl -s 'http://localhost:9090/api/v1/targets'
 - [ ] Ran Kubernetes dry-run or diff before applying rules or monitors.
 - [ ] Received explicit approval before mutating monitoring resources.
 - [ ] Verified pods, ServiceMonitors, PrometheusRules, and targets after mutation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

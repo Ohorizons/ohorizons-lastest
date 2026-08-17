@@ -18,14 +18,14 @@ Use this skill to decompose epics into INVEST-compliant user stories and, after 
 - "Prepare sprint-ready backlog items."
 - "Find duplicate issues before we create new stories."
 
-## Prerequisites
+## Prerequisites and context
 
 - Epic description, target personas, and expected business outcome are available.
 - Repository owner/name is known for GitHub Issue operations.
 - `gh auth status` succeeds if querying or creating issues.
 - Labels are known or can be proposed, such as `user-story`, `epic:<name>`, and `priority:<level>`.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Understand the epic
 
@@ -81,7 +81,13 @@ Proceed with creating GitHub Issues? (y/n)
 gh issue create --title "Story: <title>" --body "<markdown body>" --label "user-story,epic:<name>,priority:<level>"
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: test analysis (use test-coverage), pipeline diagnostics (use pipeline-diagnostics), Azure infrastructure design (use azure-infrastructure).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -92,6 +98,8 @@ gh issue create --title "Story: <title>" --body "<markdown body>" --label "user-
 | Label does not exist | Create issue without the missing label only if the user approves; otherwise stop. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Epic Decomposition Report
@@ -121,3 +129,8 @@ gh issue create --title "Story: <title>" --body "<markdown body>" --label "user-
 - [ ] Duplicate issues were searched before creation.
 - [ ] No story point estimates were invented.
 - [ ] Explicit approval was received before creating GitHub Issues.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

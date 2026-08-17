@@ -17,14 +17,14 @@ This workflow performs focused `az` operations for Azure resource discovery and 
 - "Register the Azure providers needed by the platform."
 - "Create an RBAC assignment after I approve the exact scope."
 
-## Prerequisites
+## Prerequisites and context
 - Azure CLI installed and authenticated with `az account show` succeeding.
 - Target subscription ID and resource group known.
 - Appropriate Azure RBAC permissions for the operation.
 - Understanding of whether the target resource is Terraform-managed under `terraform/`.
 - Explicit approval before provider registration, role assignment, scaling, or resource creation.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Verify account context
 ```bash
@@ -86,7 +86,13 @@ az aks get-credentials --resource-group <resource-group> --name <cluster> --over
 | Medium | Provider not registered, stale credentials, or incomplete resource inventory. |
 | Low | Output formatting, naming, or tagging issues. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Terraform IaC (use terraform-cli), Kubernetes operations (use kubectl-cli), or Helm charts (use helm-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Not authenticated | Run `az login` or use managed identity, then verify `az account show`. |
@@ -95,6 +101,8 @@ az aks get-credentials --resource-group <resource-group> --name <cluster> --over
 | Secret value requested | Refuse to print it; provide a safe retrieval or Key Vault reference pattern. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Azure CLI Operation Report
 
@@ -120,3 +128,8 @@ az aks get-credentials --resource-group <resource-group> --name <cluster> --over
 - [ ] Mutations have explicit user confirmation.
 - [ ] Secrets are never printed in output.
 - [ ] Terraform-managed resources are not changed imperatively without approval.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -2,9 +2,8 @@
 
 Scope and placement
 - Prompt files are a VS Code feature. They are not a primitive discovered or executed by GitHub Copilot CLI.
-- In this repository, author the canonical source at `library/prompts/{{PROMPT_NAME}}.prompt.md`.
-  Repository synchronization publishes it to `.github/prompts/` for VS Code discovery; do not author the
-  synchronized copy directly.
+- In this repository, author the prompt directly at `.github/prompts/{{PROMPT_NAME}}.prompt.md` for VS Code discovery.
+  Open Horizons does not currently have a prompt publishing or synchronization script.
 - For a workflow that must run in GitHub Copilot CLI, or in both CLI and VS Code, create an agent skill instead.
 
 Placeholders and runtime variables

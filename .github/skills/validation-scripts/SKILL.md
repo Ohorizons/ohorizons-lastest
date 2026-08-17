@@ -18,14 +18,14 @@ Use this skill to run existing Open Horizons validation scripts without inventin
 - "Validate Copilot agents and skills."
 - "Check Azure naming conventions."
 
-## Prerequisites
+## Prerequisites and context
 
 - The repository root is the working directory.
 - The script path exists before execution.
 - Required CLIs for the selected script are installed.
 - Target environment is known when the script requires `--environment`.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Select the existing script
 
@@ -81,7 +81,13 @@ Proceed with running validation? (y/n)
 > [!IMPORTANT]
 > Only run validation that contacts a live cluster, cloud account, or GitHub workflow after an explicit affirmative response when the user has not already requested that validation command. On a negative, ambiguous, or missing response, do not run the command; output the planned validation and stop.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Terraform validation (use terraform-cli), Kubernetes checks (use kubectl-cli), Helm operations (use helm-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -92,6 +98,8 @@ Proceed with running validation? (y/n)
 | Strict agent validation fails | Report exact file and frontmatter error from validator output. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Validation Report
@@ -120,3 +128,8 @@ Proceed with running validation? (y/n)
 - [ ] Ran the narrowest script that covers the requested validation.
 - [ ] Captured exit code and important output.
 - [ ] Routed remediation to the correct domain skill.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

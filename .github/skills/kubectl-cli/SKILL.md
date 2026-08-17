@@ -18,7 +18,7 @@ Use this skill for direct Kubernetes inspection and carefully approved resource 
 - "Show events for the monitoring namespace."
 - "Debug image pull errors in the ai-services namespace."
 
-## Prerequisites
+## Prerequisites and context
 
 - `kubectl version --client` succeeds.
 - `kubectl config current-context` shows the intended AKS or kind cluster.
@@ -26,7 +26,7 @@ Use this skill for direct Kubernetes inspection and carefully approved resource 
 - Manifest paths exist, for example `backstage/k8s/agent-identity.yaml`.
 - The user has approved any apply, delete, scale, patch, or rollout restart action.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm context and namespace
 
@@ -110,7 +110,13 @@ kubectl get events -n backstage --sort-by='.lastTimestamp'
 kubectl rollout status deployment/backstage -n backstage --timeout=300s
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Helm charts (use helm-cli), ArgoCD sync (use argocd-cli), Azure resource provisioning (use azure-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -121,6 +127,8 @@ kubectl rollout status deployment/backstage -n backstage --timeout=300s
 | Pods crash after apply | Collect `describe`, previous logs, and events; do not auto-delete resources. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Kubectl Operation Report
@@ -153,3 +161,8 @@ kubectl rollout status deployment/backstage -n backstage --timeout=300s
 - [ ] Ran dry-run or diff before apply.
 - [ ] Received explicit approval before any mutating command.
 - [ ] Verified rollout, pods, and events after mutation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

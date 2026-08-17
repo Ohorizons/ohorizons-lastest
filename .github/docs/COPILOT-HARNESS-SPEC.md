@@ -83,7 +83,7 @@ declaring it restricts the agent to the listed tokens. **Unrecognized tokens are
 warning**, so a typo or a VS Code-only name quietly removes capability instead of failing loudly.
 
 Every row below was measured against CLI 1.0.81-0 by declaring a single token and dumping the resulting
-tool schema — see [HARNESS-VALIDATION.md](HARNESS-VALIDATION.md).
+tool schema; the validation evidence is summarized in this section because this repository does not ship a separate HARNESS-VALIDATION.md file.
 
 **Always-on floor** (present even when every token is invalid): `skill`, `sql`.
 
@@ -250,9 +250,9 @@ Discovery (BUNDLE): `.plugin/marketplace.json`, `.github/plugin/marketplace.json
     "name": "…", "email": "…"
   },
   "plugins": [                // REQUIRED — BUNDLE errors "Marketplace has no plugins defined" when empty
-    { "name": "my-plugin", "source": "./library/plugins/my-plugin", "description": "…", "version": "1.0.0" }
+    { "name": "my-plugin", "source": "<plugin-source>", "description": "…", "version": "1.0.0" }
   ],
-  "metadata": { "pluginRoot": "./library/plugins" }
+  "metadata": { "pluginRoot": "<plugin-root>" }
 }
 ```
 
@@ -292,8 +292,7 @@ using a fresh `COPILOT_HOME` — there, seed it explicitly:
 ```
 
 Measured: identical hook file fires from `~/.copilot/hooks/` but not from `.github/hooks/` until the
-folder is trusted; after trusting, it fires. No warning is emitted either way — see
-[HARNESS-VALIDATION.md](HARNESS-VALIDATION.md).
+folder is trusted; after trusting, it fires. No warning is emitted either way.
 
 #### 5.1.2 `disableAllHooks` scope (MEASURED)
 
@@ -371,5 +370,5 @@ Hook scripts must be executable (`chmod +x`).
 
 ## 6. Validation
 
-Run `python3 library/scripts/validate_primitives.py` to check every rule above.
-Use `--strict` to fail on warnings and `--json` for machine-readable output.
+For Open Horizons repository primitives, run `python3 .github/skills/validation-scripts/scripts/validate-agents.py --strict`.
+This repository does not include catalog-generation, plugin-sync, or JSON-output primitive validation scripts; do not document or run those commands here.

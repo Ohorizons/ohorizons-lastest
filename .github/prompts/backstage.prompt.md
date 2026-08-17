@@ -3,7 +3,6 @@ name: "backstage"
 description: "Deploy, validate, and configure the Open Horizons Backstage portal with auth, catalog, Golden Paths, TechDocs, and AI Chat integration."
 argument-hint: "environment=dev auth_provider=github github_identity_mode=standard components=Portal,GoldenPaths,TechDocs,AIChat"
 agent: "backstage-expert"
-tools: ["read", "search", "edit", "execute", "web", "mcp-ecosystem/*"]
 ---
 
 # /backstage
@@ -34,12 +33,14 @@ Invoke this after Azure and Terraform prerequisites are ready, after `scripts/re
 - Provide targeted validation commands for portal health, catalog ingestion, scaffolder templates, TechDocs, and AI Chat wiring.
 
 ## What I Will NOT Do
-- I will not validate Azure subscription quota or provider registration; use `/azure-infra` for that.
-- I will not orchestrate the full platform deployment; use `/deploy-platform` for end-to-end sequencing.
+- I will not validate Azure subscription quota or provider registration; use the `azure-infra` prompt for that.
+- I will not orchestrate the full platform deployment; use the `deploy-platform` prompt for end-to-end sequencing.
 - I will not disable production authentication, expose unauthenticated backend ports, or commit secrets.
 - I will not use commercial Backstage-specific assumptions; this repo targets open-source Backstage.
 
 ## Output Format
+Approved workspace edit. Modify only files required by the prompt scope, then return a chat summary with changed paths and validation evidence.
+
 Return a Backstage readiness and configuration summary in this shape:
 
 ````markdown
@@ -69,7 +70,7 @@ Return a Backstage readiness and configuration summary in this shape:
 ## Prompt Body
 You are the `@backstage-expert` agent. Focus on the open-source Backstage portal implementation in this repository and use the platform-specific files before proposing changes.
 
-**Step 1 - Confirm requested components.** Parse `${input:components:Portal, Golden Paths, TechDocs, AI Chat}`, `${input:auth_provider:github, entra, or guest}`, and `${input:github_identity_mode:standard, saml-sso, or enterprise-managed-users}`. If dependencies are not ready, report the blocker and redirect to `/azure-infra` or `/deploy-platform`.
+**Step 1 - Confirm requested components.** Parse `${input:components:Portal, Golden Paths, TechDocs, AI Chat}`, `${input:auth_provider:github, entra, or guest}`, and `${input:github_identity_mode:standard, saml-sso, or enterprise-managed-users}`. If dependencies are not ready, report the blocker and redirect to the `azure-infra` prompt or the `deploy-platform` prompt.
 
 **Step 2 - Consult Backstage references.** Use `mcp-ecosystem/*` tools or web documentation for Backstage-specific behavior, then ground recommendations in local paths such as `backstage/`, `backstage/k8s/templates/`, and `golden-paths/`.
 
@@ -77,7 +78,7 @@ You are the `@backstage-expert` agent. Focus on the open-source Backstage portal
 
 **Step 4 - Render and validate.** Use `./scripts/render-k8s.sh` when manifest templates change and `./scripts/validate-deployment.sh --environment ${input:environment:dev, staging, or prod}` when deployment evidence is available.
 
-**Step 5 - Report handoffs.** Summarize portal URL assumptions, template visibility, auth callback requirements, and any handoff to `/security-review`, `/hybrid-setup`, or `/deploy-platform`.
+**Step 5 - Report handoffs.** Summarize portal URL assumptions, template visibility, auth callback requirements, and any handoff to the `security-review` prompt, the `hybrid-setup` prompt, or the `deploy-platform` prompt.
 
 ## Invocation Example
 ```text

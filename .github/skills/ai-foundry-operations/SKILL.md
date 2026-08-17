@@ -16,14 +16,14 @@ This workflow operates the H3 AI layer for Open Horizons: Azure AI Foundry, Azur
 - "Configure the RAG dependencies for our H3 workloads."
 - "Check Foundry model quota, deployments, and token usage."
 
-## Prerequisites
+## Prerequisites and context
 - Azure CLI installed and authenticated with `az account show` returning the intended subscription.
 - Environment configuration in `terraform/environments/` and the `terraform/modules/ai-foundry/` module present.
 - Resource group, location, model deployment name, and capacity target identified.
 - Managed identity principal IDs available for application access.
 - Approval to create or scale paid Azure resources.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Verify context and quota
 ```bash
@@ -104,7 +104,13 @@ Do not echo API keys. If key-based testing is unavoidable, redact values in all 
 | Medium | Missing diagnostic settings, unclear RAG data boundary, or capacity not aligned to expected traffic. |
 | Low | Naming, tagging, or documentation gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: general Azure infrastructure (use azure-infrastructure), Terraform IaC authoring (use terraform-cli), or Kubernetes operations (use kubectl-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Provider not registered | Register `Microsoft.CognitiveServices`, wait for completion, then retry discovery. |
@@ -113,6 +119,8 @@ Do not echo API keys. If key-based testing is unavoidable, redact values in all 
 | Endpoint test fails | Check deployment name, API version, identity role, and network restrictions before changing resources. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # AI Foundry Operation Report
 
@@ -140,3 +148,8 @@ Do not echo API keys. If key-based testing is unavoidable, redact values in all 
 - [ ] Secrets and keys are redacted from output.
 - [ ] Model names, API versions, and quota statements come from current official sources.
 - [ ] Terraform-managed resources remain managed through `terraform/` unless the user approves an exception.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

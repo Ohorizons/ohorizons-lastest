@@ -16,14 +16,14 @@ This workflow deploys or validates the Open Horizons Backstage portal, either on
 - "Run the Backstage portal locally for development."
 - "Troubleshoot why the Backstage pod is not ready."
 
-## Prerequisites
+## Prerequisites and context
 - Repository paths exist: `backstage/`, `backstage/k8s/`, `terraform/modules/backstage/`, and `scripts/render-k8s.sh`.
 - Azure and cluster access are configured for AKS deployment.
 - GitHub App or OAuth credentials are available through approved secret storage.
 - `AUTH_PROVIDER` and `GITHUB_IDENTITY_MODE` are selected for the target environment.
 - User approval is available before building images, applying manifests, or updating auth configuration.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Load official and repository context
 - Use Backstage documentation via `mcp-ecosystem` when available for deployment, Kubernetes, GitHub auth, and Microsoft auth.
@@ -92,7 +92,13 @@ Expected readiness response is HTTP `200`.
 | Medium | Catalog templates missing, image tag mismatch, or readiness probes failing intermittently. |
 | Low | Documentation, labels, or local developer experience gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: full platform orchestration (use deploy-orchestration) or Azure infrastructure provisioning (use azure-portal-deploy).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Pod is not ready | Collect pod status, recent logs, and readiness endpoint result before changing manifests. |
@@ -101,6 +107,8 @@ Expected readiness response is HTTP `200`.
 | Manifest rendering fails | Report the missing `.env` value or template error and rerun `scripts/render-k8s.sh` after correction. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Backstage Deployment Report
 
@@ -127,3 +135,8 @@ Expected readiness response is HTTP `200`.
 - [ ] User confirmation is captured before deployment or configuration mutation.
 - [ ] Kubernetes manifests are rendered with `scripts/render-k8s.sh` when templates are involved.
 - [ ] Readiness, logs, auth mode, and catalog status are verified.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

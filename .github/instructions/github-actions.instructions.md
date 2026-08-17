@@ -5,7 +5,22 @@ description: "Use when editing GitHub Actions workflows for Open Horizons valida
 
 # GitHub Actions Conventions — CI, Security, Release, and IssueOps
 
-This file activates when you edit workflows in `.github/workflows/`. It teaches how Open Horizons configures least-privilege permissions, pinned actions, OIDC, path filters, validation gates, and shell-safe workflow steps. It does **not** cover the shell scripts invoked by workflows, which belong to [Shell script standards](shell.instructions.md), Copilot primitive schemas, which belong to [Agent customization standards](agent-files.instructions.md), issue form routing, which belongs to [Issue form standards](issue-forms.instructions.md), Terraform module rules, which belong to [Terraform standards](terraform.instructions.md), or Kubernetes manifest authoring, which belongs to [Kubernetes standards](kubernetes.instructions.md).
+This file activates when you edit workflows in `.github/workflows/`. It teaches how Open Horizons configures least-privilege permissions, pinned actions, OIDC, path filters, validation gates, and shell-safe workflow steps. It does **not** cover the shell scripts invoked by workflows, which belong to the `shell` instructions, Copilot primitive schemas, which belong to the `agent-files` instructions, issue form routing, which belongs to the `issue-forms` instructions, Terraform module rules, which belong to the `terraform` instructions, or Kubernetes manifest authoring, which belongs to the `kubernetes` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: ".github/workflows/*.yml"` for existing local patterns.
+2. This `github-actions` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for github actions conventions — ci, security, release, and issueops. Use the `github-cli` and `pipeline-diagnostics` skills for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > Workflows are a privileged automation surface. Keep default permissions read-only and raise permissions only at the job that needs them.
@@ -109,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -129,7 +144,7 @@ jobs:
 | Scope write permissions to the job that needs them | Set `write-all` at workflow level. |
 | Include explicit Python, Node, or Terraform setup versions | Depend on runner defaults. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Workflow permissions are least-privilege and job-scoped.
 - [ ] Third-party actions are SHA-pinned or have a documented repository exception.

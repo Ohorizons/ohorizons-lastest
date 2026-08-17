@@ -1,7 +1,7 @@
 ---
 name: "archaeologist"
 description: "Stage 1 agent — reads legacy Natural/Adabas code, extracts business rules, maps dependencies, and records open questions"
-tools: [read, search, edit]
+tools: [view, grep, glob, edit]
 handoffs:
   - label: "Start Stage 2"
     agent: architect
@@ -75,11 +75,11 @@ The team completes Stage 1 when it can provide:
 
 | Command | Purpose |
 |---------|---------|
-| [`/archaeology-kickoff`](../prompts/stage-archaeologist-archaeology-kickoff.prompt.md) | Scan the legacy folder and produce an initial inventory |
-| [`/extract-business-rules`](../prompts/stage-archaeologist-extract-business-rules.prompt.md) | Read a Natural program and extract conditional business rules |
-| [`/map-dependencies`](../prompts/stage-archaeologist-map-dependencies.prompt.md) | Trace CALLNAT, INCLUDE, and DDM-access edges in a dependency graph |
-| [`/catalog-mysteries`](../prompts/stage-archaeologist-catalog-mysteries.prompt.md) | Record open questions with evidence and pending human validation |
-| [`/discovery-report`](../prompts/stage-archaeologist-discovery-report.prompt.md) | Consolidate Stage 1 artifacts into a single handoff document for Stage 2 |
+| ``/archaeology-kickoff`` | Scan the legacy folder and produce an initial inventory |
+| ``/extract-business-rules`` | Read a Natural program and extract conditional business rules |
+| ``/map-dependencies`` | Trace CALLNAT, INCLUDE, and DDM-access edges in a dependency graph |
+| ``/catalog-mysteries`` | Record open questions with evidence and pending human validation |
+| ``/discovery-report`` | Consolidate Stage 1 artifacts into a single handoff document for Stage 2 |
 
 ## Anti-Patterns This Agent Rejects
 

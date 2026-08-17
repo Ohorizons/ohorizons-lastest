@@ -16,14 +16,14 @@ This workflow turns an Azure platform requirement into an Open Horizons infrastr
 - "Define the naming and tagging strategy for Terraform modules."
 - "Plan Workload Identity and managed identity access for AKS services."
 
-## Prerequisites
+## Prerequisites and context
 - Target environment and region are known.
 - Required Azure services and data sensitivity are identified.
 - Terraform modules exist under `terraform/modules/` and environment files under `terraform/environments/`.
 - Required tags are known: environment, project, owner, cost-center.
 - User approval is available before running any bootstrap or provisioning script.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm infrastructure scope
 ```text
@@ -83,7 +83,13 @@ Run dry-run first when available, and prefer `scripts/deploy-full.sh` for full p
 | Medium | Naming/tagging drift, incomplete module mapping, or unclear cost ownership. |
 | Low | Documentation gaps or non-blocking optimization opportunities. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Terraform CLI commands (use terraform-cli), Azure CLI operations (use azure-cli), or Kubernetes operations (use kubectl-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Module does not exist | Report the missing module and propose a Terraform module task; do not invent paths. |
@@ -92,6 +98,8 @@ Run dry-run first when available, and prefer `scripts/deploy-full.sh` for full p
 | Requirement conflicts with policy | State the conflict and propose the least-privilege compliant option. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Azure Infrastructure Pattern Recommendation
 
@@ -121,3 +129,8 @@ Run dry-run first when available, and prefer `scripts/deploy-full.sh` for full p
 - [ ] Identity uses managed identity or Workload Identity.
 - [ ] Private endpoint and diagnostic decisions are documented.
 - [ ] Mutating scripts or paid resource actions require explicit confirmation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -18,7 +18,7 @@ Use this skill to operate Helm charts for Open Horizons Kubernetes services, esp
 - "Render the Helm templates before we deploy."
 - "Check which Helm releases are installed in the cluster."
 
-## Prerequisites
+## Prerequisites and context
 
 - `helm version` succeeds with Helm 3.x.
 - `kubectl config current-context` points to the intended cluster.
@@ -26,7 +26,7 @@ Use this skill to operate Helm charts for Open Horizons Kubernetes services, esp
 - Values files exist, for example `deploy/helm/monitoring/values.yaml`.
 - For external charts, the chart repository URL is known and reachable.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm scope and current state
 
@@ -108,7 +108,13 @@ kubectl get pods -n monitoring
 kubectl get events -n monitoring --sort-by='.lastTimestamp'
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: kubectl operations (use kubectl-cli), ArgoCD sync (use argocd-cli), Terraform IaC (use terraform-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -119,6 +125,8 @@ kubectl get events -n monitoring --sort-by='.lastTimestamp'
 | Namespace is missing | Include `--create-namespace` only when the user approves namespace creation. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Helm Operation Report
@@ -152,3 +160,8 @@ kubectl get events -n monitoring --sort-by='.lastTimestamp'
 - [ ] Ran `helm template` or `helm upgrade --install --dry-run` before mutation.
 - [ ] Received explicit approval before install, upgrade, rollback, or uninstall.
 - [ ] Verified release status and pod health after approved mutation.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

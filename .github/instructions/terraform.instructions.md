@@ -5,7 +5,22 @@ description: "Use when editing Open Horizons Terraform modules, environments, pr
 
 # Terraform Conventions — Azure Infrastructure Modules and Environments
 
-This file activates when you edit Terraform modules, environment variable files, provider configuration, and Terraform examples. It teaches how Open Horizons provisions Azure foundation resources for AKS, networking, security, databases, observability, ArgoCD, and Backstage using reusable modules. It does **not** cover Kubernetes manifests deployed after infrastructure exists, which belong to [Kubernetes standards](kubernetes.instructions.md), shell deployment orchestration, which belongs to [Shell script standards](shell.instructions.md), GitHub Actions workflows that run Terraform, which belong to [GitHub Actions standards](github-actions.instructions.md), or container image definitions, which belong to [Dockerfile standards](dockerfile.instructions.md).
+This file activates when you edit Terraform modules, environment variable files, provider configuration, and Terraform examples. It teaches how Open Horizons provisions Azure foundation resources for AKS, networking, security, databases, observability, ArgoCD, and Backstage using reusable modules. It does **not** cover Kubernetes manifests deployed after infrastructure exists, which belong to the `kubernetes` instructions, shell deployment orchestration, which belongs to the `shell` instructions, GitHub Actions workflows that run Terraform, which belong to the `github-actions` instructions, or container image definitions, which belong to the `dockerfile` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/*.tf,**/terraform/**,**/*.tf.example,**/*.tfvars.example"` for existing local patterns.
+2. This `terraform` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for terraform conventions — azure infrastructure modules and environments. Use the `terraform-cli` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > The Kubernetes, Helm, and kubectl providers depend on AKS outputs. On an empty subscription, apply H1 infrastructure before H2 modules or use the repository deployment script.
@@ -147,7 +162,7 @@ output "database_password" {
 }
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -168,7 +183,7 @@ output "database_password" {
 | Keep `.tfvars.example` sanitized | Commit real customer values in environment files. |
 | Run `terraform fmt` and a targeted `terraform validate` or plan where possible | Ship formatting or provider errors untested. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] Module files follow the existing `main`, `variables`, `outputs`, `versions` layout.
 - [ ] Variables are typed, described, and validated where constrained.

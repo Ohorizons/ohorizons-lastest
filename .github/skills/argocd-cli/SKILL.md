@@ -16,14 +16,14 @@ This workflow performs focused ArgoCD operations for Open Horizons GitOps. It pr
 - "Troubleshoot why an ArgoCD app is OutOfSync."
 - "Configure ArgoCD repository credentials for this repo."
 
-## Prerequisites
+## Prerequisites and context
 - `kubectl config current-context` points to the target cluster.
 - ArgoCD namespace and CLI access are available, or Helm is installed for first-time install.
 - Repository manifests exist under `argocd/apps/`, `argocd/app-of-apps/root-application.yaml`, and `argocd/sync-policies.yaml`.
 - Helm values exist at `deploy/helm/argocd/values.yaml` if installing ArgoCD.
 - Approval is available before sync, prune, force, or credential changes.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Verify cluster and ArgoCD access
 ```bash
@@ -95,7 +95,13 @@ Use `--prune` or `--force` only when explicitly approved and after documenting t
 | Medium | OutOfSync drift exists but health is stable, or dependencies are not ready. |
 | Low | Cosmetic diff, stale cache, or missing labels/annotations. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Helm chart management (use helm-cli), Kubernetes operations (use kubectl-cli), or full platform deployment orchestration (use deploy-orchestration).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Not logged in to ArgoCD | Use `argocd login <server>` and verify context before any app operation. |
@@ -104,6 +110,8 @@ Use `--prune` or `--force` only when explicitly approved and after documenting t
 | Sync fails | Collect `argocd app get`, `argocd app resources`, controller logs, and recent events. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # ArgoCD Operation Report
 
@@ -134,3 +142,8 @@ Use `--prune` or `--force` only when explicitly approved and after documenting t
 - [ ] `argocd app diff` is reviewed before sync.
 - [ ] Explicit confirmation is captured before install, sync, prune, force, or credential changes.
 - [ ] Final app health and sync status are reported.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

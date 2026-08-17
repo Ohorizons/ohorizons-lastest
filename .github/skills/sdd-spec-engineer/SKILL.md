@@ -18,14 +18,14 @@ Use this skill to transform approved requirements into Spec-Driven Development a
 - "Analyze this spec for traceability gaps."
 - "Prepare implementation handoff after requirements approval."
 
-## Prerequisites
+## Prerequisites and context
 
 - FRD/NFRD or equivalent approved requirements exist.
 - Scope boundaries and non-goals are known.
 - `golden-paths/common/templates/CONSTITUTION.md`, `golden-paths/common/templates/SPECIFICATION.md`, and `golden-paths/common/templates/IMPLEMENTATION_PLAN.md` exist.
 - Reference files under `.github/skills/sdd-spec-engineer/references/` exist.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Load SDD references
 
@@ -75,7 +75,13 @@ Proceed with writing artifacts or implementation handoff? (y/n)
 > [!IMPORTANT]
 > Only write SDD artifacts or hand off to implementation after explicit approval and a complete traceability matrix when the user has not already requested file creation. On a negative, ambiguous, or missing response, stop at the artifact review and list unresolved gaps.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: standalone FRD/NFRD authoring before sdd_init (use requirements-engineer), INVEST user story decomposition or GitHub Issue creation (use story-planning), Foundry runtime/provisioning detail (use ai-foundry-operations or foundry-agent-blueprint), or general agentic architecture trade-off decisions (use agentic-architecture-patterns).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -86,6 +92,8 @@ Proceed with writing artifacts or implementation handoff? (y/n)
 | Too many sequential tasks | Recheck independence and mark safe tasks with `[P]`. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## SDD Artifact Report
@@ -114,3 +122,8 @@ Proceed with writing artifacts or implementation handoff? (y/n)
 - [ ] Every requirement traces to at least one design component and task.
 - [ ] Every task traces to a requirement.
 - [ ] Implementation handoff is gated on explicit approval.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

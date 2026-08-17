@@ -18,14 +18,14 @@ Use this skill to analyze GitHub Actions workflow runs from real `gh` output and
 - "Explain why the workflow was skipped."
 - "Find the root cause of this CI error."
 
-## Prerequisites
+## Prerequisites and context
 
 - `gh auth status` succeeds.
 - The repository owner/name, workflow name, run ID, branch, or PR number is known.
 - `.github/workflows/` exists in the repository.
 - The user wants CI/CD diagnosis rather than test coverage analysis or Kubernetes troubleshooting.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Identify the run
 
@@ -86,7 +86,13 @@ Proceed with rerunning failed jobs? (y/n)
 gh run rerun <run-id> --failed
 ```
 
-## Error handling
+## Limits
+
+- Do not use this skill for: test analysis (use test-coverage), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -97,6 +103,8 @@ gh run rerun <run-id> --failed
 | Failure is a live cluster error | Summarize the pipeline evidence and route to `kubectl-cli` or `helm-cli`. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Pipeline Diagnosis
@@ -129,3 +137,8 @@ gh run rerun <run-id> --failed
 - [ ] Included one actionable log excerpt or stated why logs were unavailable.
 - [ ] Classified severity.
 - [ ] Recommended rerun only when justified by evidence.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

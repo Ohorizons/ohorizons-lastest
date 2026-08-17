@@ -364,7 +364,7 @@ def validate_agent_tools(
         mcp_match = MCP_TOOL.match(tool)
         if mcp_match:
             server_key = mcp_match.group(1).split("/", 1)[0]
-            if mcp_server_keys and server_key not in mcp_server_keys:
+            if server_key not in mcp_server_keys:
                 report.error(
                     path,
                     f"AG017: MCP `tools` token `{tool}` uses unknown server `{server_key}`; "

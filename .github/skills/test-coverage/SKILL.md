@@ -18,14 +18,14 @@ Use this skill to analyze tests, coverage, and PR quality gates using real GitHu
 - "Find coverage gaps introduced by this change."
 - "Summarize failed tests from GitHub checks."
 
-## Prerequisites
+## Prerequisites and context
 
 - `gh auth status` succeeds.
 - Repository owner/name and PR number, branch, or commit SHA are known.
 - Check runs exist for the target ref.
 - Coverage artifacts or check output are available if coverage percentage is requested.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Fetch check-run evidence
 
@@ -64,7 +64,13 @@ gh pr view <pr-number> --json reviews,commits,statusCheckRollup
 - Use `pipeline-diagnostics` for workflow, dependency install, or build-step failures.
 - Use `kubectl-cli` or `helm-cli` for deployment checks that fail inside tests.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: pipeline diagnostics (use pipeline-diagnostics), security review (use @security), deployment orchestration (use @deploy).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -75,6 +81,8 @@ gh pr view <pr-number> --json reviews,commits,statusCheckRollup
 | PR number is ambiguous | List open PRs and ask for the target if multiple match. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Test Coverage and Quality Report
@@ -103,3 +111,8 @@ gh pr view <pr-number> --json reviews,commits,statusCheckRollup
 - [ ] Identified failed check names and conclusions.
 - [ ] Recommended concrete tests or coverage improvements.
 - [ ] No emojis or pictographs are present in the report.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

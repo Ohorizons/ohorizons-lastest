@@ -18,14 +18,14 @@ Use this skill to create professional Markdown deliverables in English with stab
 - "Convert this PowerPoint deck into a Markdown reading edition."
 - "Rewrite this runbook with a table of contents and references."
 
-## Prerequisites
+## Prerequisites and context
 
 - The document type is known: README, ADR, specification, guide, changelog, runbook, RFC, or general technical document.
 - The destination path is known or can be inferred from existing repository conventions such as `docs/`, `docs/guides/`, or `docs/architecture/`.
 - Source material is available in the workspace or provided by the user.
 - For PPTX conversion, the source deck path exists and speaker notes are preserved when the converter exposes them.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm document intent and destination
 
@@ -98,7 +98,13 @@ Proceed with writing the Markdown artifact? (y/n)
 > [!IMPORTANT]
 > Only create, rewrite, or overwrite Markdown files after an explicit affirmative response when the user has not already requested the exact file write. On a negative, ambiguous, or missing response, do not write the artifact; output the draft content and stop.
 
-## Error handling
+## Limits
+
+- Do not use this skill for: editable draw.io/SVG architecture diagrams with official icons (use azure-architecture-diagrams), Mermaid architecture document validation/Definition-of-Done checks (use architecture-doc), creating PPTX presentations, Word documents, PDFs, or image-only diagrams.
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 
 | Situation | Action |
 | --- | --- |
@@ -109,6 +115,8 @@ Proceed with writing the Markdown artifact? (y/n)
 | Broken internal link | Fix the link if the target exists; otherwise report it in the quality section. |
 
 ## Output template
+
+Return exactly this structure:
 
 ```markdown
 ## Markdown Delivery Report
@@ -141,3 +149,8 @@ Proceed with writing the Markdown artifact? (y/n)
 - [ ] Links are descriptive and references are cited.
 - [ ] No placeholder text remains.
 - [ ] No emojis or pictographs are present.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

@@ -5,7 +5,22 @@ description: "Use when editing Python FastAPI services, agent runtime modules, m
 
 # Python Conventions — FastAPI Agent APIs, Middleware, Tools, and Validators
 
-This file activates when you edit Python files anywhere in the repository, including `backstage/server/agent-api/`, Foundry services, MCP tooling, and validation scripts. It teaches Open Horizons conventions for FastAPI endpoints, Pydantic models, Azure identity, agent middleware, structured logging, tests, and safe automation. It does **not** cover Bash wrappers around Python scripts, which belong to [Shell script standards](shell.instructions.md), container packaging, which belongs to [Dockerfile standards](dockerfile.instructions.md), Kubernetes runtime configuration, which belongs to [Kubernetes standards](kubernetes.instructions.md), TypeScript Backstage clients, which belong to [TypeScript standards](typescript.instructions.md), or Copilot primitive schemas, which belong to [Agent customization standards](agent-files.instructions.md).
+This file activates when you edit Python files anywhere in the repository, including `backstage/server/agent-api/`, Foundry services, MCP tooling, and validation scripts. It teaches Open Horizons conventions for FastAPI endpoints, Pydantic models, Azure identity, agent middleware, structured logging, tests, and safe automation. It does **not** cover Bash wrappers around Python scripts, which belong to the `shell` instructions, container packaging, which belongs to the `dockerfile` instructions, Kubernetes runtime configuration, which belongs to the `kubernetes` instructions, TypeScript Backstage clients, which belong to the `typescript` instructions, or Copilot primitive schemas, which belong to the `agent-files` instructions.
+
+
+## Authoritative Sources and Precedence
+
+Follow these sources in order:
+
+1. Repository files matched by `applyTo: "**/*.py,**/python/**"` for existing local patterns.
+2. This `python` instruction file for passive conventions, boundaries, and examples.
+3. Official upstream documentation only when it is consistent with repository conventions.
+
+When sources conflict, the higher-priority source wins. Do not duplicate or weaken rules owned by another primitive.
+
+## Responsibility Split
+
+This file owns passive conventions for python conventions — fastapi agent apis, middleware, tools, and validators. Use the `test-coverage` and relevant implementation skills for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
 > Python services are part of the agentic execution layer. Treat tool execution, hooks, memory, trajectory logging, and cost tracking as governed runtime surfaces.
@@ -140,7 +155,7 @@ def test_classify_read_only_tool():
     assert classify_tool("list_pods") == ToolClass.READ_ONLY
 ```
 
-## Conventions
+## Core Conventions
 
 | Rule | Rationale |
 |---|---|
@@ -160,7 +175,7 @@ def test_classify_read_only_tool():
 | Keep async endpoints non-blocking | Add long synchronous shell or network work inside request handlers. |
 | Add focused pytest tests for hooks, validators, and parsing logic | Require live Azure or GitHub services for unit tests. |
 
-## Checklist Before Opening a PR
+## Verification Checklist
 
 - [ ] FastAPI endpoints use explicit models and stable paths.
 - [ ] Configuration comes from environment or managed identity, not committed values.

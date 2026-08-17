@@ -16,13 +16,13 @@ This workflow plans, scaffolds, validates, and prepares Backstage plugins and mo
 - "Validate this Backstage plugin package before we publish it."
 - "Generate a plugin ADR, strategy, and quality hooks."
 
-## Prerequisites
+## Prerequisites and context
 - Plugin ID, package scope, target Backstage app path, target version policy, and plugin type are known.
 - Plugin type is one of frontend, backend, backend module, catalog, scaffolder, search, auth, permission, TechDocs, common, or node package.
 - Official docs are checked through `mcp-ecosystem` or fallback references in `.github/skills/backstage-plugin-builder/references/`.
 - User approval is available before creating artifacts, modifying packages, or adding hooks.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Confirm scope and missing facts
 Ask only for facts required to proceed:
@@ -95,7 +95,13 @@ Use publication references only when the plugin is generic enough and the user r
 | Medium | Missing tests, docs, package metadata, config schema, or validation evidence. |
 | Low | Naming, README, or publication polish gaps. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: deploying Backstage itself (use backstage-deployment), configuring Codespaces for Golden Paths (use codespaces-golden-paths), or general Markdown writing (use markdown-writer).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Official docs lookup unavailable | State the failure and use `validate_official_docs.py` plus local references. |
@@ -104,6 +110,8 @@ Use publication references only when the plugin is generic enough and the user r
 | Package command missing | Mark it not applicable rather than inventing a new toolchain. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Backstage Plugin Build Report
 
@@ -134,3 +142,8 @@ Use publication references only when the plugin is generic enough and the user r
 - [ ] User confirmation is captured before creating or updating artifacts.
 - [ ] Type-specific reference guidance is applied.
 - [ ] Validation scripts and available package checks pass or failures are documented.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

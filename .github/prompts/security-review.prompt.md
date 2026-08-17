@@ -3,7 +3,6 @@ name: "security-review"
 description: "Run an evidence-based security review of Open Horizons code, Terraform, Kubernetes manifests, workflows, or deployment artifacts."
 argument-hint: "scope=terraform/modules focus=secrets,RBAC,network severity_threshold=Medium"
 agent: "security"
-tools: ["read", "search", "execute"]
 ---
 
 # /security-review
@@ -30,7 +29,7 @@ Invoke this before production deployment, after Terraform or Kubernetes changes,
 - Review evidence against Open Horizons requirements: Workload Identity, Key Vault, private endpoints, least privilege RBAC, resource limits, probes, and network policies.
 - Prioritize confirmed, actionable findings over style or low-confidence observations.
 - Provide reproduction evidence, impact, and remediation steps for each finding.
-- Recommend `/deploy-platform`, `/terraform`, or `/backstage` only after security findings are documented.
+- Recommend the `deploy-platform` prompt, the `terraform` prompt, or the `backstage` prompt only after security findings are documented.
 
 ## What I Will NOT Do
 - I will not edit files or apply remediations as part of this review prompt.
@@ -39,6 +38,8 @@ Invoke this before production deployment, after Terraform or Kubernetes changes,
 - I will not report speculative findings without concrete evidence.
 
 ## Output Format
+Chat response only. Do not create or modify workspace files from this prompt.
+
 Return a security findings report in this shape:
 
 ````markdown
@@ -46,7 +47,7 @@ Return a security findings report in this shape:
 
 | Severity | Finding | Evidence | Impact | Remediation | Owner |
 | --- | --- | --- | --- | --- | --- |
-| High | `<title>` | `<file:line or artifact>` | `<risk>` | `<fix>` | security/terraform/deploy |
+| High | `<title>` | `<file:line or artifact>` | `<risk>` | `<fix>` | securitythe `terraform` prompt/deploy |
 
 ## Scope
 - Reviewed: `<paths or artifacts>`
@@ -75,7 +76,7 @@ You are the `@security` agent. Perform a read-only, evidence-based review and do
 
 **Step 4 - Prioritize findings.** Report only confirmed findings at or above the severity threshold unless a lower severity issue is directly exploitable or blocks deployment.
 
-**Step 5 - Recommend remediation.** Provide concrete fixes and route implementation to `/terraform`, `/backstage`, or `/deploy-platform` as appropriate. Keep this prompt read-only.
+**Step 5 - Recommend remediation.** Provide concrete fixes and route implementation to the `terraform` prompt, the `backstage` prompt, or the `deploy-platform` prompt as appropriate. Keep this prompt read-only.
 
 ## Invocation Example
 ```text

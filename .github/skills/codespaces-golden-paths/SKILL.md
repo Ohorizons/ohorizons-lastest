@@ -16,13 +16,13 @@ This workflow configures Codespaces-ready developer environments for Open Horizo
 - "Validate that this Golden Path opens with the right SDKs in Codespaces."
 - "Add the Open in GitHub Codespaces badge to a scaffolded README."
 
-## Prerequisites
+## Prerequisites and context
 - Target template path exists under `golden-paths/h1-foundation/`, `golden-paths/h2-enhancement/`, or `golden-paths/h3-innovation/`.
 - The template has a skeleton directory where `.devcontainer/devcontainer.json` can be added or validated.
 - Required runtime stack is known: Python, Node.js, Java, Terraform, AI/ML, or data pipeline.
 - User approval is available before creating or updating template files.
 
-## Workflow steps
+## Procedure
 
 ### Step 1: Locate the target Golden Path
 ```bash
@@ -91,7 +91,13 @@ A minimal Python/FastAPI profile should include the expected image, features, ex
 | Medium | Missing SDK, wrong base image, broken post-create command, or incorrect ports. |
 | Low | Missing badge, optional extension gaps, or naming inconsistency. |
 
-## Error handling
+## Limits
+
+- Do not use this skill for: Backstage deployment (use backstage-deployment), CI/CD pipeline orchestration (use deploy-orchestration), or creating Backstage templates from scratch (use backstage-deployment).
+- Keep exclusions and handoffs as by-name references to installed skills or agents, not relative links to other primitives.
+- Stop before mutating infrastructure, clusters, repositories, or generated artifacts unless the procedure's confirmation gate is satisfied.
+
+## Troubleshooting
 | Situation | Action |
 |---|---|
 | Template path is missing | List existing `template.yaml` paths and stop. |
@@ -100,6 +106,8 @@ A minimal Python/FastAPI profile should include the expected image, features, ex
 | Codespaces feature is unavailable | Use the official devcontainers feature registry and document the fallback. |
 
 ## Output template
+
+Return exactly this structure:
 ```markdown
 # Codespaces Golden Path Report
 
@@ -125,3 +133,8 @@ A minimal Python/FastAPI profile should include the expected image, features, ex
 - [ ] User confirmation is captured before template file changes.
 - [ ] Devcontainer JSON is valid and references existing scaffold files.
 - [ ] README badge uses the correct repository placeholder or target URL.
+- [ ] Frontmatter contains a valid `name` matching the directory and a `description` with positive activation language.
+- [ ] The response follows `## Output template` and includes evidence for checks actually performed.
+- [ ] Tool, command, and file usage stays within this skill's procedure and confirmation gates.
+- [ ] Referenced repository paths and bundled resources exist before use.
+- [ ] This `SKILL.md` remains under 500 lines and contains no emojis.

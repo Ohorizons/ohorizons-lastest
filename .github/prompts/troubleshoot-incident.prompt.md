@@ -3,7 +3,6 @@ name: "troubleshoot-incident"
 description: "Diagnose Open Horizons service incidents using Kubernetes status, logs, events, Prometheus queries, and validation-run evidence."
 argument-hint: "symptom='502 errors' service=backstage namespace=backstage environment=prod time_window='2026-08-17 14:00-15:00' pod_name=''"
 agent: "sre"
-tools: ["read", "search", "execute"]
 ---
 
 # /troubleshoot-incident
@@ -39,9 +38,11 @@ Invoke this during a live or recent incident affecting Backstage, agent APIs, MC
 - I will not restart pods, scale clusters, roll back ArgoCD apps, or change production resources without explicit approval.
 - I will not ignore failed health checks or suppress alerts without evidence.
 - I will not expose PII, secrets, tokens, connection strings, or sensitive log payloads.
-- I will not make Terraform, security, or deployment changes directly; I will route them to `/terraform`, `/security-review`, or `/deploy-platform`.
+- I will not make Terraform, security, or deployment changes directly; I will route them to the `terraform` prompt, the `security-review` prompt, or the `deploy-platform` prompt.
 
 ## Output Format
+Chat response only. Do not create or modify workspace files from this prompt.
+
 Return an incident report in this shape:
 
 ````markdown
@@ -90,7 +91,7 @@ You are the `@sre` agent. Diagnose the incident systematically and keep all prod
 
 **Step 4 - Recommend mitigation.** Propose the least risky mitigation first. Mark restarts, rollbacks, scaling, and configuration changes as requiring explicit approval.
 
-**Step 5 - Document root cause path.** Summarize hypothesis, evidence, mitigation, permanent fix, and prevention. Route deployment execution to `/deploy-platform`, Terraform fixes to `/terraform`, and potential security incidents to `/security-review`.
+**Step 5 - Document root cause path.** Summarize hypothesis, evidence, mitigation, permanent fix, and prevention. Route deployment execution to the `deploy-platform` prompt, Terraform fixes to the `terraform` prompt, and potential security incidents to the `security-review` prompt.
 
 ## Invocation Example
 ```text
