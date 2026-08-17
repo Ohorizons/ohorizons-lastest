@@ -1,149 +1,178 @@
 ---
-applyTo: "**/*.tf,**/terraform/**,**/*.tfvars"
-description: "Terraform coding standards — module structure, provider versions, naming conventions, tagging, and security practices for Azure."
+applyTo: "**/*.tf,**/terraform/**,**/*.tf.example,**/*.tfvars.example"
+description: "Use when editing Open Horizons Terraform modules, environments, providers, variables, outputs, and Azure infrastructure examples."
 ---
 
-# Terraform Coding Standards
+# Terraform Conventions — Azure Infrastructure Modules and Environments
 
-## Project Structure
+This file activates when you edit Terraform modules, environment variable files, provider configuration, and Terraform examples. It teaches how Open Horizons provisions Azure foundation resources for AKS, networking, security, databases, observability, ArgoCD, and Backstage using reusable modules. It does **not** cover Kubernetes manifests deployed after infrastructure exists, which belong to [Kubernetes standards](kubernetes.instructions.md), shell deployment orchestration, which belongs to [Shell script standards](shell.instructions.md), GitHub Actions workflows that run Terraform, which belong to [GitHub Actions standards](github-actions.instructions.md), or container image definitions, which belong to [Dockerfile standards](dockerfile.instructions.md).
 
-```
-terraform/
-├── environments/
-│   ├── dev.tfvars
-│   ├── staging.tfvars
-│   └── prod.tfvars
-├── modules/
-│   └── <module-name>/
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── outputs.tf
-│       └── README.md
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── providers.tf
-├── backend.tf
-└── versions.tf
-```
+> [!IMPORTANT]
+> The Kubernetes, Helm, and kubectl providers depend on AKS outputs. On an empty subscription, apply H1 infrastructure before H2 modules or use the repository deployment script.
 
-## Provider Configuration
+## Module Structure
+
+Keep modules focused and organized with `main.tf`, `variables.tf`, `outputs.tf`, and `versions.tf`. Existing modules under `terraform/modules/` follow this shape.
 
 ```hcl
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.80"
-    }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~> 2.45"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {
-    key_vault {
-      purge_soft_delete_on_destroy = false
-    }
-    resource_group {
-      prevent_deletion_if_contains_resources = true
-    }
-  }
+# Wrong: mixes provider constraints, variables, and unrelated resources in one file.
+resource "azurerm_kubernetes_cluster" "main" {
+  name = "aks-dev"
 }
 ```
-
-## Backend Configuration
 
 ```hcl
-terraform {
-  backend "azurerm" {
-    resource_group_name  = "tfstate-rg"
-    storage_account_name = "tfstateaccount"
-    container_name       = "tfstate"
-    key                  = "project.tfstate"
-    use_azuread_auth     = true
-  }
+# main.tf
+locals {
+  cluster_name = "aks-${var.customer_name}-${var.environment}"
+}
+
+resource "azurerm_kubernetes_cluster" "main" {
+  name                = local.cluster_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
 }
 ```
 
-## Naming Conventions
+## Naming and Tags
 
-- Use lowercase with hyphens: `my-resource-name`
-- Include environment: `project-env-resource-region`
-- Use consistent abbreviations:
-  - `rg` = Resource Group
-  - `vnet` = Virtual Network
-  - `aks` = Azure Kubernetes Service
-  - `kv` = Key Vault
-  - `acr` = Container Registry
+Use repo naming patterns and merge module-specific tags with caller-provided tags. The AKS module uses `aks-${var.customer_name}-${var.environment}` and adds component metadata.
 
-## Variables
+```hcl
+# Wrong: hard-coded name and no caller tags.
+name = "mycluster"
+tags = {}
+```
+
+```hcl
+locals {
+  cluster_name = "aks-${var.customer_name}-${var.environment}"
+  default_tags = merge(var.tags, {
+    Component = "AKS"
+    Module    = "open-horizons-accelerator"
+  })
+}
+```
+
+> [!WARNING]
+> Never commit subscription secrets, client secrets, storage account keys, database passwords, or generated kubeconfigs in `.tf`, `.tfvars`, or examples.
+
+## Variables and Validation
+
+Use typed variables with descriptions, defaults only where safe, and validation for constrained values. Keep deprecated inputs only when needed for backward compatibility and mark them clearly.
+
+```hcl
+# Wrong: untyped environment with no description.
+variable "environment" {}
+```
 
 ```hcl
 variable "environment" {
+  description = "Environment (dev, staging, prod)"
   type        = string
-  description = "Environment name (dev, staging, prod)"
+
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Environment must be dev, staging, or prod."
   }
 }
+```
 
-variable "location" {
-  type        = string
-  description = "Azure region for resources"
-  default     = "eastus2"
+## Azure Identity and Security
+
+Use managed identity and Workload Identity patterns. For AKS, keep OIDC issuer and workload identity controlled by variables and defaulted on.
+
+```hcl
+# Wrong: service principal secret embedded in cluster configuration.
+service_principal {
+  client_id     = var.client_id
+  client_secret = var.client_secret
 }
 ```
 
-## Outputs
-
 ```hcl
-output "resource_group_name" {
-  description = "Name of the created resource group"
-  value       = azurerm_resource_group.main.name
+identity {
+  type = "SystemAssigned"
 }
 
-output "sensitive_data" {
-  description = "Sensitive output example"
-  value       = azurerm_key_vault_secret.example.value
+oidc_issuer_enabled       = var.enable_workload_identity
+workload_identity_enabled = var.enable_workload_identity
+```
+
+> [!NOTE]
+> Use data sources for existing Azure resources and pass IDs between modules through explicit outputs and variables.
+
+## Networking and AKS
+
+Keep AKS networking explicit: Azure CNI overlay, network policy, standard load balancer, and service CIDR values come from typed network configuration.
+
+```hcl
+# Wrong: implicit networking hides tenant and cluster constraints.
+network_profile {}
+```
+
+```hcl
+network_profile {
+  network_plugin      = var.network_config.network_plugin
+  network_plugin_mode = "overlay"
+  network_policy      = var.network_config.network_policy
+  load_balancer_sku   = "standard"
+  outbound_type       = "loadBalancer"
+  service_cidr        = var.network_config.service_cidr
+  dns_service_ip      = var.network_config.dns_service_ip
+}
+```
+
+## Outputs and Sensitive Values
+
+Describe every output and mark sensitive values. Prefer outputting resource IDs and names rather than secrets.
+
+```hcl
+# Wrong: exposes a secret as a normal output.
+output "database_password" {
+  value = random_password.postgres.result
+}
+```
+
+```hcl
+output "key_vault_id" {
+  description = "ID of the Key Vault used by platform workloads."
+  value       = azurerm_key_vault.main.id
+}
+
+output "database_password" {
+  description = "Generated database password."
+  value       = random_password.postgres.result
   sensitive   = true
 }
 ```
 
-## Tagging Standards
+## Conventions
 
-```hcl
-locals {
-  common_tags = {
-    Environment  = var.environment
-    Project      = var.project_name
-    Owner        = var.owner
-    CostCenter   = var.cost_center
-    ManagedBy    = "Terraform"
-    Repository   = "open-horizons-platform"
-  }
-}
-```
+| Rule | Rationale |
+|---|---|
+| Keep each module focused with `main.tf`, `variables.tf`, `outputs.tf`, and `versions.tf` | Consistent module shape makes reviews and reuse predictable. |
+| Use typed variables with descriptions and validations | Terraform plans should fail early with useful errors. |
+| Merge caller tags with module-specific tags | Cost, ownership, and component reporting depend on tags. |
+| Use Managed Identity or Workload Identity instead of service principal secrets | The platform security model avoids long-lived credentials. |
+| Enable private endpoints or private access patterns for PaaS where modules support them | Azure services should not be public by default. |
+| Mark sensitive outputs and avoid outputting secrets when IDs are enough | State files and plan logs can expose outputs. |
+| Keep provider versions pinned and do not use `terraform init -upgrade` casually | `.terraform.lock.hcl` represents the tested provider set. |
 
-## Security Requirements
+## Do / Do Not
 
-- NEVER hardcode secrets
-- ALWAYS use data sources for existing resources
-- Use `sensitive = true` for sensitive outputs
-- Enable soft delete and purge protection for Key Vault
-- Use private endpoints for PaaS services
-- Enable diagnostic settings on all resources
+| Do | Do not |
+|---|---|
+| Apply H1 modules before H2 modules that need AKS provider outputs | Expect a single empty-subscription apply to plan all Kubernetes providers. |
+| Use `for_each` for maps of optional resources such as node pools | Copy and paste nearly identical resources. |
+| Keep `.tfvars.example` sanitized | Commit real customer values in environment files. |
+| Run `terraform fmt` and a targeted `terraform validate` or plan where possible | Ship formatting or provider errors untested. |
 
-## Module Best Practices
+## Checklist Before Opening a PR
 
-- Keep modules focused and reusable
-- Document all inputs and outputs
-- Provide sensible defaults
-- Use count or for_each for conditional resources
-- Include examples in README.md
+- [ ] Module files follow the existing `main`, `variables`, `outputs`, `versions` layout.
+- [ ] Variables are typed, described, and validated where constrained.
+- [ ] Resources use managed identity, private access, diagnostics, and tags where supported.
+- [ ] No secrets or tenant-specific credentials are committed.
+- [ ] Outputs are described and sensitive values are marked.
+- [ ] Terraform formatting and targeted validation or planning has been run where feasible.

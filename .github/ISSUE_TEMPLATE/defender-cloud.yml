@@ -1,4 +1,4 @@
-name: "🛡️ H1: Defender for Cloud"
+name: "H1: Defender for Cloud"
 description: "Enable Microsoft Defender for Cloud security posture management"
 title: "[Defender] Enable cloud security"
 labels: ["h1-foundation", "security", "defender", "copilot-agent"]

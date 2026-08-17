@@ -1,6 +1,6 @@
 ---
 name: markdown-writer
-description: "Creates professional Markdown documents with YAML frontmatter, versioning, author attribution, table of contents, and consistent formatting. Use for Markdown documents, README, ADR, spec, guide, changelog, runbook, RFC, technical docs, and converting PPTX or PowerPoint files to narrative Markdown reading editions with markitdown. Trigger on 'md file', 'markdown', '.md', 'documento markdown', 'criar um readme', 'escrever documentação', 'write a spec', 'draft a guide', 'convert PPTX to Markdown', 'extract PPTX', or 'PowerPoint to Markdown'. Do not use for creating PPTX presentations, Word documents, diagrams, or PDFs."
+description: 'Creates professional Markdown documents with YAML frontmatter, versioning, author attribution, table of contents, and consistent formatting. USE FOR: Markdown documents, README, ADR, spec, guide, changelog, runbook, RFC, technical docs, and PPTX/PowerPoint-to-Markdown reading editions with markitdown. Trigger on ''md file'', ''markdown'', ''.md'', ''documento markdown'', ''criar um readme'', ''escrever documentação'', ''write a spec'', ''draft a guide'', ''convert PPTX to Markdown'', ''extract PPTX'', or ''PowerPoint to Markdown''. DO NOT USE FOR: editable draw.io/SVG architecture diagrams with official icons (use azure-architecture-diagrams), Mermaid architecture document validation/Definition-of-Done checks (use architecture-doc), creating PPTX presentations, Word documents, PDFs, or image-only diagrams.'
 ---
  
 # Markdown Writer

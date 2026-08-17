@@ -1,112 +1,158 @@
-# Agent System — Open Horizons (Agentic DevOps Platform)
+# Open Horizons Agent Instructions
 
-## Overview
-
-The Open Horizons platform uses **GitHub Copilot Chat Agents** — a role-based AI assistant system that operates directly within VS Code / GitHub Copilot Chat. The platform includes **9 deploy-managed agents**, **28 skills**, **9 prompts**, and **8 instructions** for deterministic, automated platform operations.
+Open Horizons is an open-source **Agentic DevOps Platform** on Azure AKS. It serves two personas through one Backstage portal: **Developer IDP** for services, golden paths, and docs, and **Agent IDP** for agent catalog, trajectories, cost, and governance.
 
 ## Architecture
 
-```text
-.github/
-├── agents/          # 9 deploy-managed chat agents (.agent.md)
-├── instructions/    # 8 code-generation instructions (.instructions.md)
-├── prompts/         # 9 reusable prompts (.prompt.md)
-├── skills/          # 28 operational skill sets (SKILL.md)
-└── ISSUE_TEMPLATE/  # Issue templates
-```
-
-## Chat Agents
-
-| Agent | File | Role |
-| --- | --- | --- |
-| **Deploy** | [deploy.agent.md](.github/agents/deploy.agent.md) | Deployment orchestration, end-to-end platform deployment |
-| **Terraform** | [Terraform agent](.github/agents/terraform.agent.md) | Infrastructure as Code, Terraform modules |
-| **Security** | [security.agent.md](.github/agents/security.agent.md) | Security policies, scanning, compliance |
-| **SRE** | [sre.agent.md](.github/agents/sre.agent.md) | Reliability engineering, incident response, monitoring |
-| **Backstage Expert** | [Backstage Expert agent](.github/agents/backstage-expert.agent.md) | Backstage portal deployment on AKS, GitHub auth, Golden Paths |
-| **Azure Portal Deploy** | [Azure Portal Deploy agent](.github/agents/azure-portal-deploy.agent.md) | Azure AKS provisioning, Key Vault, PostgreSQL, ACR |
-| **GitHub Integration** | [GitHub Integration agent](.github/agents/github-integration.agent.md) | GitHub App, org discovery, GHAS, Actions, Packages |
-| **ADO Integration** | [ado-integration.agent.md](.github/agents/ado-integration.agent.md) | Azure DevOps PAT, repos, pipelines, boards |
-| **Hybrid Scenarios** | [hybrid-scenarios.agent.md](.github/agents/hybrid-scenarios.agent.md) | GitHub + ADO coexistence scenarios |
-
-Enterprise identity note: Open Horizons separates Backstage sign-in (`AUTH_PROVIDER=github|entra|guest`) from GitHub identity governance (`GITHUB_IDENTITY_MODE=standard|saml-sso|enterprise-managed-users`). Use `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=enterprise-managed-users` for GitHub Enterprise Managed Users; GitHub App/token credentials remain required for technical portal integration.
-
-### How to Use
-
-In VS Code with GitHub Copilot Chat, mention an agent by name:
+The platform implements the Context Platform Stack:
 
 ```text
-@deploy Deploy the platform to dev environment
-@terraform Create a new AKS module with private networking
-@security Review security posture for the platform
-@sre Create an incident response runbook
+L5 Agentic Execution  -> backstage/server/agent-api*/ + middleware/ + .github/agents/
+L4 Intent Engineering  -> golden-paths/common/templates/ + .github/prompts/ + repo-internal model-routing convention
+L3 Context Engineering -> mcp-servers/ + backstage/server/agent-api/memory/ + .github/skills/ + CODEMAP.md
+L2 Platform Engineering-> backstage/ + argocd/ + policies/ + golden-paths/ + grafana/
+L1 Cloud/Infrastructure-> terraform/modules/ + backstage/k8s/
 ```
 
-## Prompts
+Adoption stages:
 
-The 9 prompt files in the workspace prompt folder provide one-shot shortcuts (`/name` in chat picker):
+- **H1 Foundation:** AKS, networking, security, and databases.
+- **H2 Enhancement:** ArgoCD, Backstage, observability, and Golden Paths.
+- **H3 Innovation:** AI Chat, AI Impact, and agent capabilities.
 
-| Prompt | Agent | Purpose |
+## Current Container Tags
+
+| Image | Tag | Registry |
 | --- | --- | --- |
-| `/deploy-platform` | Deploy | End-to-end platform deployment |
-| `/terraform` | Terraform | Write or validate Terraform modules |
-| `/azure-infra` | Azure Portal Deploy | Provision AKS, Key Vault, PostgreSQL, ACR |
-| `/backstage` | Backstage Expert | Deploy Backstage portal to AKS |
-| `/security-review` | Security | OWASP, RBAC, secrets audit |
-| `/ado-setup` | ADO Integration | Configure ADO PAT + pipelines |
-| `/hybrid-setup` | Hybrid Scenarios | GitHub + ADO coexistence |
-| `/troubleshoot-incident` | SRE | Troubleshoot incidents |
-| `/create-mcp-server` | — | Scaffold MCP server |
+| `ohorizons-backstage` | `v7.2.6` | GHCR public |
+| `ohorizons-agent-api` | `v7.2.6` | GHCR public |
+| `ohorizons-agent-api-impact` | `v7.2.6` | GHCR public |
+| `mcp-ecosystem` | `v7.2.5` | GHCR public |
+| `ohorizons-agent-api-maf` | `v7.2.5` | GHCR public |
+| `ohorizons-agent-api-sk` | `v7.2.5` | GHCR public |
+| `ohorizons-foundry-agents` | `v7.2.5` | GHCR public |
 
-## Instructions
+Use tag format `v<semver>-<suffix>` and never use `:latest` in deployment manifests. The MCP ecosystem, MAF/SK agent APIs, and Foundry gateway ship on a separate cadence; pin them independently with `MCP_ECOSYSTEM_TAG`.
 
-The 8 instruction files in the workspace instructions folder auto-apply when editing matching file types:
+## Build, Deploy, and Validate
 
-| Instruction | Applies To |
+Render Kubernetes manifests after configuration changes:
+
+```bash
+./scripts/render-k8s.sh
+```
+
+Deploy the platform with the orchestrated script:
+
+```bash
+./scripts/deploy-full.sh --environment dev --dry-run
+./scripts/deploy-full.sh --environment dev
+```
+
+For manual Terraform deployment, initialize from `terraform/` and keep the checked-in provider lock file:
+
+```bash
+cd terraform
+terraform init
+terraform plan -var-file=environments/dev.tfvars -out=h1.tfplan
+terraform apply h1.tfplan
+terraform apply -var-file=environments/dev.tfvars \
+  -target=module.argocd -target=module.observability \
+  -target=module.external_secrets -target=module.databases
+```
+
+The Kubernetes, Helm, and kubectl providers are configured from `module.aks` outputs. A single-pass `terraform apply` on an empty subscription fails at plan time; apply H1 first or use `scripts/deploy-full.sh`.
+
+Run the existing validation scripts when relevant:
+
+```bash
+./scripts/validate-prerequisites.sh
+./scripts/validate-config.sh --environment dev
+./scripts/validate-deployment.sh --environment dev
+```
+
+## Repository Layout
+
+| Component | Path |
 | --- | --- |
-| `agent-files` | `*.agent.md`, `*.prompt.md`, `*.instructions.md`, `SKILL.md` |
-| `github-actions` | `.github/workflows/**/*.yml`, `.github/workflows/**/*.yaml` |
-| `issue-forms` | `.github/ISSUE_TEMPLATE/**/*.yml`, `.github/ISSUE_TEMPLATE/**/*.yaml` |
-| `kubernetes` | `deploy/**`, `argocd/**`, `backstage/k8s/**`, `kubernetes/**`, `k8s/**`, `helm/**` |
-| `python` | `*.py`, `python/**` |
-| `terraform` | `*.tf`, `terraform/**`, `*.tfvars` |
-| `dockerfile` | `Dockerfile` |
-| `docker-compose` | `docker-compose.yml` |
+| Backstage app | `backstage/` |
+| Backstage Kubernetes manifests | `backstage/k8s/` |
+| AI Chat plugin | `backstage/plugins/ai-chat/` |
+| Agent API for AI Chat | `backstage/server/agent-api/` |
+| Agent API for AI Impact | `backstage/server/agent-api-impact/` |
+| Agent API for Microsoft Agent Framework | `backstage/server/agent-api-maf/` |
+| Agent API for Semantic Kernel | `backstage/server/agent-api-sk/` |
+| Foundry agents gateway | `foundry/agents-service/` |
+| Foundry Kubernetes manifests | `foundry/k8s/` |
+| Agent docker-compose | `backstage/server/docker-compose.yml` |
+| Terraform modules | `terraform/modules/` |
+| Terraform environments | `terraform/environments/` |
+| Helm values | `deploy/helm/` |
+| Golden Path templates | `golden-paths/` |
+| SDD intent templates | `golden-paths/common/templates/` |
+| Copilot agent specifications | `.github/agents/` |
+| Agent skills | `.github/skills/` |
+| Automation scripts | `scripts/` |
+| Documentation | `docs/` |
+| Prompt files | `.github/prompts/` |
+| Scoped instruction files | `.github/instructions/` |
+| Copilot CLI repo guard hook manifest | `.github/hooks/repo-guard.json` |
+| Copilot CLI repo guard hook script | `.github/hooks/repo-guard.sh` |
+| Repository-internal model routing convention | `.github/model-routing.yaml` |
+| OPA policies for Kubernetes | `policies/kubernetes/` |
+| OPA policies for Terraform | `policies/terraform/` |
+| Grafana dashboards | `grafana/dashboards/` |
+| Context Platform dashboards | `grafana/dashboards/context-platform/` |
+| Architecture docs and ADRs | `docs/architecture/` |
+| MCP server tools | `mcp-servers/src/tools/` |
+| Agent memory implementation | `backstage/server/agent-api/memory/` |
+| Agent middleware | `backstage/server/agent-api/middleware/` |
+| Agent identity manifest | `backstage/k8s/agent-identity.yaml` |
+| Program skeleton | `CODEMAP.md` |
 
-## Skills
+## Non-Negotiable Conventions
 
-The 28 skills in the workspace skills folder provide domain-specific knowledge that agents load on demand:
+- Use Workload Identity or Managed Identity for Azure access; do not introduce service principal secrets.
+- Store secrets in Azure Key Vault or existing secret-management flows; never commit credentials.
+- Prefer private endpoints for Azure PaaS services.
+- Follow least-privilege RBAC for Azure, Kubernetes, GitHub, and Backstage integrations.
+- Use resource names shaped as `{project}-{environment}-{resource}-{region}` where applicable.
+- Use kebab-case for files and Kubernetes names, and snake_case for Terraform variables and resources.
+- Use Kustomize overlays for Kubernetes environment differences.
+- Keep deployment manifests pinned to explicit image tags.
 
-| Skill | Description |
-| --- | --- |
-| `agentic-architecture-patterns` | Agentic system architecture patterns |
-| `ai-foundry-operations` | Azure AI Foundry provisioning, model deployment, RAG |
-| `architecture-doc` | Architecture document validation |
-| `argocd-cli` | ArgoCD CLI for GitOps workflows |
-| `azure-architecture-diagrams` | Azure architecture diagrams |
-| `azure-cli` | Azure CLI resource management |
-| `azure-infrastructure` | Azure architecture patterns and best practices |
-| `azure-managed-redis-cache` | Azure Managed Redis patterns |
-| `backstage-deployment` | Backstage portal deployment on AKS and locally |
-| `codespaces-golden-paths` | GitHub Codespaces devcontainer configs per Golden Path |
-| `database-management` | Database ops and health monitoring |
-| `deploy-orchestration` | End-to-end platform deployment orchestration |
-| `foundry-agent-blueprint` | Azure AI Foundry agent blueprint |
-| `github-cli` | GitHub CLI for repos and workflows |
-| `helm-cli` | Helm CLI for Kubernetes packages |
-| `issue-ops` | GitHub Issue-driven slash command dispatcher |
-| `kubectl-cli` | Kubernetes CLI for AKS |
-| `markdown-writer` | Professional Markdown documents |
-| `mcp-ecosystem` | Live methodology and reference data |
-| `observability-stack` | Prometheus, Grafana, Loki, Alertmanager |
-| `pipeline-diagnostics` | GitHub Actions CI/CD failure analysis and remediation |
-| `prerequisites` | CLI tool validation and setup |
-| `requirements-engineer` | Requirements engineering |
-| `sdd-spec-engineer` | Spec-driven development artifacts |
-| `story-planning` | INVEST user story decomposition and GitHub Issues creation |
-| `terraform-cli` | Terraform CLI for Azure infra |
-| `test-coverage` | Test coverage analysis, CI check runs, and quality gates |
-| `validation-scripts` | Validation scripts for deployments |
+Language and tool-specific standards live in scoped instruction files instead of this always-loaded file:
+
+- @.github/instructions/terraform.instructions.md
+- @.github/instructions/kubernetes.instructions.md
+- @.github/instructions/python.instructions.md
+- @.github/instructions/shell.instructions.md
+- @.github/instructions/typescript.instructions.md
+- @.github/instructions/github-actions.instructions.md
+- @.github/instructions/dockerfile.instructions.md
+- @.github/instructions/docker-compose.instructions.md
+- @.github/instructions/issue-forms.instructions.md
+- @.github/instructions/agent-files.instructions.md
+
+## Context, Intent, and Execution
+
+Context Engineering uses `CODEMAP.md`, `backstage/server/agent-api/memory/context_store.py`, `backstage/server/agent-api/memory/tiers.py`, `mcp-servers/src/tools/`, and `.github/skills/`. Audit context quality with `scripts/audit-context-quality.sh`.
+
+Intent Engineering uses the templates in `golden-paths/common/templates/`, prompt shortcuts in `.github/prompts/`, repo guard hooks in `.github/hooks/repo-guard.json` and `.github/hooks/repo-guard.sh`, and drift measurement in `scripts/measure-intent-drift.sh`.
+
+Agentic Execution records trajectory, cost, context, and hook data through `backstage/server/agent-api/middleware/trajectory.py`, `backstage/server/agent-api/middleware/cost_tracker.py`, and `backstage/server/agent-api/middleware/hooks.py`. The Foundry gateway enforces the same tool-use policy in `foundry/agents-service/app/tool_hooks.py`.
+
+Runtime observability APIs include `/api/agents/trajectories`, `/api/agents/costs`, `/api/agents/context`, `/api/agents/hooks`, and `/api/agents/hooks/audit`.
+
+## Golden Paths
+
+When creating or modifying Golden Path templates:
+
+- Follow Backstage template format.
+- Include skeleton files.
+- Include SDD artifacts from `golden-paths/common/templates/`.
+- Add documentation.
+- Test scaffolding locally before registration.
 
 ## Related Documentation
 

@@ -1,36 +1,63 @@
 ---
 name: codespaces-golden-paths
-description: "Configures GitHub Codespaces dev environments for each Golden Path template type so developers get a fully ready workspace when scaffolding from the portal. USE FOR: devcontainer.json configuration, Codespaces setup, Golden Path dev environment, container features, SDK pre-installation. DO NOT USE FOR: Backstage deployment (use backstage-deployment), CI/CD pipelines (use deploy-orchestration), template creation (use backstage-deployment)."
+description: "Use when configuring GitHub Codespaces devcontainer environments for Open Horizons Golden Path templates; produces devcontainer recommendations, template mapping, validation checks, and README badge guidance. DO NOT USE FOR: Backstage deployment (use backstage-deployment), CI/CD pipeline orchestration (use deploy-orchestration), or creating Backstage templates from scratch (use backstage-deployment). Triggers include \"add Codespaces to a Golden Path\", \"create a devcontainer for this template\", \"validate Codespaces setup\"."
 ---
 
-# Codespaces Golden Paths Skill
+# Codespaces Golden Paths
 
-Configures GitHub Codespaces dev environments for each Golden Path template type so developers get a fully ready workspace when they scaffold from the portal.
+This workflow configures Codespaces-ready developer environments for Open Horizons Golden Path templates. It produces a template-to-devcontainer mapping, a `.devcontainer/devcontainer.json` design, validation checks, and README badge guidance.
 
----
+> [!NOTE]
+> This skill relies on GitHub Codespaces, devcontainers, and repository Golden Path templates under `golden-paths/`. Use `gh` for GitHub checks when needed, and do not modify scaffolded template files until the user confirms the target template.
 
-## Scope
+## When to invoke
+- "Add Codespaces support to the API microservice Golden Path."
+- "Create a devcontainer for the Foundry agent template."
+- "Validate that this Golden Path opens with the right SDKs in Codespaces."
+- "Add the Open in GitHub Codespaces badge to a scaffolded README."
 
-| Aspect | Detail |
-|--------|--------|
-| **Purpose** | Auto-create Codespaces with SDKs, tools, and configs per template |
-| **Trigger** | Developer scaffolds a Golden Path → repo created → Codespace ready |
-| **Used by** | `@backstage-expert`, `@deploy` |
+## Prerequisites
+- Target template path exists under `golden-paths/h1-foundation/`, `golden-paths/h2-enhancement/`, or `golden-paths/h3-innovation/`.
+- The template has a skeleton directory where `.devcontainer/devcontainer.json` can be added or validated.
+- Required runtime stack is known: Python, Node.js, Java, Terraform, AI/ML, or data pipeline.
+- User approval is available before creating or updating template files.
 
----
+## Workflow steps
 
-## 1. How It Works
+### Step 1: Locate the target Golden Path
+```bash
+find golden-paths -maxdepth 3 -name template.yaml | sort
+```
 
-1. Developer selects a Golden Path template in the portal Backstage
-2. Scaffolder creates a new repo with skeleton files
-3. Skeleton includes `.devcontainer/devcontainer.json` configured for that template type
-4. Developer clicks "Open in Codespaces" → fully configured environment
+- [ ] Confirm the exact template directory.
+- [ ] Identify the scaffold skeleton path.
+- [ ] Confirm the language/runtime and expected ports.
 
----
+### Step 2: Select the devcontainer profile
+| Template type | Base image | Common tools |
+|---|---|---|
+| Python or FastAPI | `mcr.microsoft.com/devcontainers/python:3.11` | Python, Azure CLI, kubectl/Helm, GitHub CLI |
+| Node.js or web | `mcr.microsoft.com/devcontainers/javascript-node:20` | Node.js, npm/yarn, Azure CLI, GitHub CLI |
+| Terraform | `mcr.microsoft.com/devcontainers/base:ubuntu` | Terraform, Azure CLI, kubectl/Helm, GitHub CLI |
+| Java or Spring Boot | `mcr.microsoft.com/devcontainers/java:21` | Java, Maven, Azure CLI, GitHub CLI |
+| AI/ML | `mcr.microsoft.com/devcontainers/python:3.11` | Python, Azure AI SDKs, notebooks, GitHub CLI |
 
-## 2. devcontainer.json Templates by Type
+### Step 3: Confirm before modifying template artifacts
+```text
+Codespaces update summary:
+- Template path:
+- Runtime profile:
+- Files to create or update:
+- Forwarded ports:
+Proceed with updating the Golden Path devcontainer files? (y/n)
+```
 
-### Python / FastAPI Microservice
+> [!IMPORTANT]
+> Only proceed with creating or updating `.devcontainer`, README, or template files if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the recommended configuration and stop.
+
+### Step 4: Create or validate `devcontainer.json`
+A minimal Python/FastAPI profile should include the expected image, features, extensions, setup command, and forwarded ports:
+
 ```json
 {
   "name": "Python Microservice",
@@ -38,230 +65,63 @@ Configures GitHub Codespaces dev environments for each Golden Path template type
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-python.pylint",
-        "charliermarsh.ruff",
-        "redhat.vscode-yaml",
-        "ms-azuretools.vscode-docker",
-        "github.copilot"
-      ],
-      "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "python.testing.pytestEnabled": true
-      }
-    }
-  },
-  "postCreateCommand": "pip install -r requirements.txt && pip install -e '.[dev]'",
-  "forwardPorts": [8000, 5432],
-  "portsAttributes": {
-    "8000": { "label": "API Server", "onAutoForward": "notify" }
-  }
-}
-```
-
-### Node.js / Web Application
-```json
-{
-  "name": "Node.js Web App",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss",
-        "ms-azuretools.vscode-docker",
-        "github.copilot"
-      ]
-    }
-  },
-  "postCreateCommand": "npm ci",
-  "forwardPorts": [3000],
-  "portsAttributes": {
-    "3000": { "label": "Dev Server", "onAutoForward": "openBrowser" }
-  }
-}
-```
-
-### Terraform / Infrastructure
-```json
-{
-  "name": "Terraform Infrastructure",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/terraform:1": { "version": "1.7" },
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "hashicorp.terraform",
-        "redhat.vscode-yaml",
-        "github.copilot",
-        "ms-azuretools.vscode-azureterraform"
-      ]
-    }
-  },
-  "postCreateCommand": "terraform init"
-}
-```
-
-### Java / Spring Boot Microservice
-```json
-{
-  "name": "Java Microservice",
-  "image": "mcr.microsoft.com/devcontainers/java:21",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/maven:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "vscjava.vscode-java-pack",
-        "vmware.vscode-spring-boot",
-        "redhat.vscode-yaml",
-        "ms-azuretools.vscode-docker",
-        "github.copilot"
-      ]
-    }
-  },
-  "postCreateCommand": "mvn dependency:resolve",
-  "forwardPorts": [8080],
-  "portsAttributes": {
-    "8080": { "label": "Spring Boot", "onAutoForward": "notify" }
-  }
-}
-```
-
-### AI / ML Pipeline
-```json
-{
-  "name": "AI ML Pipeline",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-toolsai.jupyter",
-        "ms-toolsai.vscode-ai",
-        "charliermarsh.ruff",
-        "github.copilot"
-      ],
-      "settings": {
-        "python.testing.pytestEnabled": true,
-        "jupyter.askForKernelRestart": false
-      }
-    }
-  },
-  "postCreateCommand": "pip install -r requirements.txt && pip install azure-ai-ml azure-identity mlflow",
-  "forwardPorts": [8888, 5000],
-  "portsAttributes": {
-    "8888": { "label": "Jupyter", "onAutoForward": "notify" },
-    "5000": { "label": "MLflow", "onAutoForward": "notify" }
-  }
-}
-```
-
-### Data Pipeline
-```json
-{
-  "name": "Data Pipeline",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-toolsai.jupyter",
-        "charliermarsh.ruff",
-        "redhat.vscode-yaml",
-        "github.copilot"
-      ]
-    }
   },
   "postCreateCommand": "pip install -r requirements.txt",
-  "forwardPorts": [8080, 4040],
-  "portsAttributes": {
-    "4040": { "label": "Spark UI", "onAutoForward": "notify" }
-  }
+  "forwardPorts": [8000]
 }
 ```
 
----
-
-## 3. Skeleton Integration
-
-Each Golden Path template skeleton should include:
-
-```
-skeleton/
-├── .devcontainer/
-│   └── devcontainer.json    # Type-specific config
-├── .github/
-│   └── workflows/
-│       └── ci.yaml          # CI pipeline
-├── catalog-info.yaml        # Backstage catalog entry
-├── README.md                # With "Open in Codespaces" button
-└── ...                      # Template-specific files
-```
-
-### README Badge
-Add to each scaffolded README.md:
+### Step 5: Add README badge guidance
 ```markdown
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/${{ values.repoUrl }}?quickstart=1)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/<owner>/<repo>?quickstart=1)
 ```
 
----
+### Step 6: Validate the generated workspace
+- [ ] JSON is valid.
+- [ ] Feature names are current and pinned to intended major versions.
+- [ ] `postCreateCommand` matches files that exist in the scaffold.
+- [ ] Ports match the application runtime.
+- [ ] Required VS Code extensions are relevant and not excessive.
 
-## 4. Golden Path → devcontainer Mapping
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| High | Devcontainer runs untrusted setup, requests broad credentials, or breaks template scaffolding. |
+| Medium | Missing SDK, wrong base image, broken post-create command, or incorrect ports. |
+| Low | Missing badge, optional extension gaps, or naming inconsistency. |
 
-| Golden Path | devcontainer Type | Base Image | Key Tools |
-|-------------|-------------------|------------|-----------|
-| new-microservice | Python | python:3.11 | FastAPI, pytest, uvicorn |
-| web-application | Node.js | node:20 | Vite, ESLint, Playwright |
-| api-microservice | Python | python:3.11 | FastAPI, SQLAlchemy, Alembic |
-| api-gateway | Node.js | node:20 | Express, NGINX config |
-| batch-job | Python | python:3.11 | Celery, Redis client |
-| data-pipeline | Data | python:3.11 | PySpark, Azure Data SDK |
-| event-driven-microservice | Python | python:3.11 | Kafka client, asyncio |
-| microservice | Python | python:3.11 | FastAPI, Docker |
-| infrastructure-provisioning | Terraform | base:ubuntu | Terraform, az cli, tfsec |
-| basic-cicd | Terraform | base:ubuntu | GitHub Actions, Docker |
-| security-baseline | Terraform | base:ubuntu | tfsec, Trivy, OPA |
-| documentation-site | Node.js | node:20 | MkDocs, techdocs-core |
-| gitops-deployment | Terraform | base:ubuntu | ArgoCD CLI, Helm, kubectl |
-| rag-application | AI/ML | python:3.11 | Azure AI SDK, LangChain |
-| foundry-agent | AI/ML | python:3.11 | Azure AI Foundry SDK |
-| mlops-pipeline | AI/ML | python:3.11 | MLflow, Azure ML SDK |
-| copilot-extension | Node.js | node:20 | TypeScript, Octokit |
-| multi-agent-system | AI/ML | python:3.11 | Semantic Kernel, AutoGen |
-| sre-agent-integration | AI/ML | python:3.11 | Azure Monitor SDK |
-| ado-to-github-migration | Node.js | node:20 | GitHub CLI, az devops |
-| reusable-workflows | Terraform | base:ubuntu | GitHub Actions |
+## Error handling
+| Situation | Action |
+|---|---|
+| Template path is missing | List existing `template.yaml` paths and stop. |
+| Runtime stack is unclear | Ask one targeted question and provide a default only if safe. |
+| `postCreateCommand` references missing files | Remove or adapt the command to existing scaffold files. |
+| Codespaces feature is unavailable | Use the official devcontainers feature registry and document the fallback. |
+
+## Output template
+```markdown
+# Codespaces Golden Path Report
+
+## Target
+- Template path:
+- Runtime profile:
+
+## Files
+| File | Action |
+|---|---|
+
+## Validation
+| Check | Result |
+|---|---|
+
+## Developer Instructions
+- Open in Codespaces:
+- Local fallback:
+```
+
+## Quality gate
+- [ ] Target Golden Path path exists.
+- [ ] User confirmation is captured before template file changes.
+- [ ] Devcontainer JSON is valid and references existing scaffold files.
+- [ ] README badge uses the correct repository placeholder or target URL.

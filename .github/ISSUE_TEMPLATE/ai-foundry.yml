@@ -1,4 +1,4 @@
-name: "🤖 H3: AI Foundry Setup"
+name: "H3: AI Foundry Setup"
 description: "Deploy Azure AI Foundry with models and RAG infrastructure"
 title: "[AI] Deploy AI Foundry infrastructure"
 labels: ["h3-innovation", "ai-foundry", "copilot-agent"]

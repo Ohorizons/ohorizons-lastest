@@ -1,204 +1,149 @@
 ---
 name: deploy-orchestration
-description: "End-to-end platform deployment orchestration — prerequisites, Terraform, Kubernetes verification, and troubleshooting. USE FOR: full platform deployment, deployment sequence, prerequisite validation, post-deploy verification, deployment troubleshooting. DO NOT USE FOR: Terraform modules (use terraform-cli), Kubernetes read operations (use kubectl-cli), Helm package operations (use helm-cli)."
+description: "Use when orchestrating an end-to-end Open Horizons deployment or dry run across prerequisites, Terraform H1/H2/H3 sequencing, Kubernetes rendering, validation, troubleshooting, resume, and teardown; produces a deployment plan, command log, validation report, and rollback guidance. DO NOT USE FOR: Terraform module authoring (use terraform-cli), Kubernetes read-only operations (use kubectl-cli), or Helm package operations (use helm-cli). Triggers include \"deploy the platform\", \"run deployment dry run\", \"validate deployment\"."
 ---
 
-## When to Use
-- Full platform deployment (new environment)
-- Adding horizons to an existing deployment (e.g., enabling H3)
-- Post-deployment verification
-- Deployment troubleshooting
+# Deploy Orchestration
+
+This workflow orchestrates complete Open Horizons platform deployment and validation. It sequences prerequisites, configuration validation, Terraform deployment, Kubernetes manifest rendering, AKS verification, and post-deploy health checks while enforcing confirmation before any paid or destructive operation.
+
+> [!NOTE]
+> This skill shells out to repository scripts, Azure CLI, Terraform, kubectl, and GitHub CLI. Use `scripts/deploy-full.sh` for the supported automation path, and never run `terraform init -upgrade` because `.terraform.lock.hcl` is the tested provider set.
+
+## When to invoke
+- "Deploy the Open Horizons platform to dev."
+- "Run a dry-run deployment before applying changes."
+- "Validate the deployment after Terraform completed."
+- "Resume a failed deployment or troubleshoot the deployment sequence."
+- "Tear down the dev environment after approval."
 
 ## Prerequisites
-- Azure CLI authenticated (`az login`)
-- GitHub CLI authenticated (`gh auth login`)
-- All tools installed (run `./scripts/validate-prerequisites.sh`)
-- Environment `.tfvars` configured
+- Required scripts exist: `scripts/validate-prerequisites.sh`, `scripts/validate-config.sh`, `scripts/deploy-full.sh`, `scripts/render-k8s.sh`, and `scripts/validate-deployment.sh`.
+- Azure CLI and GitHub CLI are authenticated.
+- Terraform environment file exists under `terraform/environments/`.
+- User has selected environment: dev, staging, or prod.
+- Explicit approval is available before apply, destroy, or paid resource creation.
 
-## Deployment Phases
+## Workflow steps
 
-### Phase 0: Initial Setup (Wizard)
-```bash
-# Interactive setup — collects org, domain, auth, Azure, AI config
-scripts/install-wizard.sh
-
-# This writes .env and optionally renders K8s manifests.
-# For GitHub Enterprise Managed Users, select AUTH_PROVIDER=entra and
-# GITHUB_IDENTITY_MODE=enterprise-managed-users.
-# For CI/CD (non-interactive):
-scripts/install-wizard.sh --auto --selection-file .openhorizons-selection.yaml
-```
-
-### Phase 0b: Render K8s Manifests
-```bash
-# Generate manifests from templates using .env values
-scripts/render-k8s.sh
-
-# Dry-run to preview without writing:
-scripts/render-k8s.sh --dry-run
-```
-
-### Phase 1: Prerequisites
+### Step 1: Validate local prerequisites
 ```bash
 ./scripts/validate-prerequisites.sh
+az account show -o table
+gh auth status
 ```
 
-### Phase 2: Azure Setup
+- [ ] CLI tools are installed.
+- [ ] Azure subscription and GitHub identity are correct.
+- [ ] Required environment files are present.
+
+### Step 2: Validate configuration
 ```bash
-# Login
-az login
-az account set --subscription "$AZURE_SUBSCRIPTION_ID"
-
-# Register providers
-for provider in Microsoft.ContainerService Microsoft.ContainerRegistry \
-  Microsoft.KeyVault Microsoft.Network Microsoft.ManagedIdentity \
-  Microsoft.Security Microsoft.CognitiveServices Microsoft.Monitor; do
-  az provider register --namespace "$provider"
-done
+./scripts/validate-config.sh --environment <env>
+./scripts/render-k8s.sh --dry-run
 ```
 
-### Phase 2: Terraform Backend (first time only)
+- [ ] `.env`-driven Kubernetes templates render.
+- [ ] Terraform variables are complete for the target environment.
+- [ ] H1/H2/H3 horizon selection is understood.
+
+### Step 3: Prefer dry run first
 ```bash
-./scripts/setup-terraform-backend.sh \
-  --customer-name contoso \
-  --environment dev \
-  --location brazilsouth
+./scripts/deploy-full.sh --environment <env> --dry-run
 ```
 
-### Phase 3: Configuration
+Review planned Azure resources, Kubernetes changes, and horizon scope before applying.
+
+### Step 4: Confirm before apply or destroy
+```text
+Deployment operation summary:
+- Environment:
+- Horizon: h1 | h2 | h3 | all
+- Operation: apply | resume | destroy
+- Expected Azure/Kubernetes changes:
+- Validation command:
+Proceed with this deployment operation? (y/n)
+```
+
+> [!IMPORTANT]
+> Only proceed with `scripts/deploy-full.sh` apply, resume, or destroy if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the dry-run results and stop.
+
+### Step 5: Run the supported deployment command
 ```bash
-# Copy template and edit
-cp terraform/terraform.tfvars.example terraform/environments/dev.tfvars
-# Edit with your values
-
-# Set sensitive vars
-export TF_VAR_azure_subscription_id="..."
-export TF_VAR_azure_tenant_id="..."
-export TF_VAR_admin_group_id="..."
-export TF_VAR_github_org="..."
-export TF_VAR_github_token="..."
-
-# Validate
-./scripts/validate-config.sh --environment dev
+./scripts/deploy-full.sh --environment <env>
+./scripts/deploy-full.sh --environment <env> --horizon h1
+./scripts/deploy-full.sh --environment <env> --resume
+./scripts/deploy-full.sh --environment <env> --destroy
 ```
 
-### Phase 4: Deploy
+For manual Terraform sequencing, apply H1 before H2 modules because Kubernetes, Helm, and kubectl providers depend on AKS outputs:
+
 ```bash
 cd terraform
-# Never use -upgrade: .terraform.lock.hcl holds the pinned, tested provider set.
 terraform init
-
-# H1 first. The kubernetes/helm/kubectl providers read module.aks outputs, so a
-# single-pass apply on an empty subscription fails at plan time.
-terraform plan -var-file=environments/dev.tfvars -out=h1.tfplan
+terraform plan -var-file=environments/<env>.tfvars -out=h1.tfplan
 terraform apply h1.tfplan
-
-# H2 modules, once AKS exists
-terraform apply -var-file=environments/dev.tfvars \
+terraform apply -var-file=environments/<env>.tfvars \
   -target=module.argocd -target=module.observability \
   -target=module.external_secrets -target=module.databases
 ```
 
-### Phase 5: Verify
+### Step 6: Validate deployment health
 ```bash
-# Get AKS credentials
-az aks get-credentials \
-  --resource-group "$(terraform output -raw resource_group_name)" \
-  --name "$(terraform output -raw aks_cluster_name)"
-
-# Run validation
-./scripts/validate-deployment.sh --environment dev
-```
-
-### Phase 6: Post-Deployment
-```bash
-# Access ArgoCD
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-# Visit https://localhost:8080
-
-# Access Grafana
-kubectl port-forward svc/prometheus-grafana -n observability 3000:80
-# Visit http://localhost:3000
-```
-
-## Automated Deployment
-```bash
-# Full deployment
-./scripts/deploy-full.sh --environment dev
-
-# Dry run (plan only)
-./scripts/deploy-full.sh --environment dev --dry-run
-
-# Deploy specific horizon
-./scripts/deploy-full.sh --environment dev --horizon h1
-
-# CI/CD mode (no prompts)
-./scripts/deploy-full.sh --environment prod --auto-approve
-
-# Resume after failure
-./scripts/deploy-full.sh --environment dev --resume
-
-# Destroy
-./scripts/deploy-full.sh --environment dev --destroy
-```
-
-## Environment Configurations
-
-| Environment | Mode | Estimated Cost | Features |
-|-------------|------|----------------|----------|
-| dev | express | $50-100/month | Minimal: AKS + ACR + ArgoCD + Observability |
-| staging | standard | $500-1000/month | Production-like: + Databases + ESO + Defender + AI |
-| prod | enterprise | $3000+/month | Full HA: + DR + Purview + Runners + Backstage + Cost Mgmt |
-
-## Deployment Modes
-
-| Mode | Nodes | HA | GPU | Best For |
-|------|-------|----|-----|----------|
-| express | 3 × D4s | No | No | Development, testing |
-| standard | 5 × D4s | Yes | No | Production workloads |
-| enterprise | 10 × D8s + workload pool | Yes (3 zones) | Optional | Enterprise, multi-tenant |
-
-## Troubleshooting
-
-### Terraform init fails
-```bash
-# Clear the provider cache but keep .terraform.lock.hcl — deleting it drops the
-# pinned provider set and can pull a breaking major version.
-rm -rf terraform/.terraform
-terraform init
-```
-
-### Terraform plan fails with variable errors
-```bash
-# Verify all required vars are set
-./scripts/validate-config.sh --environment <env>
-```
-
-### AKS cluster unreachable
-```bash
-# Refresh credentials
-az aks get-credentials --resource-group <rg> --name <cluster> --overwrite-existing
+./scripts/validate-deployment.sh --environment <env>
 kubectl get nodes
+kubectl get pods -A
 ```
 
-### ArgoCD not starting
-```bash
-kubectl get pods -n argocd
-kubectl describe pod -n argocd -l app.kubernetes.io/name=argocd-server
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server
+- [ ] AKS credentials target the deployed cluster.
+- [ ] ArgoCD, Backstage, observability, and optional H3 services are healthy for the selected horizon.
+- [ ] Failures are routed to the narrow skill: `argocd-cli`, `backstage-deployment`, `database-management`, or `ai-foundry-operations`.
+
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Wrong subscription, unapproved destroy, production outage, or secrets exposed. |
+| High | Terraform apply fails after partial infrastructure, AKS unreachable, or H2 applied before H1 outputs exist. |
+| Medium | Validation script fails, app health degraded, or manifest rendering incomplete. |
+| Low | Documentation, tagging, or post-deploy access gaps. |
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Prerequisite validation fails | Install or configure only the missing existing tools; rerun validation. |
+| Config validation fails | Fix environment variables or tfvars before deployment. |
+| Terraform plan/apply fails | Capture the module, provider, and command; do not run `init -upgrade`. |
+| Kubernetes validation fails | Collect namespace, pod status, events, and route to the appropriate operations skill. |
+| Destroy requested | Require explicit confirmation and record the environment and subscription. |
+
+## Output template
+```markdown
+# Open Horizons Deployment Report
+
+## Scope
+- Environment:
+- Horizon:
+- Subscription:
+
+## Commands
+| Step | Command | Result |
+|---|---|---|
+
+## Validation
+| Check | Result | Evidence |
+|---|---|---|
+
+## Risks And Follow-Ups
+| Severity | Finding | Owner Skill |
+|---|---|---|
+
+## Rollback Or Resume
+- Command:
+- Preconditions:
 ```
 
-## Rollback
-
-### Rollback H3 only
-```bash
-# Disable AI Foundry
-# Set enable_ai_foundry = false in tfvars
-terraform plan -var-file=environments/<env>.tfvars -out=rollback.tfplan
-terraform apply rollback.tfplan
-```
-
-### Complete teardown
-```bash
-./scripts/deploy-full.sh --environment <env> --destroy
-```
+## Quality gate
+- [ ] Prerequisites and configuration validation pass before apply.
+- [ ] Dry run is reviewed before paid or mutating deployment.
+- [ ] Explicit confirmation is captured before apply, resume, or destroy.
+- [ ] Post-deploy validation is run and reported.

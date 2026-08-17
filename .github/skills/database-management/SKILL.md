@@ -1,67 +1,118 @@
 ---
 name: database-management
-description: "Database operations and health monitoring. USE FOR: PostgreSQL health check, database backup, database restore, connection string, database migration, database monitoring. DO NOT USE FOR: Azure infrastructure provisioning (use azure-cli), Terraform IaC (use terraform-cli), full platform deployment (use deploy-orchestration)."
+description: "Use when operating Open Horizons databases, especially PostgreSQL health checks, connection testing, backup or restore validation, migration readiness, and monitoring; produces command output, health summary, findings, and recommendations. DO NOT USE FOR: Azure infrastructure provisioning (use azure-cli), Terraform IaC (use terraform-cli), or full platform deployment (use deploy-orchestration). Triggers include \"check PostgreSQL health\", \"verify database backup\", \"test the Backstage database connection\"."
 ---
 
-## When to Use
-- Database health checks
-- Connection verification
-- Performance monitoring
-- Backup status verification
+# Database Management
+
+This workflow performs safe database health, connectivity, backup, restore, and monitoring checks for Open Horizons services such as Backstage. It produces a health report and remediation recommendations while avoiding unapproved data mutation.
+
+> [!NOTE]
+> This skill shells out to `az` for Azure Database for PostgreSQL Flexible Server metadata and `psql` for database checks. Credentials must come from approved secret stores, and query output must not expose sensitive data.
+
+## When to invoke
+- "Check PostgreSQL health for Backstage."
+- "Verify the backup retention on our database server."
+- "Test whether the application can connect to the database."
+- "Review database migration readiness before deployment."
 
 ## Prerequisites
-- Azure CLI for Azure databases
-- psql for PostgreSQL operations
-- Appropriate database credentials
+- Azure CLI authenticated for Azure PostgreSQL metadata.
+- `psql` installed for direct PostgreSQL checks.
+- Database host, database name, and approved credentials available.
+- Network path available from the execution environment.
+- Explicit approval before restore, migration, schema mutation, or data-changing SQL.
 
-## Commands
+## Workflow steps
 
-### Azure PostgreSQL
+### Step 1: Identify database scope
 ```bash
-# List PostgreSQL servers
 az postgres flexible-server list -o table
-
-# Show server details
-az postgres flexible-server show --name <server> --resource-group <rg>
-
-# Check firewall rules
-az postgres flexible-server firewall-rule list --name <server> --resource-group <rg>
-
-# Check backup retention
-az postgres flexible-server show --name <server> --resource-group <rg> --query "backup"
+az postgres flexible-server show --name <server> --resource-group <resource-group> -o table
 ```
 
-### Connection Testing
+- [ ] Server, resource group, environment, and database are identified.
+- [ ] Private endpoint and firewall posture are understood.
+- [ ] Backup retention and maintenance settings are in scope.
+
+### Step 2: Run read-only health checks
 ```bash
-# Test PostgreSQL connection
-psql "host=<host> dbname=<db> user=<user> sslmode=require" -c "SELECT version();"
-
-# Check active connections
-psql -c "SELECT count(*) FROM pg_stat_activity WHERE state = 'active';"
+az postgres flexible-server firewall-rule list --name <server> --resource-group <resource-group> -o table
+az postgres flexible-server show --name <server> --resource-group <resource-group> --query backup -o json
+psql "host=<host> dbname=<database> user=<user> sslmode=require" -c "SELECT version();"
+psql "host=<host> dbname=<database> user=<user> sslmode=require" -c "SELECT count(*) FROM pg_stat_activity WHERE state = 'active';"
 ```
 
-### Health Monitoring
+### Step 3: Check size and activity without exposing data
 ```bash
-# Check database size
-psql -c "SELECT pg_size_pretty(pg_database_size(current_database()));"
-
-# Check table sizes
-psql -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename))
-         FROM pg_tables ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC LIMIT 10;"
+psql "host=<host> dbname=<database> user=<user> sslmode=require" -c "SELECT pg_size_pretty(pg_database_size(current_database()));"
+psql "host=<host> dbname=<database> user=<user> sslmode=require" -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(format('%I.%I', schemaname, tablename))) FROM pg_tables ORDER BY pg_total_relation_size(format('%I.%I', schemaname, tablename)) DESC LIMIT 10;"
 ```
 
-## Best Practices
-1. Use private endpoints for database connectivity
-2. Enable SSL/TLS for all connections
-3. Configure automated backups
-4. Monitor connection pool usage
-5. Set up alerts for high CPU/memory
+- [ ] Queries return metadata only, not customer rows.
+- [ ] SSL is required.
+- [ ] Connection pool pressure is noted.
 
-## Output Format
-1. Command executed
-2. Database status summary
-3. Any issues detected
-4. Recommendations
+### Step 4: Confirm before mutating data or configuration
+```text
+Database mutation summary:
+- Server:
+- Database:
+- Operation: restore | migrate | schema change | data update | firewall change
+- Backup or rollback plan:
+Proceed with the database mutation? (y/n)
+```
 
-## Integration with Agents
-Used by: @terraform, @sre, @deploy
+> [!IMPORTANT]
+> Only proceed with restore, migration, schema changes, firewall changes, or data-changing SQL if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the findings and stop.
+
+### Step 5: Validate backups and migration readiness
+- [ ] Backup retention meets recovery requirements.
+- [ ] Restore target and point-in-time are documented before restore.
+- [ ] Migration scripts have been tested in non-production.
+- [ ] Application connection strings use Key Vault or External Secrets rather than committed values.
+
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Data loss risk, restore without backup verification, credentials exposed, or production mutation without approval. |
+| High | Backups disabled or too short, public access open, SSL disabled, or connection exhaustion. |
+| Medium | Slow queries, large tables without maintenance plan, or missing monitoring alerts. |
+| Low | Documentation, naming, or routine maintenance gaps. |
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Connection fails | Check DNS, firewall/private endpoint, SSL mode, username, and secret source. |
+| Permission denied | Report the missing PostgreSQL or Azure role; do not request broader rights than needed. |
+| Backup metadata unavailable | Use Azure CLI server show output and document the evidence gap. |
+| Query may expose data | Replace it with aggregate or metadata-only SQL. |
+
+## Output template
+```markdown
+# Database Health Report
+
+## Scope
+- Server:
+- Database:
+- Environment:
+
+## Checks
+| Check | Command | Result |
+|---|---|---|
+
+## Findings
+| Severity | Finding | Recommendation |
+|---|---|---|
+
+## Backup And Recovery
+- Retention:
+- Last verified restore:
+- Gaps:
+```
+
+## Quality gate
+- [ ] All SQL is read-only unless explicit confirmation is captured.
+- [ ] Secrets and row-level sensitive data are not printed.
+- [ ] Backup, connectivity, SSL, and access posture are reported.
+- [ ] Mutating operations include a rollback or restore plan.

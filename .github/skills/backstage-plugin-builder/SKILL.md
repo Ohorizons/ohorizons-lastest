@@ -1,116 +1,136 @@
 ---
 name: backstage-plugin-builder
-description: "Plan, architect, scaffold, validate, and prepare custom Backstage plugins and modules using official Backstage documentation. Use for frontend plugins, backend plugins, backend modules, catalog processors, scaffolder actions, search collators, auth providers, permission policies, TechDocs addons, common packages, node packages, plugin ADRs, architecture, validation hooks, and community publication preparation."
+description: "Use when planning, scaffolding, validating, or preparing custom Backstage plugins and modules with official documentation; produces plans, ADRs, plugin artifacts, validation hooks, package checks, and publication readiness notes. DO NOT USE FOR: deploying Backstage itself (use backstage-deployment), configuring Codespaces for Golden Paths (use codespaces-golden-paths), or general Markdown writing (use markdown-writer). Triggers include \"build a Backstage plugin\", \"create a backend module\", \"validate this plugin package\"."
 ---
 
 # Backstage Plugin Builder
 
-Use this skill for Backstage plugin work. It plans, architects, validates, and prepares Backstage plugins using official Backstage guidance.
+This workflow plans, scaffolds, validates, and prepares Backstage plugins and modules for Open Horizons. It produces planning artifacts, implementation guidance, validation output, and publication readiness evidence based on official Backstage documentation.
 
-## Scope
+> [!NOTE]
+> This skill depends on official Backstage documentation, preferably through `mcp-ecosystem` documentation tools. It may shell out to Python scripts under `.github/skills/backstage-plugin-builder/scripts/` and to package commands in the target Backstage workspace.
 
-This skill covers:
+## When to invoke
+- "Build a new Backstage frontend plugin for Open Horizons."
+- "Create a backend module that extends an existing Backstage plugin."
+- "Validate this Backstage plugin package before we publish it."
+- "Generate a plugin ADR, strategy, and quality hooks."
 
-- Frontend plugins using the new frontend system.
-- Backend plugins using the new backend system.
-- Backend modules that extend existing backend plugins through extension points.
-- Catalog processors, entity providers, and catalog integrations.
-- Scaffolder actions and scaffolder modules.
-- Search collators and search modules.
-- Auth providers, resolvers, and auth modules.
-- Permission policies and permission rules.
-- TechDocs addons and documentation integrations.
-- Common packages for shared types, schemas, and clients.
-- Node packages for extension points and backend utilities.
-- Planning artifacts, strategy, ADRs, architecture, hooks, validation scripts, and community publication preparation.
+## Prerequisites
+- Plugin ID, package scope, target Backstage app path, target version policy, and plugin type are known.
+- Plugin type is one of frontend, backend, backend module, catalog, scaffolder, search, auth, permission, TechDocs, common, or node package.
+- Official docs are checked through `mcp-ecosystem` or fallback references in `.github/skills/backstage-plugin-builder/references/`.
+- User approval is available before creating artifacts, modifying packages, or adding hooks.
 
-## First Step
+## Workflow steps
 
-Ask only for missing facts. If the intent is clear, proceed with the matching workflow.
+### Step 1: Confirm scope and missing facts
+Ask only for facts required to proceed:
+- [ ] Plugin ID and package scope.
+- [ ] Target path under the Backstage monorepo.
+- [ ] Plugin type and extension points.
+- [ ] Audience: internal, private package, open source, or community candidate.
+- [ ] External systems, auth needs, configuration, and data sensitivity.
 
-Before recommending Backstage APIs, package versions, plugin types, publication steps, or migration guidance, validate current documentation through the `mcp-ecosystem` server when available. If the MCP lookup is unavailable or fails, state that in the output and use the official documentation fallback in [references/mcp-doc-validation.md](references/mcp-doc-validation.md).
+### Step 2: Load official documentation evidence
+- Read `.github/skills/backstage-plugin-builder/references/mcp-doc-validation.md`.
+- Read `.github/skills/backstage-plugin-builder/references/official-docs.md`.
+- Load the type-specific reference, such as `.github/skills/backstage-plugin-builder/references/frontend-plugin.md` or `.github/skills/backstage-plugin-builder/references/backend-module.md`.
+- If MCP documentation lookup fails, run:
 
-Required facts for code generation:
+```bash
+python .github/skills/backstage-plugin-builder/scripts/validate_official_docs.py
+```
 
-- Plugin ID and package scope.
-- Target Backstage app or monorepo path.
-- Target Backstage version or package version policy.
-- Plugin type: frontend, backend, backend module, catalog, scaffolder, search, auth, permission, TechDocs, common, or node package.
-- Audience: internal, private package, open source, or community candidate.
-- External systems, data sensitivity, auth needs, and runtime configuration.
+### Step 3: Confirm before artifact creation
+```text
+Backstage plugin artifact summary:
+- Plugin ID:
+- Plugin type:
+- Target path:
+- Artifacts or package files to create/update:
+Proceed with creating or updating plugin artifacts? (y/n)
+```
 
-## Routing
+> [!IMPORTANT]
+> Only proceed with creating planning artifacts, package files, hooks, or publication assets if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the plan and stop.
 
-| User intent | Action |
-| --- | --- |
-| Plan, strategy, ADR, architecture | Read [references/planning-strategy-adr.md](references/planning-strategy-adr.md), then generate artifacts with `scripts/create_backstage_plugin_artifacts.py`. |
-| Frontend plugin, page, card, tab, route, entity content | Read [references/frontend-plugin.md](references/frontend-plugin.md). |
-| Backend plugin, API, service backend | Read [references/backend-plugin.md](references/backend-plugin.md). |
-| Backend module, extension point implementation | Read [references/backend-module.md](references/backend-module.md). |
-| Catalog provider, processor, scaffolder action, search, auth, permission, TechDocs | Read [references/catalog-scaffolder-search-auth.md](references/catalog-scaffolder-search-auth.md). |
-| Dynamic loading strategy | Read [references/dynamic-plugin-strategy.md](references/dynamic-plugin-strategy.md). Keep it runtime-neutral. |
-| Official community publication | Read [references/community-publication.md](references/community-publication.md). Prepare a package and PR plan, but do not promise acceptance. |
-| Hooks, quality gates, validation scripts | Read [references/validation-hooks.md](references/validation-hooks.md). |
-
-## Standard Workflow
-
-1. Create plan, strategy, ADR, architecture, validation, and publication artifacts.
-2. Scaffold or guide plugin creation using official Backstage commands and APIs.
-3. Implement the smallest useful plugin slice.
-4. Add tests and docs before publication or app integration.
-5. Run validation scripts and package checks.
-6. Prepare community publication only when the plugin is generic enough and the user requests it.
-
-## Official Documentation Source Of Truth
-
-Use [references/official-docs.md](references/official-docs.md) as the index of official Backstage documentation consulted by this skill.
-
-Use [references/mcp-doc-validation.md](references/mcp-doc-validation.md) as the freshness gate for `mcp-ecosystem`, GitHub source lookup, and official web fallback.
-
-Key principles:
-
-- Use the new frontend system for new frontend plugins.
-- Use the new backend system for backend plugins and modules.
-- Use `createBackendPlugin` for standalone backend plugins.
-- Use `createBackendModule` for modules that extend existing backend plugins.
-- Use official extension points instead of reaching into plugin internals.
-- Do not claim community publication is guaranteed. Maintainers decide.
-
-## Scripts
-
-Generate planning artifacts:
-
+### Step 4: Generate planning artifacts when approved
 ```bash
 python .github/skills/backstage-plugin-builder/scripts/create_backstage_plugin_artifacts.py \
   --plugin-id my-plugin \
   --plugin-type frontend \
   --audience internal \
   --target-version 1.39.0 \
-  --output plugins/my-plugin/docs
+  --output <output-dir>
 ```
 
-Validate a plugin package:
+### Step 5: Validate the plugin package
+```bash
+python .github/skills/backstage-plugin-builder/scripts/validate_backstage_plugin.py <plugin-dir>
+python .github/skills/backstage-plugin-builder/scripts/validate_backstage_plugin.py <plugin-dir> --run
+```
+
+Run package commands only if they exist in the target `package.json`:
 
 ```bash
-python .github/skills/backstage-plugin-builder/scripts/validate_backstage_plugin.py plugins/my-plugin
+yarn lint
+yarn tsc
+yarn test
+yarn build
+npm pack --dry-run
 ```
 
-Validate official documentation fallback sources:
-
-```bash
-python .github/skills/backstage-plugin-builder/scripts/validate_official_docs.py
-```
-
-Generate local quality hooks:
-
+### Step 6: Generate optional quality hooks
 ```bash
 python .github/skills/backstage-plugin-builder/scripts/generate_quality_hooks.py --root .
 ```
 
-## Validation
+Use publication references only when the plugin is generic enough and the user requested publication. Do not promise community acceptance.
 
-- Run `python -m py_compile .github/skills/backstage-plugin-builder/scripts/*.py` after editing scripts.
-- Validate documentation freshness with `mcp-ecosystem` when available; if not available, run `validate_official_docs.py` and cite the fallback.
-- Run `validate_backstage_plugin.py` against generated or existing plugin packages.
-- Run the package's `yarn lint`, `yarn tsc`, `yarn test`, and `yarn build` when available.
-- For publication, run `npm pack --dry-run` and complete the community publication checklist.
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| High | Plugin uses stale Backstage APIs, bypasses extension points, exposes secrets, or changes auth/permission behavior unsafely. |
+| Medium | Missing tests, docs, package metadata, config schema, or validation evidence. |
+| Low | Naming, README, or publication polish gaps. |
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Official docs lookup unavailable | State the failure and use `validate_official_docs.py` plus local references. |
+| Plugin type is unclear | Ask one targeted question and do not scaffold until resolved. |
+| Validation script fails | Report missing files, scripts, or package metadata and fix the smallest set. |
+| Package command missing | Mark it not applicable rather than inventing a new toolchain. |
+
+## Output template
+```markdown
+# Backstage Plugin Build Report
+
+## Scope
+- Plugin ID:
+- Type:
+- Target path:
+
+## Documentation Evidence
+| Source | Result |
+|---|---|
+
+## Artifacts
+| File | Purpose |
+|---|---|
+
+## Validation
+| Command | Result |
+|---|---|
+
+## Risks
+| Severity | Finding | Fix |
+|---|---|---|
+```
+
+## Quality gate
+- [ ] Official Backstage documentation freshness is checked or fallback evidence is recorded.
+- [ ] User confirmation is captured before creating or updating artifacts.
+- [ ] Type-specific reference guidance is applied.
+- [ ] Validation scripts and available package checks pass or failures are documented.

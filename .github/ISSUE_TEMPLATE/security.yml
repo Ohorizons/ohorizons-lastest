@@ -1,4 +1,4 @@
-name: "🔐 Security Configuration"
+name: "Security Configuration"
 description: "Configure Key Vault, Managed Identities, and security policies"
 title: "[H1] Security - "
 labels: ["agent:security", "horizon:h1", "security"]
@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🔐 Security Agent
+        ## Security Agent
         
         This issue triggers the **Security Agent** to configure:
         - Azure Key Vault with RBAC
@@ -17,7 +17,7 @@ body:
         
         ---
         
-        ### 📚 Related Components
+        ### Related Components
         
         | Component | Path | Description |
         |-----------|------|-------------|
@@ -26,7 +26,7 @@ body:
         | Agent Spec | `agents/h1-foundation/security-agent.md` | Agent definition |
         | Defender Agent | `agents/h1-foundation/defender-cloud-agent.md` | Advanced security |
         
-        ### 🏷️ Security Resource Naming
+        ### Security Resource Naming
         
         ```
         Key Vault:        kv-{project}-{env}-{region}  (max 24 chars!)
@@ -120,14 +120,14 @@ body:
       value: |
         ---
         
-        ## 🔧 Pre-Deployment Checklist
+        ## Pre-Deployment Checklist
         
         - [ ] Infrastructure deployed via `infrastructure.yml`
         - [ ] Run `scripts/validate-naming.sh keyvault kv-{project}-{env}-{region}`
         - [ ] Verify Key Vault name is ≤24 characters
         - [ ] Confirm Entra ID permissions for RBAC
         
-        ## 📋 Deployment Commands
+        ## Deployment Commands
         
         ```bash
         # Validate Key Vault naming
@@ -138,7 +138,7 @@ body:
         terraform apply -target=module.security
         ```
         
-        ## 🔗 Related Issues
+        ## Related Issues
         
         - **Prerequisites**: Infrastructure → `infrastructure.yml`
         - **Next**: Identity Federation → `identity-federation.yml`

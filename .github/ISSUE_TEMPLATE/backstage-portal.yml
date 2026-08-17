@@ -1,4 +1,4 @@
-name: "🚀 H2: Developer Portal (Backstage)"
+name: "H2: Developer Portal (Backstage)"
 description: "Deploy Backstage developer portal on AKS"
 title: "[Backstage] Deploy developer portal"
 labels: ["h2-enhancement", "backstage", "copilot-agent"]

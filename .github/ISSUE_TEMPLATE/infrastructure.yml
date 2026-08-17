@@ -1,4 +1,4 @@
-name: "🏗️ Infrastructure Deployment"
+name: "Infrastructure Deployment"
 description: "Deploy H1 Foundation infrastructure (AKS, ACR, Key Vault)"
 title: "[H1] Infrastructure - "
 labels: ["agent:deploy", "horizon:h1", "env:dev"]
@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🏗️ Infrastructure Agent
+        ## Infrastructure Agent
         
         This issue triggers the **Infrastructure Agent** to provision:
         - Azure Resource Group
@@ -18,7 +18,7 @@ body:
         
         ---
         
-        ### 📚 Related Components
+        ### Related Components
         
         | Component | Path | Description |
         |-----------|------|-------------|
@@ -27,7 +27,7 @@ body:
         | Scripts | `scripts/` | Automation scripts |
         | Agent Spec | `agents/h1-foundation/infrastructure-agent.md` | Agent definition |
         
-        ### 🏷️ Naming Convention (CAF)
+        ### Naming Convention (CAF)
         
         Resources will be named following Azure Cloud Adoption Framework:
         ```
@@ -160,7 +160,7 @@ body:
       value: |
         ---
         
-        ## 🔧 Pre-Deployment Checklist
+        ## Pre-Deployment Checklist
         
         Before submitting, ensure:
         
@@ -169,7 +169,7 @@ body:
         - [ ] Verify Azure subscription permissions (Contributor + User Access Admin)
         - [ ] Review `terraform/terraform.tfvars.example` for configuration options
         
-        ## 📋 Deployment Steps
+        ## Deployment Steps
         
         The agent will execute:
         
@@ -191,7 +191,7 @@ body:
         terraform apply -var-file=terraform.tfvars
         ```
         
-        ## 🔗 Related Issues
+        ## Related Issues
         
         After infrastructure, you may want to:
         - **Security**: Deploy Defender & Purview → `security.yml`

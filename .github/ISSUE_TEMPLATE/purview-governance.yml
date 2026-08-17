@@ -1,4 +1,4 @@
-name: "📊 H1: Purview Data Governance"
+name: "H1: Purview Data Governance"
 description: "Deploy Microsoft Purview for data catalog and governance"
 title: "[Purview] Deploy data governance"
 labels: ["h1-foundation", "governance", "purview", "copilot-agent"]

@@ -77,28 +77,28 @@ print_section() {
 
 check_pass() {
     local message=$1
-    echo -e "  ${GREEN}✓${NC} ${message}"
+    echo -e "  ${GREEN}[OK]${NC} ${message}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
     RESULTS+=("{\"status\":\"pass\",\"message\":\"${message}\"}")
 }
 
 check_fail() {
     local message=$1
-    echo -e "  ${RED}✗${NC} ${message}"
+    echo -e "  ${RED}[FAIL]${NC} ${message}"
     ERRORS=$((ERRORS + 1))
     RESULTS+=("{\"status\":\"fail\",\"message\":\"${message}\"}")
 }
 
 check_warn() {
     local message=$1
-    echo -e "  ${YELLOW}⚠${NC} ${message}"
+    echo -e "  ${YELLOW}[WARN]${NC} ${message}"
     WARNINGS=$((WARNINGS + 1))
     RESULTS+=("{\"status\":\"warn\",\"message\":\"${message}\"}")
 }
 
 check_info() {
     local message=$1
-    echo -e "  ${BLUE}ℹ${NC} ${message}"
+    echo -e "  ${BLUE}[INFO]${NC} ${message}"
 }
 
 parse_tfvars() {
@@ -550,13 +550,13 @@ print_summary() {
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
-    echo -e "  ${GREEN}✓ Passed:${NC}   $CHECKS_PASSED"
-    echo -e "  ${RED}✗ Errors:${NC}   $ERRORS"
-    echo -e "  ${YELLOW}⚠ Warnings:${NC} $WARNINGS"
+    echo -e "  ${GREEN}[OK] Passed:${NC}   $CHECKS_PASSED"
+    echo -e "  ${RED}[FAIL] Errors:${NC}   $ERRORS"
+    echo -e "  ${YELLOW}[WARN] Warnings:${NC} $WARNINGS"
     echo ""
     
     if [[ $ERRORS -gt 0 ]]; then
-        echo -e "${RED}  ✗ VALIDATION FAILED${NC}"
+        echo -e "${RED}  [FAIL] VALIDATION FAILED${NC}"
         echo ""
         echo "  Please fix the errors above before proceeding."
         echo ""
@@ -567,7 +567,7 @@ print_summary() {
         
         exit 1
     elif [[ $WARNINGS -gt 0 && "$STRICT_MODE" == "true" ]]; then
-        echo -e "${YELLOW}  ⚠ VALIDATION FAILED (strict mode)${NC}"
+        echo -e "${YELLOW}  [WARN] VALIDATION FAILED (strict mode)${NC}"
         echo ""
         echo "  Please fix the warnings above or run without --strict."
         echo ""
@@ -578,7 +578,7 @@ print_summary() {
         
         exit 1
     else
-        echo -e "${GREEN}  ✓ VALIDATION PASSED${NC}"
+        echo -e "${GREEN}  [OK] VALIDATION PASSED${NC}"
         echo ""
         
         if [[ $WARNINGS -gt 0 ]]; then

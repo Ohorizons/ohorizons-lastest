@@ -1,4 +1,4 @@
-name: "🗄️ Database Provisioning"
+name: "Database Provisioning"
 description: "Deploy PostgreSQL, Redis, or Cosmos DB"
 title: "[H1] Database - "
 labels: ["agent:deploy", "horizon:h1", "env:dev"]
@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🗄️ Database Agent
+        ## Database Agent
         
         This issue triggers the **Database Agent** to provision:
         - PostgreSQL Flexible Server
@@ -17,7 +17,7 @@ body:
         
         ---
         
-        ### 📚 Related Components
+        ### Related Components
         
         | Component | Path | Description |
         |-----------|------|-------------|
@@ -26,7 +26,7 @@ body:
         | Agent Spec | `agents/h1-foundation/database-agent.md` | Agent definition |
         | Security Module | `terraform/modules/security/` | Key Vault for secrets |
         
-        ### 🏷️ Database Naming
+        ### Database Naming
         
         ```
         PostgreSQL: psql-{project}-{env}-{region}
@@ -128,14 +128,14 @@ body:
       value: |
         ---
         
-        ## 🔧 Pre-Deployment Checklist
+        ## Pre-Deployment Checklist
         
         - [ ] Infrastructure & Security deployed
         - [ ] Run `scripts/validate-naming.sh postgresql psql-{project}-{env}-{region}`
         - [ ] Key Vault exists for storing connection strings
         - [ ] VNet subnet for private endpoints exists
         
-        ## 📋 Deployment Commands
+        ## Deployment Commands
         
         ```bash
         # Validate naming
@@ -150,7 +150,7 @@ body:
           --name postgresql-connection-string
         ```
         
-        ## 🔗 Related Issues
+        ## Related Issues
         
         - **Prerequisites**: Infrastructure → `infrastructure.yml`
         - **Prerequisites**: Security (Key Vault) → `security.yml`

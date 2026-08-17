@@ -1,55 +1,97 @@
 ---
-description: "Scaffold a complete MCP (Model Context Protocol) server project with tools, resources, and configuration. Supports TypeScript, Python, and C#. USE FOR: create MCP server, scaffold MCP, new MCP project, build MCP tools, generate MCP server, MCP server TypeScript, MCP server Python, MCP server C#, create model context protocol server."
+name: "create-mcp-server"
+description: "Create or extend the repository-native MCP ecosystem server with typed tools, validation, documentation, and client registration guidance."
+argument-hint: "server_name=my-mcp-server language=TypeScript transport=HTTP tools_description='describe the tools'"
+tools: ["read", "search", "edit", "execute", "web", "mcp-ecosystem/*"]
 ---
 
-# Create MCP Server
+# /create-mcp-server
 
-Scaffold a complete, production-ready Model Context Protocol (MCP) server project.
+## Objective
+Create a repository-native Model Context Protocol implementation by extending the existing TypeScript MCP ecosystem under `mcp-servers/` or, when explicitly requested, by scaffolding a separate MCP server with the same quality standards.
 
-## Input
+## When to Invoke
+Invoke this when the team needs a new MCP tool module, resource surface, or server scaffold that will be developed in this repository and validated with the existing `mcp-servers` build workflow.
 
-**Server name:** {{server_name}}
-**Language:** {{language}} (TypeScript, Python, or C#)
-**Transport:** {{transport}} (stdio or HTTP — default: stdio)
-**Tools to create:** {{tools_description}} (describe each tool's purpose)
+## Preconditions
+- The requested server or tool name `${input:server_name:my-mcp-server}` is kebab-case or can be converted safely.
+- The implementation language `${input:language:TypeScript}` is confirmed; this repository's existing MCP server is TypeScript.
+- The desired transport `${input:transport:HTTP}` is known.
+- Tool behavior is described in `${input:tools_description:describe each tool purpose and inputs}`.
+- No new secrets, credentials, or private third-party data are required for scaffolding.
 
-## Instructions
+## Inputs the Team Must Provide
+- `server_name`: Kebab-case MCP server or module name.
+- `language`: Implementation language; prefer `TypeScript` for this repository.
+- `transport`: MCP transport, typically `HTTP` for the existing `mcp-ecosystem` server.
+- `tools_description`: Concrete description of each tool, inputs, validation rules, and output shape.
 
-1. **Load the matching skill** based on `{{language}}`:
-   - TypeScript → read `typescript-mcp-server-generator` skill
-   - Python → read `python-mcp-server-generator` skill
-   - C# → read `csharp-mcp-server-generator` skill
+## What I Will Do
+- Inspect `mcp-servers/package.json`, `mcp-servers/src/index.ts`, `mcp-servers/src/shared/server-factory.ts`, and existing files under `mcp-servers/src/tools/` before editing.
+- Prefer adding a TypeScript tool module under `mcp-servers/src/tools/` and registering it in `mcp-servers/src/index.ts`.
+- Use typed schemas with `zod`, structured responses, and clear tool names and descriptions.
+- Update MCP documentation or client registration guidance only where it directly relates to the new tool or server.
+- Validate with existing commands such as `cd mcp-servers && npm run build`.
 
-2. **Scaffold the project** following the skill's structure:
-   - Project config (package.json / pyproject.toml / .csproj)
-   - Server entrypoint with transport setup
-   - One file per tool with schema validation
-   - README with setup and usage instructions
-   - .gitignore appropriate for the language
+## What I Will NOT Do
+- I will not bind this prompt to an existing agent because no current Open Horizons agent owns MCP server creation end to end.
+- I will not invent non-existent generator skills or scripts.
+- I will not add Python or C# scaffolding inside `mcp-servers/` unless the team explicitly chooses a separate project path and accepts a new build workflow.
+- I will not add tools that exfiltrate secrets, bypass repository content exclusions, or call unapproved third-party services.
+- I will not edit agents, skills, instructions, workflows, or docs outside the prompt-requested MCP implementation scope.
 
-3. **Implement all requested tools** from `{{tools_description}}`:
-   - Each tool gets a descriptive name, clear description, and input schema
-   - Use zod (TS), Pydantic (Python), or DataAnnotations (C#) for validation
-   - Include error handling and structured responses
-   - Return both content and structured output where supported
+## Output Format
+Return the scaffold or change summary in this shape:
 
-4. **Add client configuration** snippets in the README:
-   - VS Code (`.vscode/settings.json` MCP entry)
+````markdown
+# MCP Server Change Summary
 
-## Rules
+| Artifact | Path | Purpose | Status |
+| --- | --- | --- | --- |
+| Tool module | `mcp-servers/src/tools/<name>.ts` | typed MCP tools | Created |
+| Registration | `mcp-servers/src/index.ts` | register tools | Updated |
+| Validation | `mcp-servers/package.json` | `npm run build` | Pass |
 
-- Follow the loaded skill's patterns exactly — do not deviate
-- Use the latest MCP SDK version for the chosen language
-- Every tool must have a clear, descriptive name and description (3-4 sentences)
-- Input schemas must validate all parameters — no untyped inputs
-- Include a health check or list-tools test command
-- Server name in kebab-case: `my-mcp-server`
+## Tool Contract
+```yaml
+name: <tool-name>
+description: <clear user-facing description>
+input_schema:
+  field: type and validation
+output:
+  content: text summary
+  structured: JSON-compatible object
+```
 
-## Output
+## Quick Start
+```bash
+cd mcp-servers
+npm run build
+npm start
+```
+````
 
-A complete project directory with all files ready to run. After scaffolding, show:
+## Definition of Done
+- [ ] New MCP behavior is grounded in the existing `mcp-servers/` project structure.
+- [ ] Tool inputs are validated with typed schemas.
+- [ ] The new module is registered in `mcp-servers/src/index.ts` when extending `mcp-ecosystem`.
+- [ ] Existing build commands are listed and, when possible, run successfully.
+- [ ] Client registration guidance references declared MCP server keys from `.github/mcp.json` only.
 
-1. **Project tree** — all created files
-2. **Quick start** — commands to install, build, and run
-3. **Test command** — how to verify the server works
-4. **Registration** — config snippet for at least one AI client
+## Prompt Body
+Use the available tools directly; this prompt is intentionally agent-less because MCP server creation spans code generation and repository validation without matching one existing Open Horizons specialist agent.
+
+**Step 1 - Inspect the MCP project.** Read `mcp-servers/package.json`, `mcp-servers/src/index.ts`, `mcp-servers/src/shared/server-factory.ts`, and similar modules in `mcp-servers/src/tools/` before writing code.
+
+**Step 2 - Choose the implementation path.** If `${input:language:TypeScript}` fits the existing project, extend `mcp-ecosystem`. If another language is requested, explain the repository mismatch and create a separate scaffold only when the target path and validation commands are explicit.
+
+**Step 3 - Define the tool contract.** Convert `${input:tools_description:describe each tool purpose and inputs}` into concrete tool names, descriptions, input schemas, and structured output. Do not proceed with vague or unsafe tool behavior.
+
+**Step 4 - Implement and register.** Create or update TypeScript files under `mcp-servers/src/tools/`, register them in `mcp-servers/src/index.ts`, and preserve the HTTP server behavior implemented by `mcp-servers/src/shared/server-factory.ts`.
+
+**Step 5 - Validate and document.** Run or recommend `cd mcp-servers && npm run build`, summarize created files, and provide registration guidance using only MCP server keys declared in `.github/mcp.json`.
+
+## Invocation Example
+```text
+/create-mcp-server server_name=platform-docs language=TypeScript transport=HTTP tools_description="Search internal platform runbooks by title and return Markdown summaries."
+```

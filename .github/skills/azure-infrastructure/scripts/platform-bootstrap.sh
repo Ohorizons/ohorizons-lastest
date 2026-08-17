@@ -216,7 +216,7 @@ check_prerequisites() {
     local helm_version=$(helm version --short)
     log INFO "Helm version: $helm_version"
     
-    log INFO "All prerequisites satisfied ✓"
+    log INFO "All prerequisites satisfied [OK]"
 }
 
 load_environment_config() {
@@ -331,7 +331,7 @@ deploy_h1_foundation() {
         -var="environment=${ENVIRONMENT}"
     
     save_checkpoint "h1_complete"
-    log INFO "H1 Foundation deployment complete ✓"
+    log INFO "H1 Foundation deployment complete [OK]"
 }
 
 deploy_h2_enhancement() {
@@ -392,7 +392,7 @@ deploy_h2_enhancement() {
         -var="environment=${ENVIRONMENT}"
     
     save_checkpoint "h2_complete"
-    log INFO "H2 Enhancement deployment complete ✓"
+    log INFO "H2 Enhancement deployment complete [OK]"
 }
 
 deploy_h3_innovation() {
@@ -419,7 +419,7 @@ deploy_h3_innovation() {
         -var="environment=${ENVIRONMENT}"
     
     save_checkpoint "h3_complete"
-    log INFO "H3 Innovation deployment complete ✓"
+    log INFO "H3 Innovation deployment complete [OK]"
 }
 
 configure_gitops() {
@@ -444,7 +444,7 @@ configure_gitops() {
     sleep 30
     
     save_checkpoint "gitops_complete"
-    log INFO "GitOps configuration complete ✓"
+    log INFO "GitOps configuration complete [OK]"
 }
 
 register_golden_paths() {
@@ -485,7 +485,7 @@ register_golden_paths() {
     done
     
     save_checkpoint "golden_paths_complete"
-    log INFO "Golden Path registration complete ✓"
+    log INFO "Golden Path registration complete [OK]"
 }
 
 deploy_grafana_dashboards() {
@@ -512,7 +512,7 @@ deploy_grafana_dashboards() {
             --overwrite
     done
     
-    log INFO "Grafana dashboards deployed ✓"
+    log INFO "Grafana dashboards deployed [OK]"
 }
 
 print_summary() {
@@ -590,7 +590,7 @@ destroy_platform() {
     # Clean up checkpoint
     rm -f "$CHECKPOINT_FILE"
     
-    log INFO "Platform destroyed ✓"
+    log INFO "Platform destroyed [OK]"
 }
 
 # =============================================================================

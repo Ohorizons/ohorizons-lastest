@@ -1,4 +1,4 @@
-name: "🔄 Cross: Migration"
+name: "Cross: Migration"
 description: "Migrate from Azure DevOps or other platforms"
 title: "[Migration] Execute platform migration"
 labels: ["cross-cutting", "migration", "copilot-agent"]

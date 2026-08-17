@@ -1,8 +1,8 @@
 # GitHub Copilot Agent Skills
 
-This directory contains skills that extend GitHub Copilot agent capabilities. Skills use **progressive loading** - Copilot reads metadata first and loads scripts only when relevant.
+This directory contains skills that extend GitHub Copilot agent capabilities. Skills use **progressive loading**: Copilot reads metadata first and loads scripts only when relevant.
 
-## Available Skills (28)
+## Available Skills (29)
 
 | Skill | Description | Used By |
 | ----- | ----------- | ------- |
@@ -15,6 +15,7 @@ This directory contains skills that extend GitHub Copilot agent capabilities. Sk
 | [Azure Infrastructure](./azure-infrastructure/) | Azure infrastructure patterns | `@terraform`, `@security`, `@azure-portal-deploy` |
 | [Azure Managed Redis Cache](./azure-managed-redis-cache/) | Azure Managed Redis patterns | `@deploy`, `@terraform` |
 | [Backstage Deployment](./backstage-deployment/) | Backstage portal operations | `@backstage-expert`, `@deploy` |
+| [Backstage Plugin Builder](./backstage-plugin-builder/) | Custom Backstage plugin and module planning, scaffolding, validation, and publication preparation | `@backstage-expert`, `@deploy` |
 | [Codespaces Golden Paths](./codespaces-golden-paths/) | Codespaces dev environments | `@backstage-expert`, `@deploy` |
 | [Database Management](./database-management/) | Database operations | `@terraform`, `@sre`, `@deploy` |
 | [Deploy Orchestration](./deploy-orchestration/) | End-to-end deployment orchestration | `@deploy` |

@@ -1,73 +1,115 @@
 ---
 name: azure-architecture-diagrams
-description: "Produce complete, professional architecture diagrams that use the official Azure, Microsoft, and GitHub (Octicons) icon sets, output as editable draw.io (.drawio) files and exported SVG. Covers the official icon catalogs and their terms of use, the draw.io mxGraph file format, layout and connector conventions, and a bundled draw.io MCP server (Python FastMCP) that creates and edits .drawio diagrams programmatically (add nodes with official icons, connect edges, group, and lay out). Use whenever the deliverable includes an architecture diagram, a system context, a component or deployment diagram, or any cloud diagram that must use official vendor icons. Pairs with ai-native-engineer and agentic-architecture-patterns, and complements svg-professional for hand-crafted SVG."
-argument-hint: "what to diagram, for example an agentic platform on Foundry with Redis, APIM, and API Center"
+description: "Use when creating professional Azure, Microsoft, or GitHub architecture diagrams as editable draw.io files and exported SVG; produces diagram source, exports, validation results, and embedding guidance. DO NOT USE FOR: validating Mermaid architecture documents (use architecture-doc), writing Markdown documents or PPTX conversions (use markdown-writer), or hand-crafted non-icon SVG infographics (use svg-professional). Triggers include \"create an Azure architecture diagram\", \"make a draw.io deployment diagram\", \"export an architecture SVG\"."
 ---
 
 # Azure Architecture Diagrams
 
-Build complete architecture diagrams with the **official Azure, Microsoft, and GitHub icons**, delivered as editable `.drawio` files plus exported SVG. This skill provides the icon catalogs, the file format, the layout conventions, and a draw.io MCP server that creates and edits diagrams programmatically.
+This workflow creates official-icon architecture diagrams for Open Horizons, delivered as `.drawio` source plus SVG export guidance. It uses the bundled draw.io MCP server and validation script when programmatic diagram creation is appropriate.
 
-> Respect icon terms of use. Azure and Microsoft icons may be used to depict their products in architecture diagrams and must not be modified or re-colored. GitHub Octicons are MIT licensed; the GitHub logos follow the GitHub brand guidelines. See [references/icon-catalogs.md](references/icon-catalogs.md).
+> [!NOTE]
+> This skill may shell out to Python scripts in `.github/skills/azure-architecture-diagrams/scripts/` and may use a draw.io MCP server. Official Azure, Microsoft, and GitHub icon terms must be respected; do not recolor or modify official product icons.
 
-## What this skill produces
+## When to invoke
+- "Create an Azure architecture diagram for the Open Horizons deployment."
+- "Make a draw.io component diagram with official Microsoft and GitHub icons."
+- "Export a deployment diagram as SVG and keep the source editable."
+- "Show the system context for the Foundry, Redis, Backstage, and AKS design."
 
-- **`.drawio` source** (editable in draw.io / diagrams.net and the VS Code extension).
-- **Exported SVG** for embedding in Markdown and the Open Horizons documents and decks.
-- Diagrams that use official vendor shapes, with consistent layout, grouping, and connector routing.
+## Prerequisites
+- A verified service map or architecture scope.
+- Output location agreed with the user before creating files.
+- Reference files available in `.github/skills/azure-architecture-diagrams/references/`.
+- Scripts available at `.github/skills/azure-architecture-diagrams/scripts/drawio_mcp_server.py` and `.github/skills/azure-architecture-diagrams/scripts/validate_drawio.py`.
+- Official icon sources confirmed through `.github/skills/azure-architecture-diagrams/references/icon-catalogs.md`.
 
-## Diagram set for an AI-native system
+## Workflow steps
 
-Produce these four as the default set (add others as needed):
+### Step 1: Confirm diagram scope and output files
+```text
+Diagram request summary:
+- Diagram type: system context | component | deployment | sequence | data flow
+- Source evidence:
+- Output .drawio path:
+- Output SVG path:
+Proceed with creating or updating diagram artifacts? (y/n)
+```
 
-1. **System context**: actors (users, GitHub Copilot, GitHub Actions) and the system boundary.
-2. **Component**: agent runtime, model router, cache and memory, retrieval, tools and MCP, gateway, guardrails, observability.
-3. **Deployment**: subscriptions, resource groups, VNets, private endpoints, regions.
-4. **Sequence or data and control flow**: the critical path of one agent run, including cache hit and miss.
+> [!IMPORTANT]
+> Only create or overwrite `.drawio` or SVG artifacts if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the diagram plan and stop.
 
-## Two ways to build
+### Step 2: Load diagram references
+- Read `.github/skills/azure-architecture-diagrams/references/icon-catalogs.md` for official icon usage.
+- Read `.github/skills/azure-architecture-diagrams/references/drawio-format.md` for mxGraph structure.
+- Read `.github/skills/azure-architecture-diagrams/references/drawio-mcp.md` for MCP tool flow.
+- Read `.github/skills/azure-architecture-diagrams/references/first-run-checklist.md` before delivery.
 
-### A. Draw.io MCP server (preferred, programmatic)
+### Step 3: Choose the diagram set
+- [ ] System context: actors, Backstage, GitHub, Azure boundary, and platform boundary.
+- [ ] Component: AKS, Backstage, agent APIs, Foundry gateway, Redis, AI Search, observability, and tools/MCP.
+- [ ] Deployment: subscriptions, resource groups, VNets, private endpoints, AKS namespaces, and regions.
+- [ ] Sequence or data flow: one critical path, cache hit and miss, tool invocation, telemetry, and guardrails.
 
-A bundled Python MCP server creates and edits `.drawio` files through tools: create a diagram, add a node with an official icon, connect nodes, group, auto-lay out, and export. Register it with your MCP host and drive it from the agent. See [references/drawio-mcp.md](references/drawio-mcp.md) and the server at [scripts/drawio_mcp_server.py](scripts/drawio_mcp_server.py).
+### Step 4: Build with the MCP server or hand-authored mxGraph
+Run the MCP server only when the host can connect to it:
 
-### B. Hand-authored mxGraph XML
+```bash
+.github/skills/azure-architecture-diagrams/scripts/run-drawio-mcp.sh
+```
 
-For precise control, write the `.drawio` mxGraph XML directly using the icon styles. See [references/drawio-format.md](references/drawio-format.md).
+For manual validation of a `.drawio` file:
 
-For hand-crafted, non-icon SVG (quadrants, charts, bespoke infographics), use the `svg-professional` skill instead.
+```bash
+python .github/skills/azure-architecture-diagrams/scripts/validate_drawio.py <diagram.drawio> --require-icon --require-edge
+```
 
-## Icon sources (official only)
+### Step 5: Validate and prepare delivery
+- [ ] Official icon references are used only for the products they represent.
+- [ ] Boundaries are labeled by subscription, resource group, VNet, namespace, or trust zone.
+- [ ] Connectors are orthogonal and labeled with protocols or data/control meaning.
+- [ ] The `.drawio` source opens in diagrams.net or the VS Code draw.io extension.
+- [ ] SVG export is created from the same source and can be embedded in Markdown.
 
-- **Azure architecture icons**: the official downloadable SVG set. draw.io also ships an Azure shape library.
-- **Microsoft product icons**: official sets for Microsoft 365, Entra, Power Platform, and more.
-- **GitHub Octicons and logos**: Octicons (MIT) for GitHub UI marks; the GitHub mark and wordmark per brand guidelines.
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| High | Diagram misrepresents trust boundaries, data flow, identity, or public/private exposure. |
+| Medium | Icons, grouping, or connector labels can confuse implementation or review decisions. |
+| Low | Layout readability, naming, or export quality issues. |
 
-Catalog details, download locations, and the draw.io shape style strings are in [references/icon-catalogs.md](references/icon-catalogs.md).
+## Error handling
+| Situation | Action |
+|---|---|
+| MCP server cannot start | Fall back to hand-authored `.drawio` using `references/drawio-format.md`. |
+| Icon style is unavailable | Use embedded official SVG if permitted, or label the node without an icon. |
+| Validator fails | Fix malformed XML, missing vertices, missing edges, or missing official icon evidence. |
+| Output path is unclear | Ask for the target path and do not create files until confirmed. |
 
-## Layout conventions
+## Output template
+```markdown
+# Architecture Diagram Delivery
 
-- Left to right or top to bottom flow; keep the primary path on one axis.
-- Group by boundary (subscription, resource group, VNet, trust zone) with labeled containers.
-- Orthogonal connectors, no crossings where avoidable, labels on edges for protocols.
-- One accent color per boundary; do not re-color official product icons.
-- Apply the Open Horizons palette to containers, labels, and connectors, never to the vendor icons themselves.
+## Files
+- Source: `<diagram.drawio>`
+- Export: `<diagram.svg>`
 
-## Workflow
+## Diagram Scope
+- Type:
+- Boundaries:
+- Main flow:
 
-1. Take the service map from the design (from `ai-native-engineer` or `agentic-architecture-patterns`).
-2. Choose the diagram types to produce.
-3. Build with the draw.io MCP (preferred) or hand-authored XML, placing official icons for each service.
-4. Lay out, group by boundary, route connectors, and label.
-5. Export SVG and embed it; keep the `.drawio` source under `output/`.
-6. Run `scripts/validate_drawio.py` on the `.drawio` source, then verify the diagram opens and every icon resolves.
-7. Walk `references/first-run-checklist.md` before delivery.
+## Validation
+| Check | Result |
+|---|---|
 
-## References
+## Embedding
+```markdown
+![Architecture diagram](<diagram.svg>)
+```
+```
 
-- [Icon catalogs and terms of use](references/icon-catalogs.md)
-- [Draw.io mxGraph file format](references/drawio-format.md)
-- [Draw.io MCP server usage](references/drawio-mcp.md)
-- [First-run checklist](references/first-run-checklist.md)
-- [Azure architecture icons](https://learn.microsoft.com/azure/architecture/icons/)
-- [GitHub Octicons](https://primer.style/octicons/)
+## Quality gate
+- [ ] `.drawio` source and SVG export are both produced or clearly planned.
+- [ ] Official icon usage follows repository references.
+- [ ] Validation script passes for the `.drawio` source.
+- [ ] Boundaries, connectors, labels, and trust zones are readable.

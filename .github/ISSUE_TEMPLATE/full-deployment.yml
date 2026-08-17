@@ -1,4 +1,4 @@
-name: "🚀 Full Platform Deployment"
+name: "Full Platform Deployment"
 description: "Deploy complete Open Horizons platform (all horizons)"
 title: "[FULL] Platform Deployment - "
 labels: ["full-deployment", "workflow:full-deployment", "agent:deploy", "horizon:h1", "horizon:h2", "horizon:h3"]
@@ -6,57 +6,57 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🚀 Full Platform Deployment
+        ## Full Platform Deployment
         
         This issue orchestrates a **complete Open Horizons platform deployment**
         across all horizons, executing agents in the correct dependency order.
         
         ---
         
-        ### 📊 Deployment Order
+        ### Deployment Order
         
         ```
         ┌─────────────────────────────────────────────────────────────┐
         │ PHASE 1: Prerequisites                                      │
         ├─────────────────────────────────────────────────────────────┤
-        │ ☐ validate-prerequisites.sh                                 │
-        │ ☐ validate-naming.sh --all {project} {env} {region}         │
-        │ ☐ setup-identity-federation.sh                              │
+        │ [ ] validate-prerequisites.sh                                 │
+        │ [ ] validate-naming.sh --all {project} {env} {region}         │
+        │ [ ] setup-identity-federation.sh                              │
         └─────────────────────────────────────────────────────────────┘
                                     ↓
         ┌─────────────────────────────────────────────────────────────┐
         │ PHASE 2: H1 Foundation                                      │
         ├─────────────────────────────────────────────────────────────┤
-        │ ☐ Networking (VNet, subnets, NSGs)                          │
-        │ ☐ Security (Key Vault, identities)                          │
-        │ ☐ AKS Cluster                                               │
-        │ ☐ Container Registry                                        │
-        │ ☐ Databases (PostgreSQL, Redis)                             │
-        │ ☐ Defender for Cloud                                        │
-        │ ☐ Purview (governance)                                      │
+        │ [ ] Networking (VNet, subnets, NSGs)                          │
+        │ [ ] Security (Key Vault, identities)                          │
+        │ [ ] AKS Cluster                                               │
+        │ [ ] Container Registry                                        │
+        │ [ ] Databases (PostgreSQL, Redis)                             │
+        │ [ ] Defender for Cloud                                        │
+        │ [ ] Purview (governance)                                      │
         └─────────────────────────────────────────────────────────────┘
                                     ↓
         ┌─────────────────────────────────────────────────────────────┐
         │ PHASE 3: H2 Enhancement                                     │
         ├─────────────────────────────────────────────────────────────┤
-        │ ☐ ArgoCD (GitOps)                                           │
-        │ ☐ GitHub Runners                                            │
-        │ ☐ Backstage Portal                                               │
-        │ ☐ Observability (Prometheus, Grafana)                       │
-        │ ☐ Golden Paths                                              │
+        │ [ ] ArgoCD (GitOps)                                           │
+        │ [ ] GitHub Runners                                            │
+        │ [ ] Backstage Portal                                               │
+        │ [ ] Observability (Prometheus, Grafana)                       │
+        │ [ ] Golden Paths                                              │
         └─────────────────────────────────────────────────────────────┘
                                     ↓
         ┌─────────────────────────────────────────────────────────────┐
         │ PHASE 4: H3 Innovation                                      │
         ├─────────────────────────────────────────────────────────────┤
-        │ ☐ AI Foundry                                                │
-        │ ☐ MLOps Pipelines                                           │
-        │ ☐ Multi-Agent Systems                                       │
-        │ ☐ SRE Agent Integration                                     │
+        │ [ ] AI Foundry                                                │
+        │ [ ] MLOps Pipelines                                           │
+        │ [ ] Multi-Agent Systems                                       │
+        │ [ ] SRE Agent Integration                                     │
         └─────────────────────────────────────────────────────────────┘
         ```
         
-        ### 📚 Component Map
+        ### Component Map
         
         | Phase | Agent | Terraform Module | Script | Issue Template |
         |-------|-------|------------------|--------|----------------|
@@ -167,7 +167,7 @@ body:
       value: |
         ---
         
-        ## 📋 Full Deployment Script
+        ## Full Deployment Script
         
         ```bash
         # 1. Clone and setup
@@ -205,7 +205,7 @@ body:
           --target backstage
         ```
         
-        ## 🔗 Individual Issue Templates
+        ## Individual Issue Templates
         
         For fine-grained control, create individual issues:
         

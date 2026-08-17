@@ -1,70 +1,125 @@
 ---
 name: agentic-architecture-patterns
-description: "Decision framework for designing production agentic systems on GitHub platform and Azure AI Foundry. Covers model routing tiers (mini to frontier), prompt caching and semantic caching, short and long term memory, context curation and RAG, tools and MCP, identity and guardrails, evaluation, observability (OpenTelemetry GenAI), and cost control. Use when architecting an AI agent or multi-agent system, choosing a model router, deciding a caching or memory strategy, planning context windows, or reviewing an agent design for reliability, security, and cost. Pairs with azure-managed-redis-cache, foundry-agent-blueprint, azure-api-center, apim-ai-gateway, and azure-architecture-diagrams."
-argument-hint: "what to design or review, for example a routing and caching strategy for an agentic RAG service"
+description: "Use when architecting or reviewing an AI agent or multi-agent system on GitHub or Azure AI Foundry; produces a decision record covering model routing, caching, memory, context, tools/MCP, identity, guardrails, evaluation, observability, and cost. DO NOT USE FOR: hands-on Foundry provisioning or RAG operations (use ai-foundry-operations or foundry-agent-blueprint), requirements writing (use requirements-engineer), story decomposition (use story-planning), or final diagrams (use azure-architecture-diagrams). Triggers include \"design an agent architecture\", \"review this multi-agent system\", \"choose a model routing and memory strategy\"."
 ---
 
 # Agentic Architecture Patterns
 
-The core decision framework for AI-native systems. It turns a use case into concrete choices for routing, caching, memory, context, tools, identity, guardrails, evaluation, observability, and cost. Keep this file as the map; load the reference files for depth.
+This workflow turns an AI-native use case into a documented architecture decision record for Open Horizons, grounded in the seven agentic system decisions and the repository's L3 Context Platform Stack. It produces a service map, risk register, and implementation handoff for companion skills such as `foundry-agent-blueprint`, `azure-managed-redis-cache`, and `azure-architecture-diagrams`.
 
-> Never invent limits, prices, or benchmarks. Verify service limits and pricing against Microsoft Learn and the vendor model card, and cite them. Where a number has no source, state it as an explicit assumption.
+> [!NOTE]
+> This skill depends on repository references under `.github/skills/agentic-architecture-patterns/references/`, current Microsoft Learn and GitHub documentation, and authenticated MCP documentation/search tools when available. Do not invent limits, prices, or model benchmarks.
 
-## The seven decisions
+## When to invoke
+- "Design an agent architecture for our Open Horizons platform."
+- "Review this multi-agent system for security, cost, and reliability risks."
+- "Choose the right model routing, memory, cache, and RAG strategy."
+- "Map this agent design to Azure AI Foundry, Redis, tools, and MCP."
 
-Every agentic design resolves these, in order. Each links to a reference for the detail.
+## Prerequisites
+- A use case, users, data sensitivity, runtime target, latency goal, and cost ceiling.
+- Repository context available in `CODEMAP.md`, `backstage/server/agent-api/memory/context_store.py`, and `backstage/server/agent-api/memory/tiers.py`.
+- Reference files available in `.github/skills/agentic-architecture-patterns/references/`.
+- Current vendor documentation available for quoted limits, pricing, and model capability claims.
 
-1. **Model routing**: match each task to the cheapest model that meets quality. See [references/model-routing.md](references/model-routing.md).
-2. **Caching**: cut latency and cost with prompt caching and semantic caching. See [references/caching.md](references/caching.md).
-3. **Memory**: separate short term thread state from long term durable memory. See [references/memory.md](references/memory.md).
-4. **Context curation**: retrieve, rank, compact, and budget the context window (RAG). See [references/context-curation.md](references/context-curation.md).
-5. **Tools and MCP**: expose capabilities as well-described tools and Model Context Protocol servers. See [references/tools-and-mcp.md](references/tools-and-mcp.md).
-6. **Identity and guardrails**: agent identity, least privilege, content safety, prompt shields. See [references/guardrails-and-identity.md](references/guardrails-and-identity.md).
-7. **Evaluation, observability, and cost**: measure quality, trace runs, and govern spend. See [references/evaluation-observability-cost.md](references/evaluation-observability-cost.md).
+## Workflow steps
 
-## Reference architecture (target)
+### Step 1: Confirm design scope
+1. Identify the target runtime: Azure AI Foundry Agent Service, AKS service, GitHub Actions automation, or Backstage agent API.
+2. Capture tenant boundaries, data sources, tool surfaces, expected traffic, quality bar, and compliance constraints.
+3. Ask before writing architecture artifacts or ADRs.
 
 ```text
-User / GitHub Copilot / GitHub Actions
-        |
-   API Management (AI gateway): authN, token limit, load balance, semantic cache
-        |
-   Agent runtime (Azure AI Foundry Agent Service, Container Apps, or AKS)
-   |          |              |                 |
- Model      Memory        Context           Tools / MCP
- router    (Redis +      (RAG: AI Search   (API Center registry,
- (tiers)    vector)       + rerank)          MCP servers)
-        |
- Guardrails (Content Safety, Prompt Shields) + Identity (Entra Agent ID, managed identity)
-        |
- Observability (App Insights + OpenTelemetry GenAI) + Evaluation (Foundry evals)
+Scope summary:
+- Runtime:
+- Users and tenants:
+- Data sensitivity:
+- Latency and cost targets:
+- Artifacts to create:
+Proceed with creating or updating architecture artifacts? (y/n)
 ```
 
-## How to use this skill
+> [!IMPORTANT]
+> Only proceed with creating or updating repository artifacts if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the design findings and stop.
 
-1. Read the use case and constraints (scale, latency, cost ceiling, data sensitivity, where it runs).
-2. Walk the seven decisions in order. For each, open its reference, choose an option, and record the rationale and the source.
-3. Map each decision to a service. Route to the companion skills:
-   - cache, semantic cache, vector store, or memory store on Redis -> `azure-managed-redis-cache`
-   - agent runtime, model catalog, threads, tools on Foundry -> `foundry-agent-blueprint`
-   - API and tool or MCP governance -> `azure-api-center`
-   - model gateway policies (token limit, load balance, semantic cache) -> `apim-ai-gateway`
-   - diagrams of the result -> `azure-architecture-diagrams`
-4. Produce the decision record and hand the service map to the diagram skill.
+### Step 2: Load the seven reference decisions
+Read the applicable reference files before making recommendations:
 
-## Anti-patterns to flag
+| Decision | Repository reference |
+|---|---|
+| Model routing | `.github/skills/agentic-architecture-patterns/references/model-routing.md` |
+| Caching | `.github/skills/agentic-architecture-patterns/references/caching.md` |
+| Memory | `.github/skills/agentic-architecture-patterns/references/memory.md` |
+| Context curation | `.github/skills/agentic-architecture-patterns/references/context-curation.md` |
+| Tools and MCP | `.github/skills/agentic-architecture-patterns/references/tools-and-mcp.md` |
+| Guardrails and identity | `.github/skills/agentic-architecture-patterns/references/guardrails-and-identity.md` |
+| Evaluation, observability, and cost | `.github/skills/agentic-architecture-patterns/references/evaluation-observability-cost.md` |
 
-- One frontier model for every task. Route by task class; reserve frontier for the hardest steps.
-- No caching on stable system prompts or repeated retrievals. Prompt caching and semantic caching are the highest-leverage cost levers.
-- Unbounded context. Always budget the window and compact history.
-- Treating tool sprawl as free. Each tool adds selection cost; curate and namespace tools.
-- Shared secrets instead of managed identity and agent identity.
-- Shipping without evals or tracing. You cannot govern what you do not measure.
+### Step 3: Build the service map
+- [ ] Route low-risk extraction and classification to the cheapest capable model tier.
+- [ ] Reserve premium/frontier models for hard reasoning, synthesis, or high-risk decisions.
+- [ ] Use prompt caching for stable prefixes and semantic caching for repeated user intents.
+- [ ] Separate short-term thread state from long-term durable memory.
+- [ ] Use Azure Managed Redis for cache, session state, and vector memory when low-latency access is required.
+- [ ] Use retrieval ranking, compaction, and budget limits before expanding context windows.
+- [ ] Keep tool surfaces narrow, namespaced, and least-privileged.
+- [ ] Assign managed identity or Entra Agent ID instead of shared secrets.
+- [ ] Define evaluation datasets, OpenTelemetry GenAI traces, cost budgets, and rollback criteria.
 
-## References
+### Step 4: Classify risks
+| Severity | Meaning |
+|---|---|
+| Critical | Unbounded tool access, cross-tenant data leakage, or missing identity controls that can expose sensitive systems. |
+| High | No eval gate, no traceability, single expensive model path, or unscoped long-term memory in production. |
+| Medium | Weak cache invalidation, incomplete observability, oversized context, or unclear model routing thresholds. |
+| Low | Documentation gaps, naming inconsistencies, or missing optimization opportunities. |
 
-- [Azure AI Foundry](https://learn.microsoft.com/azure/ai-foundry/)
-- [Azure Well-Architected for AI workloads](https://learn.microsoft.com/azure/well-architected/ai/)
-- [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [GitHub Models](https://docs.github.com/github-models)
+### Step 5: Route implementation follow-ups
+- Use `foundry-agent-blueprint` for Azure AI Foundry agent primitives.
+- Use `azure-managed-redis-cache` for semantic cache, vector memory, or session store design.
+- Use `azure-architecture-diagrams` for draw.io and SVG diagrams.
+- Use `architecture-doc` to validate Mermaid architecture documents.
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Scope is unclear | State assumptions, ask only for missing facts, and avoid writing files. |
+| Reference file is unavailable | Report the missing path and continue only with verified sources. |
+| Vendor limit or price is needed | Fetch current official documentation and cite it, or label the number as an assumption. |
+| Recommendation overlaps another skill | Stop at the design boundary and route to the companion skill. |
+
+## Output template
+```markdown
+# Agentic Architecture Decision Record
+
+## Scope
+- Runtime:
+- Users and tenants:
+- Data sources:
+
+## Seven Decisions
+| Decision | Choice | Rationale | Source |
+|---|---|---|---|
+| Model routing |  |  |  |
+| Caching |  |  |  |
+| Memory |  |  |  |
+| Context curation |  |  |  |
+| Tools and MCP |  |  |  |
+| Identity and guardrails |  |  |  |
+| Evaluation, observability, and cost |  |  |  |
+
+## Risk Register
+| Severity | Finding | Evidence | Recommendation |
+|---|---|---|---|
+
+## Implementation Handoffs
+- Foundry:
+- Redis:
+- Diagrams:
+```
+
+## Quality gate
+- [ ] All seven decisions are resolved with rationale and source evidence.
+- [ ] Risks are classified with concrete mitigations.
+- [ ] No unsourced limits, prices, or benchmark claims are included.
+- [ ] Handoffs point only to valid Open Horizons skills or repository paths.

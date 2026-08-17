@@ -1,55 +1,120 @@
 ---
 name: foundry-agent-blueprint
-description: "Design and provision agents on Azure AI Foundry Agent Service: model catalog and deployments, connections (Azure AI Search, Azure Managed Redis, Bing, storage), threads and runs for short term memory, tools (function, OpenAPI, MCP, code interpreter, file search), evaluation, and tracing. Use when the target runtime is Azure AI Foundry, when choosing models from the Foundry catalog, when wiring agent tools and connections, or when planning Foundry evaluation and observability. Routes to the installed microsoft-foundry, azure-ai, and vscode-microsoft-foundry skills for provisioning detail. Pairs with agentic-architecture-patterns, azure-managed-redis-cache, azure-api-center, and apim-ai-gateway."
-argument-hint: "what to build on Foundry, for example a RAG agent with AI Search and a Redis memory connection"
+description: "Use when designing an Azure AI Foundry Agent Service blueprint, including model deployments, connections, threads and runs, tools, MCP, file search, code interpreter, evaluation, tracing, and memory integration; produces a Foundry service map and build checklist. DO NOT USE FOR: general agent architecture trade-off analysis (use agentic-architecture-patterns), Redis cache design (use azure-managed-redis-cache), or hands-on Azure provisioning (use ai-foundry-operations). Triggers include \"design a Foundry agent\", \"map this agent to Foundry tools\", \"plan Foundry evaluation\"."
 ---
 
 # Foundry Agent Blueprint
 
-How to design an agent on **Azure AI Foundry Agent Service** and map the agentic decisions to Foundry primitives. This skill is the design layer; for hands-on provisioning, CLI, and SDK detail, load the installed `microsoft-foundry`, `azure-ai`, and `vscode-microsoft-foundry` skills, and verify against Microsoft Learn.
+This workflow maps an agent use case to Azure AI Foundry Agent Service primitives: project, model deployments, connections, tools, threads, memory, evaluation, and tracing. It produces a Foundry blueprint that implementation agents can provision and validate.
 
-> Service capabilities and names evolve. Confirm the current Foundry Agent Service features, model catalog entries, and limits on Microsoft Learn before locking a recommendation. Do not quote limits or prices without a source.
+> [!NOTE]
+> This skill depends on current Azure AI Foundry documentation and may route provisioning details to installed Microsoft Foundry or Azure AI skills. Confirm feature names, model catalog availability, quotas, and limits on Microsoft Learn before implementation.
 
-## Foundry primitives, mapped to the seven decisions
+## When to invoke
+- "Design a Foundry agent for a RAG workflow."
+- "Map our agent tools to Azure AI Foundry capabilities."
+- "Plan threads, memory, evaluation, and tracing for a Foundry agent."
+- "Choose Foundry connections for Azure AI Search and Redis."
 
-| Agentic decision | Foundry primitive |
-| --- | --- |
-| Model routing | Model catalog deployments; a model router where available; the gateway in front (see `apim-ai-gateway`) |
-| Caching | Prompt caching on supported models; semantic cache at the gateway or in app (see `azure-managed-redis-cache`) |
-| Short term memory | Threads and runs (managed conversation state) |
-| Long term memory | Connections to Azure AI Search or Azure Managed Redis vector store |
-| Context curation | File search tool, Azure AI Search connection, your own RAG pipeline |
-| Tools and MCP | Function tools, OpenAPI tools, MCP tools, code interpreter, file search |
-| Identity and guardrails | Microsoft Entra Agent ID, managed identity, Content Safety, Prompt Shields |
-| Evaluation and observability | Foundry evaluation framework and tracing, App Insights, OpenTelemetry |
+## Prerequisites
+- Agent goal, users, tools, data sources, and safety requirements are known.
+- Target Azure AI Foundry project or environment is identified.
+- Model candidates and regional constraints are available or can be verified.
+- Related repository paths exist: `foundry/agents-service/`, `foundry/k8s/`, and `terraform/modules/ai-foundry/`.
+- User approval is available before creating blueprint artifacts or provisioning follow-ups.
 
-## Blueprint steps
+## Workflow steps
 
-1. **Project and models.** Create a Foundry project. Pick models from the catalog for each routing tier (a small model for routing and extraction, a workhorse for general steps, a premium or frontier model for hard steps). Create deployments.
-2. **Connections.** Add the connections the agent needs: Azure AI Search for retrieval, Azure Managed Redis for cache and memory, storage for files, and any other data source. Use managed identity on connections where supported.
-   - Note from prior experience: a Foundry `AzureStorageAccount` connection target must be the Blob URI (`https://<account>.blob.core.windows.net`), not the ARM resource id.
-3. **Agent definition.** Define the agent with its instructions, model, and tools. Keep the tool surface small and well described (see tools and MCP in `agentic-architecture-patterns`).
-4. **Threads.** Use threads for short term memory. Add long term memory through a retrieval tool or connection, scoped by tenant and user.
-5. **Guardrails and identity.** Give the agent an Entra Agent ID, use managed identity for service access, and enable Content Safety and Prompt Shields.
-6. **Evaluation.** Build an eval set and run the Foundry evaluators (relevance, groundedness, coherence, safety, task success). Gate changes in CI.
-7. **Observability.** Enable tracing and route telemetry to App Insights with OpenTelemetry GenAI conventions.
+### Step 1: Confirm agent blueprint scope
+```text
+Foundry blueprint summary:
+- Agent goal:
+- Models:
+- Connections:
+- Tools:
+- Memory:
+- Artifacts to create:
+Proceed with creating or updating blueprint artifacts? (y/n)
+```
 
-## Tools available in Foundry agents
+> [!IMPORTANT]
+> Only proceed with creating blueprint artifacts or initiating provisioning handoffs if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the blueprint recommendations and stop.
 
-- **Function tools** for your own code.
-- **OpenAPI tools** to call governed HTTP APIs (register them in `azure-api-center`, front them with `apim-ai-gateway`).
-- **MCP tools** to attach Model Context Protocol servers (build them with `mcp-builder`).
-- **File search** for grounded retrieval over uploaded documents.
-- **Code interpreter** for computation and data tasks.
+### Step 2: Map Foundry primitives
+| Design area | Foundry primitive |
+|---|---|
+| Model routing | Model catalog deployments and an application or gateway router where needed. |
+| Short-term memory | Threads and runs for conversation state. |
+| Long-term memory | Azure AI Search or Azure Managed Redis connection. |
+| Context curation | File search, Azure AI Search, or external RAG pipeline. |
+| Tools | Function tools, OpenAPI tools, MCP tools, code interpreter, and file search. |
+| Identity and guardrails | Managed identity, Entra Agent ID where applicable, Content Safety, and Prompt Shields. |
+| Evaluation and observability | Foundry evaluators, tracing, App Insights, and OpenTelemetry GenAI conventions. |
 
-## Provisioning and quotas
+### Step 3: Design connections and data boundaries
+- [ ] Azure AI Search connection is scoped to the approved index and tenant boundary.
+- [ ] Azure Managed Redis is used for semantic cache or vector memory when low-latency memory is required.
+- [ ] Storage connection uses the correct Blob endpoint format when applicable.
+- [ ] Tool credentials use managed identity or approved secret storage.
+- [ ] Data classification determines whether public network access is acceptable.
 
-- For provisioning steps, identity setup, and SDK usage, route to `microsoft-foundry` and `azure-ai`.
-- For model and Cognitive Services quota, the `az quota list` path can return a bad request; raise a support quota request for Cognitive Services instead. New subscriptions may need `Microsoft.ContainerRegistry` registered before creating an ACR for hosted-agent demos.
+### Step 4: Define tool surface
+- [ ] Function tools have narrow schemas and deterministic side effects.
+- [ ] OpenAPI tools use governed API endpoints.
+- [ ] MCP tools are named, scoped, and least-privileged.
+- [ ] Code interpreter is enabled only for trusted workloads with data boundaries.
+- [ ] File search is grounded in approved files and retrieval limits.
 
-## References
+### Step 5: Plan evaluation and tracing
+- [ ] Define eval cases for task success, relevance, groundedness, coherence, safety, and refusal behavior.
+- [ ] Define trace attributes for model, tokens, tool calls, cache outcome, latency, and cost.
+- [ ] Gate production changes on evaluation thresholds and rollback criteria.
 
-- [Azure AI Foundry Agent Service](https://learn.microsoft.com/azure/ai-foundry/agents/)
-- [Azure AI Foundry model catalog](https://learn.microsoft.com/azure/ai-foundry/how-to/model-catalog-overview)
-- [Foundry tools](https://learn.microsoft.com/azure/ai-foundry/agents/how-to/tools/overview)
-- [Evaluate generative AI with Azure AI Foundry](https://learn.microsoft.com/azure/ai-foundry/concepts/evaluation-approach-gen-ai)
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Tool can mutate sensitive systems without guardrails, or memory/retrieval leaks tenant data. |
+| High | No evaluation gate, no traceability, unsupported model/region, or broad connection permissions. |
+| Medium | Missing cache policy, unclear thread retention, or incomplete tool schemas. |
+| Low | Naming, documentation, or handoff gaps. |
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Foundry capability is unclear | Verify current Microsoft Learn docs and state uncertainty. |
+| Model quota is unavailable | Route quota validation to `ai-foundry-operations` and do not substitute silently. |
+| Redis or search design is needed | Route detailed design to `azure-managed-redis-cache` or the relevant search skill. |
+| Provisioning is requested | Produce the blueprint and route execution to `ai-foundry-operations`. |
+
+## Output template
+```markdown
+# Foundry Agent Blueprint
+
+## Scope
+- Agent goal:
+- Users:
+- Runtime:
+
+## Foundry Map
+| Area | Decision | Rationale |
+|---|---|---|
+
+## Connections
+| Connection | Purpose | Identity | Data Boundary |
+|---|---|---|---|
+
+## Tools
+| Tool | Type | Scope | Risk |
+|---|---|---|---|
+
+## Evaluation And Tracing
+- Eval set:
+- Metrics:
+- Rollback criteria:
+```
+
+## Quality gate
+- [ ] Every model, connection, tool, memory, evaluation, and tracing decision is documented.
+- [ ] Current Foundry capability and quota assumptions are sourced or labeled as assumptions.
+- [ ] High-risk tools and data boundaries have mitigations.
+- [ ] Provisioning execution is routed to the operations skill.

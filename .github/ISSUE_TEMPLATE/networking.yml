@@ -1,4 +1,4 @@
-name: "🌐 H1: Networking Setup"
+name: "H1: Networking Setup"
 description: "Deploy hub-spoke network architecture with private endpoints"
 title: "[Networking] Deploy network infrastructure"
 labels: ["h1-foundation", "networking", "copilot-agent"]

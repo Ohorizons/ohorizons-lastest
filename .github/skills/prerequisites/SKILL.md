@@ -1,6 +1,8 @@
 ---
 name: prerequisites
-description: "CLI tool prerequisites validation and setup. USE FOR: validate prerequisites, check CLI tools, install missing tools, verify versions, prerequisite checklist. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli)."
+description: 'CLI tool prerequisites validation and setup. USE FOR: validate prerequisites, check CLI tools, install missing tools, verify versions, prerequisite checklist. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli).'
+allowed-tools:
+- shell
 ---
 
 ## When to Use

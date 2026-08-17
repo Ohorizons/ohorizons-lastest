@@ -1,201 +1,170 @@
 ---
 applyTo: "**/*.py,**/python/**"
-description: "Python coding standards — FastAPI, Pydantic, structlog, PEP 8, and project structure conventions."
+description: "Use when editing Python FastAPI services, agent runtime modules, middleware, tools, tests, and validation scripts in Open Horizons."
 ---
 
-# Python Coding Standards
+# Python Conventions — FastAPI Agent APIs, Middleware, Tools, and Validators
 
-## Project Structure
+This file activates when you edit Python files anywhere in the repository, including `backstage/server/agent-api/`, Foundry services, MCP tooling, and validation scripts. It teaches Open Horizons conventions for FastAPI endpoints, Pydantic models, Azure identity, agent middleware, structured logging, tests, and safe automation. It does **not** cover Bash wrappers around Python scripts, which belong to [Shell script standards](shell.instructions.md), container packaging, which belongs to [Dockerfile standards](dockerfile.instructions.md), Kubernetes runtime configuration, which belongs to [Kubernetes standards](kubernetes.instructions.md), TypeScript Backstage clients, which belong to [TypeScript standards](typescript.instructions.md), or Copilot primitive schemas, which belong to [Agent customization standards](agent-files.instructions.md).
 
-```
-project/
-├── src/
-│   └── package_name/
-│       ├── __init__.py
-│       ├── main.py
-│       └── utils/
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   └── test_main.py
-├── pyproject.toml
-├── requirements.txt
-├── Dockerfile
-└── README.md
-```
+> [!IMPORTANT]
+> Python services are part of the agentic execution layer. Treat tool execution, hooks, memory, trajectory logging, and cost tracking as governed runtime surfaces.
 
-## Code Style
+## FastAPI and Pydantic Models
 
-### Formatting
-- Use `ruff` or `black` for formatting
-- Line length: 88 characters (black default)
-- Use double quotes for strings
-- Use trailing commas in multi-line structures
-
-### Imports
-```python
-# Standard library
-import os
-import sys
-from pathlib import Path
-
-# Third-party
-import requests
-from fastapi import FastAPI
-
-# Local
-from .utils import helper
-from .models import User
-```
-
-### Type Hints
-```python
-from typing import Optional, List, Dict
-
-def process_data(
-    items: List[str],
-    config: Optional[Dict[str, str]] = None,
-) -> Dict[str, int]:
-    """Process a list of items and return counts."""
-    result: Dict[str, int] = {}
-    # implementation
-    return result
-```
-
-## FastAPI Standards
+Define explicit request and response models for public API boundaries. The agent API uses `BaseModel` for chat requests and streaming chunks.
 
 ```python
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel, Field
-import structlog
+# Wrong: untyped body and ambiguous return contract.
+@app.post("/api/agents/chat")
+async def chat(request: dict):
+    return await run_agent(request["message"])
+```
 
-logger = structlog.get_logger()
+```python
+from pydantic import BaseModel
 
-app = FastAPI(
-    title="Service Name",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+class ChatRequest(BaseModel):
+    message: str
+    conversation_id: str | None = None
+    user: str | None = None
+    agent: str | None = None
+
+@app.post("/api/agents/chat")
+async def chat(request: ChatRequest):
+    return await stream_agent_response(request)
+```
+
+## Configuration and Identity
+
+Read configuration from environment variables and prefer Azure identity when API keys are absent. Never hardcode endpoints, credentials, tenants, or tokens.
+
+```python
+# Wrong: committed credential and tenant-specific endpoint.
+client = AzureOpenAI(
+    azure_endpoint="https://customer.openai.azure.com/",
+    api_key="sk-example",
 )
+```
 
-class HealthResponse(BaseModel):
-    status: str = Field(..., example="healthy")
-    version: str = Field(..., example="1.0.0")
+```python
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY", "")
 
-@app.get("/healthz", response_model=HealthResponse)
-async def health_check() -> HealthResponse:
-    """Health check endpoint."""
-    return HealthResponse(status="healthy", version="1.0.0")
+credential = DefaultAzureCredential()
+token = credential.get_token("https://cognitiveservices.azure.com/.default")
+client = AzureOpenAI(
+    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    azure_ad_token=token.token,
+    api_version=AZURE_OPENAI_API_VERSION,
+)
+```
 
-@app.get("/ready")
-async def readiness_check() -> dict:
-    """Readiness check endpoint."""
-    # Check dependencies
-    return {"status": "ready"}
+> [!WARNING]
+> Do not log prompts, tool arguments, tokens, connection strings, JWTs, or customer data unless they are redacted and explicitly needed for an audit trail.
+
+## Logging and Observability
+
+Agent APIs currently use standard logging and middleware audit structures; newer services may use `structlog` when already present. Log stable event names and IDs, not sensitive payloads.
+
+```python
+# Wrong: logs the entire user prompt and tool arguments.
+logger.info("request=%s tool_args=%s", request.message, tool_input)
+```
+
+```python
+logger.info(
+    "Routing to agent: %s (%s)",
+    agent_name,
+    agent_config.display_name,
+)
+trajectory_id = trajectory_logger.start(
+    agent=agent_name,
+    user=request.user or "anonymous",
+    message=clean_message,
+)
 ```
 
 ## Error Handling
 
-```python
-from fastapi import HTTPException
-import structlog
-
-logger = structlog.get_logger()
-
-class ServiceError(Exception):
-    """Base exception for service errors."""
-    def __init__(self, message: str, code: str):
-        self.message = message
-        self.code = code
-        super().__init__(message)
-
-async def handle_request():
-    try:
-        # operation
-        pass
-    except ServiceError as e:
-        logger.error("service_error", code=e.code, message=e.message)
-        raise HTTPException(status_code=400, detail=e.message)
-    except Exception as e:
-        logger.exception("unexpected_error")
-        raise HTTPException(status_code=500, detail="Internal server error")
-```
-
-## Logging
+Return actionable HTTP errors at API edges and keep internal unexpected details out of responses. In middleware and validators, catch narrowly when possible and document defensive broad catches.
 
 ```python
-import structlog
-
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer(),
-    ],
-    logger_factory=structlog.stdlib.LoggerFactory(),
-)
-
-logger = structlog.get_logger()
-
-# Usage
-logger.info("processing_request", request_id=request_id, user_id=user_id)
-logger.error("operation_failed", error=str(e), context=context)
+# Wrong: leaks exception details to the caller.
+except Exception as exc:
+    raise HTTPException(status_code=500, detail=str(exc))
 ```
-
-## Testing
 
 ```python
-import pytest
-from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
-
-@pytest.fixture
-def client():
-    from main import app
-    return TestClient(app)
-
-def test_health_check(client):
-    response = client.get("/healthz")
-    assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
-
-@pytest.mark.asyncio
-async def test_async_function():
-    result = await async_function()
-    assert result is not None
+except ServiceUnavailableError as exc:
+    logger.warning("dependency_unavailable", extra={"dependency": exc.dependency})
+    raise HTTPException(status_code=503, detail="Agent dependency unavailable") from exc
+except Exception as exc:  # noqa: BLE001 - API edge converts unexpected failures
+    logger.exception("agent_chat_failed")
+    raise HTTPException(status_code=500, detail="Internal server error") from exc
 ```
 
-## Security Requirements
+> [!NOTE]
+> A broad catch is acceptable in hook pipelines and API boundaries only when it prevents a governance or observability failure from crashing the caller and logs the reason.
 
-- NEVER hardcode secrets
-- Use environment variables for configuration
-- Validate all input with Pydantic
-- Use parameterized queries for databases
-- Sanitize log output (no PII, no secrets)
-- Use secrets managers (Azure Key Vault)
+## Tool Hooks and Governance
 
-## Dependencies
+All agent tool calls flow through the hook pipeline. Preserve deny patterns, post-use redaction, bounded audit buffers, and explicit risk classification.
 
-```toml
-# pyproject.toml
-[project]
-name = "service-name"
-version = "1.0.0"
-requires-python = ">=3.11"
-dependencies = [
-    "fastapi>=0.109.0",
-    "uvicorn>=0.27.0",
-    "pydantic>=2.5.0",
-    "structlog>=24.1.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.23.0",
-    "ruff>=0.2.0",
-    "mypy>=1.8.0",
-]
+```python
+# Wrong: bypasses governance and audit for a tool call.
+result = await tool.execute(arguments)
 ```
+
+```python
+pre = tool_hooks.pre_tool_use(agent=agent_name, tool=tool_name, args=arguments)
+if not pre.allowed:
+    return {"error": pre.reason}
+result = await tool.execute(arguments)
+post = tool_hooks.post_tool_use(agent=agent_name, tool=tool_name, result=str(result))
+return post.result
+```
+
+## Tests and Validation Scripts
+
+Use pytest for Python behavior tests and keep validation scripts deterministic. The strict agent validator is a repository gate and must remain runnable with Python 3.11+.
+
+```python
+# Wrong: test depends on real Azure credentials.
+def test_chat_calls_openai():
+    assert create_openai_client().models.list()
+```
+
+```python
+def test_classify_read_only_tool():
+    assert classify_tool("list_pods") == ToolClass.READ_ONLY
+```
+
+## Conventions
+
+| Rule | Rationale |
+|---|---|
+| Use Pydantic models at FastAPI request and response boundaries | Agent clients and SSE consumers need stable contracts. |
+| Prefer `DefaultAzureCredential` fallback over committed API keys | Workload Identity and Managed Identity are the platform standard. |
+| Keep logs structured around event names, IDs, and agent names | Observability dashboards need consistent low-risk fields. |
+| Preserve tool hook enforcement for every agent tool call | Governance, redaction, and audit trails are core platform behavior. |
+| Keep validation scripts deterministic and non-interactive | CI, IssueOps, and cloud agents run them without a terminal. |
+| Use Python 3.11+ syntax and type hints | The repo standard and CI runtime expect modern typing. |
+
+## Do / Do Not
+
+| Do | Do not |
+|---|---|
+| Model untrusted JSON with Pydantic or explicit narrowing | Pass raw dictionaries deep into agent logic. |
+| Return generic external error messages and log internal context safely | Expose stack traces or secret-bearing exception strings. |
+| Keep async endpoints non-blocking | Add long synchronous shell or network work inside request handlers. |
+| Add focused pytest tests for hooks, validators, and parsing logic | Require live Azure or GitHub services for unit tests. |
+
+## Checklist Before Opening a PR
+
+- [ ] FastAPI endpoints use explicit models and stable paths.
+- [ ] Configuration comes from environment or managed identity, not committed values.
+- [ ] Logs avoid prompts, secrets, tokens, and raw tool arguments.
+- [ ] Tool calls still pass through pre/post governance hooks.
+- [ ] Tests or validation scripts run without cloud credentials when possible.
+- [ ] Python syntax and type hints are compatible with Python 3.11+.

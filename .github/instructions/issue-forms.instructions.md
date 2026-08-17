@@ -1,24 +1,111 @@
 ---
-applyTo: ".github/ISSUE_TEMPLATE/**/*.yml,.github/ISSUE_TEMPLATE/**/*.yaml,**/.github/ISSUE_TEMPLATE/**/*.yml,**/.github/ISSUE_TEMPLATE/**/*.yaml"
-description: "GitHub Issue Forms standards for Open Horizons agent routing, workflow labels, and safe metadata."
+applyTo: ".github/ISSUE_TEMPLATE/*.yml"
+description: "Use when editing GitHub Issue Forms for Open Horizons agent routing, IssueOps metadata, and safe request intake."
 ---
 
-# Issue Forms Standards
+# Issue Form Conventions — Agent Routing and Safe Intake
 
-## Routing Labels
+This file activates when you edit YAML issue forms under `.github/ISSUE_TEMPLATE/`. It teaches how Open Horizons collects structured deployment, infrastructure, security, SRE, and portal requests for Agent Router and IssueOps. It does **not** cover workflow implementation, which belongs to [GitHub Actions standards](github-actions.instructions.md), agent and prompt schemas, which belong to [Agent customization standards](agent-files.instructions.md), shell automation invoked by IssueOps, which belongs to [Shell script standards](shell.instructions.md), or Terraform and Kubernetes implementation details, which belong to [Terraform standards](terraform.instructions.md) and [Kubernetes standards](kubernetes.instructions.md).
 
-- Use canonical `agent:<id>` labels that match `.github/agents/*.agent.md` names.
-- Use `agent:deploy` for full platform deployment and infrastructure requests unless a more specific canonical agent owns the task.
-- Use `workflow:<name>` only for workflows supported by `.github/workflows/agent-router.yml`.
-- Include `env:dev`, `env:staging`, or `env:prod` when the requested operation depends on environment policy.
+> [!IMPORTANT]
+> Issue forms are public intake surfaces in many repositories. Never ask users to paste secrets, tokens, passwords, private keys, kubeconfigs, or connection strings.
 
-## Form Content
+## Routing Metadata
 
-- Use clear required fields for subscription, environment, horizon, owner, and risk level when relevant.
-- Do not request secrets, tokens, passwords, private keys, or credentials in issue forms.
-- Prefer placeholders that show format, not real customer or internal values.
-- Keep issue bodies machine-readable enough for IssueOps and Agent Router automation.
+Use labels that the Agent Router and workflows understand: `agent:<id>` labels match `.github/agents/*.agent.md`, while `workflow:<name>` labels map to workflow automation.
 
-## Validation
+```yaml
+# Wrong: free-form labels cannot be routed reliably.
+labels: ["please deploy", "AI"]
+```
 
-- After changing labels or workflow names, run the Copilot primitive validator in strict mode.
+```yaml
+labels: ["deployment", "agent:deploy", "workflow:full-deployment"]
+```
+
+## Required Fields
+
+Ask for machine-readable environment, horizon, region, platform, and approval inputs when the operation depends on them. Keep options canonical so agents do not need fuzzy parsing.
+
+```yaml
+# Wrong: free-form production intent with no validation.
+- type: input
+  id: environment
+  attributes:
+    label: Environment
+```
+
+```yaml
+- type: dropdown
+  id: environment
+  attributes:
+    label: Environment
+    description: Target deployment environment
+    options:
+      - dev
+      - staging
+      - prod
+  validations:
+    required: true
+```
+
+> [!NOTE]
+> Use text areas for narrative requirements, but keep routing-critical fields as dropdowns, checkboxes, or required inputs.
+
+## Safe Placeholders
+
+Placeholders should show format, not real customer values or secrets.
+
+```yaml
+# Wrong: placeholder resembles a real credential.
+placeholder: "ghp_exampletoken1234567890"
+```
+
+```yaml
+placeholder: "e.g., my-company"
+```
+
+## Cost and Risk Language
+
+If a form includes cost bands, risk levels, or production approvals, make them explicit and objective. The deployment request form uses T-shirt sizing and approver fields for staged environments.
+
+```yaml
+# Wrong: unclear risk signal for an agent.
+description: "Is this big?"
+```
+
+```yaml
+description: "List GitHub handles of approvers (required for staging/prod)"
+```
+
+> [!WARNING]
+> Do not auto-trigger destructive or production operations from a form without an explicit approval, environment, and workflow label gate.
+
+## Conventions
+
+| Rule | Rationale |
+|---|---|
+| Use canonical `agent:<id>` labels | Agent Router can dispatch to the right deploy-managed assistant. |
+| Use canonical `workflow:<name>` labels only when a workflow supports them | IssueOps should not infer nonexistent automation. |
+| Prefer dropdowns and checkboxes for environment, horizon, and feature choices | Structured values reduce ambiguous agent interpretation. |
+| Keep placeholders synthetic and non-sensitive | Forms should educate without leaking examples that look real. |
+| Make production and staging approval fields visible | Higher-risk environments require explicit human context. |
+| Keep body IDs stable | Downstream workflows parse `id` values from issue payloads. |
+
+## Do / Do Not
+
+| Do | Do not |
+|---|---|
+| Ask for GitHub org names, Azure regions, and target environments | Ask for PATs, passwords, or private keys. |
+| Use required validations for fields needed by automation | Make agents infer required deployment inputs from prose. |
+| Keep issue titles machine-scannable, such as `[DEPLOY]` | Use ambiguous titles that hide request type. |
+| Link related guides in markdown blocks when needed | Paste long operational runbooks into every form. |
+
+## Checklist Before Opening a PR
+
+- [ ] Labels use canonical `agent:<id>` and supported `workflow:<name>` values.
+- [ ] Required fields cover routing, environment, scope, and approval needs.
+- [ ] No field requests or examples include secrets or credentials.
+- [ ] Options are canonical and parseable by IssueOps automation.
+- [ ] Body field IDs remain stable unless workflow consumers are updated.
+- [ ] Strict Copilot primitive validation passes.

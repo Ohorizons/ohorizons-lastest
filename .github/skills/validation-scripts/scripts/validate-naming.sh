@@ -34,10 +34,10 @@ validate_storage_account() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} Storage Account: $name"
+        echo -e "${GREEN}[OK]${NC} Storage Account: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} Storage Account: $name"
+        echo -e "${RED}[FAIL]${NC} Storage Account: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -60,10 +60,10 @@ validate_container_registry() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} Container Registry: $name"
+        echo -e "${GREEN}[OK]${NC} Container Registry: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} Container Registry: $name"
+        echo -e "${RED}[FAIL]${NC} Container Registry: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -91,10 +91,10 @@ validate_key_vault() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} Key Vault: $name"
+        echo -e "${GREEN}[OK]${NC} Key Vault: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} Key Vault: $name"
+        echo -e "${RED}[FAIL]${NC} Key Vault: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -117,10 +117,10 @@ validate_aks_cluster() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} AKS Cluster: $name"
+        echo -e "${GREEN}[OK]${NC} AKS Cluster: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} AKS Cluster: $name"
+        echo -e "${RED}[FAIL]${NC} AKS Cluster: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -143,10 +143,10 @@ validate_aks_node_pool() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} AKS Node Pool: $name"
+        echo -e "${GREEN}[OK]${NC} AKS Node Pool: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} AKS Node Pool: $name"
+        echo -e "${RED}[FAIL]${NC} AKS Node Pool: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -174,10 +174,10 @@ validate_postgresql() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} PostgreSQL Server: $name"
+        echo -e "${GREEN}[OK]${NC} PostgreSQL Server: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} PostgreSQL Server: $name"
+        echo -e "${RED}[FAIL]${NC} PostgreSQL Server: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done
@@ -200,10 +200,10 @@ validate_resource_group() {
     fi
     
     if [[ ${#errors[@]} -eq 0 ]]; then
-        echo -e "${GREEN}✅${NC} Resource Group: $name"
+        echo -e "${GREEN}[OK]${NC} Resource Group: $name"
         return 0
     else
-        echo -e "${RED}❌${NC} Resource Group: $name"
+        echo -e "${RED}[FAIL]${NC} Resource Group: $name"
         for err in "${errors[@]}"; do
             echo "   - $err"
         done

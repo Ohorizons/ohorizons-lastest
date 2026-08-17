@@ -1,46 +1,110 @@
 ---
 name: architecture-doc
-description: "Validate an architecture document (the {app}_Architecture.md produced by the Senior Cloud Architect agent) against a hard Definition of Done: required sections, the five required diagrams, well-formed Mermaid, the seven explanation parts per diagram, and the repository copy conventions. Use when producing, reviewing, or finishing an architecture document, or whenever you need to confirm a Mermaid-based architecture deliverable is complete and will render before presenting it."
-argument-hint: "the architecture markdown file to validate, for example UBB_Platform_Architecture.md"
+description: "Use when validating a Mermaid-based Open Horizons architecture document before presentation; produces a pass/fail report for required sections, five diagrams, Mermaid structure, seven explanation parts, and copy conventions. DO NOT USE FOR: creating editable draw.io/SVG cloud diagrams with official icons (use azure-architecture-diagrams), or writing general Markdown, README, ADR, runbook, or PPTX conversion content (use markdown-writer). Triggers include \"validate this architecture document\", \"check the Mermaid diagrams\", \"quality gate this Architecture.md\"."
+allowed-tools:
+- shell
 ---
 
 # Architecture Doc
 
-The quality gate for architecture documents in this workspace. It turns the Senior Cloud Architect's Definition of Done into an executable check so an architecture deliverable cannot ship incomplete or with broken Mermaid, which is the main source of rework.
+This workflow validates an `{app}_Architecture.md` deliverable against the Open Horizons architecture document Definition of Done. It produces a deterministic validation report using the repository script and tells the author exactly what to fix before the document is presented.
 
-Pair this with the deploy-managed architecture workflow: the responsible agent designs and writes `{app}_Architecture.md`, then runs this gate before presenting.
+> [!NOTE]
+> This skill shells out to Python through `python .github/skills/architecture-doc/scripts/validate_arch.py`. The script is standard-library Python and validates Markdown structure and Mermaid syntax heuristics; it does not replace a human architecture review.
 
-## When to use
+## When to invoke
+- "Validate this architecture document before I present it."
+- "Check whether the Mermaid diagrams are complete and well formed."
+- "Quality gate `Payment_Platform_Architecture.md`."
+- "Review this architecture doc against the Open Horizons Definition of Done."
 
-- After producing an architecture document, before presenting it.
-- When reviewing or finishing someone else's architecture markdown.
-- Whenever you need to confirm the Mermaid diagrams will render and every diagram is fully explained.
+## Prerequisites
+- The architecture Markdown file exists in the repository.
+- The file is intended to follow the `{app}_Architecture.md` convention.
+- Python 3 is available.
+- The validation script exists at `.github/skills/architecture-doc/scripts/validate_arch.py`.
 
-## What it enforces
+## Workflow steps
 
-1. **Required sections**: Executive Summary, System Context, Component Architecture, Deployment Architecture, Data Flow, Risks and Mitigations.
-2. **The five required diagrams** are present: System Context, Component, Deployment, Data Flow, Sequence.
-3. **Well-formed Mermaid**: every block is fenced and non-empty, declares a known diagram type (`graph`, `flowchart`, `sequenceDiagram`, `erDiagram`, `stateDiagram-v2`, and so on), has balanced brackets, and has edges or messages where the type needs them.
-4. **The seven explanation parts** appear in each diagram's section: Overview, Key Components, Relationships, Design Decisions, NFR Considerations, Trade-offs, Risks and Mitigations.
-5. **Conventions**: no em dashes, "GitHub Copilot" never abbreviated to bare "Copilot", and no unfilled template placeholders (`{app}`, `[Diagram]`, `TODO`, `TBD`).
+### Step 1: Confirm target document
+1. Identify the exact Markdown file path supplied by the user.
+2. Verify it is inside the repository and is not excluded by policy.
+3. Confirm whether the default minimum of five diagrams applies.
 
-## Workflow
+### Step 2: Run the validation script
+```bash
+python .github/skills/architecture-doc/scripts/validate_arch.py <App_Architecture.md>
+```
 
-1. Write or update the architecture document as `{app}_Architecture.md`.
-2. Run the gate:
+Use the optional diagram threshold only when the document's approved scope requires it:
 
-   ```bash
-   python .github/skills/architecture-doc/scripts/validate_arch.py <App_Architecture.md>
-   ```
+```bash
+python .github/skills/architecture-doc/scripts/validate_arch.py <App_Architecture.md> --min-diagrams 6
+```
 
-   It prints warnings (review) and errors (must fix), and exits non-zero if any error is found.
-3. Fix every reported error, then rerun until it passes. Do not present a document that fails the gate.
-4. Record the result at the end of the document as a short "Validation" note.
+### Step 3: Review enforced checks
+- [ ] Required sections: Executive Summary, System Context, Component Architecture, Deployment Architecture, Data Flow, Risks and Mitigations.
+- [ ] Required diagrams: System Context, Component, Deployment, Data Flow, Sequence.
+- [ ] Mermaid blocks are fenced, non-empty, declare known diagram types, and contain required edges or messages.
+- [ ] Each diagram section includes Overview, Key Components, Relationships, Design Decisions, NFR Considerations, Trade-offs, Risks and Mitigations.
+- [ ] Copy conventions are met: no unfilled placeholders, no bare "Copilot" for GitHub Copilot, and no unsupported template residue.
 
-Override the minimum diagram count only when justified: `--min-diagrams 6`.
+### Step 4: Classify findings
+| Severity | Meaning |
+|---|---|
+| Error | The validator exits non-zero; the document must not be presented. |
+| Warning | The document may render but has quality or convention risks. |
+| Note | Optional improvement or human-review reminder. |
 
-## Notes
+### Step 5: Report fixes and rerun
+1. Summarize every error with the section or diagram name.
+2. Fix only the architecture document if the user asked for edits.
+3. Rerun the same command until it passes.
+4. If adding a validation note to the document, confirm first.
 
-- The script is standard-library Python and self-contained; no install needed.
-- It cannot fully render Mermaid, so it uses high-signal structural checks. If a diagram is very complex, simplify it rather than risk a render error.
-- Numbers in an architecture document (NFR targets, costs) must be sourced or labeled as assumptions; the gate flags conventions, not factual accuracy, so keep the data integrity rule yourself.
+```text
+Validation note update:
+- Target file:
+- Result to record:
+Proceed with updating the document? (y/n)
+```
+
+> [!IMPORTANT]
+> Only modify the architecture document or add validation notes if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the validation report and stop.
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Target file is missing | Report the missing path and do not run the validator. |
+| Python is unavailable | Report the missing runtime and provide the exact command that should be run later. |
+| Validator fails | Preserve the full error summary and identify the first fix to make. |
+| Mermaid still may not render | Recommend rendering in the target Markdown viewer after the structural gate passes. |
+
+## Output template
+```markdown
+# Architecture Document Validation Report
+
+## Target
+- File:
+- Command:
+
+## Result
+- Status: Pass | Fail
+- Errors:
+- Warnings:
+
+## Required Fixes
+| Severity | Section | Finding | Fix |
+|---|---|---|---|
+
+## Rerun Command
+```bash
+python .github/skills/architecture-doc/scripts/validate_arch.py <App_Architecture.md>
+```
+```
+
+## Quality gate
+- [ ] The validation script ran against the intended file.
+- [ ] Non-zero exits are treated as blocking errors.
+- [ ] Every required section and diagram is accounted for.
+- [ ] No repository file is modified without explicit confirmation.

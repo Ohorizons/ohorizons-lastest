@@ -1,74 +1,135 @@
 ---
-applyTo: "**/docker-compose.yml,**/docker-compose.yaml"
-description: "Docker Compose standards for local development services like MCP servers."
+applyTo: "**/docker-compose.yml"
+description: "Use when editing Docker Compose files for local Open Horizons agent, MCP, and Backstage development services."
 ---
 
-# Docker Compose Standards
+# Docker Compose Conventions — Local Agent and MCP Services
 
-## Service Configuration
+This file activates when you edit `docker-compose.yml` files such as `backstage/server/docker-compose.yml`, `mcp-servers/docker-compose.yml`, and Golden Path MCP skeletons. It teaches how Open Horizons wires local agent APIs, MCP ecosystem services, ports, health checks, networks, and developer-only mounts. It does **not** cover image construction, which belongs to [Dockerfile standards](dockerfile.instructions.md), production Kubernetes manifests, which belong to [Kubernetes standards](kubernetes.instructions.md), shell orchestration around Compose, which belongs to [Shell script standards](shell.instructions.md), or TypeScript service code inside Backstage packages, which belongs to [TypeScript standards](typescript.instructions.md).
 
-- Use `restart: unless-stopped` for services that should auto-start on boot
-- Use descriptive `container_name` values: `mcp-ecosystem`, not `server1`
-- Pin image versions: `node:20-alpine`, never `node:latest`
-- Set resource limits with `deploy.resources.limits` for memory and CPU
+> [!NOTE]
+> Compose is for local development and validation. Production runtime configuration belongs in `backstage/k8s/`, `deploy/helm/`, and ArgoCD applications.
 
-## Secrets & Environment
+## Service Shape
 
-- Use `env_file` to load `.env` — never hardcode secrets in the compose file
-- Provide an `.env.example` with all variables documented (no real values)
-- Use `${VARIABLE:-default}` syntax for optional env vars with sensible defaults
+Name services after the platform component and keep host ports local when the service is developer-facing. Existing services use names such as `agent-api`, `agent-api-maf`, `agent-api-impact`, and `mcp-ecosystem`.
 
-### DO
+```yaml
+# Wrong: exposes every interface and hides service intent under a generic name.
+services:
+  server:
+    image: node:latest
+    ports:
+      - "3100:3100"
+```
 
 ```yaml
 services:
-  mcp-server:
-    container_name: mcp-ecosystem
+  mcp-ecosystem:
     build: .
+    container_name: mcp-ecosystem
     restart: unless-stopped
-    env_file: .env
     ports:
-      - "127.0.0.1:3100:3100"   # Bind to localhost only
+      - "127.0.0.1:${MCP_ECOSYSTEM_PORT:-3100}:3100"
+```
+
+## Environment and Secrets
+
+Use `env_file` for local configuration and never commit credentials in `environment`. Optional env files are acceptable when a service can run without tokens, as in the MCP ecosystem service.
+
+```yaml
+# Wrong: commits a token-shaped secret directly in the compose file.
+environment:
+  - GITHUB_TOKEN=ghp_exampletokenvalue
+```
+
+```yaml
+env_file:
+  - path: .env
+    required: false
+environment:
+  - PORT=3100
+  - CACHE_DIR=/app/cache
+```
+
+> [!WARNING]
+> Do not mount writable cloud credential directories unless the local service truly needs them. Prefer read-only mounts and document why the mount exists.
+
+## Health Checks and Networks
+
+Every long-running local service needs a health check with explicit intervals. Agent APIs currently check FastAPI `/health` endpoints with Python and MCP checks `/health` with `wget`.
+
+```yaml
+# Wrong: no health signal, no restart policy, and an implicit default network.
+services:
+  agent-api:
+    build: ./agent-api
+```
+
+```yaml
+services:
+  agent-api:
+    build:
+      context: ./agent-api
+      dockerfile: Dockerfile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
-      interval: 30s
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8008/health')"]
+      interval: 15s
       timeout: 5s
       retries: 3
       start_period: 10s
-    volumes:
-      - mcp-cache:/app/cache
+    restart: unless-stopped
+    networks:
+      - agent-network
+```
+
+> [!IMPORTANT]
+> If a Compose file declares `external: true` networks, document how the developer creates them or keep the command in the adjacent README/script.
+
+## Volumes and Bind Mounts
+
+Use named volumes for cache or application data. Bind mounts are allowed only for development workflows and credential access that cannot be represented another way.
+
+```yaml
+# Wrong: anonymous volume hides data lifecycle and is hard to clean up.
+volumes:
+  - /app/cache
+```
+
+```yaml
+volumes:
+  - mcp-cache:/app/cache
 
 volumes:
   mcp-cache:
+    driver: local
 ```
 
-### DON'T
+## Conventions
 
-```yaml
-services:
-  server:
-    image: node:latest          # Unpinned version
-    ports:
-      - "3100:3100"             # Exposes on 0.0.0.0, not just localhost
-    environment:
-      - API_KEY=sk-abc123       # Hardcoded secret
-    # No healthcheck, no restart policy, no named volumes
-```
+| Rule | Rationale |
+|---|---|
+| Use platform service names such as `agent-api` and `mcp-ecosystem` | Logs, scripts, and troubleshooting docs rely on recognizable component names. |
+| Bind developer-facing ports to `127.0.0.1` unless remote access is intentional | Local services should not be exposed on every interface by default. |
+| Use `env_file` and variable defaults instead of committed secret values | Developers can run locally without leaking credentials into Git. |
+| Add `healthcheck`, `restart: unless-stopped`, and explicit network membership for services | Local orchestration and validation scripts need deterministic readiness signals. |
+| Use named volumes for caches and data | Named volumes make cleanup and persistence explicit. |
+| Keep build context scoped to the service directory | Smaller contexts avoid leaking unrelated repository files into image builds. |
 
-## Networking & Ports
+## Do / Do Not
 
-- Expose ports only on localhost: `"127.0.0.1:3100:3100"`, not `"3100:3100"`
-- Use custom networks for multi-service communication instead of links
-- Use `expose` (internal only) vs `ports` (host-accessible) intentionally
+| Do | Do not |
+|---|---|
+| Use `127.0.0.1:8008:8008` for local agent APIs | Publish `8008:8008` without a reason. |
+| Mark optional env files with `required: false` when the service supports unauthenticated local mode | Require secrets for every local startup path. |
+| Keep Docker image details in the referenced `Dockerfile` | Duplicate build logic in Compose commands. |
+| Use named networks for multi-service communication | Depend on legacy `links` or implicit names. |
 
-## Data & Volumes
+## Checklist Before Opening a PR
 
-- Define named volumes for persistent data (cache, databases)
-- Use bind mounts only for development hot-reload scenarios
-- Set volume labels for organization: `labels: ["com.project=mcp"]`
-
-## Health & Monitoring
-
-- Include `healthcheck` for every service — no exceptions
-- Use `start_period` to give services time to initialize
-- Set `interval`, `timeout`, `retries` explicitly (don't rely on defaults)
+- [ ] Services have descriptive names and stable `container_name` values where existing scripts expect them.
+- [ ] Host ports are localhost-bound or explicitly justified.
+- [ ] No secrets, tokens, or connection strings are committed in `environment`.
+- [ ] Each long-running service has a health check and restart policy.
+- [ ] Volumes and external networks are named and documented.
+- [ ] Related production changes are made in Kubernetes or Helm files, not only Compose.

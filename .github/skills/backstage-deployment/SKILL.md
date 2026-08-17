@@ -1,291 +1,129 @@
 ---
 name: backstage-deployment
-description: "Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop. USE FOR: deploy Backstage, Backstage on AKS, Backstage local Docker, Backstage Helm chart, Backstage PostgreSQL, Backstage ACR image, Backstage GitHub OAuth, Microsoft Entra ID auth, GitHub Enterprise Managed Users. DO NOT USE FOR: full platform orchestration (use deploy-orchestration), Azure infrastructure provisioning (use @azure-portal-deploy)."
+description: "Use when deploying or validating the upstream open-source Backstage developer portal on Azure AKS or locally, including app config, Kubernetes manifests, PostgreSQL, ACR image, GitHub OAuth, Microsoft Entra ID, and Enterprise Managed Users; produces deployment steps, health checks, and remediation. DO NOT USE FOR: full platform orchestration (use deploy-orchestration) or Azure infrastructure provisioning (use azure-portal-deploy). Triggers include \"deploy Backstage on AKS\", \"validate Backstage auth\", \"run Backstage locally\"."
 ---
 
-# Backstage Deployment Skill
+# Backstage Deployment
 
-Deploys the upstream open-source Backstage developer portal on Azure AKS or locally via Docker Desktop.
+This workflow deploys or validates the Open Horizons Backstage portal, either on AKS through repository manifests or locally for development. It produces a deployment plan, configuration checks, health evidence, and troubleshooting guidance while leaving full platform orchestration to `deploy-orchestration`.
 
-> **Official Docs via MCP:** Use `backstagedocs_*` tools from the mcp-ecosystem for live official documentation:
-> - `backstagedocs_get_page slug=deployment/docker` — Docker deployment guide
-> - `backstagedocs_get_page slug=deployment/k8s` — Kubernetes deployment guide
-> - `backstagedocs_get_page slug=auth/github/provider` — GitHub auth provider docs
-> - `backstagedocs_get_page slug=auth/microsoft/provider` — Microsoft auth provider docs
-> - `backstagedocs_search query="app-config"` — search configuration docs
+> [!NOTE]
+> This skill may shell out to `az`, `kubectl`, `docker`, `node`, `yarn`, and `gh`. Use Backstage official documentation through the `mcp-ecosystem` Backstage docs tools when available, and render Kubernetes manifests with `scripts/render-k8s.sh` before applying template-based changes.
 
----
+## When to invoke
+- "Deploy Backstage on AKS for Open Horizons."
+- "Validate Backstage GitHub OAuth and Microsoft Entra ID settings."
+- "Run the Backstage portal locally for development."
+- "Troubleshoot why the Backstage pod is not ready."
 
-## Scope
+## Prerequisites
+- Repository paths exist: `backstage/`, `backstage/k8s/`, `terraform/modules/backstage/`, and `scripts/render-k8s.sh`.
+- Azure and cluster access are configured for AKS deployment.
+- GitHub App or OAuth credentials are available through approved secret storage.
+- `AUTH_PROVIDER` and `GITHUB_IDENTITY_MODE` are selected for the target environment.
+- User approval is available before building images, applying manifests, or updating auth configuration.
 
-| Aspect | Detail |
-|--------|--------|
-| **Platform** | Azure AKS (production) or Docker Desktop + kind (local) |
-| **Region** | East US 2 (`eastus2`) — PostgreSQL in Central US (`centralus`) |
-| **Image** | Custom-built from `backstage/` directory, stored in ACR |
-| **Auth** | GitHub OAuth, Microsoft Entra ID, and Guest (dev only) |
-| **Catalog** | H1 Foundation + H2 Enhancement Golden Paths pre-loaded |
-| **Used by** | `@backstage-expert`, `@deploy` |
+## Workflow steps
 
----
+### Step 1: Load official and repository context
+- Use Backstage documentation via `mcp-ecosystem` when available for deployment, Kubernetes, GitHub auth, and Microsoft auth.
+- Inspect `backstage/app-config.yaml` and `backstage/app-config.production.yaml` when configuration changes are in scope.
+- Inspect rendered or source manifests under `backstage/k8s/`.
 
-## Azure MVP Deployment (`rg-<platform>-<env>`)
-
-### Resources
-
-| Resource | Name | Type | Location |
-|----------|------|------|----------|
-| AKS | `aks-<platform>-<env>` | 2x Standard_B2s | eastus2 |
-| ACR | `<acr-name>` | Basic | eastus2 |
-| Key Vault | `kv-<platform>-<env>` | RBAC-enabled | eastus2 |
-| PostgreSQL | `pg-<platform>-<env>` | Flexible B1ms v16 | centralus |
-| Redis | `redis-<platform>-<env>` | Azure Managed B0 | eastus2 |
-| AI Services | `ai-<platform>-<env>` | S0 (GPT-4o + Embeddings) | eastus2 |
-| Log Analytics | `law-<platform>-<env>` | PerGB2018 | eastus2 |
-| App Insights | `appi-<platform>-<env>` | Application Insights | eastus2 |
-| Managed Prometheus | `prometheus-<platform>-<env>` | Azure Monitor Workspace | eastus2 |
-| Managed Grafana | `grafana-<platform>-<env>` | Standard tier | eastus2 |
-| Monitor | Container Insights + Metrics | Enabled on AKS | eastus2 |
-| Defender | Containers + KV + OSS DB | Standard tier | subscription |
-| Action Group | `ag-<platform>-sre` | Webhook → GitHub | eastus2 |
-| Metric Alerts | CPU > 85%, Memory > 85% | Severity 2 | global |
-
-### Service Principal
-
-| Name | Roles |
-|------|-------|
-| `sp-<platform>-<env>` | Contributor (RG), KV Secrets User, AI OpenAI User |
-
-### Kubernetes Components
-
-| Horizon | Namespace | Component |
-|---------|-----------|-----------|
-| H1 | `ingress-nginx` | NGINX Ingress + Azure LB |
-| H1 | `cert-manager` | cert-manager v1.14 |
-| H1 | `gatekeeper-system` | OPA Gatekeeper v3.14 |
-| H1 | `external-secrets` | ESO v2.0 → Key Vault |
-| H2 | `argocd` | ArgoCD v2.10 |
-| H2 | `monitoring` | Prometheus + Grafana + Alertmanager |
-| H2 | `backstage` | Backstage (custom ACR image v1.0.0) |
-
-### External URLs
-
-| Service | URL |
-|---------|-----|
-| Backstage | `http://backstage.<LB-IP>.sslip.io` |
-| ArgoCD | `http://argocd.<LB-IP>.sslip.io` |
-| Grafana | `http://grafana.<LB-IP>.sslip.io` |
-| Prometheus | `http://prometheus.<LB-IP>.sslip.io` |
-| Alertmanager | `http://alertmanager.<LB-IP>.sslip.io` |
-
----
-
-## 1. Prerequisites
-
-### CLI Tools
+### Step 2: Validate prerequisites
 ```bash
-# Required
-az --version        # >= 2.55
-terraform --version # >= 1.5
-kubectl version     # >= 1.28
-helm version        # >= 3.13
-docker --version    # >= 24.0
-node --version      # >= 20.0
-yarn --version      # >= 4.0
-gh auth status      # GitHub CLI authenticated
+gh auth status
+az account show -o table
+kubectl config current-context
+node --version
+yarn --version
+docker --version
 ```
 
-### Azure
+- [ ] The cluster context is correct.
+- [ ] Secrets are not printed.
+- [ ] Auth provider mode matches the identity model.
+- [ ] For Enterprise Managed Users, use `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=enterprise-managed-users` and keep GitHub App credentials for technical integration.
+
+### Step 3: Confirm before deployment or configuration mutation
+```text
+Backstage operation summary:
+- Target: local | AKS
+- Namespace or local port:
+- Auth provider:
+- Manifests or image affected:
+- Secrets or credentials affected:
+Proceed with Backstage deployment or configuration changes? (y/n)
+```
+
+> [!IMPORTANT]
+> Only proceed with image builds, manifest applies, Helm changes, auth changes, or paid Azure dependencies if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the plan and stop.
+
+### Step 4: Render and deploy AKS manifests when approved
 ```bash
-az login
-az account set --subscription "<SUBSCRIPTION_ID>"
-az provider register -n Microsoft.ContainerService
-az provider register -n Microsoft.KeyVault
-az provider register -n Microsoft.Storage
+./scripts/render-k8s.sh
+kubectl apply -f backstage/k8s/
+kubectl rollout status deployment/backstage -n backstage --timeout=300s
 ```
 
----
+If the platform is being deployed end to end, route to `scripts/deploy-full.sh` through `deploy-orchestration` instead of manually applying unrelated layers.
 
-### Configuration Files
-| File | Purpose |
-|------|---------|
-| `backstage/app-config.yaml` | Development config |
-| `backstage/app-config.production.yaml` | Production config (baked into image) |
-
----
-
-## 2. Azure AKS Deployment
-
-### Terraform
+### Step 5: Validate portal health
 ```bash
-cd terraform
-
-# Initialize
-terraform init -backend-config=environments/dev-backend.hcl
-
-# Plan
-terraform plan \
-  -var-file=environments/dev.tfvars \
-  -var="portal_name=<client-portal-name>" \
-  -var="location=centralus"
-
-# Apply
-terraform apply \
-  -var-file=environments/dev.tfvars \
-  -var="portal_name=<client-portal-name>" \
-  -var="location=centralus"
-```
-
-### Module: `terraform/modules/backstage/`
-Provisions:
-- Helm release for `backstage/backstage` chart
-- Custom image from ACR
-- PostgreSQL Flexible Server integration
-- GitHub App secret in Key Vault
-- Ingress with TLS (cert-manager)
-
-### Region Validation
-```hcl
-variable "location" {
-  type    = string
-  validation {
-    condition     = contains(["centralus", "eastus"], var.location)
-    error_message = "Only Central US and East US are supported."
-  }
-}
-```
-
----
-
-## 4. GitHub App Setup
-
-For `AUTH_PROVIDER=entra` with `GITHUB_IDENTITY_MODE=enterprise-managed-users`, Entra ID handles user sign-in. GitHub App credentials are still required for technical GitHub integration: catalog sync, scaffolder writes, Actions, PRs, Codespaces, packages, and AI Impact metrics.
-
-### Create GitHub App
-```bash
-./scripts/setup-github-app.sh --target backstage --org <GITHUB_ORG>
-```
-
-### Manual Creation
-1. Go to `https://github.com/organizations/<ORG>/settings/apps/new`
-2. Set:
-   - **Homepage URL:** `https://<portal-url>`
-   - **Callback URL:** `https://<portal-url>/api/auth/github/handler/frame`
-   - **Webhook:** Disable (not needed for auth)
-3. Permissions:
-   - `contents: read`
-   - `metadata: read`
-   - `pull_requests: write`
-   - `members: read`
-4. Generate Private Key (.pem file)
-5. Note: App ID, Client ID, Client Secret
-
-### Configure in Backstage
-Environment variables:
-```
-GITHUB_APP_ID=<numeric-app-id>
-GITHUB_APP_CLIENT_ID=<client-id>
-GITHUB_APP_CLIENT_SECRET=<client-secret>
-GITHUB_APP_PRIVATE_KEY=<contents-of-pem-file>
-```
-
-### Microsoft Entra ID Sign-In
-Environment variables:
-```
-AUTH_PROVIDER=entra
-GITHUB_IDENTITY_MODE=enterprise-managed-users
-ENTRA_TENANT_ID=<tenant-id>
-ENTRA_CLIENT_ID=<app-registration-client-id>
-ENTRA_CLIENT_SECRET=<client-secret>
-```
-
-Backstage callback URL:
-```
-https://<portal-url>/api/auth/microsoft/handler/frame
-```
-
----
-
-## 5. Golden Path Templates
-
-### Valid Templates (YAML-compatible with Backstage parser)
-| Template | Horizon | Description |
-|----------|---------|-------------|
-| `api-microservice` | H2 | FastAPI microservice with PostgreSQL |
-| `ado-to-github-migration` | H2 | Azure DevOps to GitHub migration |
-| `copilot-extension` | H3 | GitHub Copilot Extension |
-| `rag-application` | H3 | RAG application with Azure AI |
-
-### Registration
-Templates are registered via `catalog.locations` in `app-config.production.yaml`:
-```yaml
-catalog:
-  locations:
-    - type: url
-      target: https://github.com/<org>/<repo>/blob/main/golden-paths/<horizon>/<template>/template.yaml
-      rules:
-        - allow: [Template]
-```
-
----
-
-## 6. Codespaces Integration
-
-Each Golden Path template skeleton includes a `.devcontainer/devcontainer.json` that configures:
-- Base image with required SDKs
-- VS Code extensions for the template type
-- Port forwarding for development servers
-- Post-create setup scripts
-
-### Example: Python Microservice
-```json
-{
-  "name": "Python Microservice",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": ["ms-python.python", "ms-python.pylint", "redhat.vscode-yaml"]
-    }
-  },
-  "postCreateCommand": "pip install -r requirements.txt",
-  "forwardPorts": [8000]
-}
-```
-
----
-
-## 7. Troubleshooting
-
-### Backstage pod not starting
-```bash
-kubectl logs -n backstage -l app.kubernetes.io/name=backstage --tail=50
-kubectl describe pod -n backstage -l app.kubernetes.io/name=backstage
-```
-
-### Templates not loading
-```bash
-# Check for YAML parse errors
-kubectl logs -n backstage -l app.kubernetes.io/name=backstage | grep 'YAML error'
-
-# Verify catalog locations
-kubectl exec -n backstage deploy/backstage -- cat /app/app-config.production.yaml | grep -A 2 'locations'
-```
-
-### GitHub auth not working
-```bash
-# Test auth endpoint
-kubectl exec -n backstage deploy/backstage -- \
-  node -e "fetch('http://localhost:7007/api/auth/github/start?env=development',{redirect:'manual'}).then(r=>console.log(r.status))"
-# Expected: 302
-```
-
-### Database connection
-```bash
+kubectl get pods -n backstage
+kubectl logs -n backstage -l app.kubernetes.io/name=backstage --tail=100
 kubectl exec -n backstage deploy/backstage -- \
   node -e "fetch('http://localhost:7007/.backstage/health/v1/readiness').then(r=>console.log(r.status))"
-# Expected: 200
 ```
+
+Expected readiness response is HTTP `200`.
+
+### Step 6: Validate auth and catalog integration
+- [ ] GitHub OAuth callback is `https://<portal-url>/api/auth/github/handler/frame` when GitHub auth is used.
+- [ ] Microsoft callback is `https://<portal-url>/api/auth/microsoft/handler/frame` when Entra auth is used.
+- [ ] GitHub App credentials are present for catalog sync, scaffolder writes, Actions, PRs, Codespaces, and packages.
+- [ ] Golden Path templates under `golden-paths/` are reachable by catalog locations.
+
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Secrets printed, wrong auth provider for Enterprise Managed Users, or production portal unavailable. |
+| High | Pod crash loop, database connection failure, invalid OAuth callback, or public exposure without approval. |
+| Medium | Catalog templates missing, image tag mismatch, or readiness probes failing intermittently. |
+| Low | Documentation, labels, or local developer experience gaps. |
+
+## Error handling
+| Situation | Action |
+|---|---|
+| Pod is not ready | Collect pod status, recent logs, and readiness endpoint result before changing manifests. |
+| Auth callback fails | Verify provider mode, callback URL, client ID, and secret source without printing secrets. |
+| Templates do not load | Check catalog locations and YAML parse errors in Backstage logs. |
+| Manifest rendering fails | Report the missing `.env` value or template error and rerun `scripts/render-k8s.sh` after correction. |
+
+## Output template
+```markdown
+# Backstage Deployment Report
+
+## Scope
+- Target:
+- Namespace:
+- Auth provider:
+
+## Commands
+| Command | Result |
+|---|---|
+
+## Health
+| Check | Expected | Actual |
+|---|---|---|
+
+## Findings
+| Severity | Finding | Fix |
+|---|---|---|
+```
+
+## Quality gate
+- [ ] Backstage official docs are checked when API or config guidance is needed.
+- [ ] User confirmation is captured before deployment or configuration mutation.
+- [ ] Kubernetes manifests are rendered with `scripts/render-k8s.sh` when templates are involved.
+- [ ] Readiness, logs, auth mode, and catalog status are verified.

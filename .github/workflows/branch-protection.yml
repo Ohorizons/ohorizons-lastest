@@ -68,7 +68,7 @@ jobs:
             exit 1
           fi
 
-          echo "✅ PR source branch is valid (develop -> main)"
+          echo "[OK] PR source branch is valid (develop -> main)"
 
   # ===========================================================================
   # PR QUALITY CHECKS
@@ -79,7 +79,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
@@ -119,7 +119,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
@@ -158,7 +158,7 @@ jobs:
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
@@ -167,7 +167,7 @@ jobs:
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
 
           if echo "$CHANGED_FILES" | grep -q "CHANGELOG.md"; then
-            echo "✅ CHANGELOG.md has been updated"
+            echo "[OK] CHANGELOG.md has been updated"
           else
             echo "::warning::Consider updating CHANGELOG.md for this release"
           fi
@@ -182,7 +182,7 @@ jobs:
     steps:
       - name: Trigger CI
         run: |
-          echo "✅ Changes pushed to develop branch"
+          echo "[OK] Changes pushed to develop branch"
           echo "CI workflow will run automatically"
 
   # ===========================================================================
@@ -203,9 +203,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Source Branch Validation | ${{ needs.validate-pr-source.result == 'success' && '✅ Passed' || needs.validate-pr-source.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PR Quality | ${{ needs.pr-quality.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit Check | ${{ needs.commit-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Source Branch Validation | ${{ needs.validate-pr-source.result == 'success' && 'Passed' || needs.validate-pr-source.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PR Quality | ${{ needs.pr-quality.result == 'success' && 'Passed' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit Check | ${{ needs.commit-check.result == 'success' && 'Passed' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Branch Flow" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

@@ -1,16 +1,6 @@
 ---
 name: sdd-spec-engineer
-description: >
-  Spec-Driven Development orchestrator, the open-source alternative to AWS Kiro.
-  Transforms natural language into production-grade specs through interactive discovery.
-  Auto-scans codebases, generates EARS-notation requirements, creates Mermaid architecture
-  diagrams, produces sequenced task plans with [P] parallel markers and pre-implementation
-  gates, runs quality gates with traceability matrices, and hands off to coding agents.
-  Works in GitHub Copilot custom agents, prompt files, and skills.
-  USE THIS when the user mentions: spec, requirements, plan feature, user stories,
-  acceptance criteria, technical design, architect solution, implementation plan,
-  SDD, "spec this", "plan this", "break into tasks", PRD, constitution, "like Kiro",
-  bugfix spec, quality gate, spec sync, or any variation of spec-driven development.
+description: 'Spec-Driven Development orchestrator that turns natural language into production-grade specs through discovery, EARS requirements, Mermaid architecture, sequenced task plans with [P] markers, pre-implementation gates, traceability matrices, and coding-agent handoff. USE FOR: SDD, ''spec this'', ''plan this'', implementation plan, constitution, quality gate, spec sync, bugfix spec, or Kiro-like workflows that need SPECIFICATION/DESIGN/TASKS artifacts. DO NOT USE FOR: standalone FRD/NFRD authoring before sdd_init (use requirements-engineer), INVEST user story decomposition or GitHub Issue creation (use story-planning), Foundry runtime/provisioning detail (use ai-foundry-operations or foundry-agent-blueprint), or general agentic architecture trade-off decisions (use agentic-architecture-patterns).'
 ---
 
 # SDD Spec Engineer

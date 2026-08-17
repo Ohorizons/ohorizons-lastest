@@ -1,5 +1,5 @@
-name: "🔐 Identity Federation Setup"
-description: "Configure Azure ↔ GitHub identity federation (OIDC, Workload Identity)"
+name: "Identity Federation Setup"
+description: "Configure Azure to GitHub identity federation (OIDC, Workload Identity)"
 title: "[IDENTITY] "
 labels: ["identity", "federation", "security", "cross-cutting"]
 assignees: []
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🔐 Identity Federation Setup
+        ## Identity Federation Setup
         Configure secure identity federation between Azure and GitHub using OIDC (no secrets required).
 
   - type: dropdown

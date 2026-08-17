@@ -1,4 +1,4 @@
-name: "✅ Cross: Validation"
+name: "[OK] Cross: Validation"
 description: "Validate platform deployment and configuration"
 title: "[Validation] Run platform validation"
 labels: ["cross-cutting", "validation", "copilot-agent"]

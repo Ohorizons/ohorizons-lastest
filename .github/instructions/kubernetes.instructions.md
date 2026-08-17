@@ -1,168 +1,191 @@
 ---
-applyTo: "deploy/**/*.yaml,deploy/**/*.yml,argocd/**/*.yaml,argocd/**/*.yml,backstage/k8s/**/*.yaml,backstage/k8s/**/*.yml,**/kubernetes/**,**/k8s/**,**/helm/**"
-description: "Kubernetes manifest standards — resource limits, security contexts, labels, probes, and network policies for AKS deployments."
+applyTo: "deploy/**/*.yaml,argocd/**/*.yaml,backstage/k8s/*.yaml,backstage/k8s/templates/*.yaml.tmpl,**/kubernetes/**,**/k8s/**,**/helm/**"
+description: "Use when editing Kubernetes, Helm, Kustomize, ArgoCD, and AKS deployment manifests for Open Horizons."
 ---
 
-# Kubernetes Coding Standards
+# Kubernetes Conventions — AKS Manifests, Helm Values, and ArgoCD Apps
 
-## Manifest Structure
+This file activates when you edit manifests under `backstage/k8s/`, `deploy/`, `argocd/`, `kubernetes/`, `k8s/`, or `helm/`. It teaches Open Horizons conventions for AKS workloads, ArgoCD applications, Helm values, labels, probes, resources, security contexts, service accounts, RBAC, and network policies. It does **not** cover Azure infrastructure provisioning, which belongs to [Terraform standards](terraform.instructions.md), image construction, which belongs to [Dockerfile standards](dockerfile.instructions.md), local-only Compose services, which belong to [Docker Compose standards](docker-compose.instructions.md), shell manifest rendering scripts, which belong to [Shell script standards](shell.instructions.md), or application code, which belongs to [Python standards](python.instructions.md) and [TypeScript standards](typescript.instructions.md).
 
-```
-deploy/
-├── base/
-│   ├── kustomization.yaml
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── configmap.yaml
-└── overlays/
-    ├── dev/
-    │   └── kustomization.yaml
-    ├── staging/
-    │   └── kustomization.yaml
-    └── prod/
-        └── kustomization.yaml
-```
+> [!IMPORTANT]
+> Kubernetes manifests are the production runtime contract for Open Horizons on AKS. Keep security, resources, identity, probes, and labels explicit.
 
-## Deployment Template
+## Metadata and Labels
+
+Use standard Kubernetes labels consistently. Existing agent identity manifests label name, instance, version, component, part-of, and managed-by.
 
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
+# Wrong: missing standard labels used by selectors, dashboards, and policies.
 metadata:
-  name: {{ .name }}
-  namespace: {{ .namespace }}
+  name: agent-api-chat
   labels:
-    app.kubernetes.io/name: {{ .name }}
-    app.kubernetes.io/instance: {{ .instance }}
-    app.kubernetes.io/version: {{ .version }}
-    app.kubernetes.io/component: {{ .component }}
-    app.kubernetes.io/part-of: {{ .partOf }}
-    app.kubernetes.io/managed-by: {{ .managedBy }}
+    app: chat
+```
+
+```yaml
+metadata:
+  name: agent-api-chat
+  namespace: ai-services
+  labels:
+    app.kubernetes.io/name: agent-api-chat
+    app.kubernetes.io/instance: open-horizons
+    app.kubernetes.io/version: "2.0.0"
+    app.kubernetes.io/component: ai-agent
+    app.kubernetes.io/part-of: open-horizons
+    app.kubernetes.io/managed-by: argocd
+```
+
+## Images and Tags
+
+Use pinned image tags from the release cadence. Do not use `latest`; the MCP ecosystem and Foundry-related services may use their own tag variable separate from the Backstage image tag.
+
+```yaml
+# Wrong: mutable deployment image.
+image: ghcr.io/ohorizons/ohorizons-agent-api:latest
+```
+
+```yaml
+image: __AGENT_API_IMAGE__:__IMAGE_TAG__
+imagePullPolicy: IfNotPresent
+```
+
+> [!WARNING]
+> Never commit Kubernetes Secret values. Use External Secrets Operator, Key Vault integration, or secret references rendered from approved templates.
+
+## Workload Security
+
+Run containers as non-root, disable privilege escalation, drop capabilities, and use `RuntimeDefault` seccomp. Service accounts must be dedicated per workload or per agent role.
+
+```yaml
+# Wrong: root-capable pod with the default service account.
 spec:
-  replicas: {{ .replicas }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ .name }}
-      app.kubernetes.io/instance: {{ .instance }}
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: {{ .name }}
-        app.kubernetes.io/instance: {{ .instance }}
-    spec:
-      serviceAccountName: {{ .serviceAccountName }}
+  containers:
+    - name: agent-api
       securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
-      containers:
-        - name: {{ .name }}
-          image: {{ .image }}:{{ .tag }}
-          imagePullPolicy: IfNotPresent
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+        privileged: true
 ```
 
-## Security Requirements
-
-### Pod Security
-- ALWAYS run as non-root user
-- ALWAYS use read-only root filesystem
-- ALWAYS drop all capabilities
-- NEVER allow privilege escalation
-- Use RuntimeDefault seccomp profile
-
-### Network Policies
 ```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-all
 spec:
-  podSelector: {}
-  policyTypes:
-    - Ingress
-    - Egress
+  serviceAccountName: agent-api-chat
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: agent-api
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
 ```
 
-### Service Account
-- Create dedicated service accounts
-- Never use default service account
-- Disable automount of service account token when not needed
+## Resources and Probes
 
-## Resource Management
+Every long-running workload needs requests, limits, liveness probes, and readiness probes. Align probe paths with the service contract, such as FastAPI `/health` or Backstage readiness paths.
 
-### Limits and Requests
-- ALWAYS specify resource requests
-- ALWAYS specify resource limits
-- Set limits close to requests for predictability
-- Use LimitRange for namespace defaults
-
-### Pod Disruption Budgets
 ```yaml
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: {{ .name }}-pdb
-spec:
-  minAvailable: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ .name }}
+# Wrong: scheduler and rollout controller have no signal.
+containers:
+  - name: agent-api
+    image: ghcr.io/ohorizons/ohorizons-agent-api:v7.2.6
 ```
 
-## Health Checks
+```yaml
+containers:
+  - name: agent-api
+    image: ghcr.io/ohorizons/ohorizons-agent-api:v7.2.6
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: http
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: http
+      periodSeconds: 5
+```
 
-- ALWAYS configure liveness probes
-- ALWAYS configure readiness probes
-- Consider startup probes for slow-starting apps
-- Set appropriate timeouts and thresholds
+> [!NOTE]
+> Use startup probes for services with intentionally slow boot, rather than inflating liveness probe delays for every rollout.
 
-## Labeling Standards
+## RBAC and Network Policies
 
-Required labels:
-- `app.kubernetes.io/name` - Application name
-- `app.kubernetes.io/instance` - Instance identifier
-- `app.kubernetes.io/version` - Application version
-- `app.kubernetes.io/component` - Component type
-- `app.kubernetes.io/part-of` - Parent application
-- `app.kubernetes.io/managed-by` - Management tool
+Use dedicated ServiceAccounts, scoped Roles, and RoleBindings. NetworkPolicies should express required traffic, as the agent API policy allows Backstage ingress and controlled DNS/HTTPS egress.
 
-## ConfigMaps and Secrets
+```yaml
+# Wrong: cluster-wide admin for a namespace-local agent.
+kind: ClusterRoleBinding
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+```
 
-- Use ConfigMaps for non-sensitive configuration
-- Use External Secrets Operator for secrets
-- Never store secrets in Git
-- Use immutable ConfigMaps/Secrets when possible
+```yaml
+kind: Role
+metadata:
+  name: agent-read
+  namespace: ai-services
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+```
+
+## ArgoCD and Helm Values
+
+Keep ArgoCD applications declarative and point them at repository paths that exist. Helm values should override configuration, resources, ingress, service monitors, and secrets references without replacing upstream charts wholesale.
+
+```yaml
+# Wrong: destination namespace is ambiguous and path is not in this repo.
+source:
+  path: manifests
+```
+
+```yaml
+source:
+  repoURL: https://github.com/ohorizons/open-horizons-platform
+  path: foundry/k8s
+  targetRevision: HEAD
+destination:
+  namespace: ai-services
+```
+
+## Conventions
+
+| Rule | Rationale |
+|---|---|
+| Use `app.kubernetes.io/*` labels on every resource | ArgoCD, selectors, dashboards, and policies need consistent metadata. |
+| Pin image tags and use template variables where render scripts substitute versions | Releases must be reproducible and avoid mutable `latest`. |
+| Configure requests and limits for every container | AKS scheduling, cost, and reliability depend on explicit resources. |
+| Configure liveness and readiness probes for long-running workloads | Rollouts and services need accurate health signals. |
+| Run as non-root, drop capabilities, and disable privilege escalation | Meets platform security baseline and reduces container escape risk. |
+| Use dedicated ServiceAccounts, scoped RBAC, and NetworkPolicies | Agent identity and least privilege require per-workload boundaries. |
+| Keep secrets out of Git and reference External Secrets or Key Vault-backed mechanisms | Secret material belongs in managed stores, not manifests. |
+
+## Do / Do Not
+
+| Do | Do not |
+|---|---|
+| Add or preserve `app.kubernetes.io/name`, `component`, `part-of`, and `managed-by` | Use only ad-hoc `app:` labels. |
+| Use namespace-scoped Role/RoleBinding when cluster scope is not required | Bind agents to `cluster-admin`. |
+| Put operational differences in overlays or Helm values | Fork upstream charts unnecessarily. |
+| Validate rendered templates with repository scripts | Edit generated manifests and forget the template. |
+
+## Checklist Before Opening a PR
+
+- [ ] Every workload has labels, requests, limits, probes, and a non-root security context.
+- [ ] Images are pinned to approved tags or template variables, never `latest`.
+- [ ] ServiceAccounts, RBAC, and NetworkPolicies are least-privilege.
+- [ ] Secrets are referenced, not committed.
+- [ ] ArgoCD paths and Helm values reference files that exist in the repo.
+- [ ] Template changes have been rendered or validated with the existing scripts.

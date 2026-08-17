@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": ".github/hooks/specky/scripts/scope-guard.sh",
+        "cwd": ".",
+        "env": {},
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

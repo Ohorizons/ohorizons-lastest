@@ -1,24 +1,6 @@
 ---
 name: mcp-ecosystem
-description: >-
-  Access 79 tools across 17 modules from the local MCP Ecosystem server to fetch
-  live methodology, templates, components, and complete OFFICIAL DOCUMENTATION
-  for spec-kit, anthropics-skills, agent-framework, gh-aw, agents-md,
-  github-copilot-docs, the five Backstage modules, plus full official docs:
-  Microsoft Learn (federated — all of Azure/AKS/AI Foundry/CAF/WAF), VS Code,
-  GitHub (docs.github.com), Anthropic/Claude, Azure Cloud Adoption Framework
-  (CAF) and Well-Architected Framework (WAF). USE FOR: Spec-Driven Development
-  phases and commands, Microsoft Agent Framework patterns, GitHub Agentic
-  Workflows (gh-aw), AGENTS.md format and section templates, GitHub Copilot
-  documentation and customization, Anthropic docs, Backstage documentation,
-  Software Catalog, Software Templates, plugin directory, Backstage UI and
-  Storybook, searching all of Microsoft Learn (Azure, AKS, AI Foundry, CAF,
-  WAF), VS Code docs, GitHub docs (Actions, GHAS, OIDC, Packages), and the
-  Claude developer docs — to support agents during the whole installation and
-  at runtime. Also USE FOR wiring the AI Chat (agent-api) to the ecosystem so
-  agents can ground answers in real upstream docs. DO NOT USE FOR general web
-  search, infra MCP servers (azure/github/terraform/kubernetes — see
-  mcp-config.json), or non-reference queries.
+description: 'Access the local MCP Ecosystem server: 79 tools across 17 modules for live upstream reference data, methodology, templates, components, and official documentation. USE FOR: Spec-Driven Development/spec-kit phases and commands, Anthropic skills and Claude docs, Microsoft Agent Framework, GitHub Agentic Workflows, AGENTS.md, GitHub Copilot customization/docs, Backstage docs/catalog/templates/plugins/UI/Storybook, Microsoft Learn across Azure/AKS/AI Foundry/CAF/WAF, VS Code docs, GitHub docs for Actions/GHAS/OIDC/Packages, and wiring Backstage AI Chat (agent-api) to grounded ecosystem tools. DO NOT USE FOR: general web search, live cloud or repository operations, infra MCP servers such as Azure/GitHub/Terraform/Kubernetes/Helm (see mcp-config.json), or non-reference queries.'
 ---
 
 # MCP Ecosystem

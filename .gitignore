@@ -207,6 +207,9 @@ azureauth.json
 .github-token
 github-token.txt
 
+# Copilot personal repository overrides
+.github/copilot/settings.local.json
+
 # =============================================================================
 # LOGS / TEMP FILES
 # =============================================================================

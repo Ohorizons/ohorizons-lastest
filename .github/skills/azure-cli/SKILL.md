@@ -1,92 +1,122 @@
 ---
 name: azure-cli
-description: "Azure CLI operations for cloud resource management. USE FOR: az login, az aks, az acr, az keyvault, Azure resource provisioning, Azure resource group, Azure subscription management. DO NOT USE FOR: Terraform IaC (use terraform-cli), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli)."
+description: "Use when running focused Azure CLI operations for Open Horizons cloud resources, including account context, AKS credentials, ACR, Key Vault metadata, resource inventory, provider registration, and RBAC checks; produces commands, results, and safe next steps. DO NOT USE FOR: Terraform IaC (use terraform-cli), Kubernetes operations (use kubectl-cli), or Helm charts (use helm-cli). Triggers include \"check Azure resources\", \"get AKS credentials\", \"register an Azure provider\"."
 ---
 
-## When to Use
-- Azure resource queries
-- AKS cluster management
-- Key Vault operations
-- ACR management
-- RBAC configuration
+# Azure CLI
+
+This workflow performs focused `az` operations for Azure resource discovery and controlled mutations. It produces verified command output while protecting secrets and keeping Terraform-managed infrastructure under Terraform ownership.
+
+> [!NOTE]
+> This skill shells out to the Azure CLI (`az`). Authentication, subscription selection, and RBAC must be verified before use. For GitHub OIDC federation setup, the repository script is `.github/skills/azure-cli/scripts/setup-identity-federation.sh`.
+
+## When to invoke
+- "Check which Azure subscription and resource group I am targeting."
+- "Get AKS credentials for the Open Horizons cluster."
+- "List ACR repositories and image tags."
+- "Register the Azure providers needed by the platform."
+- "Create an RBAC assignment after I approve the exact scope."
 
 ## Prerequisites
-- Azure CLI installed
-- Authenticated: az login or managed identity
-- Subscription selected
-- Appropriate RBAC roles
+- Azure CLI installed and authenticated with `az account show` succeeding.
+- Target subscription ID and resource group known.
+- Appropriate Azure RBAC permissions for the operation.
+- Understanding of whether the target resource is Terraform-managed under `terraform/`.
+- Explicit approval before provider registration, role assignment, scaling, or resource creation.
 
-## Commands
+## Workflow steps
 
-### Context
+### Step 1: Verify account context
 ```bash
-# Show current account
 az account show -o table
-
-# List subscriptions
 az account list -o table --query "[].{Name:name, ID:id, State:state}"
-
-# Set subscription
 az account set --subscription "<subscription-id>"
 ```
 
-### Resource Queries
+- [ ] Tenant and subscription match the user's target.
+- [ ] Environment and resource group are identified.
+- [ ] Output does not include secrets.
+
+### Step 2: Inventory resources safely
 ```bash
-# List resources in RG
-az resource list -g <resource-group> -o table
-
-# Show resource
-az resource show --ids <resource-id>
-
-# Query with JMESPath
-az resource list -g <rg> --query "[?type=='Microsoft.ContainerService/managedClusters']"
+az resource list --resource-group <resource-group> -o table
+az resource list --resource-group <resource-group> --query "[?type=='Microsoft.ContainerService/managedClusters']" -o table
+az provider list --query "[?registrationState!='Registered'].{Namespace:namespace, State:registrationState}" -o table
 ```
 
-### AKS Operations
+### Step 3: Run focused read operations
 ```bash
-# Get credentials
-az aks get-credentials -g <rg> -n <cluster> --overwrite-existing
-
-# Show cluster
-az aks show -g <rg> -n <cluster> -o table
-
-# Node pools
-az aks nodepool list -g <rg> --cluster-name <cluster> -o table
-
-# Scale cluster
-az aks scale -g <rg> -n <cluster> --node-count 5
+az aks show --resource-group <resource-group> --name <cluster> -o table
+az acr repository list --name <acr-name> -o table
+az acr repository show-tags --name <acr-name> --repository <repo> --orderby time_desc -o table
+az keyvault secret list --vault-name <vault-name> --query "[].{Name:name}" -o table
 ```
 
-### Key Vault
-```bash
-# List secrets (names only)
-az keyvault secret list --vault-name <kv> -o table --query "[].{Name:name}"
+Do not print secret values. Prefer listing names and metadata.
 
-# Get secret
-az keyvault secret show --vault-name <kv> -n <secret> --query value -o tsv
+### Step 4: Confirm before mutating Azure state
+```text
+Azure CLI mutation summary:
+- Subscription:
+- Resource group or scope:
+- Command category: provider registration | RBAC | AKS credentials | scale | create | update
+- Resources affected:
+Proceed with this Azure CLI mutation? (y/n)
 ```
 
-### ACR
-```bash
-# List repositories
-az acr repository list -n <acr> -o table
+> [!IMPORTANT]
+> Only proceed with provider registration, role assignment, scaling, resource creation, or other Azure state changes if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the proposed command and stop.
 
-# Show tags
-az acr repository show-tags -n <acr> --repository <repo> --orderby time_desc
+### Step 5: Execute approved mutations and verify
+```bash
+az provider register --namespace Microsoft.ContainerService
+az role assignment create --assignee <principal-id> --role <role-name> --scope <resource-scope>
+az aks get-credentials --resource-group <resource-group> --name <cluster> --overwrite-existing
 ```
 
-## Best Practices
-1. Use -o table for readable output
-2. Use -o json for parsing with jq
-3. Use --query for filtering
-4. Never expose secrets in output
-5. Verify subscription before operations
+- [ ] Verify the result with a read command.
+- [ ] Record the exact scope and principal for RBAC changes.
+- [ ] Route persistent infrastructure changes back to Terraform when applicable.
 
-## Output Format
-1. Command executed
-2. Results in table format
-3. Warnings or issues
-4. Next steps
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Wrong subscription, secret value exposed, or destructive change proposed outside Terraform. |
+| High | Broad RBAC scope, public network exposure, or production scaling without approval. |
+| Medium | Provider not registered, stale credentials, or incomplete resource inventory. |
+| Low | Output formatting, naming, or tagging issues. |
 
-## Integration with Agents
-Used by: @terraform, @security, @sre, @azure-portal-deploy
+## Error handling
+| Situation | Action |
+|---|---|
+| Not authenticated | Run `az login` or use managed identity, then verify `az account show`. |
+| Wrong subscription | Stop, set the intended subscription, and rerun only read commands first. |
+| Insufficient permissions | Report the missing role and exact scope needed. |
+| Secret value requested | Refuse to print it; provide a safe retrieval or Key Vault reference pattern. |
+
+## Output template
+```markdown
+# Azure CLI Operation Report
+
+## Context
+- Tenant:
+- Subscription:
+- Resource group:
+
+## Commands
+| Command | Result |
+|---|---|
+
+## Findings
+| Severity | Finding | Recommendation |
+|---|---|---|
+
+## Next Steps
+- 
+```
+
+## Quality gate
+- [ ] Subscription context is verified before every operation.
+- [ ] Mutations have explicit user confirmation.
+- [ ] Secrets are never printed in output.
+- [ ] Terraform-managed resources are not changed imperatively without approval.

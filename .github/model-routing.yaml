@@ -1,6 +1,10 @@
 # Model Routing by SDLC Phase
 # Open Horizons — Context Platform Stack
 #
+# This file is a repo-internal convention and is not consumed by GitHub Copilot.
+# Copilot honors per-agent `model:` frontmatter in `.github/agents/*.agent.md`;
+# it does not parse this routing table.
+#
 # Maps each SDLC phase to the optimal model tier, mode, and cost.
 # Extended thinking costs 43% more and degrades quality by 30%
 # on iterative implementation tasks (arXiv:2502.08235).
@@ -8,15 +12,15 @@
 # Ref: Ch. 05 Integration Playbook — Model Routing by SDLC Phase
 
 # Supported models per tier:
-#   high-capability:  Claude Opus 4.6, GPT-5.1
-#   mid-tier:         Claude Sonnet 4.6, GPT-5.1
-#   cost-optimized:   Claude Haiku 4.5, GPT-5.1
+#   high-capability:  Claude Opus 5, GPT-5.6 Sol
+#   mid-tier:         Claude Sonnet 5, GPT-5.4
+#   cost-optimized:   Claude Haiku 4.5, GPT-5 mini
 
 routing:
   specification:
     description: "Vague requirements → structured specs"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.1]
+    model: [claude-opus-5, gpt-5.6-sol]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -26,7 +30,7 @@ routing:
   architecture:
     description: "Planning affecting >5 files"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.1]
+    model: [claude-opus-5, gpt-5.6-sol]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -36,7 +40,7 @@ routing:
   tdd_spec:
     description: "Test cases from clear specification"
     mode: edit
-    model: [claude-sonnet-4.6, gpt-5.1]
+    model: [claude-sonnet-5, gpt-5.4]
     tier: mid-tier
     extended_thinking: false
     cost_tier: medium
@@ -46,7 +50,7 @@ routing:
   implementation:
     description: "Feature code, 3-10 files"
     mode: agent
-    model: [claude-sonnet-4.6, gpt-5.1]
+    model: [claude-sonnet-5, gpt-5.4]
     tier: mid-tier
     extended_thinking: false
     cost_tier: medium
@@ -56,7 +60,7 @@ routing:
   docstrings:
     description: "Docstrings, commit messages, changelogs"
     mode: ask
-    model: [claude-haiku-4.5, gpt-5.1]
+    model: [claude-haiku-4.5, gpt-5-mini]
     tier: cost-optimized
     extended_thinking: false
     cost_tier: low
@@ -66,7 +70,7 @@ routing:
   code_review:
     description: "Quality + security review"
     mode: ask
-    model: [claude-opus-4.6, gpt-5.1]
+    model: [claude-opus-5, gpt-5.6-sol]
     tier: high-capability
     extended_thinking: true
     cost_tier: high
@@ -76,7 +80,7 @@ routing:
   summarization:
     description: "PR descriptions, release notes"
     mode: ask
-    model: [claude-haiku-4.5, gpt-5.1]
+    model: [claude-haiku-4.5, gpt-5-mini]
     tier: cost-optimized
     extended_thinking: false
     cost_tier: low
@@ -84,15 +88,15 @@ routing:
     when: "Content to summarize is available"
 
 # Agentic Deployment — Agent-to-Model Mapping:
-#   @deploy (orchestrator):    claude-opus-4.6 / gpt-5.1
-#   @azure-portal-deploy:     claude-sonnet-4.6 / gpt-5.1
-#   @terraform:               claude-sonnet-4.6 / gpt-5.1
-#   @backstage-expert:        claude-sonnet-4.6 / gpt-5.1
-#   @github-integration:      claude-sonnet-4.6 / gpt-5.1
-#   @ado-integration:         claude-sonnet-4.6 / gpt-5.1
-#   @hybrid-scenarios:        claude-sonnet-4.6 / gpt-5.1
-#   @sre (verification):      claude-sonnet-4.6 / gpt-5.1
-#   @security (audit):        claude-opus-4.6 / gpt-5.1
+#   @deploy (orchestrator):    claude-opus-5 / gpt-5.6-sol
+#   @azure-portal-deploy:     claude-sonnet-5 / gpt-5.4
+#   @terraform:               claude-sonnet-5 / gpt-5.4
+#   @backstage-expert:        claude-sonnet-5 / gpt-5.4
+#   @github-integration:      claude-sonnet-5 / gpt-5.4
+#   @ado-integration:         claude-sonnet-5 / gpt-5.4
+#   @hybrid-scenarios:        claude-sonnet-5 / gpt-5.4
+#   @sre (verification):      claude-sonnet-5 / gpt-5.4
+#   @security (audit):        claude-opus-5 / gpt-5.6-sol
 
 # Decision tree for developers:
 #

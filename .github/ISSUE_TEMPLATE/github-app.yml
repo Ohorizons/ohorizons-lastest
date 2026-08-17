@@ -1,4 +1,4 @@
-name: "🔑 GitHub App / OAuth Setup"
+name: "GitHub App / OAuth Setup"
 description: "Create GitHub Apps, OAuth Apps, and webhooks for integrations"
 title: "[GITHUB-APP] "
 labels: ["github", "oauth", "integration", "cross-cutting"]
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🔑 GitHub App / OAuth Setup
+        ## GitHub App / OAuth Setup
         Configure GitHub Apps and OAuth Apps for Backstage, ArgoCD, and other integrations.
 
   - type: dropdown

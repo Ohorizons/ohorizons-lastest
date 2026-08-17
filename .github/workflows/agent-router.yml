@@ -91,7 +91,7 @@ jobs:
           esac
 
       - name: Add Routing Comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const agent = '${{ steps.identify.outputs.agent }}';
@@ -127,7 +127,7 @@ jobs:
 
       - name: Add Executing Label
         if: steps.identify.outputs.agent != 'unknown' && steps.policy.outputs.auto_execute == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const labels = new Set(context.payload.issue.labels.map(label => label.name));
@@ -152,7 +152,7 @@ jobs:
       issues: write
     steps:
       - name: Request Approval
-        uses: trstringer/manual-approval@v1
+        uses: trstringer/manual-approval@fa642940caf8412403569b28b2db4a1df08a83a3 # v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: platform-team,platform-leads
@@ -161,7 +161,7 @@ jobs:
           exclude-workflow-initiator-as-approver: false
 
       - name: Update Issue on Approval
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             await github.rest.issues.createComment({
@@ -190,7 +190,7 @@ jobs:
           echo "workflow=$workflow_name" >> "$GITHUB_OUTPUT"
 
       - name: Create Deploy-Led Stage Issues
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const workflow = '${{ steps.workflow.outputs.workflow }}';

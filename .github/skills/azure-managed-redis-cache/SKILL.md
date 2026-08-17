@@ -1,57 +1,122 @@
 ---
 name: azure-managed-redis-cache
-description: "Design and provision Azure Managed Redis as the cache, semantic cache, vector store, session store, and agent memory backend for AI-native systems. Covers SKU selection (Balanced, MemoryOptimized, ComputeOptimized, FlashOptimized), the fact that Redis Enterprise is retired for new creations, vector search and RedisVL for semantic caching and long term memory, session and short term state, tenant isolation, managed identity (Entra) access, private networking, and a Bicep sample. Use when an agent design needs caching, a semantic cache, a vector memory store, or session state on Redis. Pairs with agentic-architecture-patterns and apim-ai-gateway."
-argument-hint: "what to back with Redis, for example a semantic cache plus long term vector memory"
+description: "Use when designing or provisioning Azure Managed Redis for cache, semantic cache, vector memory, session store, or agent memory in AI-native systems; produces SKU guidance, network and identity controls, Bicep deployment steps, and integration recommendations. DO NOT USE FOR: general agent architecture (use agentic-architecture-patterns), Foundry agent runtime design (use foundry-agent-blueprint), or general Azure infrastructure (use azure-infrastructure). Triggers include \"design Redis semantic cache\", \"provision Azure Managed Redis\", \"add vector memory\"."
 ---
 
 # Azure Managed Redis Cache
 
-Azure Managed Redis is the default in-memory engine for caching, semantic caching, vector memory, and session state in this workspace. This skill turns an agent's caching and memory needs into a concrete Redis design and a deployable Bicep.
+This workflow turns an agent cache or memory requirement into an Azure Managed Redis design, including SKU profile, private networking, managed identity access, key isolation, TTL policy, and optional Bicep deployment. It produces a Redis design note and deployment checklist.
 
-> Important: **Azure Cache for Redis Enterprise is retired for new creations.** Use **Azure Managed Redis** SKUs. The resource type is still `Microsoft.Cache/redisEnterprise` (use a current API version such as `2025-07-01`), and `publicNetworkAccess` is a required property. Verify the current SKU list and API version on Microsoft Learn before deploying.
+> [!NOTE]
+> This skill may shell out to Azure CLI for Bicep deployment using `.github/skills/azure-managed-redis-cache/scripts/redis-managed.bicep`. Verify current Azure Managed Redis SKUs, API versions, module support, and pricing on Microsoft Learn before provisioning.
 
-## When to use Redis in an agent
+## When to invoke
+- "Design a Redis semantic cache for our agent gateway."
+- "Provision Azure Managed Redis for vector memory."
+- "Add session state for agent runs using Redis."
+- "Choose the Redis SKU for cache, memory, and tenant isolation."
 
-| Need | Redis role | Detail |
-| --- | --- | --- |
-| Cut repeated model cost and latency | semantic cache | vector similarity over prior requests, see [references/semantic-cache.md](references/semantic-cache.md) |
-| Long term agent memory | vector store | embeddings of facts and documents, see [references/vector-memory.md](references/vector-memory.md) |
-| Conversation and run state | session store | short term thread state, see [references/session-store.md](references/session-store.md) |
-| Hot data and rate state | key value cache | classic cache-aside and counters |
+## Prerequisites
+- Cache or memory role is known: key-value cache, semantic cache, vector memory, or session store.
+- Target region, environment, network posture, and data sensitivity are known.
+- Azure CLI is authenticated if deploying.
+- Bicep file exists at `.github/skills/azure-managed-redis-cache/scripts/redis-managed.bicep`.
+- Reference files exist under `.github/skills/azure-managed-redis-cache/references/`.
 
-## SKU selection
+## Workflow steps
 
-Azure Managed Redis groups SKUs by profile. Pick by working set size and access pattern (verify exact names, sizes, and prices on Microsoft Learn):
+### Step 1: Classify the Redis role
+| Need | Redis role | Reference |
+|---|---|---|
+| Reuse repeated prompts or intents | Semantic cache | `.github/skills/azure-managed-redis-cache/references/semantic-cache.md` |
+| Store durable agent facts or embeddings | Vector memory | `.github/skills/azure-managed-redis-cache/references/vector-memory.md` |
+| Hold conversation or run state | Session store | `.github/skills/azure-managed-redis-cache/references/session-store.md` |
+| Secure access and network path | Identity and network | `.github/skills/azure-managed-redis-cache/references/access-and-network.md` |
 
-- **Balanced (for example `Balanced_B1`)**: general purpose, balanced memory and vCPU. Good default for caches and small vector sets.
-- **MemoryOptimized**: more memory per vCPU, for large caches and larger vector indexes.
-- **ComputeOptimized**: more vCPU per memory, for high-throughput, compute-heavy access (heavy vector search).
-- **FlashOptimized**: tiered memory plus flash for very large datasets at lower cost per GB.
+### Step 2: Select SKU and controls
+- [ ] Choose Balanced for general cache and small vector sets.
+- [ ] Choose MemoryOptimized for larger working sets.
+- [ ] Choose ComputeOptimized for high-throughput or vector-heavy workloads.
+- [ ] Choose FlashOptimized only when very large datasets justify tiered storage.
+- [ ] Use tenant and user key namespaces such as `t:<tenant>:u:<user>:<purpose>`.
+- [ ] Require TLS and managed identity where supported.
+- [ ] Prefer private endpoint and disabled public network access for sensitive workloads.
 
-Use the vector search and RediSearch capabilities (modules) for semantic cache and memory. Confirm module availability for the chosen tier.
+### Step 3: Confirm before provisioning
+```text
+Redis deployment summary:
+- Name:
+- Resource group:
+- Location:
+- SKU:
+- Public network access:
+- Data roles:
+Proceed with Azure Managed Redis deployment or update? (y/n)
+```
 
-## Access and security (best practice)
+> [!IMPORTANT]
+> Only proceed with Redis deployment, SKU changes, or paid resource updates if the user gives an explicit affirmative. On a negative, ambiguous, or missing response, output the design and stop.
 
-- **Use Entra (AAD) authentication with managed identity.** Prefer `DefaultAzureCredential` over access keys. Some tenant policies disable local auth, so design for AAD from the start. See [references/access-and-network.md](references/access-and-network.md).
-- **Tenant isolation.** Namespace every key by tenant and user (for example `t:{tenant}:u:{user}:...`) so a shared cache cannot leak across boundaries.
-- **Private networking.** Use private endpoints and set `publicNetworkAccess` to disabled where data sensitivity requires it. Plan the VNet and DNS up front.
-- **Encryption and TLS.** Require TLS for all connections.
+### Step 4: Deploy from the repository Bicep when approved
+```bash
+az deployment group create \
+  --resource-group <resource-group> \
+  --template-file .github/skills/azure-managed-redis-cache/scripts/redis-managed.bicep \
+  --parameters name=<redis-name> location=<location> sku=Balanced_B1 publicNetworkAccess=Disabled
+```
 
-## Provision
+### Step 5: Validate integration decisions
+- [ ] Application uses managed identity or Key Vault-managed connection secrets.
+- [ ] Semantic cache threshold, TTL, invalidation, and embedding model are documented.
+- [ ] Vector memory read/write policy prevents cross-tenant leakage.
+- [ ] Session keys have expiration and bounded payload size.
 
-A minimal, idempotent Bicep is in [scripts/redis-managed.bicep](scripts/redis-managed.bicep). It creates an Azure Managed Redis database with a chosen SKU and exposes the host. Review parameters, then deploy with the Azure CLI. Validate against Microsoft Learn for the latest API version and SKU names before applying.
+## Risk classification
+| Severity | Meaning |
+|---|---|
+| Critical | Cross-tenant key leakage, public access for sensitive memory, or secrets committed to code. |
+| High | No TTL/invalidation for semantic cache, no managed identity plan, or undersized production SKU. |
+| Medium | Missing private DNS, unclear vector schema, or no cache observability. |
+| Low | Naming, tagging, or documentation gaps. |
 
-## How to use this skill
+## Error handling
+| Situation | Action |
+|---|---|
+| SKU is unavailable | Verify current regional SKU availability and choose an approved alternative. |
+| Bicep deployment fails | Report the Azure error, resource group, and parameters; do not retry with different settings without approval. |
+| Managed identity is unsupported by client path | Use Key Vault for secrets and document the migration path to identity. |
+| Public access is required temporarily | Add an expiration, network restriction, and risk note. |
 
-1. Identify which roles Redis plays (semantic cache, vector memory, session, key value) from the agent design.
-2. Size the working set and pick a SKU profile.
-3. Choose AAD plus managed identity access and the network posture.
-4. Adapt the Bicep, deploy, and wire the app with the appropriate client (RedisVL for semantic cache and vector memory).
-5. Add key namespacing, time to live, and invalidation. Record the design in the architecture decision record.
+## Output template
+```markdown
+# Azure Managed Redis Design
 
-## References
+## Scope
+- Role:
+- Environment:
+- Region:
 
-- [Azure Managed Redis](https://learn.microsoft.com/azure/redis/)
-- [Azure Managed Redis vector search](https://learn.microsoft.com/azure/redis/redis-vector-search)
-- [Authenticate with Microsoft Entra ID](https://learn.microsoft.com/azure/redis/entra-for-authentication)
-- [RedisVL](https://redis.io/docs/latest/integrate/redisvl/)
+## SKU And Network
+| Decision | Value | Rationale |
+|---|---|---|
+
+## Key Design
+- Namespace:
+- TTL:
+- Invalidation:
+
+## Deployment
+```bash
+az deployment group create --resource-group <resource-group> --template-file .github/skills/azure-managed-redis-cache/scripts/redis-managed.bicep --parameters name=<redis-name>
+```
+
+## Risks
+| Severity | Finding | Mitigation |
+|---|---|---|
+```
+
+## Quality gate
+- [ ] Redis role, SKU, network posture, and identity model are documented.
+- [ ] Paid deployment or SKU changes have explicit confirmation.
+- [ ] Tenant isolation and TTL policy are defined.
+- [ ] Bicep path and all references exist in the repository.

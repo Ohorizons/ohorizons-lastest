@@ -69,9 +69,9 @@ declare -A AUTH_CHECKS=(
 # =============================================================================
 
 log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
+log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
-log_error()   { echo -e "${RED}[✗]${NC} $1"; }
+log_error()   { echo -e "${RED}[FAIL]${NC} $1"; }
 
 header() {
     echo ""
@@ -91,10 +91,10 @@ check_tool() {
     
     if command -v "$tool" &> /dev/null; then
         local version=$(eval "$check_cmd" 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "installed")
-        echo -e "${GREEN}✓${NC} ${version}"
+        echo -e "${GREEN}[OK]${NC} ${version}"
         return 0
     else
-        echo -e "${RED}✗${NC} not installed"
+        echo -e "${RED}[FAIL]${NC} not installed"
         if [ "$INSTALL_MODE" = "--install" ]; then
             log_info "Installing $tool..."
             eval "$install_cmd" 2>/dev/null || log_warning "Auto-install failed. Run manually: $install_cmd"
@@ -114,7 +114,7 @@ check_auth() {
     printf "  %-15s " "$tool"
     
     if eval "$check_cmd" &> /dev/null; then
-        echo -e "${GREEN}✓${NC} authenticated"
+        echo -e "${GREEN}[OK]${NC} authenticated"
         return 0
     else
         echo -e "${YELLOW}!${NC} not authenticated"
@@ -134,7 +134,7 @@ check_azure_extensions() {
     for ext in "${extensions[@]}"; do
         printf "  %-20s " "$ext"
         if az extension show --name "$ext" &> /dev/null; then
-            echo -e "${GREEN}✓${NC} installed"
+            echo -e "${GREEN}[OK]${NC} installed"
         else
             echo -e "${YELLOW}!${NC} not installed"
             if [ "$INSTALL_MODE" = "--install" ]; then
@@ -149,7 +149,7 @@ check_gh_extensions() {
     
     printf "  %-20s " "gh-copilot"
     if gh extension list | grep -q "copilot"; then
-        echo -e "${GREEN}✓${NC} installed"
+        echo -e "${GREEN}[OK]${NC} installed"
     else
         echo -e "${YELLOW}!${NC} not installed"
         if [ "$INSTALL_MODE" = "--install" ]; then
@@ -163,16 +163,16 @@ check_mcp_servers() {
     
     printf "  %-15s " "node"
     if command -v node &> /dev/null; then
-        echo -e "${GREEN}✓${NC} $(node --version)"
+        echo -e "${GREEN}[OK]${NC} $(node --version)"
     else
-        echo -e "${RED}✗${NC} not installed (required for MCP servers)"
+        echo -e "${RED}[FAIL]${NC} not installed (required for MCP servers)"
     fi
     
     printf "  %-15s " "npx"
     if command -v npx &> /dev/null; then
-        echo -e "${GREEN}✓${NC} available"
+        echo -e "${GREEN}[OK]${NC} available"
     else
-        echo -e "${RED}✗${NC} not available"
+        echo -e "${RED}[FAIL]${NC} not available"
     fi
 }
 

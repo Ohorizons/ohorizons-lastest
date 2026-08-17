@@ -1,4 +1,4 @@
-name: "🔄 H2: GitOps Setup"
+name: "H2: GitOps Setup"
 description: "Deploy ArgoCD and configure GitOps workflows"
 title: "[GitOps] Deploy ArgoCD infrastructure"
 labels: ["h2-enhancement", "gitops", "copilot-agent"]

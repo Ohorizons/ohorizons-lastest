@@ -52,22 +52,22 @@ print_header() {
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARN]  $1${NC}"
     WARNINGS=$((WARNINGS + 1))
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[FAIL] $1${NC}"
     ERRORS=$((ERRORS + 1))
 }
 
 print_info() {
     if [[ "$VERBOSE" == true ]]; then
-        echo -e "${BLUE}ℹ️  $1${NC}"
+        echo -e "${BLUE}[INFO]  $1${NC}"
     fi
 }
 

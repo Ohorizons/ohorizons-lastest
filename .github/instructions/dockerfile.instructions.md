@@ -1,80 +1,122 @@
 ---
 applyTo: "**/Dockerfile"
-description: "Dockerfile best practices for multi-stage builds, security, and optimization."
+description: "Use when editing Dockerfiles for Backstage, FastAPI agent services, MCP servers, and Golden Path containers."
 ---
 
-# Dockerfile Standards
+# Dockerfile Conventions — Backstage, Agent APIs, and MCP Images
 
-## Multi-Stage Builds
+This file activates when you edit any repository `Dockerfile`, including Backstage backend, FastAPI agent APIs, Foundry gateway, MCP servers, and Golden Path skeletons. It teaches how to build secure, reproducible containers that match Open Horizons runtime expectations. It does **not** cover local service wiring, which belongs to [Docker Compose standards](docker-compose.instructions.md), Kubernetes deployment controls, which belong to [Kubernetes standards](kubernetes.instructions.md), TypeScript package code, which belongs to [TypeScript standards](typescript.instructions.md), Python API code, which belongs to [Python standards](python.instructions.md), or build scripts, which belong to [Shell script standards](shell.instructions.md).
 
-- Always use multi-stage builds: `builder` stage for compilation, `runtime` stage for execution
-- Copy only the build output from builder to runtime — never the source code
-- Name stages explicitly: `FROM node:20-alpine AS builder`
+> [!NOTE]
+> The Backstage backend Dockerfile is executed with `backstage/` as the build context after `yarn install --immutable`, `yarn tsc`, and `yarn build:backend`.
 
-### DO
+## Base Images and Runtimes
+
+Pin runtime families already used by the repo: Node `24-trixie-slim` for Backstage backend images and Python slim images for FastAPI services. Never use `latest`.
 
 ```dockerfile
-# Build stage
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --ignore-scripts
-COPY src/ ./src/
-COPY tsconfig.json ./
-RUN npm run build
+# Wrong: mutable base and no runtime contract.
+FROM node:latest
+```
 
-# Runtime stage
-FROM node:20-alpine AS runtime
-WORKDIR /app
+```dockerfile
+FROM node:24-trixie-slim
 ENV NODE_ENV=production
-COPY --from=builder --chown=node:node /app/dist ./dist
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/package.json ./
-USER node
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD wget -qO- http://localhost:3100/health || exit 1
-EXPOSE 3100
-CMD ["node", "dist/index.js"]
 ```
 
-### DON'T
+## User and File Ownership
+
+Run as a non-root user. Backstage uses the built-in `node` user; Python services create an `app` user and chown `/app`.
 
 ```dockerfile
-FROM node:latest           # Unpinned tag
-COPY . .                   # Copies everything including .git, node_modules
-RUN npm install            # Uses npm install instead of npm ci, installs devDeps
-CMD npm start              # Shell form instead of exec form
-# No USER, no HEALTHCHECK, no multi-stage
+# Wrong: leaves the service running as root.
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
 ```
 
-## Base Images
+```dockerfile
+RUN groupadd --system app && useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin app
+COPY . .
+RUN chown -R app:app /app
+USER app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
+```
 
-- Pin exact base image versions: `node:20-alpine`, not `node:latest`
-- Prefer Alpine-based images for smaller size and fewer CVEs
-- Use the same base image version in both stages for consistency
+> [!WARNING]
+> Do not bake Azure, GitHub, OpenAI, or database credentials into images. Runtime configuration comes from Kubernetes Secrets, External Secrets, Compose env files, or platform identity.
 
-## Security
+## Dependency Installation
 
-- Run as non-root user in production: `USER node` or create a custom user
-- Never run `apt-get` or `apk add` without `--no-cache` in the runtime stage
-- Use `COPY --chown=node:node` to set file permissions in one step
-- Never store secrets in the image — use environment variables or mounted secrets
-- Use `npm ci --ignore-scripts` in build to prevent supply chain attacks
+Install dependencies from lockfiles or declared requirements with cache-friendly ordering. Use `--no-install-recommends` for Debian packages and remove apt lists in the same layer.
 
-## Layer Optimization
+```dockerfile
+# Wrong: installs unpinned packages and leaves apt lists in the runtime image.
+RUN apt-get update && apt-get install -y git python3-pip
+RUN pip install mkdocs-techdocs-core
+```
 
-- Order layers from least to most frequently changing:
-  1. Base image
-  2. System dependencies
-  3. `package.json` + `package-lock.json` (dependency layer)
-  4. `npm ci` (cached if lockfile unchanged)
-  5. Source code (changes most often)
-- Combine related `RUN` commands with `&&` to reduce layer count
-- Add `.dockerignore` to exclude: `node_modules`, `src/`, `.git`, `*.md`, test files
+```dockerfile
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y --no-install-recommends git python3-pip &&     rm -rf /var/lib/apt/lists/* &&     pip3 install --break-system-packages mkdocs-techdocs-core
+```
 
-## Runtime Configuration
+## Build Context and Layer Ordering
 
-- Set `NODE_ENV=production` in the runtime stage via `ENV`
-- Use exec form for `CMD`: `CMD ["node", "dist/index.js"]`, not `CMD node dist/index.js`
-- Include `HEALTHCHECK` instruction with explicit interval, timeout, and retries
-- Use `EXPOSE` to document which ports the container listens on
+Copy package manifests and skeleton bundles before source bundles so Docker cache works with Backstage workspaces. For Python services, copy `requirements.txt` before source files.
+
+```dockerfile
+# Wrong: invalidates dependency cache on every source change.
+COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
+```
+
+```dockerfile
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+```
+
+> [!IMPORTANT]
+> Add or maintain `.dockerignore` entries when introducing new build contexts so `.git`, local caches, generated artifacts, and secrets are not sent to Docker.
+
+## Runtime Contract
+
+Document ports with `EXPOSE`, use exec-form `CMD`, and align health endpoints with [Kubernetes standards](kubernetes.instructions.md) and [Docker Compose standards](docker-compose.instructions.md).
+
+```dockerfile
+# Wrong: shell form obscures signals and argument boundaries.
+CMD uvicorn main:app --host 0.0.0.0 --port 8008
+```
+
+```dockerfile
+EXPOSE 8008
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
+```
+
+## Conventions
+
+| Rule | Rationale |
+|---|---|
+| Pin base images to explicit runtime versions used by the repo | Mutable tags make CI and deployments non-reproducible. |
+| Run production containers as non-root | AKS pod security and least-privilege requirements assume non-root workloads. |
+| Copy dependency manifests before application source | Docker layer cache stays useful during frequent source edits. |
+| Use `--no-install-recommends`, cache mounts, and same-layer cleanup for apt installs | Images stay smaller and reduce vulnerability surface. |
+| Use exec-form `CMD` | Containers receive signals correctly during Kubernetes rollouts. |
+| Keep secrets out of build args, layers, and image files | Image registries are not secret stores. |
+
+## Do / Do Not
+
+| Do | Do not |
+|---|---|
+| Use `USER node` or a dedicated `app` user | Run FastAPI, MCP, or Backstage services as root. |
+| Use `pip install --no-cache-dir -r requirements.txt` for Python services | Install Python packages after copying all source. |
+| Keep Backstage image creation aligned with `yarn build:backend` outputs | Rebuild the whole monorepo inside unrelated service images. |
+| Document exposed ports | Depend on implicit runtime ports. |
+
+## Checklist Before Opening a PR
+
+- [ ] Base image tags are explicit and compatible with repository runtime versions.
+- [ ] Runtime user is non-root and copied files have appropriate ownership.
+- [ ] Dependencies install from lockfiles or requirements before source copies.
+- [ ] No credentials or tenant-specific values are baked into layers.
+- [ ] `CMD` uses exec form and the port aligns with Compose and Kubernetes manifests.
+- [ ] Build context excludes local caches, generated output, and secrets.
