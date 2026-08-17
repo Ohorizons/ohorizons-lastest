@@ -1,96 +1,155 @@
 ---
 name: kubectl-cli
-description: "Kubernetes CLI operations for AKS cluster management. USE FOR: kubectl get, kubectl apply, kubectl describe, pod troubleshooting, service debugging, namespace management. DO NOT USE FOR: Helm charts (use helm-cli), ArgoCD sync (use argocd-cli), Azure resource provisioning (use azure-cli)."
+description: 'Use when operating Kubernetes resources on AKS or kind with kubectl: get, describe, logs, events, diff, dry-run, apply, delete, rollout, and namespace troubleshooting. Produces command plans, cluster evidence, health summaries, and remediation steps. DO NOT USE FOR: Helm charts (use helm-cli), ArgoCD sync (use argocd-cli), Azure resource provisioning (use azure-cli). Triggers include "check pod health", "apply these Kubernetes manifests", "delete this resource", and "debug the Backstage deployment".'
 ---
 
-## When to Use
-- Cluster health verification
-- Resource deployment and management
-- Troubleshooting pod issues
-- Viewing logs and events
+# Kubectl CLI
+
+Use this skill for direct Kubernetes inspection and carefully approved resource changes in Open Horizons namespaces and manifests such as `backstage/k8s/`, `argocd/apps/`, and `foundry/k8s/`. It produces cluster evidence, a risk-ranked action plan, and post-change verification.
+
+> [!NOTE]
+> This skill depends on `kubectl`, a valid `KUBECONFIG`, `kubelogin` for Azure AKS authentication when applicable, and RBAC permissions for the target namespace. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Check whether Backstage pods are healthy."
+- "Apply the manifests under backstage/k8s."
+- "Delete a failed Kubernetes job after confirming the namespace."
+- "Show events for the monitoring namespace."
+- "Debug image pull errors in the ai-services namespace."
 
 ## Prerequisites
-- kubectl installed and configured
-- KUBECONFIG set to valid config
-- kubelogin for Azure AD authentication
-- Appropriate RBAC permissions
 
-## Commands
+- `kubectl version --client` succeeds.
+- `kubectl config current-context` shows the intended AKS or kind cluster.
+- The namespace is explicit for namespace-scoped resources.
+- Manifest paths exist, for example `backstage/k8s/agent-identity.yaml`.
+- The user has approved any apply, delete, scale, patch, or rollout restart action.
 
-### Cluster Health
+## Workflow steps
+
+### Step 1: Confirm context and namespace
+
 ```bash
-# Cluster info
-kubectl cluster-info
-
-# Node status
+kubectl config current-context
+kubectl get namespaces
 kubectl get nodes -o wide
+```
 
-# System pods
-kubectl get pods -n kube-system
+Never assume the namespace. If the user did not provide one, inspect likely Open Horizons namespaces and ask for confirmation before mutation.
 
-# Unhealthy pods across all namespaces
+### Step 2: Inspect current resource health
+
+```bash
 kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
+kubectl get pods -n backstage -o wide
+kubectl get events -n backstage --sort-by='.lastTimestamp'
+kubectl describe deployment -n backstage backstage
 ```
 
-### Resource Management
+Use logs only for the named pod or label selector.
+
 ```bash
-# Dry-run before apply
-kubectl apply -f manifest.yaml --dry-run=client -o yaml
-
-# Diff changes
-kubectl diff -f manifest.yaml
-
-# Apply with recording
-kubectl apply -f manifest.yaml --record
-
-# Delete with grace
-kubectl delete -f manifest.yaml --grace-period=30
+kubectl logs -n backstage deployment/backstage --tail=100
+kubectl logs -n ai-services deployment/agent-api --tail=100
 ```
 
-### Troubleshooting
+### Step 3: Validate manifests before mutation
+
 ```bash
-# Describe pod
-kubectl describe pod <pod-name> -n <namespace>
-
-# Pod logs (current)
-kubectl logs -f <pod-name> -n <namespace>
-
-# Pod logs (previous crash)
-kubectl logs <pod-name> -n <namespace> --previous
-
-# Events by time
-kubectl get events -n <namespace> --sort-by='.lastTimestamp'
-
-# Exec into pod
-kubectl exec -it <pod-name> -n <namespace> -- /bin/sh
+kubectl apply -f backstage/k8s/ --dry-run=client -o yaml
+kubectl diff -f backstage/k8s/
 ```
 
-### Resource Queries
+For generated manifests, render them first with the repo script and then inspect the output path produced by the script.
+
 ```bash
-# Get all resources in namespace
-kubectl get all -n <namespace> -o wide
-
-# Get resource as YAML
-kubectl get deployment <name> -n <namespace> -o yaml
-
-# Resource usage
-kubectl top pods -n <namespace>
-kubectl top nodes
+./scripts/render-k8s.sh
 ```
 
-## Best Practices
-1. ALWAYS use --dry-run=client before apply
-2. ALWAYS specify namespace with -n
-3. Use labels for selection: -l app=myapp
-4. Check events when pods fail
-5. Use kubectl diff for change preview
-6. NEVER delete without explicit namespace
+### Step 4: Classify Kubernetes risk
 
-## Output Format
-1. Command executed
-2. Resource status summary
-3. Any warnings or errors
-4. Recommended actions
+| Risk | Meaning |
+| --- | --- |
+| High | `delete`, `patch`, `scale`, `rollout restart`, namespace changes, or apply to production. |
+| Medium | `apply` to non-production, changes to RBAC, NetworkPolicy, ServiceAccount, or ingress. |
+| Low | `get`, `describe`, `logs`, `events`, `top`, `diff`, or client dry-run. |
 
-## Integration with Agents
-Used by: @deploy, @backstage-expert, @sre
+### Step 5: User confirmation gate
+
+```text
+Kubernetes action: <apply|delete|patch|scale|rollout restart>
+Cluster context: <context>
+Namespace: <namespace>
+Manifest or resource: <path-or-kind/name>
+Risk: <High|Medium|Low>
+Proceed with the Kubernetes mutation? (y/n)
+```
+
+> [!IMPORTANT]
+> Only run mutating `kubectl` commands after an explicit affirmative response. On a negative, ambiguous, or missing response, do not mutate the cluster; output the dry-run or diff findings and stop.
+
+### Step 6: Execute the approved action
+
+```bash
+kubectl apply -f backstage/k8s/ --server-side
+kubectl rollout status deployment/backstage -n backstage --timeout=300s
+```
+
+For deletion, use an exact resource identity and namespace.
+
+```bash
+kubectl delete <kind>/<name> -n <namespace> --grace-period=30
+```
+
+### Step 7: Verify after mutation
+
+```bash
+kubectl get all -n backstage -o wide
+kubectl get events -n backstage --sort-by='.lastTimestamp'
+kubectl rollout status deployment/backstage -n backstage --timeout=300s
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| No current context | Stop and ask the operator to configure AKS credentials. |
+| Namespace not found | List namespaces and require explicit namespace selection before mutation. |
+| Dry-run or diff fails | Report validation errors and skip mutation. |
+| RBAC forbidden | Report required verb, resource, and namespace from the error. |
+| Pods crash after apply | Collect `describe`, previous logs, and events; do not auto-delete resources. |
+
+## Output template
+
+```markdown
+## Kubectl Operation Report
+
+**Cluster context:** <context>
+**Namespace:** <namespace>
+**Action:** <get|describe|logs|diff|apply|delete>
+**Risk:** <High|Medium|Low>
+
+### Evidence
+- Pods: <summary>
+- Events: <summary>
+- Rollout: <summary>
+
+### Commands Run
+- `<command>`
+
+### Findings
+- <finding>
+
+### Next Steps
+1. <next step>
+```
+
+## Quality gate
+
+- [ ] Confirmed current Kubernetes context.
+- [ ] Used explicit namespace for namespace-scoped resources.
+- [ ] Verified manifest paths exist before referencing them.
+- [ ] Ran dry-run or diff before apply.
+- [ ] Received explicit approval before any mutating command.
+- [ ] Verified rollout, pods, and events after mutation.

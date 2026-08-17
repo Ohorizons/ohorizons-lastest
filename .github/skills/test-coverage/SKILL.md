@@ -1,162 +1,105 @@
 ---
 name: test-coverage
-description: "Test coverage and quality gate analysis — CI check runs, PR review status, coverage reports, and test improvement recommendations. USE FOR: check runs analysis, test coverage, PR checks, quality gate, test failures, coverage diff, failing checks, test quality. DO NOT USE FOR: pipeline diagnostics (use pipeline-diagnostics), security review (use @security), deployment orchestration (use @deploy)."
+description: 'Use when analyzing test coverage, GitHub check runs, PR quality gates, failed tests, coverage regressions, merge readiness, and test improvement recommendations. Produces check-run summaries, coverage findings, severity classification, and actionable test remediation. DO NOT USE FOR: pipeline diagnostics (use pipeline-diagnostics), security review (use @security), deployment orchestration (use @deploy). Triggers include "analyze test coverage", "why are PR checks failing", "review quality gate", and "find coverage gaps".'
 ---
 
-# Test Coverage Skill
+# Test Coverage
 
-Domain knowledge for test and coverage analysis via GitHub Checks and PRs API.
+Use this skill to analyze tests, coverage, and PR quality gates using real GitHub Checks and PR evidence. It produces a check summary, coverage risk assessment, failed-test analysis, and targeted recommendations.
 
-## GitHub Checks API Reference
+> [!NOTE]
+> This skill depends on the `gh` CLI, authenticated GitHub access, and repository check-run or PR visibility. It does not use an MCP server by default.
 
-### Check Runs
+## When to invoke
 
-```bash
-# Get check runs for a branch
-gh api repos/{owner}/{repo}/commits/{ref}/check-runs --jq '.check_runs[] | {name, status, conclusion}'
+- "Analyze test coverage for this PR."
+- "Why are PR checks failing?"
+- "Review merge readiness from checks and reviews."
+- "Find coverage gaps introduced by this change."
+- "Summarize failed tests from GitHub checks."
 
-# Get check runs for a PR
-gh pr checks {pr_number} --repo {owner}/{repo}
+## Prerequisites
 
-# Get specific check run details
-gh api repos/{owner}/{repo}/check-runs/{check_run_id}
-```
+- `gh auth status` succeeds.
+- Repository owner/name and PR number, branch, or commit SHA are known.
+- Check runs exist for the target ref.
+- Coverage artifacts or check output are available if coverage percentage is requested.
 
-### REST API Endpoints
+## Workflow steps
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/repos/{owner}/{repo}/commits/{ref}/check-runs` | GET | List check runs for a ref |
-| `/repos/{owner}/{repo}/check-runs/{id}` | GET | Get specific check run |
-| `/repos/{owner}/{repo}/check-suites/{id}/check-runs` | GET | List check runs in a suite |
-
-### Check Run Status Values
-
-| Status | Meaning |
-|--------|---------|
-| `queued` | Check is waiting to start |
-| `in_progress` | Check is running |
-| `completed` | Check finished (see conclusion) |
-
-### Check Run Conclusion Values
-
-| Conclusion | Meaning | Severity |
-|-----------|---------|----------|
-| `success` | All checks passed | OK |
-| `failure` | Check failed | Critical |
-| `neutral` | Check ran but has no pass/fail | Info |
-| `cancelled` | Check was cancelled | Warning |
-| `skipped` | Check was skipped | Info |
-| `timed_out` | Check exceeded time limit | Critical |
-| `action_required` | Manual action needed | Warning |
-
-## Pull Request Analysis
-
-### PR API
+### Step 1: Fetch check-run evidence
 
 ```bash
-# List open PRs
-gh pr list --repo {owner}/{repo} --state open
-
-# Get PR details with checks
-gh pr view {pr_number} --repo {owner}/{repo}
-
-# Get PR review status
-gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '.[].state'
+gh pr checks <pr-number>
+gh api repos/<owner>/<repo>/commits/<ref>/check-runs --jq '.check_runs[] | {name, status, conclusion}'
 ```
 
-### PR Review States
+### Step 2: Inspect failed or coverage-related checks
 
-| State | Meaning |
-|-------|---------|
-| `APPROVED` | Reviewer approved |
-| `CHANGES_REQUESTED` | Reviewer wants changes |
-| `COMMENTED` | Reviewer left comments only |
-| `PENDING` | Review not submitted |
+```bash
+gh api repos/<owner>/<repo>/check-runs/<check-run-id>
+gh pr view <pr-number> --json reviews,commits,statusCheckRollup
+```
 
-## Common Test Failure Patterns
+### Step 3: Classify quality risk
 
-### 1. Flaky Tests
-**Indicators:** Same test passes/fails intermittently, timing-dependent assertions
-**Recommendations:**
-- Add retry logic for network-dependent tests
-- Use deterministic test data
-- Isolate tests from shared state
+| Severity | Meaning |
+| --- | --- |
+| Critical | Required test or coverage check failed and blocks merge. |
+| High | Coverage regression or repeat test failure on protected branch. |
+| Medium | Non-required test failure, flaky test, or missing coverage evidence. |
+| Low | Skipped, neutral, cancelled, or informational check. |
 
-### 2. Environment Mismatches
-**Indicators:** Tests pass locally but fail in CI
-**Recommendations:**
-- Use the same Node/Python/Go version in CI as locally
-- Check for CI-specific env vars
-- Use Docker-based CI for consistency
+### Step 4: Diagnose common patterns
 
-### 3. Coverage Regressions
-**Indicators:** Coverage percentage dropped below threshold
-**Recommendations:**
-- Identify uncovered lines/branches added in the PR
-- Add tests for new code paths
-- Review coverage thresholds in CI config
+| Pattern | Evidence | Recommendation |
+| --- | --- | --- |
+| Flaky test | Same test alternates pass and fail | Stabilize timing, test data, and external dependencies. |
+| Environment mismatch | CI fails but local pass is reported | Align runtime versions and environment variables. |
+| Coverage regression | Coverage below threshold | Add tests for changed branches and error paths. |
+| Required check failure | Merge blocked by check policy | Fix the failing check rather than bypassing. |
 
-### 4. Required Check Failures
-**Indicators:** PR merge blocked by failing required checks
-**Recommendations:**
-- Fix the failing check (don't bypass)
-- If check is flawed, update the check configuration
-- Contact admin if check is incorrectly required
+### Step 5: Escalate when failure is not test-specific
 
-## Output Templates
+- Use `pipeline-diagnostics` for workflow, dependency install, or build-step failures.
+- Use `kubectl-cli` or `helm-cli` for deployment checks that fail inside tests.
 
-### Check Run Analysis
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Check data is unavailable | State the limitation and inspect PR status rollup if available. |
+| GitHub auth fails | Ask the operator to run `gh auth login`. |
+| Failure is a workflow infrastructure issue | Route to `pipeline-diagnostics`. |
+| Coverage report is missing | Report that coverage cannot be quantified and list needed artifact or check name. |
+| PR number is ambiguous | List open PRs and ask for the target if multiple match. |
+
+## Output template
 
 ```markdown
-## 🧪 Check Run Analysis
+## Test Coverage and Quality Report
 
-**Repository:** {owner}/{repo}
-**Ref:** {branch/commit}
+**Repository:** <owner>/<repo>
+**Ref or PR:** <ref-or-pr>
+**Severity:** <Critical|High|Medium|Low>
 
-### Summary
-- ✅ **Passing:** {pass_count}
-- ❌ **Failing:** {fail_count}
-- ⏭️ **Skipped:** {skip_count}
+### Check Summary
+| Check | Status | Conclusion | Required | Notes |
+| --- | --- | --- | --- | --- |
+| <check> | <status> | <conclusion> | <yes|no|unknown> | <notes> |
 
-### Failed Checks
-
-| Check | Conclusion | Output |
-|-------|-----------|--------|
-| {name} | ❌ {conclusion} | {output_title} |
+### Coverage Findings
+- <finding>
 
 ### Recommendations
-1. {recommendation_1}
-2. {recommendation_2}
+1. <recommendation>
 ```
 
-### PR Quality Report
+## Quality gate
 
-```markdown
-## 📋 PR Quality Report
-
-**PR:** #{number} — {title}
-**Author:** {author} | **Base:** {base} ← **Head:** {head}
-
-### Checks
-| Check | Status |
-|-------|--------|
-| {check_name} | {status_emoji} {conclusion} |
-
-### Reviews
-| Reviewer | State |
-|----------|-------|
-| {reviewer} | {state} |
-
-### Merge Readiness
-- {readiness_assessment}
-```
-
-## Quality Checklist
-
-- [ ] Fetched real check run data before analyzing
-- [ ] Showed conclusion status for each check (success/failure/neutral/skipped)
-- [ ] Flagged failing required checks prominently
-- [ ] Provided specific improvement recommendations
-- [ ] Suggested follow-up when appropriate (`pipeline-diagnostics` for workflow issues, `@deploy` for deployment-impacting failures)
-- [ ] Used output template format
+- [ ] Used real check-run, PR, or coverage artifact data.
+- [ ] Separated test failures from pipeline infrastructure failures.
+- [ ] Classified severity and merge impact.
+- [ ] Identified failed check names and conclusions.
+- [ ] Recommended concrete tests or coverage improvements.
+- [ ] No emojis or pictographs are present in the report.

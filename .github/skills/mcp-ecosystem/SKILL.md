@@ -1,210 +1,125 @@
 ---
 name: mcp-ecosystem
-description: 'Access the local MCP Ecosystem server: 79 tools across 17 modules for live upstream reference data, methodology, templates, components, and official documentation. USE FOR: Spec-Driven Development/spec-kit phases and commands, Anthropic skills and Claude docs, Microsoft Agent Framework, GitHub Agentic Workflows, AGENTS.md, GitHub Copilot customization/docs, Backstage docs/catalog/templates/plugins/UI/Storybook, Microsoft Learn across Azure/AKS/AI Foundry/CAF/WAF, VS Code docs, GitHub docs for Actions/GHAS/OIDC/Packages, and wiring Backstage AI Chat (agent-api) to grounded ecosystem tools. DO NOT USE FOR: general web search, live cloud or repository operations, infra MCP servers such as Azure/GitHub/Terraform/Kubernetes/Helm (see mcp-config.json), or non-reference queries.'
+description: 'Use when querying the local MCP Ecosystem reference server for live upstream documentation, methodology, templates, Backstage resources, GitHub Copilot customization, Microsoft Learn, Azure CAF/WAF, VS Code docs, GitHub docs, Anthropic docs, or SDD/spec-kit guidance. Produces sourced reference lookups, tool selection, server health checks, and AI Chat wiring guidance. DO NOT USE FOR: general web search, live cloud or repository operations, infra MCP servers such as Azure/GitHub/Terraform/Kubernetes/Helm, or non-reference queries. Triggers include "search Microsoft Learn through MCP", "use the ecosystem server", "ground this in Backstage docs", and "list MCP ecosystem tools".'
 ---
 
 # MCP Ecosystem
 
-The **MCP Ecosystem** is the platform's own Model Context Protocol (MCP) server.
-It exposes **79 tools across 17 modules** that fetch live, cached reference data
-(methodology, format specs, templates, components, plugin catalogs, and docs)
-from curated upstream sources. It is the L3 Context Engineering surface that lets
-Open Horizons agents — and the Backstage **AI Chat** — ground their answers in
-real, current documentation instead of model recall.
+Use this skill to operate the Open Horizons local MCP Ecosystem reference server implemented in `mcp-servers/src/tools/`. The server exposes 79 documentation tools across 17 modules and helps agents ground SDD, Backstage, GitHub, Microsoft Learn, Azure CAF/WAF, VS Code, and Anthropic answers in upstream sources.
 
-> **Two different "MCP" surfaces — do not confuse them:**
-> - **MCP Ecosystem** (this skill): the *implemented* TypeScript server in
->   [mcp-servers/](../../../mcp-servers) serving documentation/reference tools.
-> - **Infra MCP policy** ([mcp-servers/mcp-config.json](../../../mcp-servers/mcp-config.json)):
->   the *access policy* mapping runtime agents to operational MCP servers
->   (azure, github, terraform, kubernetes, helm, …). That is a separate concern.
+> [!NOTE]
+> This skill depends on the MCP Ecosystem server at `http://localhost:3100/mcp`, Node.js, Docker when using `mcp-servers/` local compose workflows, optional `GH_TOKEN` for higher GitHub API limits, and `.github/mcp.json` registration. It does not perform live cloud mutations.
 
-## When to use this skill
+## When to invoke
 
-Load this skill when you need to:
+- "Search Microsoft Learn through the MCP Ecosystem server."
+- "Ground this Backstage template answer in official docs."
+- "List the tools exposed by mcp-ecosystem."
+- "Check whether AI Chat can call the ecosystem tools."
+- "Use spec-kit methodology from the local MCP server."
 
-- Retrieve **Spec-Driven Development** phases, commands, philosophy (spec-kit).
-- Look up **Microsoft Agent Framework** patterns, samples, declarative agents.
-- Get **GitHub Agentic Workflows** (gh-aw) patterns and security guidelines.
-- Fetch the **AGENTS.md** format spec and section templates.
-- Read **GitHub Copilot** docs, customization, and extensions.
-- Search the **Anthropic skills** catalog and specs.
-- Query **Backstage** docs, Software Catalog, Software Templates, API reference.
-- Browse the **Backstage plugin** directory (core + community).
-- Inspect **Backstage UI** components and Storybook stories.
-- Read **Spotify Portal** docs and discover **github.com/backstage** repos.
-- Search **all of Microsoft Learn** (Azure, AKS, AI Foundry, **CAF**, **WAF**)
-  via federation (`mslearn_*`), and fetch full Learn articles by URL.
-- Search **VS Code** docs (`vscode_*`) and **GitHub** docs (`ghdocs_*` — Actions,
-  GHAS, OIDC, Packages) — essential during installation.
-- Search the complete **Anthropic/Claude** documentation (`anthropicdocs_*`).
-- Search **CAF** (`caf_*`) and **WAF** (`waf_*`) for adoption + design guidance.
-- Wire the **AI Chat / agent-api** so agents can call the ecosystem.
+## Prerequisites
 
-Do **not** use it for general web search, for infra/operational MCP servers, or
-for anything that is not upstream reference data.
+- `mcp-servers/src/tools/` exists and contains the registered tool modules.
+- `.github/mcp.json` includes `mcp-ecosystem` with URL `http://localhost:3100/mcp`.
+- For local runtime, `mcp-servers/README.md`, `mcp-servers/USAGE.md`, and `mcp-servers/ARCHITECTURE.md` exist.
+- Optional `GH_TOKEN` is configured when GitHub-backed documentation tools need higher rate limits.
+- The query is a reference/documentation task, not a cloud operation.
 
-## The server at a glance
+## Workflow steps
 
-| Property | Value |
-| --- | --- |
-| Server name | `mcp-ecosystem` |
-| Source | [mcp-servers/](../../../mcp-servers) (TypeScript, MCP SDK + Express) |
-| Transport | Streamable HTTP (`StreamableHTTPServerTransport`) |
-| Endpoint | `http://localhost:3100/mcp` |
-| Health | `GET http://localhost:3100/health` → `{ "status": "ok", "sessions": N }` |
-| Modules / tools | **17 modules · 79 tools** |
-| Cache | On-disk JSON cache (`CACHE_DIR`, default 1h TTL via `CACHE_TTL_MS`) |
-| Auth to upstreams | Optional `GH_TOKEN` raises GitHub raw/API rate limits |
-| Image | `ohorizons` GHCR: `mcp-ecosystem` (see CHANGELOG for current tag) |
+### Step 1: Confirm this is a reference lookup
 
-### Where it runs (two phases)
+Use this server for documentation and methodology. Do not use it for Azure, GitHub, Terraform, Kubernetes, or Helm operations that need live state.
 
-The same server image is used in two moments of the platform lifecycle:
+### Step 2: Verify server registration and health
 
-- **Phase 1 — Installation (LOCAL):** runs on the operator's machine via Docker
-  during platform build, so the Copilot agents (`@deploy`, `@terraform`, …) can
-  ground build-time decisions in real upstream docs. Ephemeral; never shipped to
-  Azure.
-- **Phase 2 — Runtime (AZURE / AKS):** deployed to the `ai-services` namespace
-  (gated to `enable_mcp_ecosystem`), where the Backstage **AI Chat** calls it to
-  ground developer answers. The AI Chat (`agent-api`) lives in the same namespace
-  and reaches it at `http://mcp-ecosystem.ai-services.svc.cluster.local:3100/mcp`;
-  a `NetworkPolicy` restricts `:3100` to the `agent-api` pod.
+```bash
+test -f .github/mcp.json
+test -d mcp-servers/src/tools
+curl -s http://localhost:3100/health
+```
 
-Full deployment detail: [mcp-servers/ARCHITECTURE.md](../../../mcp-servers/ARCHITECTURE.md#7-deployment--lifecycle).
-
-### Run it locally
+If the server is not running locally, use the repo's documented workflow.
 
 ```bash
 cd mcp-servers
-make up        # docker compose up -d  (builds + starts on :3100)
-make health    # curl http://localhost:3100/health  → {"status":"ok"}
-make logs      # follow logs
-make down      # stop
+make up
+make health
 ```
 
-The `.env` file is optional. The host port is configurable to avoid collisions
-(Grafana **Loki** also defaults to `3100`):
+### Step 3: Select the narrowest tool family
+
+| Need | Tool family |
+| --- | --- |
+| SDD and spec-kit | `speckit_*` |
+| Backstage docs, catalog, templates, plugins, UI | `backstagedocs_*`, `backstageplugins_*`, `backstageui_*` |
+| Microsoft Learn, CAF, WAF | `mslearn_*`, `caf_*`, `waf_*` |
+| GitHub docs and Copilot customization | `ghdocs_*`, `copilotdocs_*` |
+| VS Code docs | `vscode_*` |
+| Anthropic and Claude docs | `anthropicdocs_*`, `anthropics_*` |
+
+### Step 4: Call list or search before fetching a page
+
+List all tools with JSON-RPC over HTTP.
 
 ```bash
-MCP_ECOSYSTEM_PORT=3101 docker compose up -d
+curl -s http://localhost:3100/mcp   -H 'Content-Type: application/json'   -H 'Accept: application/json, text/event-stream'   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-Environment variables (all optional): `PORT` (3100), `CACHE_DIR`,
-`CACHE_TTL_MS` (3600000), `GH_TOKEN`, `MCP_ECOSYSTEM_PORT` (local host port).
-
-## Tool catalog (17 modules · 79 tools)
-
-### Group A — Agent & AI frameworks (6 modules · 26 tools)
-
-| Module | Prefix | Tools |
-| --- | --- | --- |
-| spec-kit (5) | `speckit_` | `get_phases`, `get_commands`, `get_methodology`, `get_philosophy`, `search` |
-| anthropics-skills (5) | `anthropics_` | `list_skills`, `get_skill`, `get_skill_template`, `search_skills`, `get_spec` |
-| agent-framework (4) | `agentfw_` | `get_patterns`, `get_sample`, `search_docs`, `get_declarative_agents` |
-| gh-aw (4) | `ghaw_` | `get_workflow_patterns`, `get_security_guidelines`, `get_contributing`, `get_agents_md` |
-| agents-md (3) | `agentsmd_` | `get_format_spec`, `get_readme`, `get_section_templates` |
-| github-copilot-docs (5) | `copilotdocs_` | `list_sections`, `get_page`, `search`, `get_customization`, `get_extensions` |
-
-### Group B — Backstage ecosystem (5 modules · 31 tools)
-
-| Module | Prefix | Tools |
-| --- | --- | --- |
-| backstage-docs (7) | `backstagedocs_` | `list_sections`, `get_page`, `search`, `get_catalog`, `get_software_templates`, `get_plugins`, `get_api_reference` |
-| backstage-plugins (6) | `backstageplugins_` | `list_directory`, `list_community`, `get_community_plugin`, `search_community`, `list_core`, `get_core_plugin` |
-| backstage-ui (8) | `backstageui_` | `list_components`, `get_component`, `get_api_report`, `get_readme`, `get_changelog`, `storybook_list_stories`, `storybook_get_story`, `storybook_search` |
-| spotify-backstage (6) | `spotifybackstage_` | `list_sections`, `get_page`, `get_portal_docs`, `get_plugins_docs`, `get_core_features`, `discover_links` |
-| backstage-org (4) | `backstageorg_` | `list_repos`, `get_repo_readme`, `search_repos`, `get_backstage_plugins` |
-
-### Group C — Official documentation (6 modules · 22 tools)
-
-| Module | Prefix | Tools |
-| --- | --- | --- |
-| microsoft-learn (3, federated) | `mslearn_` | `search`, `code_search`, `fetch` — ALL of Microsoft Learn incl. CAF/WAF |
-| vscode-docs (4) | `vscode_` | `list_sections`, `list_pages`, `get_page`, `search` |
-| github-docs (4) | `ghdocs_` | `list_sections`, `list_pages`, `get_page`, `search` (Actions, GHAS, OIDC, Packages) |
-| anthropic-docs (3) | `anthropicdocs_` | `index`, `get_page`, `search` (complete Claude docs) |
-| azure-caf (4) | `caf_` | `list_sections`, `list_pages`, `get_page`, `search` |
-| azure-waf (4) | `waf_` | `list_sections`, `list_pages`, `get_page`, `search` |
-
-> `microsoft-learn` **federates** the official Microsoft Learn MCP
-> (`learn.microsoft.com/api/mcp`) for complete, always-current coverage of every
-> Microsoft product. `azure-caf`/`azure-waf` additionally cache the framework
-> docs for offline use during the local installation phase.
-
-> Tool names are the prefix + the suffix shown, e.g. `speckit_get_phases`,
-> `mslearn_search`, `backstageui_storybook_search`.
-
-## How the AI Chat uses the ecosystem
-
-The Backstage **AI Chat** (agent-api) ships a thin Python client and advertises a
-small, curated set of ecosystem tools to the model so agents can ground answers:
-
-- Client: [backstage/server/agent-api/tools/mcp_ecosystem.py](../../../backstage/server/agent-api/tools/mcp_ecosystem.py)
-- Advertised to the model (orchestrator, sentinel, lighthouse, guardian, forge, pipeline):
-  - `ecosystem_list_tools` — discover everything the server exposes.
-  - `ecosystem_call_tool(name, args)` — call any of the 79 tools directly.
-  - `search_microsoft_learn(query)` → `mslearn_search` (federated, all of Learn)
-  - `fetch_microsoft_learn(url)` → `mslearn_fetch`
-  - `search_backstage_docs(query)` → `backstagedocs_search`
-  - `search_copilot_docs(query)` → `copilotdocs_search`
-  - `search_github_docs(query, section)` → `ghdocs_search`
-  - `search_vscode_docs(query, section)` → `vscode_search`
-  - `search_anthropic_docs(query)` → `anthropicdocs_search`
-  - `search_caf(query, section)` → `caf_search`
-  - `search_waf(query, section)` → `waf_search`
-  - `get_spec_kit_methodology()` → `speckit_get_methodology`
-
-The client targets `MCP_ECOSYSTEM_URL` (default `http://localhost:3100/mcp`).
-In-cluster, point it at the `mcp-ecosystem` Service. If the server is
-unreachable, the client degrades gracefully and the chat answers without
-grounding rather than failing.
-
-### Calling a tool directly (JSON-RPC over HTTP)
+Call a specific tool only after selecting the narrowest match.
 
 ```bash
-curl -s http://localhost:3100/mcp \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
-       "params":{"name":"speckit_get_phases","arguments":{}}}'
+curl -s http://localhost:3100/mcp   -H 'Content-Type: application/json'   -H 'Accept: application/json, text/event-stream'   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"speckit_get_phases","arguments":{}}}'
 ```
 
-List all tools:
+### Step 5: Classify reference confidence
 
-```bash
-curl -s http://localhost:3100/mcp -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+| Confidence | Meaning |
+| --- | --- |
+| High | Fetched directly from an official upstream source through a targeted ecosystem tool. |
+| Medium | Search result snippet from an official source that needs a follow-up fetch. |
+| Low | Server unavailable, stale cache, or query answered without ecosystem grounding. |
+
+### Step 6: Wire AI Chat only with existing anchors
+
+Use the existing client at `backstage/server/agent-api/tools/mcp_ecosystem.py`. In-cluster runtime uses the `mcp-ecosystem` service described in `mcp-servers/ARCHITECTURE.md`.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Server health check fails | Start with `cd mcp-servers && make up`, then rerun `make health`. |
+| Tool is not found | Call `tools/list` and select an available tool; do not invent tool names. |
+| GitHub rate limit is hit | Set `GH_TOKEN` and retry after cache or rate-limit recovery. |
+| Cache may be stale | Report cache staleness and fetch the specific page again when possible. |
+| Query needs live infrastructure state | Stop and route to the appropriate CLI skill instead. |
+
+## Output template
+
+```markdown
+## MCP Ecosystem Lookup Report
+
+**Query:** <query>
+**Server:** `http://localhost:3100/mcp`
+**Tools used:** <tool names>
+**Confidence:** <High|Medium|Low>
+
+### Sources
+- <source URL or tool result reference>
+
+### Answer
+<grounded answer>
+
+### Gaps
+- <missing source or follow-up>
 ```
 
-## Workflow for agents
+## Quality gate
 
-1. **Discover** — if unsure which tool fits, call `ecosystem_list_tools` first.
-2. **Pick the narrowest tool** — prefer `*_search` for discovery, then a
-   `get_*` tool to fetch the specific page/spec/template.
-3. **Cite the source** — ecosystem tools return upstream content; attribute it.
-4. **Cache-aware** — responses are cached (~1h). For "latest", note staleness.
-5. **Stay in scope** — for live cloud state use the infra MCPs, not this server.
-
-## Operational notes
-
-- **Caching:** results persist under `CACHE_DIR` with `CACHE_TTL_MS` TTL to keep
-  upstream rate limits low and responses fast. Delete the cache volume to force
-  a refresh.
-- **Rate limits:** set `GH_TOKEN` to raise GitHub raw/API limits for the
-  `backstage-org`, `backstage-plugins`, and `*_get_readme` style tools.
-- **Adding a module:** create `mcp-servers/src/tools/<name>.ts` exporting a
-  `register<Name>Tools(server, cache)` function, register it in
-  [mcp-servers/src/index.ts](../../../mcp-servers/src/index.ts), and keep the
-  README, this skill, and `mcp-servers/ARCHITECTURE.md` counts in sync.
-- **Health/readiness:** `GET /health` is used for container and K8s probes.
-
-## Related
-
-- Architecture deep-dive: [mcp-servers/ARCHITECTURE.md](../../../mcp-servers/ARCHITECTURE.md)
-- Server README: [mcp-servers/README.md](../../../mcp-servers/README.md)
-- Usage guide: [mcp-servers/USAGE.md](../../../mcp-servers/USAGE.md)
-- AI Chat client: [backstage/server/agent-api/tools/mcp_ecosystem.py](../../../backstage/server/agent-api/tools/mcp_ecosystem.py)
-- Infra MCP policy (different surface): [mcp-servers/mcp-config.json](../../../mcp-servers/mcp-config.json)
+- [ ] Confirmed the task is reference lookup, not live operations.
+- [ ] Verified `.github/mcp.json` and `mcp-servers/src/tools/` anchors.
+- [ ] Used `tools/list` when the exact tool was unclear.
+- [ ] Cited official upstream sources returned by the tool.
+- [ ] Reported cache or server availability limitations.
+- [ ] Kept counts aligned with source: 17 modules and 79 tools.

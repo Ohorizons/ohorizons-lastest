@@ -1,83 +1,142 @@
 ---
 name: terraform-cli
-description: "Terraform CLI operations for Azure infrastructure management. USE FOR: terraform init, terraform plan, terraform apply, terraform destroy, state management, module development, tfsec scanning. DO NOT USE FOR: Azure CLI operations (use azure-cli), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli)."
+description: 'Use when running or preparing Terraform operations for Azure infrastructure: fmt, validate, init, plan, apply, destroy, state inspection, module checks, and IaC security review. Produces formatted commands, plan summaries, risk classification, and approval-gated apply or destroy steps. DO NOT USE FOR: Azure CLI operations (use azure-cli), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli). Triggers include "run terraform plan", "validate Terraform", "apply this plan", and "inspect Terraform state".'
 ---
 
-## When to Use
-- Validating Terraform configurations
-- Planning infrastructure changes
-- Applying infrastructure changes (with approval)
-- Security scanning IaC
+# Terraform CLI
+
+Use this skill to operate Open Horizons Terraform under `terraform/`, including modules in `terraform/modules/` and environment variables in `terraform/environments/dev.tfvars`. It produces safe command sequences, plan summaries, state inspection guidance, and explicit approval gates for apply or destroy.
+
+> [!NOTE]
+> This skill depends on Terraform 1.5 or newer, Azure authentication through `az` or workload identity, access to the configured backend, and environment-specific tfvars under `terraform/environments/`. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Run terraform plan for dev."
+- "Validate the Terraform modules."
+- "Apply the approved Terraform plan."
+- "Inspect Terraform state for the AKS module."
+- "Destroy this environment after approval."
 
 ## Prerequisites
-- Terraform >= 1.5.0 installed
-- Azure CLI authenticated
-- Backend storage account accessible
-- Environment variables: ARM_SUBSCRIPTION_ID, ARM_TENANT_ID
 
-## Commands
+- `terraform version` succeeds.
+- `az account show` or the configured workload identity is available.
+- `terraform/modules/` and `terraform/environments/dev.tfvars` exist.
+- The target environment is known.
+- Apply and destroy actions have explicit user approval.
 
-### Format & Validate
+## Workflow steps
+
+### Step 1: Confirm scope and backend posture
+
 ```bash
-# Check formatting
+cd terraform
+terraform version
 terraform fmt -check -recursive -diff
-
-# Apply formatting
-terraform fmt -recursive
-
-# Validate configuration
 terraform init -backend=false
 terraform validate
 ```
 
-### Planning
+### Step 2: Create a plan
+
+Use the repo's phased deployment guidance for empty subscriptions: H1 first, then H2 modules.
+
 ```bash
-# Initialize with backend
-terraform init -reconfigure
-
-# Create plan
-terraform plan \
-  -var-file=environments/${ENVIRONMENT}.tfvars \
-  -out=tfplan \
-  -detailed-exitcode
-
-# Show plan in JSON
-terraform show -json tfplan | jq '.resource_changes'
+cd terraform
+terraform init
+terraform plan -var-file=environments/dev.tfvars -out=h1.tfplan
+terraform show h1.tfplan
 ```
 
-### Security Scanning
-```bash
-# TFSec scan
-tfsec . --format=json --out=tfsec-results.json
+### Step 3: Inspect state read-only when needed
 
-# Checkov scan
-checkov -d . --output-file=checkov-results.json --output=json
-```
-
-### State Operations (Read-Only)
 ```bash
-# List resources
+cd terraform
 terraform state list
-
-# Show resource details
-terraform state show 'azurerm_kubernetes_cluster.main'
+terraform state show '<resource-address>'
 ```
 
-## Best Practices
-1. ALWAYS run `terraform fmt` before committing
-2. ALWAYS run `terraform validate` before planning
-3. NEVER commit .tfstate files
-4. ALWAYS use -out flag for plans to review
-5. Use workspaces for environment separation
-6. Enable state locking with Azure blob lease
+### Step 4: Classify Terraform risk
 
-## Output Format
-Provide structured output:
-1. Command executed with full parameters
-2. Exit code (0=success, 1=error, 2=changes pending)
-3. Summary: resources to add/change/destroy
-4. Warnings or errors with line references
-5. Recommendations for next steps
+| Risk | Meaning |
+| --- | --- |
+| High | Destroy actions, replacement of AKS/network/database resources, backend changes, or production apply. |
+| Medium | Adds or updates Azure resources, RBAC, Key Vault, networking, or Kubernetes/Helm providers. |
+| Low | `fmt`, `validate`, `plan`, `show`, or read-only state inspection. |
 
-## Integration with Agents
-Used by: @terraform, @security, @deploy
+### Step 5: User confirmation gate
+
+```text
+Terraform action: <apply|destroy>
+Working directory: terraform/
+Environment file: terraform/environments/dev.tfvars
+Plan file: <planfile>
+Risk: <High|Medium|Low>
+Proceed with Terraform mutation? (y/n)
+```
+
+> [!IMPORTANT]
+> Only run `terraform apply` or `terraform destroy` after an explicit affirmative response and a saved plan review. On a negative, ambiguous, or missing response, do not mutate infrastructure; output the plan summary and stop.
+
+### Step 6: Execute approved apply
+
+```bash
+cd terraform
+terraform apply h1.tfplan
+```
+
+For H2 module apply after H1 outputs exist:
+
+```bash
+cd terraform
+terraform apply -var-file=environments/dev.tfvars   -target=module.argocd   -target=module.observability   -target=module.external_secrets   -target=module.databases
+```
+
+### Step 7: Verify with repository validation scripts
+
+```bash
+./scripts/validate-config.sh --environment dev
+./scripts/validate-deployment.sh --environment dev
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| `terraform init` fails | Report backend or provider error and stop before planning. |
+| Validation fails | Report file and diagnostic; do not plan until fixed. |
+| Plan includes unexpected destroy | Reclassify High risk and require explicit approval. |
+| Provider needs AKS outputs on empty subscription | Use phased H1 then H2 apply as documented. |
+| State lock is held | Report lock ID and owner; do not force-unlock without explicit approval. |
+
+## Output template
+
+```markdown
+## Terraform Operation Report
+
+**Working directory:** `terraform/`
+**Environment:** <env>
+**Action:** <fmt|validate|plan|apply|destroy|state>
+**Risk:** <High|Medium|Low>
+
+### Plan Summary
+- Add: <count>
+- Change: <count>
+- Destroy: <count>
+
+### Commands Run
+- `<command>`
+
+### Findings
+- <finding>
+```
+
+## Quality gate
+
+- [ ] Ran `terraform fmt -check -recursive -diff`.
+- [ ] Ran `terraform validate`.
+- [ ] Used an existing tfvars file under `terraform/environments/`.
+- [ ] Reviewed a saved plan before mutation.
+- [ ] Received explicit approval before apply or destroy.
+- [ ] Ran relevant validation scripts after approved apply.

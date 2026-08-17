@@ -1,90 +1,118 @@
 ---
 name: prerequisites
-description: 'CLI tool prerequisites validation and setup. USE FOR: validate prerequisites, check CLI tools, install missing tools, verify versions, prerequisite checklist. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli).'
+description: 'Use when validating local or CI prerequisites for Open Horizons deployments: CLI presence, versions, authentication, Azure/GitHub access, Docker, Node.js, and optional ArgoCD or kubelogin readiness. Produces a prerequisite checklist, missing-tool report, and installation guidance. DO NOT USE FOR: deployment orchestration (use deploy-orchestration), Terraform operations (use terraform-cli), Kubernetes operations (use kubectl-cli). Triggers include "validate prerequisites", "check my CLI tools", "am I ready to deploy", and "install missing tools".'
 allowed-tools:
 - shell
 ---
 
-## When to Use
-- Before any deployment workflow
-- Environment setup validation
-- CI/CD pipeline prerequisite checks
+# Prerequisites
+
+Use this skill to validate the operator workstation or CI runner before Open Horizons deployment. It produces a tool and authentication report using the repository scripts `scripts/validate-prerequisites.sh`, `.github/skills/prerequisites/scripts/validate-prerequisites.sh`, and `.github/skills/prerequisites/scripts/validate-cli-prerequisites.sh`.
+
+> [!NOTE]
+> This skill depends on shell access, Bash 4 or newer for the skill-local scripts, and installed or installable CLIs such as `az`, `terraform`, `kubectl`, `helm`, `gh`, `jq`, `yq`, `git`, and `curl`. It does not use an MCP server.
+
+## When to invoke
+
+- "Validate prerequisites before deployment."
+- "Check whether this machine has the required CLIs."
+- "Am I authenticated to Azure and GitHub?"
+- "Show what tools are missing for Open Horizons."
+- "Prepare a runner for platform validation."
 
 ## Prerequisites
-- Bash shell
-- Access to download tools if missing
 
-## Required CLI Tools
+- Shell execution is allowed.
+- The repository root is the working directory.
+- For authentication checks, the operator expects `az account show` and `gh auth status` to be meaningful.
+- Installing missing tools requires explicit user approval and package-manager access.
 
-| Tool | Minimum Version | Purpose |
-|------|-----------------|---------|
-| az | 2.50.0 | Azure CLI |
-| terraform | 1.5.0 | Infrastructure as Code |
-| kubectl | 1.28.0 | Kubernetes CLI |
-| helm | 3.12.0 | Kubernetes package manager |
-| gh | 2.30.0 | GitHub CLI |
-| argocd | 2.8.0 | ArgoCD CLI |
-| jq | 1.6 | JSON processor |
-| yq | 4.0.0 | YAML processor |
+## Workflow steps
 
-## Validation Script
+### Step 1: Run the repository prerequisite validator
 
 ```bash
-#!/bin/bash
-set -euo pipefail
-
-# Check required tools
-TOOLS=("az" "terraform" "kubectl" "helm" "gh" "argocd" "jq" "yq")
-MISSING=()
-
-for tool in "${TOOLS[@]}"; do
-  if ! command -v "$tool" &> /dev/null; then
-    MISSING+=("$tool")
-  fi
-done
-
-if [ ${#MISSING[@]} -ne 0 ]; then
-  echo "Missing tools: ${MISSING[*]}"
-  exit 1
-fi
-
-echo "All prerequisites satisfied"
+./scripts/validate-prerequisites.sh
 ```
 
-## Installation Commands
+### Step 2: Run skill-local validators when deeper CLI detail is needed
 
-### macOS (Homebrew)
 ```bash
-brew install azure-cli terraform kubectl helm gh argocd jq yq
+.github/skills/prerequisites/scripts/validate-prerequisites.sh
+.github/skills/prerequisites/scripts/validate-cli-prerequisites.sh
 ```
 
-### Ubuntu/Debian
+### Step 3: Inspect required tool categories
+
+| Category | Tools |
+| --- | --- |
+| Cloud and IaC | `az`, `terraform` |
+| Kubernetes | `kubectl`, `helm`, `kubelogin`, `argocd` |
+| GitHub | `gh`, `git` |
+| Utilities | `jq`, `yq`, `curl` |
+| Local runtime | `docker`, `node`, `npx` |
+
+### Step 4: Classify readiness
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Required tool missing or Azure/GitHub auth unavailable for requested deployment. |
+| High | Required version is too old or cluster auth helper is missing. |
+| Medium | Optional but recommended tool is missing. |
+| Low | Cosmetic warning or version could not be parsed but tool runs. |
+
+### Step 5: User confirmation gate for installation
+
+```text
+Missing tools: <tools>
+Install command or package manager: <command>
+Scope: local workstation or CI runner
+Proceed with installing missing prerequisites? (y/n)
+```
+
+> [!IMPORTANT]
+> Only install tools or modify the local environment after an explicit affirmative response. On a negative, ambiguous, or missing response, do not install anything; output the missing-tool report and stop.
+
+### Step 6: Re-run validation after approved installation
+
 ```bash
-# Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-# Terraform
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install terraform
-
-# kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+./scripts/validate-prerequisites.sh
 ```
 
-## Best Practices
-1. Run prerequisite check before every deployment
-2. Pin tool versions in CI/CD
-3. Document version requirements
-4. Use version managers (asdf, mise)
-5. Include prerequisite check in pre-commit hooks
+## Error handling
 
-## Output Format
-1. Tools checked
-2. Versions found
-3. Missing tools
-4. Installation instructions
+| Situation | Action |
+| --- | --- |
+| Bash version is too old | Report that Bash 4 or newer is required for skill-local scripts. |
+| `az` is not authenticated | Ask the operator to run `az login` and select the correct subscription. |
+| `gh` is not authenticated | Ask the operator to run `gh auth login`. |
+| Package manager is unavailable | Provide manual install links or commands without executing them. |
+| Script exits non-zero | Preserve the failed section and list exact missing tools. |
 
-## Integration with Agents
-Used by: All agents (prerequisite validation)
+## Output template
+
+```markdown
+## Prerequisites Report
+
+**Environment:** <local|CI>
+**Overall readiness:** <Ready|Blocked|Partial>
+
+### Tool Status
+| Tool | Status | Version | Required action |
+| --- | --- | --- | --- |
+| <tool> | <present|missing|auth-needed> | <version> | <action> |
+
+### Findings
+- <finding>
+
+### Next Steps
+1. <step>
+```
+
+## Quality gate
+
+- [ ] Ran `./scripts/validate-prerequisites.sh` or explained why it could not run.
+- [ ] Verified the skill-local script paths exist before referencing them.
+- [ ] Reported missing tools and authentication gaps separately.
+- [ ] Did not install anything without explicit approval.
+- [ ] Re-ran validation after any approved installation.

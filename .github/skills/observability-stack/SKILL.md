@@ -1,165 +1,156 @@
 ---
 name: observability-stack
-description: "Observability stack — deploy Prometheus, Grafana, Loki, and Alertmanager, plus day-2 monitoring operations. USE FOR: deploy Prometheus, configure Grafana, setup Loki, Alertmanager rules, monitoring dashboards, observability troubleshooting. DO NOT USE FOR: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use deploy-orchestration)."
+description: 'Use when deploying or operating the Open Horizons observability stack: Prometheus, Grafana, Alertmanager, Loki-adjacent logging checks, dashboards, service monitors, alert rules, and day-2 monitoring diagnostics. Produces deployment plans, Helm/Kubernetes commands, dashboard and alert validation, and health reports. DO NOT USE FOR: application logging code, Terraform IaC (use terraform-cli), CI/CD pipelines (use deploy-orchestration). Triggers include "deploy monitoring", "configure Grafana dashboards", "check Prometheus targets", and "troubleshoot alerts".'
 ---
 
-## When to Use
-- Deploy observability stack (Prometheus, Grafana, Alertmanager)
-- Configure monitoring for platform components
-- Create and manage Grafana dashboards
-- Configure alerting rules and notification channels
-- Troubleshoot with metrics and logs
+# Observability Stack
+
+Use this skill to deploy, validate, and troubleshoot Open Horizons monitoring assets using `deploy/helm/monitoring/values.yaml`, `deploy/helm/service-monitors.yaml`, `deploy/helm/sre-alerts.yaml`, `grafana/dashboards/`, and `terraform/modules/observability/`. It produces a risk-ranked plan, approved commands, and a health report.
+
+> [!NOTE]
+> This skill depends on `kubectl`, `helm`, cluster credentials, access to the monitoring namespace, and Grafana or Prometheus credentials from the approved secret store. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Deploy the observability stack to the cluster."
+- "Check whether Prometheus targets are healthy."
+- "Load the dashboards from grafana/dashboards."
+- "Validate the SRE alert rules."
+- "Troubleshoot why Grafana is not reachable."
 
 ## Prerequisites
-- kubectl access to target cluster
-- Helm 3.12+ installed
-- AKS cluster deployed (H1 Foundation)
 
-## Installation & Deployment
+- `kubectl config current-context` points to the intended cluster.
+- `helm version` succeeds.
+- `deploy/helm/monitoring/values.yaml` exists.
+- `deploy/helm/service-monitors.yaml` and `deploy/helm/sre-alerts.yaml` exist when applying Open Horizons monitoring resources.
+- `grafana/dashboards/` exists for dashboard inventory.
 
-### 1. Deploy kube-prometheus-stack
+## Workflow steps
+
+### Step 1: Inspect current monitoring state
+
 ```bash
-# Add Helm repos
+kubectl get namespaces
+kubectl get pods -n monitoring
+helm list -n monitoring
+kubectl get pods -n observability
+```
+
+Use whichever namespace exists. Do not create or mutate namespaces until the confirmation gate.
+
+### Step 2: Validate repository monitoring assets
+
+```bash
+test -f deploy/helm/monitoring/values.yaml
+test -f deploy/helm/service-monitors.yaml
+test -f deploy/helm/sre-alerts.yaml
+test -d grafana/dashboards
+```
+
+### Step 3: Preview Helm deployment
+
+```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack   --namespace monitoring   --values deploy/helm/monitoring/values.yaml   --dry-run
+```
 
-# Create namespace
-kubectl create namespace monitoring
+### Step 4: Preview Kubernetes monitoring resources
 
-# Install kube-prometheus-stack with project values
-helm install monitoring prometheus-community/kube-prometheus-stack \
-  --namespace monitoring \
-  --values deploy/helm/monitoring/values.yaml \
-  --wait --timeout 15m
+```bash
+kubectl apply -f deploy/helm/service-monitors.yaml --dry-run=client -o yaml
+kubectl apply -f deploy/helm/sre-alerts.yaml --dry-run=client -o yaml
+kubectl diff -f deploy/helm/service-monitors.yaml
+kubectl diff -f deploy/helm/sre-alerts.yaml
+```
 
-# Verify all pods are running
+### Step 5: Classify observability risk
+
+| Risk | Meaning |
+| --- | --- |
+| High | Installing or upgrading monitoring stack, changing alert routes, deleting PVCs, or modifying production alerts. |
+| Medium | Applying ServiceMonitor, PrometheusRule, dashboard ConfigMap, or scrape configuration changes. |
+| Low | Reading pods, targets, dashboards, logs, events, or rendering dry-runs. |
+
+### Step 6: User confirmation gate
+
+```text
+Observability action: <install|upgrade|apply-rules|apply-dashboards>
+Cluster context: <context>
+Namespace: <monitoring|observability>
+Assets: deploy/helm/monitoring/values.yaml, deploy/helm/service-monitors.yaml, deploy/helm/sre-alerts.yaml, grafana/dashboards/
+Risk: <High|Medium|Low>
+Proceed with observability mutation? (y/n)
+```
+
+> [!IMPORTANT]
+> Only install, upgrade, apply, delete, or modify observability resources after an explicit affirmative response. On a negative, ambiguous, or missing response, do not mutate the cluster; output dry-run findings and stop.
+
+### Step 7: Execute approved deployment or update
+
+```bash
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack   --namespace monitoring   --create-namespace   --values deploy/helm/monitoring/values.yaml   --wait --timeout 15m
+kubectl apply -f deploy/helm/service-monitors.yaml
+kubectl apply -f deploy/helm/sre-alerts.yaml
+```
+
+### Step 8: Verify health and targets
+
+```bash
 kubectl get pods -n monitoring
-kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=monitoring -n monitoring --timeout=600s
-```
-
-### 2. Deploy Custom Dashboards
-```bash
-# Create ConfigMap from project dashboards
-kubectl create configmap grafana-dashboards \
-  --namespace monitoring \
-  --from-file=grafana/dashboards/ \
-  --dry-run=client -o yaml | kubectl apply -f -
-
-# Label for Grafana sidecar auto-discovery
-kubectl label configmap grafana-dashboards \
-  --namespace monitoring \
-  grafana_dashboard=1
-```
-
-### 3. Deploy Custom Alert Rules
-```bash
-# Apply Prometheus alerting rules
-kubectl apply -f prometheus/alerting-rules.yaml -n monitoring
-
-# Apply recording rules
-kubectl apply -f prometheus/recording-rules.yaml -n monitoring
-
-# Validate rules syntax
-promtool check rules prometheus/alerting-rules.yaml
-promtool check rules prometheus/recording-rules.yaml
-```
-
-### 4. Verify Installation
-```bash
-# Check all components
-kubectl get pods -n monitoring
-
-# Port-forward Grafana
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
-
-# Port-forward Prometheus
+kubectl get servicemonitor -A
+kubectl get prometheusrule -A
 kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
-
-# Check Prometheus targets
-curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets | length'
-
-# Verify Grafana datasources
-GRAFANA_USER="${GRAFANA_USER:-admin}"
-GRAFANA_PASSWORD="${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD from your secret store}"
-curl -s -u "${GRAFANA_USER}:${GRAFANA_PASSWORD}" http://localhost:3000/api/datasources | jq '.[].name'
 ```
 
-## Day-2 Operations
+Then query Prometheus locally when the port-forward is running.
 
-### Prometheus Operations
 ```bash
-# Check Prometheus status
-kubectl get pods -n monitoring -l app.kubernetes.io/name=prometheus
-
-# Port forward Prometheus
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
-
-# Query Prometheus API
-curl -s http://localhost:9090/api/v1/query?query=up | jq '.data.result'
-
-# Check targets
-curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets | length'
+curl -s 'http://localhost:9090/api/v1/targets'
 ```
 
-### Grafana Operations
-```bash
-# Check Grafana status
-kubectl get pods -n monitoring -l app.kubernetes.io/name=grafana
+## Error handling
 
-# Port forward Grafana
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+| Situation | Action |
+| --- | --- |
+| Monitoring namespace is absent | Treat install as High risk and require approval before creating it. |
+| Helm dry-run fails | Report values or chart errors and stop before mutation. |
+| CRDs are missing | Install or upgrade kube-prometheus-stack only after approval. |
+| Prometheus targets are down | Report target labels, scrape URL, and last error. |
+| Grafana credentials are unavailable | Do not guess credentials; request retrieval from the approved secret store. |
 
-# List data sources
-GRAFANA_USER="${GRAFANA_USER:-admin}"
-GRAFANA_PASSWORD="${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD from your secret store}"
-curl -s -u "${GRAFANA_USER}:${GRAFANA_PASSWORD}" http://localhost:3000/api/datasources | jq '.[].name'
+## Output template
+
+```markdown
+## Observability Report
+
+**Cluster context:** <context>
+**Namespace:** <namespace>
+**Action:** <inspect|install|upgrade|apply|troubleshoot>
+**Risk:** <High|Medium|Low>
+
+### Asset Validation
+- `deploy/helm/monitoring/values.yaml`: <present|missing>
+- `deploy/helm/service-monitors.yaml`: <present|missing>
+- `deploy/helm/sre-alerts.yaml`: <present|missing>
+- `grafana/dashboards/`: <present|missing>
+
+### Health
+- Prometheus: <status>
+- Grafana: <status>
+- Alertmanager: <status>
+- Targets: <summary>
+
+### Findings
+- <finding>
 ```
 
-### Alert Management
-```bash
-# Check alertmanager
-kubectl get pods -n monitoring -l app.kubernetes.io/name=alertmanager
+## Quality gate
 
-# List active alerts
-curl -s http://localhost:9093/api/v2/alerts | jq '.[].labels.alertname'
-
-# Validate Prometheus rules
-promtool check rules prometheus/alerting-rules.yaml
-```
-
-### Troubleshooting
-```bash
-# Check Prometheus logs
-kubectl logs -n monitoring -l app.kubernetes.io/name=prometheus --tail=100
-
-# Check Grafana logs
-kubectl logs -n monitoring -l app.kubernetes.io/name=grafana --tail=100
-
-# Check for scrape errors
-curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | select(.health != "up") | {job: .labels.job, health, lastError}'
-```
-
-## Project Files Reference
-- **Helm values:** `deploy/helm/monitoring/values.yaml`
-- **Alerting rules:** `prometheus/alerting-rules.yaml`
-- **Recording rules:** `prometheus/recording-rules.yaml`
-- **Grafana dashboards:** `grafana/dashboards/`
-- **Terraform module:** `terraform/modules/observability/`
-
-## Best Practices
-1. Use ServiceMonitors for scrape configuration
-2. Set appropriate retention periods (15d default)
-3. Configure alert routing correctly (PagerDuty for critical, Teams for warning)
-4. Use recording rules for expensive queries
-5. Enable persistent storage for Prometheus and Grafana
-6. Configure Entra ID SSO for Grafana
-7. Monitor ArgoCD and Backstage scrape targets
-
-## Output Format
-1. Command executed
-2. Monitoring status summary
-3. Active alerts if any
-4. Recommendations
-
-## Integration with Agents
-Used by: @sre, @deploy
+- [ ] Confirmed cluster context and monitoring namespace.
+- [ ] Verified all referenced monitoring files and directories exist.
+- [ ] Ran Helm dry-run before install or upgrade.
+- [ ] Ran Kubernetes dry-run or diff before applying rules or monitors.
+- [ ] Received explicit approval before mutating monitoring resources.
+- [ ] Verified pods, ServiceMonitors, PrometheusRules, and targets after mutation.

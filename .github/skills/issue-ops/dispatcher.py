@@ -57,7 +57,7 @@ def execute_command(full_command):
     # We pass arguments exactly as they were parsed
     cmd = [script_path] + args
     
-    print(f"🚀 Executing: {' '.join(cmd)}")
+    print(f"[RUN] Executing: {' '.join(cmd)}")
     
     try:
         # Run the script and capture output
@@ -92,7 +92,7 @@ def main():
     success, output = execute_command(command_line)
 
     # Format Output for GitHub Comment
-    status_icon = "✅" if success else "❌"
+    status_icon = "[OK]" if success else "[FAIL]"
     
     print("EOF_OUTPUT<<EOF")
     print(f"## {status_icon} Command Execution Result")

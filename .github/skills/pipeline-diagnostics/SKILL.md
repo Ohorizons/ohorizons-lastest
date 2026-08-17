@@ -1,137 +1,131 @@
 ---
 name: pipeline-diagnostics
-description: "GitHub Actions CI/CD diagnostics — workflow run analysis, job/step failure identification, and remediation patterns. USE FOR: diagnose pipeline, workflow failure, build error, deploy failure, GitHub Actions troubleshooting, CI/CD debug. DO NOT USE FOR: test analysis (use test-coverage), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli)."
+description: 'Use when diagnosing GitHub Actions CI/CD failures, failed workflow runs, build errors, deploy job failures, skipped workflows, queue delays, and failed job logs. Produces workflow evidence, failed step identification, root-cause analysis, and remediation steps. DO NOT USE FOR: test analysis (use test-coverage), Kubernetes operations (use kubectl-cli), Helm charts (use helm-cli). Triggers include "diagnose this workflow failure", "why did CI fail", "inspect failed GitHub Actions logs", and "debug the deploy pipeline".'
 ---
 
-# Pipeline Diagnostics Skill
+# Pipeline Diagnostics
 
-Domain knowledge for CI/CD diagnostics via GitHub Actions API.
+Use this skill to analyze GitHub Actions workflow runs from real `gh` output and repository workflow files under `.github/workflows/`. It produces a concise diagnosis with failed job, failed step, likely root cause, and the next remediation owner.
 
-## GitHub Actions API Reference
+> [!NOTE]
+> This skill depends on the `gh` CLI, authenticated GitHub access, and workflow visibility for the target repository. It does not use an MCP server by default.
 
-### Workflow Runs
+## When to invoke
+
+- "Diagnose this failed GitHub Actions run."
+- "Why did the deploy pipeline fail?"
+- "Inspect the failed job logs for this workflow."
+- "Explain why the workflow was skipped."
+- "Find the root cause of this CI error."
+
+## Prerequisites
+
+- `gh auth status` succeeds.
+- The repository owner/name, workflow name, run ID, branch, or PR number is known.
+- `.github/workflows/` exists in the repository.
+- The user wants CI/CD diagnosis rather than test coverage analysis or Kubernetes troubleshooting.
+
+## Workflow steps
+
+### Step 1: Identify the run
 
 ```bash
-# List recent runs (all statuses)
-gh run list --repo {owner}/{repo} --limit 10
-
-# Filter by status
-gh run list --repo {owner}/{repo} --status failure --limit 5
-
-# View specific run details
-gh run view {run_id} --repo {owner}/{repo}
-
-# View failed job logs
-gh run view {run_id} --repo {owner}/{repo} --log-failed
-
-# Re-run failed jobs
-gh run rerun {run_id} --repo {owner}/{repo} --failed
+gh run list --limit 10
+gh run list --status failure --limit 5
 ```
 
-### REST API Endpoints
+If the user provides a PR, inspect checks first.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/repos/{owner}/{repo}/actions/runs` | GET | List workflow runs |
-| `/repos/{owner}/{repo}/actions/runs/{id}` | GET | Get specific run |
-| `/repos/{owner}/{repo}/actions/runs/{id}/jobs` | GET | Get jobs for a run |
-| `/repos/{owner}/{repo}/actions/runs/{id}/logs` | GET | Download run logs |
+```bash
+gh pr checks <pr-number>
+```
 
-### Run Status Values
+### Step 2: Fetch failed job evidence
 
-| Status | Meaning |
-|--------|---------|
-| `queued` | Run is waiting to be picked up |
-| `in_progress` | Run is currently executing |
-| `completed` | Run has finished (check conclusion) |
+```bash
+gh run view <run-id>
+gh run view <run-id> --log-failed
+```
 
-### Run Conclusion Values
+Collect workflow name, run number, branch, event, failed job, failed step, and the first actionable error line.
 
-| Conclusion | Meaning | Action |
-|-----------|---------|--------|
-| `success` | All jobs passed | No action needed |
-| `failure` | One or more jobs failed | Investigate failed steps |
-| `cancelled` | Run was cancelled | Check if manual or timeout |
-| `skipped` | Run was skipped (path filter, condition) | Review trigger conditions |
-| `timed_out` | Run exceeded time limit | Optimize or increase timeout |
+### Step 3: Classify failure severity
 
-## Common Failure Patterns
+| Severity | Meaning |
+| --- | --- |
+| Critical | Required check blocks merge or deployment, security scan failed, or release workflow failed. |
+| High | Main CI failed on a protected branch or repeat failure affects multiple PRs. |
+| Medium | PR-only failure with clear remediation and no production impact. |
+| Low | Skipped, cancelled, neutral, or documentation-only check issue. |
 
-### 1. Dependency Install Failures
-**Symptoms:** `npm ci`, `yarn install`, or `pip install` step fails
-**Causes:** Lock file out of sync, registry down, version conflicts
-**Remediation:**
-1. Check if `package-lock.json` / `yarn.lock` is committed
-2. Compare lock file with `package.json` versions
-3. Check npm/PyPI registry status
-4. Clear caches and re-run
+### Step 4: Diagnose by pattern
 
-### 2. Build/Compile Errors
-**Symptoms:** `tsc`, `go build`, `dotnet build` step fails
-**Causes:** Type errors, missing imports, breaking API changes
-**Remediation:**
-1. Read the error message from the failed step output
-2. Identify the file and line number
-3. Suggest specific code fix
-4. Recommend running build locally first
+| Pattern | Evidence | Next action |
+| --- | --- | --- |
+| Dependency install | Fails in `npm ci`, `pip install`, or package restore | Check lock file and registry errors. |
+| Build or compile | Type, import, or compiler error | Identify file and line, then fix or hand off to code owner. |
+| Test failure | Test runner reports failed tests | Use `test-coverage` for detailed test analysis. |
+| Docker failure | `docker build` or push error | Check Dockerfile paths, image tags, and registry auth. |
+| Deployment failure | `kubectl`, `helm`, or Azure step failed | Route to `kubectl-cli`, `helm-cli`, or `azure-cli`. |
 
-### 3. Test Failures
-**Symptoms:** `jest`, `pytest`, `go test` step fails
-**Causes:** Flaky tests, environment differences, assertion failures
-**Remediation:**
-1. Identify which tests failed
-2. Use the `test-coverage` skill for detailed test analysis
-3. Check if tests pass locally
+### Step 5: Recommend rerun only when appropriate
 
-### 4. Docker Build Failures
-**Symptoms:** `docker build` or `docker push` step fails
-**Causes:** Missing base image, COPY source not found, registry auth
-**Remediation:**
-1. Check Dockerfile COPY paths match repo structure
-2. Verify base image exists and tag is valid
-3. Check registry credentials in secrets
+Rerun failed jobs only when evidence indicates flake, transient infrastructure, or external service failure.
 
-### 5. Deployment Failures
-**Symptoms:** `kubectl apply`, `helm upgrade`, or `az webapp deploy` fails
-**Causes:** Cluster unreachable, image pull error, resource limits
-**Remediation:**
-1. Check cluster connectivity (credentials, RBAC)
-2. Verify image exists in registry
-3. Check resource quotas and limits
+```text
+Pipeline action: rerun failed jobs
+Workflow run: <run-id>
+Repository: <owner>/<repo>
+Proceed with rerunning failed jobs? (y/n)
+```
 
-## Output Template
+> [!IMPORTANT]
+> Only rerun GitHub Actions jobs after an explicit affirmative response. On a negative, ambiguous, or missing response, do not trigger a rerun; output the diagnosis and stop.
+
+```bash
+gh run rerun <run-id> --failed
+```
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Run ID is missing | List recent runs and ask the user to identify the target if ambiguous. |
+| GitHub auth fails | Ask the operator to run `gh auth login`; do not infer logs. |
+| Logs are unavailable | Use run summary, job status, and workflow file evidence; state the limitation. |
+| Failure is a test assertion | Stop CI diagnosis and use `test-coverage` for test-specific analysis. |
+| Failure is a live cluster error | Summarize the pipeline evidence and route to `kubectl-cli` or `helm-cli`. |
+
+## Output template
 
 ```markdown
-## 🔍 Pipeline Diagnosis
+## Pipeline Diagnosis
 
-**Repository:** {owner}/{repo}
-**Workflow:** {workflow_name}
-**Run:** #{run_number} ({run_id})
-**Branch:** {branch} | **Event:** {event} | **Status:** {conclusion}
+**Workflow:** <workflow>
+**Run:** <run-id>
+**Branch:** <branch>
+**Event:** <event>
+**Severity:** <Critical|High|Medium|Low>
 
-### Failed Jobs
-
-| Job | Step | Status | Duration |
-|-----|------|--------|----------|
-| {job_name} | {step_name} | ❌ {conclusion} | {duration} |
+### Failed Job and Step
+| Job | Step | Conclusion | Evidence |
+| --- | --- | --- | --- |
+| <job> | <step> | <conclusion> | <log excerpt> |
 
 ### Root Cause
-{analysis}
+<analysis>
 
-### Remediation Steps
-1. {step_1}
-2. {step_2}
-3. {step_3}
+### Remediation
+1. <step>
 
-### Recommended Handoff
-- {handoff_recommendation}
+### Handoff
+- <skill or owner>
 ```
 
-## Quality Checklist
+## Quality gate
 
-- [ ] Fetched real workflow run data before diagnosing
-- [ ] Identified specific failed job and step
-- [ ] Provided root cause analysis
-- [ ] Included actionable remediation steps
-- [ ] Suggested follow-up when appropriate (`test-coverage` for tests, `@terraform` for infra)
-- [ ] Used output template format
+- [ ] Used real `gh` run or PR check data.
+- [ ] Identified workflow, run, failed job, and failed step.
+- [ ] Included one actionable log excerpt or stated why logs were unavailable.
+- [ ] Classified severity.
+- [ ] Recommended rerun only when justified by evidence.

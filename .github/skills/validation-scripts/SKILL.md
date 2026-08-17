@@ -1,63 +1,122 @@
 ---
 name: validation-scripts
-description: 'Validation scripts for deployment and configuration verification. USE FOR: validate deployment, validate configuration, validate prerequisites, run validation scripts, post-deploy checks. DO NOT USE FOR: Terraform validation (use terraform-cli), Kubernetes checks (use kubectl-cli), Helm operations (use helm-cli).'
+description: 'Use when running Open Horizons repository validation scripts for prerequisites, configuration, deployment health, naming, agent customization, documentation, or post-deploy checks. Produces command results, pass/fail summaries, and remediation guidance. DO NOT USE FOR: Terraform validation (use terraform-cli), Kubernetes checks (use kubectl-cli), Helm operations (use helm-cli). Triggers include "run validation scripts", "validate deployment", "validate config", "check agents", and "post-deploy validation".'
 ---
 
-## When to Use
-- Pre-deployment validation
-- Post-deployment verification
-- Configuration compliance checks
-- Naming convention validation
+# Validation Scripts
+
+Use this skill to run existing Open Horizons validation scripts without inventing new tooling. It produces command transcripts, pass/fail summaries, and remediation guidance for repository, deployment, and Copilot customization validation.
+
+> [!NOTE]
+> This skill depends on Bash, Python 3 for `.github/skills/validation-scripts/scripts/validate-agents.py`, and any CLIs required by the specific validation script. It does not use an MCP server by default.
+
+## When to invoke
+
+- "Run validation scripts before deployment."
+- "Validate the dev configuration."
+- "Run post-deploy health checks."
+- "Validate Copilot agents and skills."
+- "Check Azure naming conventions."
 
 ## Prerequisites
-- Bash shell
-- Required CLI tools (az, kubectl, terraform, gh)
-- Appropriate permissions for target resources
 
-## Available Scripts
+- The repository root is the working directory.
+- The script path exists before execution.
+- Required CLIs for the selected script are installed.
+- Target environment is known when the script requires `--environment`.
 
-### validate-prerequisites.sh
+## Workflow steps
+
+### Step 1: Select the existing script
+
+| Task | Script |
+| --- | --- |
+| Prerequisites | `scripts/validate-prerequisites.sh` |
+| Configuration | `scripts/validate-config.sh` |
+| Deployment health | `scripts/validate-deployment.sh` |
+| Documentation | `scripts/validate-docs.sh` |
+| Agent and skill metadata | `.github/skills/validation-scripts/scripts/validate-agents.py` |
+| Azure naming | `.github/skills/validation-scripts/scripts/validate-naming.sh` |
+
+### Step 2: Verify script existence
+
 ```bash
-# Validates all required CLI tools are installed
+test -f scripts/validate-prerequisites.sh
+test -f scripts/validate-config.sh
+test -f scripts/validate-deployment.sh
+test -f scripts/validate-docs.sh
+test -f .github/skills/validation-scripts/scripts/validate-agents.py
+test -f .github/skills/validation-scripts/scripts/validate-naming.sh
+```
+
+### Step 3: Run the narrowest validation
+
+```bash
 ./scripts/validate-prerequisites.sh
+./scripts/validate-config.sh --environment dev
+./scripts/validate-deployment.sh --environment dev
+python3 .github/skills/validation-scripts/scripts/validate-agents.py --strict
 ```
 
-### validate-config.sh
-```bash
-# Validates configuration files
-./scripts/validate-config.sh --environment <env>
+### Step 4: Classify validation findings
+
+| Severity | Meaning |
+| --- | --- |
+| Critical | Validation exits non-zero for deployment readiness, strict metadata, or required tools. |
+| High | Environment config drift or unhealthy required component. |
+| Medium | Optional component missing or warning with documented workaround. |
+| Low | Informational recommendation. |
+
+### Step 5: Report and route remediation
+
+Do not edit unrelated code from this skill. Route Terraform, Kubernetes, Helm, or pipeline failures to the matching skill.
+
+```text
+Validation action: <deployment-health|configuration|prerequisites|agents|naming>
+Command: <command>
+May contact live cluster or cloud: <yes|no>
+Proceed with running validation? (y/n)
 ```
 
-### validate-deployment.sh
-```bash
-# Validates deployment status
-./scripts/validate-deployment.sh --environment <env>
+> [!IMPORTANT]
+> Only run validation that contacts a live cluster, cloud account, or GitHub workflow after an explicit affirmative response when the user has not already requested that validation command. On a negative, ambiguous, or missing response, do not run the command; output the planned validation and stop.
+
+## Error handling
+
+| Situation | Action |
+| --- | --- |
+| Script path is missing | Report the missing path and stop; do not invent a replacement. |
+| Permission denied | Run with `bash <script>` if executable bit is missing, or report chmod need. |
+| Required CLI missing | Use `prerequisites` to resolve tool availability. |
+| Deployment validation fails | Summarize failing H1/H2/H3 check and route to the relevant operational skill. |
+| Strict agent validation fails | Report exact file and frontmatter error from validator output. |
+
+## Output template
+
+```markdown
+## Validation Report
+
+**Script:** <path>
+**Command:** `<command>`
+**Exit code:** <code>
+**Severity:** <Critical|High|Medium|Low>
+
+### Summary
+- Passed: <count-or-summary>
+- Failed: <count-or-summary>
+- Warnings: <count-or-summary>
+
+### Findings
+- <finding>
+
+### Remediation
+1. <step>
 ```
 
-### validate-agents.sh
-```bash
-# Validates agent configuration files
-./scripts/validate-agents.sh
-```
+## Quality gate
 
-### validate-docs.sh
-```bash
-# Validates documentation files
-./scripts/validate-docs.sh
-```
-
-## Best Practices
-1. Run validation before any deployment
-2. Include validation in CI/CD pipelines
-3. Document validation failures clearly
-4. Exit with non-zero code on failure
-5. Provide remediation steps
-
-## Output Format
-1. Script executed
-2. Validation results (pass/fail)
-3. Details of any failures
-4. Remediation recommendations
-
-## Integration with Agents
-Used by: @deploy, @sre, @security
+- [ ] Used only existing validation scripts.
+- [ ] Verified script paths exist before referencing them.
+- [ ] Ran the narrowest script that covers the requested validation.
+- [ ] Captured exit code and important output.
+- [ ] Routed remediation to the correct domain skill.
