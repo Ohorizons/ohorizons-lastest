@@ -3,6 +3,7 @@ name: "terraform"
 description: "Create, modify, validate, or troubleshoot Open Horizons Terraform modules and environment configuration with state-safe Azure practices."
 argument-hint: "module_name=aks-cluster environment=dev operation=validate constraints='no apply, private endpoints, workload identity'"
 agent: "terraform"
+tools: ['read', 'search', 'edit', 'execute']
 ---
 
 # /terraform

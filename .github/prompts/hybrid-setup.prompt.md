@@ -3,6 +3,7 @@ name: "hybrid-setup"
 description: "Design a GitHub plus Azure DevOps coexistence scenario for Open Horizons catalog, auth, templates, CI/CD, boards, and governance."
 argument-hint: "scenario=A github_org=my-org ado_org_url=https://dev.azure.com/contoso ado_project=my-project identity_mode=entra-emu"
 agent: "hybrid-scenarios"
+tools: ['read', 'search']
 ---
 
 # /hybrid-setup

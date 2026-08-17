@@ -3,6 +3,7 @@ name: "azure-infra"
 description: "Validate Azure subscription readiness and infrastructure dependencies for Open Horizons AKS, Key Vault, PostgreSQL, ACR, Managed Redis, and AI Foundry."
 argument-hint: "environment=dev region=eastus2 components=AKS,KeyVault,PostgreSQL,ACR azure_context=<subscription-id>"
 agent: "azure-portal-deploy"
+tools: ['read', 'search', 'execute']
 ---
 
 # /azure-infra

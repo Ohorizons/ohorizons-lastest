@@ -1,6 +1,10 @@
 ---
 description: "{{WHAT_THIS_AGENT_DOES}} Use when {{WHEN_TO_SELECT_THIS_AGENT}}."
-tools: ["read", "grep", "glob"]
+tools:
+  - read      # VS Code tool set; CLI alias -> view
+  - search    # VS Code tool set; CLI no-op, covered by grep + glob
+  - grep      # CLI native; ignored by VS Code
+  - glob      # CLI native; ignored by VS Code
 ---
 
 # {{AGENT_DISPLAY_NAME}}
@@ -12,7 +16,11 @@ Delete this section after configuring the agent.
 1. Replace every `{{UPPER_SNAKE_CASE}}` placeholder and remove optional sections that do not apply.
 2. Keep `name` omitted unless the display name must differ from the `.agent.md` filename. Do not add `model` unless a fixed model is an intentional deployment requirement.
 3. Choose capabilities explicitly:
-   - **Consultative/read-only:** keep `tools: ["read", "grep", "glob"]` and retain the read-only write policy below.
+   - **Consultative/read-only:** keep `tools:
+  - read      # VS Code tool set; CLI alias -> view
+  - search    # VS Code tool set; CLI no-op, covered by grep + glob
+  - grep      # CLI native; ignored by VS Code
+  - glob      # CLI native; ignored by VS Code` and retain the read-only write policy below.
    - **Editing:** add `edit` and define exact writable and protected paths below.
    - **Command execution:** add `execute` only when shell commands are necessary.
    - **Delegation or web access:** add `agent`, `web_fetch`, or `web_search` only when the procedure requires them.

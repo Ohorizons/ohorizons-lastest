@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate Open Horizons Copilot customization primitives."""
+"""Validate Open Horizons Copilot customization primitives.
+
+AG017 validates `tools` as the intentional union of VS Code and Copilot CLI
+vocabularies. Removing either surface's token silently reduces capability for
+that surface because both clients ignore unavailable tools.
+"""
 
 from __future__ import annotations
 
@@ -89,18 +94,25 @@ VALID_TOOL_TOKENS = {
     "read_agent",
     "list_agents",
 }
+VS_CODE_NAMESPACED_TOOL_IDS = {
+    "search/codebase",
+    "search/usages",
+    "search/changes",
+    "read/problems",
+    "read/terminalLastCommand",
+    "web/fetch",
+}
+UNVERIFIED_TOOL_TOKENS = {
+    "codebase": "use `search/codebase` for VS Code or `grep` and `glob` for CLI",
+    "changes": "use `search/changes` for VS Code or `grep`, `glob`, and `view` for CLI",
+    "fetch": "use `web/fetch` for VS Code or `web_fetch` for CLI",
+    "githubRepo": "use a configured GitHub MCP tool such as `github/*`",
+}
 NO_OP_TOOL_REPLACEMENTS = {
-    "search": "use `grep` and `glob`",
-    "web": "use `web_fetch` and `web_search`",
     "todo": "remove it; `sql` is always available for task lists",
     "all": "use `*` or omit `tools`",
     "terminal": "use `bash`",
     "run": "use `bash`, `execute`, `shell`, or `runCommands`",
-    "codebase": "use `grep` and `glob`",
-    "changes": "use `grep`, `glob`, and `view`",
-    "fetch": "use `web_fetch`",
-    "githubRepo": "use a configured GitHub MCP tool such as `github/*`",
-    "search/codebase": "use `grep` and `glob`",
 }
 REDUNDANT_FLOOR_TOOL_TOKENS = {"sql", "skill"}
 MCP_TOOL = re.compile(r"^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$")
@@ -333,6 +345,9 @@ def validate_agent_tools(
         return
 
     tool_names = [tools] if isinstance(tools, str) else tools
+    stripped_tool_names = {
+        tool.strip() for tool in tool_names if isinstance(tool, str) and tool.strip()
+    }
     if len(tool_names) > TOOLS_BLOAT_THRESHOLD:
         report.warn(
             path,
@@ -345,11 +360,34 @@ def validate_agent_tools(
             report.error(path, "`tools` entries must be non-empty strings")
             continue
         tool = tool.strip()
+        if tool == "search":
+            if "grep" not in stripped_tool_names and "glob" not in stripped_tool_names:
+                report.error(
+                    path,
+                    "AG017: `tools` token `search` is a VS Code tool set but a no-op in "
+                    "Copilot CLI; add `grep` and `glob` for CLI parity",
+                )
+            continue
+        if tool == "web":
+            if "web_fetch" not in stripped_tool_names and "web_search" not in stripped_tool_names:
+                report.error(
+                    path,
+                    "AG017: `tools` token `web` is a VS Code tool set but a no-op in "
+                    "Copilot CLI; add `web_fetch` and `web_search` for CLI parity",
+                )
+            continue
         if tool in NO_OP_TOOL_REPLACEMENTS:
             report.error(
                 path,
                 f"AG017: `tools` token `{tool}` grants nothing and is silently dropped; "
                 f"{NO_OP_TOOL_REPLACEMENTS[tool]}",
+            )
+            continue
+        if tool in UNVERIFIED_TOOL_TOKENS:
+            report.warn(
+                path,
+                f"AG017: `tools` token `{tool}` is not verified in VS Code or Copilot CLI; "
+                f"{UNVERIFIED_TOOL_TOKENS[tool]}",
             )
             continue
         if tool in REDUNDANT_FLOOR_TOOL_TOKENS:
@@ -358,7 +396,7 @@ def validate_agent_tools(
                 f"AG017: `tools` token `{tool}` is always available; listing it is harmless but pointless",
             )
             continue
-        if tool in VALID_TOOL_TOKENS:
+        if tool in VALID_TOOL_TOKENS or tool in VS_CODE_NAMESPACED_TOOL_IDS:
             continue
 
         mcp_match = MCP_TOOL.match(tool)

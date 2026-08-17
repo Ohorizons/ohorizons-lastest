@@ -3,6 +3,7 @@ name: "security-review"
 description: "Run an evidence-based security review of Open Horizons code, Terraform, Kubernetes manifests, workflows, or deployment artifacts."
 argument-hint: "scope=terraform/modules focus=secrets,RBAC,network severity_threshold=Medium"
 agent: "security"
+tools: ['read', 'search']
 ---
 
 # /security-review

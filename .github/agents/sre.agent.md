@@ -2,11 +2,12 @@
 name: sre
 description: "Use this agent when a user asks for Open Horizons observability, SLOs, incidents, health checks, root cause analysis, or runbook work. SRE specialist for observability, SLOs, metrics, incident response, and root cause analysis. USE FOR: create SLO, incident response, troubleshoot outage, configure alerts, Prometheus queries, Grafana dashboards, root cause analysis, create runbook. DO NOT USE FOR: deployment orchestration (use @deploy), Terraform authoring (use @terraform), security review (use @security)."
 tools:
-  - view
-  - grep
-  - glob
-  - edit
-  - bash
+  - read      # VS Code tool set; CLI alias -> view
+  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
+  - edit      # VS Code tool set; CLI alias -> create, edit
+  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
+  - grep      # CLI native; ignored by VS Code
+  - glob      # CLI native; ignored by VS Code
 user-invocable: true
 handoffs:
   - label: "Deploy Fix"

@@ -2,17 +2,15 @@
 name: deploy
 description: "Use this agent when a user asks to deploy or dry-run the Open Horizons platform end to end across H1/H2/H3. End-to-end platform deployment orchestrator across all three adoption stages. Runs Terraform, validates infrastructure, deploys Kubernetes workloads, and verifies health. USE FOR: deploy platform, deploy to dev, deploy to production, run terraform apply, deploy AKS, deploy ArgoCD, deploy Backstage, full deployment, dry-run deployment. DO NOT USE FOR: specialized Terraform module authoring (use @terraform), security review (use @security), post-deploy SRE verification (use @sre)."
 tools:
-  - view
-  - grep
-  - glob
-  - edit
-  - bash
-  - task
+  - read      # VS Code tool set; CLI alias -> view
+  - search    # VS Code tool set; CLI no-op, covered by grep + glob below
+  - edit      # VS Code tool set; CLI alias -> create, edit
+  - execute   # VS Code tool set; CLI alias -> bash, list_bash, read_bash, stop_bash
+  - grep      # CLI native; ignored by VS Code
+  - glob      # CLI native; ignored by VS Code
+  - agent
   - azure/*
-  - github/*
-  - microsoft-docs/*
   - terraform/*
-  - mcp-ecosystem/*
 user-invocable: true
 handoffs:
   - label: "Security Review"

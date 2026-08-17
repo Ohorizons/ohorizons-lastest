@@ -79,8 +79,17 @@ errors, which is precisely why they are dangerous: a misspelled tool list degrad
 ### 1.3 `tools:` vocabulary
 
 `tools:` is an **allow-list filter**, not an additive grant. Omitting it gives the agent the full tool set;
-declaring it restricts the agent to the listed tokens. **Unrecognized tokens are silently dropped with no
-warning**, so a typo or a VS Code-only name quietly removes capability instead of failing loudly.
+declaring it restricts the agent to the listed tokens. **Unrecognized or unavailable tokens are silently
+ignored** by both surfaces, so a misspelled or single-surface-only tool list can remove capability without
+an error.
+
+This section is intentionally surface-aware because `.github/agents/*.agent.md` is read by both VS Code
+Copilot and GitHub Copilot CLI. CLI findings below are **measured against CLI 1.0.81-0**. VS Code findings
+are documented at <https://code.visualstudio.com/docs/agent-customization/custom-agents> and
+<https://code.visualstudio.com/docs/agent-customization/tool-sets>. VS Code documents predefined tool sets
+such as `read`, `search`, `edit`, `execute`, `web`, and `agent`; namespaced tool IDs such as
+`search/codebase`, `search/usages`, `search/changes`, `read/problems`, `read/terminalLastCommand`, and
+`web/fetch`; and the rule that unavailable tools in a custom agent are ignored.
 
 Every row below was measured against CLI 1.0.81-0 by declaring a single token and dumping the resulting
 tool schema; the validation evidence is summarized in this section because this repository does not ship a separate HARNESS-VALIDATION.md file.
@@ -103,25 +112,71 @@ tool schema; the validation evidence is summarized in this section because this 
 | `fetch_copilot_cli_documentation` | `fetch_copilot_cli_documentation` |
 | `write_agent`, `read_agent`, `list_agents`, `read_bash`, `stop_bash`, `list_bash` | the same-named tool |
 
-> **No-op tokens — these grant nothing and are enforced as errors by rule `AG017`:**
-> `search`, `web`, `todo`, `all`, `terminal`, `run`, `codebase`, `changes`, `fetch`, `githubRepo`, `search/codebase`.
->
-> `search` is the dangerous one: it reads as "let this agent search code" but grants **no** search capability.
-> Use `grep` and `glob` explicitly. Likewise use `web_fetch` and `web_search` instead of `web`.
-> `todo` is unnecessary because the `sql` tool that backs task lists is always in the floor.
->
-> `sql` and `skill` are also no-ops as tokens, but harmlessly so — they are already in the floor.
+#### Portability matrix
 
-MCP / namespaced tools use `server/tool` or `server/*`, matching BUNDLE regex
+| Capability | VS Code token | Copilot CLI token | Portable single token? |
+| --- | --- | --- | --- |
+| Read files | `read` | `read` -> `view` | yes |
+| Search code | `search` | `grep`, `glob` | **no — list both** |
+| Edit files | `edit` | `edit` -> `create` + `edit` | yes |
+| Run commands | `execute` | `execute` -> `bash` family | yes |
+| Delegate to subagents | `agent` | `agent` -> `task` family | yes |
+| Fetch web page | `web` | `web_fetch` | **no — list both** |
+| Web search | `web` | `web_search` | **no — list both** |
+
+#### Surface-specific tokens
+
+**VS Code-valid but CLI no-op.** These are legitimate VS Code tokens or tool IDs documented by VS Code, but
+CLI 1.0.81-0 grants no capability for them unless a CLI-native companion is also present:
+
+- Tool sets: `search`, `web`.
+- Namespaced VS Code tool IDs: `search/codebase`, `search/usages`, `search/changes`, `read/problems`,
+  `read/terminalLastCommand`, `web/fetch`, and other VS Code or extension IDs selected from the VS Code
+  Configure Tools picker.
+
+**CLI-measured no-op and not documented as VS Code predefined tool sets in the cited docs.** Treat these as
+invalid for Open Horizons unless a future VS Code extension or workspace tool-set file explicitly defines them:
+`todo`, `all`, `terminal`, `run`, `codebase`, `changes`, `fetch`, `githubRepo`.
+`sql` and `skill` are also no-ops as `tools:` tokens, but harmlessly so: they are already in the CLI floor.
+
+MCP / namespaced CLI tools use `server/tool` or `server/*`, matching BUNDLE regex
 `^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$` — for example `github-mcp-server/search_code`.
 
 GitHub's own CLI 1.0.81-0 built-in agent definitions also use these direct tokens:
 `context_board`, `lsp`, `powershell`, `read_powershell`, `stop_powershell`, in addition to the table above.
 They are BUNDLE-confirmed tokens, but their concrete availability depends on the host surface.
 
-**Recommendation.** For a general-purpose agent, omit `tools:` entirely (or use `["*"]`) so it keeps full
+#### Repository authoring rule
+
+For dual-surface repository agents, author the **union** of VS Code and CLI vocabularies whenever a capability
+has no portable single token. A portable read-only search agent should use this pattern:
+
+```yaml
+tools:
+  - read      # VS Code tool set; CLI alias -> view
+  - search    # VS Code tool set; CLI no-op, covered by grep + glob
+  - edit      # VS Code tool set; CLI alias -> create, edit
+  - execute   # VS Code tool set; CLI alias -> bash family
+  - grep      # CLI native; ignored by VS Code
+  - glob      # CLI native; ignored by VS Code
+```
+
+Add `web` plus `web_fetch` and/or `web_search` together when a dual-surface agent needs web access.
+
+> **Danger:** removing `search` silently breaks search in VS Code; removing `grep`/`glob` silently breaks
+> search in the CLI. Removing `web` silently breaks VS Code web tools; removing `web_fetch`/`web_search`
+> silently breaks CLI web tools. Neither surface reports an error — capability just disappears. This is the
+> harness's most dangerous silent failure mode.
+
+Rule `AG017` must therefore be companion-aware, not a flat ban: `search` is an error only when neither
+`grep` nor `glob` is present, and `web` is an error only when neither `web_fetch` nor `web_search` is present.
+VS Code namespaced tool IDs such as `search/codebase` are allowed when intentionally paired with CLI-native
+companions for dual-surface agents.
+
+**Recommendation.** For a general-purpose agent, omit `tools:` entirely (or use `['*']`) so it keeps full
 capability as the CLI adds tools. Declare an explicit list only when you deliberately want to restrict the
-agent, and then always spell out `grep`/`glob`/`web_fetch`/`web_search` rather than the alias-looking no-ops.
+agent, and then list both surfaces for non-portable capabilities: `search` with `grep`/`glob`, and `web` with
+`web_fetch`/`web_search`.
 
 ### 1.4 `model:`
 

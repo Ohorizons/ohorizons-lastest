@@ -3,6 +3,7 @@ name: "backstage"
 description: "Deploy, validate, and configure the Open Horizons Backstage portal with auth, catalog, Golden Paths, TechDocs, and AI Chat integration."
 argument-hint: "environment=dev auth_provider=github github_identity_mode=standard components=Portal,GoldenPaths,TechDocs,AIChat"
 agent: "backstage-expert"
+tools: ['read', 'search', 'edit', 'execute', 'web']
 ---
 
 # /backstage

@@ -3,6 +3,7 @@ name: "deploy-platform"
 description: "Orchestrate Open Horizons deployment across H1, H2, and H3 with repository validation scripts, Terraform phases, Kubernetes manifests, and handoffs."
 argument-hint: "environment=dev horizon=all deployment_option=automated portal_name='Open Horizons' identity_strategy=entra"
 agent: "deploy"
+tools: ['read', 'search', 'execute', 'agent']
 ---
 
 # /deploy-platform

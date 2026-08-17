@@ -3,6 +3,7 @@ name: "troubleshoot-incident"
 description: "Diagnose Open Horizons service incidents using Kubernetes status, logs, events, Prometheus queries, and validation-run evidence."
 argument-hint: "symptom='502 errors' service=backstage namespace=backstage environment=prod time_window='2026-08-17 14:00-15:00' pod_name=''"
 agent: "sre"
+tools: ['read', 'search', 'execute']
 ---
 
 # /troubleshoot-incident

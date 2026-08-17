@@ -109,13 +109,14 @@ The formats do not share one mandatory body outline. Use the contract that match
 ## Tools and editing permissions
 
 - An agent's `tools` field is an allow-list filter. Omitting it gives access to all available tools; the
-  agent template deliberately starts with the read-only minimum `read`, `grep`, and `glob`.
-- Add `edit` only when the agent may change files. Add `execute`, `agent`, `web_fetch`, or `web_search`
-  only when its procedure requires command execution, delegation, or web access.
-- Do not use CLI no-op tokens such as `search`, `web`, `todo`, `all`, `terminal`, `run`, `codebase`,
-  `changes`, `fetch`, `githubRepo`, `search/codebase`, `sql`, or `skill`. The last two capabilities are
-  already available without listing them. Use explicit valid CLI tokens; use `*` or omit `tools` when
-  unrestricted access is intentional.
+  agent template deliberately starts with a dual-surface read/search union: `read`, `search`, `grep`, and `glob`.
+- Add `edit` only when the agent may change files. Add `execute` only when command execution is necessary, and
+  add `agent` only when delegation is required.
+- For capabilities with no portable single token, author the union of both surfaces. Use `search` for VS Code
+  and `grep`/`glob` for CLI. Use `web` for VS Code and `web_fetch` and/or `web_search` for CLI.
+- Treat unsupported CLI no-op tokens such as `todo`, `all`, `terminal`, `run`, `codebase`, `changes`, `fetch`,
+  and `githubRepo` as invalid for Open Horizons unless a future VS Code extension or workspace tool set defines
+  them. `sql` and `skill` are already available in the CLI floor and do not need to be listed.
 - A skill should omit `allowed-tools` by default. If present, list only tools the procedure needs, and do
   not pre-approve editing for a consultative or review-only skill.
 - Instructions have no tool allow-list.

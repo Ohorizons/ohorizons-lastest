@@ -2,6 +2,7 @@
 name: "create-mcp-server"
 description: "Create or extend the repository-native MCP ecosystem server with typed tools, validation, documentation, and client registration guidance."
 argument-hint: "server_name=my-mcp-server language=TypeScript transport=HTTP tools_description='describe the tools'"
+tools: ['read', 'search', 'edit', 'execute']
 ---
 
 # /create-mcp-server

@@ -3,6 +3,7 @@ name: "ado-setup"
 description: "Configure Azure DevOps PAT, repository discovery, pipeline visibility, boards integration, and Copilot Standalone guidance for Open Horizons Backstage."
 argument-hint: "ado_org_url=https://dev.azure.com/contoso ado_project=my-project components=PAT,repos,pipelines,boards environment=dev"
 agent: "ado-integration"
+tools: ['read', 'search']
 ---
 
 # /ado-setup
