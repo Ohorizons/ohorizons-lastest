@@ -31,7 +31,7 @@ Invoke this during a live or recent incident affecting Backstage, agent APIs, MC
 - Triage severity, blast radius, and immediate mitigation options.
 - Gather evidence with read-only Kubernetes commands before recommending restarts, rollbacks, or scaling.
 - Use Prometheus query patterns for request rate, error rate, and latency when metrics are available.
-- Check validation-run artifacts such as `runs/azure-validation/<run-id>/status.json` and `errors.json` when an incident comes from a deployment run.
+- Check user-provided validation-run artifacts when an incident comes from a deployment run.
 - Produce a concise incident analysis with hypothesis, evidence, mitigation, root cause path, and prevention actions.
 
 ## What I Will NOT Do

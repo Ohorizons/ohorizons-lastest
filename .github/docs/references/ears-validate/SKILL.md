@@ -43,7 +43,7 @@ description: "Use when validating requirements against EARS notation patterns. T
 
 ## Output template
 
-```markdown
+``markdown
 ### REQ-NNN (<pattern>)
 <EARS statement>
 

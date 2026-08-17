@@ -23,7 +23,7 @@ When sources conflict, the higher-priority source wins. Do not duplicate or weak
 This file owns passive conventions for terraform conventions — azure infrastructure modules and environments. Use the `terraform-cli` skill for ordered procedures, command sequences, setup, validation, or troubleshooting that goes beyond these rules.
 
 > [!IMPORTANT]
-> The Kubernetes, Helm, and kubectl providers depend on AKS outputs. On an empty subscription, apply H1 infrastructure before H2 modules or use the repository deployment script.
+> The Kubernetes, Helm, and kubectl providers depend on AKS outputs. Do not present a single-pass empty-subscription plan as supported; route execution sequencing to the `terraform-cli` or `deploy-orchestration` skill.
 
 ## Module Structure
 
@@ -178,7 +178,7 @@ output "database_password" {
 
 | Do | Do not |
 |---|---|
-| Apply H1 modules before H2 modules that need AKS provider outputs | Expect a single empty-subscription apply to plan all Kubernetes providers. |
+| Document H1/H2 sequencing constraints for empty-subscription deployments | Promise a single empty-subscription apply can plan all Kubernetes providers. |
 | Use `for_each` for maps of optional resources such as node pools | Copy and paste nearly identical resources. |
 | Keep `.tfvars.example` sanitized | Commit real customer values in environment files. |
 | Run `terraform fmt` and a targeted `terraform validate` or plan where possible | Ship formatting or provider errors untested. |

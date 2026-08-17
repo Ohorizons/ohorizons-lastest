@@ -115,6 +115,10 @@ tool schema; the validation evidence is summarized in this section because this 
 MCP / namespaced tools use `server/tool` or `server/*`, matching BUNDLE regex
 `^([a-zA-Z0-9_.-]+/(?:\*|[a-zA-Z0-9_.-]+))(?::(.+))?$` — for example `github-mcp-server/search_code`.
 
+GitHub's own CLI 1.0.81-0 built-in agent definitions also use these direct tokens:
+`context_board`, `lsp`, `powershell`, `read_powershell`, `stop_powershell`, in addition to the table above.
+They are BUNDLE-confirmed tokens, but their concrete availability depends on the host surface.
+
 **Recommendation.** For a general-purpose agent, omit `tools:` entirely (or use `["*"]`) so it keeps full
 capability as the CLI adds tools. Declare an explicit list only when you deliberately want to restrict the
 agent, and then always spell out `grep`/`glob`/`web_fetch`/`web_search` rather than the alias-looking no-ops.

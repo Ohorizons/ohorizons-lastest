@@ -5,7 +5,7 @@ applyTo: "backend/src/main/java/**,backend/pom.xml,backend/build.gradle*"
 
 # Modular Monolith Architecture Guide
 
-This file activates when you work on Java source files or backend build configurations. It teaches the target architecture: a **Modular Monolith** — not microservices — with package-by-feature boundaries, bounded contexts, Adabas FDT to JPA mapping, Spring Boot 3.3 architectural conventions, and the Strangler Fig migration shape. It does **not** define controller, DTO, validation, or error-response details, which belong to ``backend.instructions.md``; security belongs to ``security.instructions.md``; schema migrations belong to ``database.instructions.md``; and legacy-source reading belongs to ``natural-adabas.instructions.md``.
+This file activates when you work on Java source files or backend build configurations. It teaches the target architecture: a **Modular Monolith** — not microservices — with package-by-feature boundaries, bounded contexts, Adabas FDT to JPA mapping, Spring Boot 3.3 architectural conventions, and the Strangler Fig migration shape. It does **not** define controller, DTO, validation, or error-response details, which belong to `backend.instructions.md`; security belongs to `security.instructions.md`; schema migrations belong to `database.instructions.md`; and legacy-source reading belongs to `natural-adabas.instructions.md`.
 
 ## Core Principle: One Deployable, Many Modules
 
@@ -67,7 +67,7 @@ A common pattern in Natural/Adabas legacy modernization is that each Adabas file
 
 ### MU (Multiple-Value) Fields → JSONB
 
-```java
+``java
 @Column(columnDefinition = "jsonb")
 @JdbcTypeCode(SqlTypes.JSON)
 private List<String> alternateNames;  // Was MU field in Adabas
@@ -75,7 +75,7 @@ private List<String> alternateNames;  // Was MU field in Adabas
 
 Or use `@ElementCollection` if query capability is required:
 
-```java
+``java
 @ElementCollection
 @CollectionTable(name = "person_alternate_names")
 private List<String> alternateNames;
@@ -83,7 +83,7 @@ private List<String> alternateNames;
 
 ### PE (Periodic Groups) → @OneToMany
 
-```java
+``java
 @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 @JoinColumn(name = "person_id")
 private List<AddressHistory> addressHistory;  // Was PE group
@@ -102,7 +102,7 @@ Where `AddressHistory` is an `@Entity` with its own table.
 
 ## Error Handling Pattern
 
-```java
+``java
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)

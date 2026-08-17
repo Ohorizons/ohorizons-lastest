@@ -48,7 +48,7 @@ When `plan.md` exists and before the build starts, or whenever an architectural 
 
 A report presented to the team:
 
-```markdown
+``markdown
 ## Architecture review — 001-pagamento-beneficio
 
 | Pillar | Score (1-5) | Top finding | Remediation |

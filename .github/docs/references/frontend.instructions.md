@@ -5,7 +5,7 @@ applyTo: "frontend/app/**,frontend/components/**,frontend/src/app/**,frontend/sr
 
 # Frontend Conventions — Component Craft and Interaction
 
-This file activates when you build UI under `frontend/app/**` or `frontend/components/**`. It focuses on component craft, client interaction, component state, accessibility execution, and user-facing flows. It owns how components behave for users; ``frontend-spec.instructions.md`` owns the platform contract for Next.js 15 App Router, strict TypeScript, Tailwind/shadcn styling, Server Components, and Server Actions — follow that file for those topics and do not restate them here.
+This file activates when you build UI under `frontend/app/**` or `frontend/components/**`. It focuses on component craft, client interaction, component state, accessibility execution, and user-facing flows. It owns how components behave for users; `frontend-spec.instructions.md` owns the platform contract for Next.js 15 App Router, strict TypeScript, Tailwind/shadcn styling, Server Components, and Server Actions — follow that file for those topics and do not restate them here.
 
 > [!NOTE]
 > `frontend/` does not exist yet; the team scaffolds it in Stage 3. These are the conventions the components must follow as they are written.
@@ -14,7 +14,7 @@ This file activates when you build UI under `frontend/app/**` or `frontend/compo
 
 Build small, single-responsibility components with named exports and typed props. Prefer composition over a growing prop list, and keep presentational components free of data fetching.
 
-```tsx
+``tsx
 import type { ResourceDto } from '@/types/resource';
 
 export function ResourceCard({ resource }: { resource: ResourceDto }) {
@@ -27,13 +27,13 @@ export function ResourceCard({ resource }: { resource: ResourceDto }) {
 }
 ```
 
-Keep the `'use client'` surface as small as possible: a Server Component fetches the data and passes it to a small Client Component that handles interaction (see ``frontend-spec.instructions.md``).
+Keep the `'use client'` surface as small as possible: a Server Component fetches the data and passes it to a small Client Component that handles interaction (see `frontend-spec.instructions.md`).
 
 ## Component State
 
 Default to local `useState`. Lift state to the nearest common parent when siblings must share it. Reach for Context **only** for genuinely shared client state, and add a state-management library only with an ADR that justifies the dependency.
 
-```tsx
+``tsx
 'use client';
 
 import { useState } from 'react';
@@ -56,9 +56,9 @@ Inputs are controlled (`value` + `onChange`). Derive values during render instea
 
 ## Client Interaction and Async Flows
 
-Mutations go through server actions, not client `fetch` (see ``frontend-spec.instructions.md``). Wrap the call in `useTransition` to drive a disabled/pending state, and reflect it with `aria-busy`.
+Mutations go through server actions, not client `fetch` (see `frontend-spec.instructions.md`). Wrap the call in `useTransition` to drive a disabled/pending state, and reflect it with `aria-busy`.
 
-```tsx
+``tsx
 'use client';
 
 import { useTransition } from 'react';
@@ -83,7 +83,7 @@ export function ArchiveButton({ id, onArchive }: { id: string; onArchive: (id: s
 
 Every async view renders three explicit states — **loading**, **empty**, and **error** — never a blank screen. Confirm destructive actions, and format money and dates with an explicit locale so output is deterministic.
 
-```tsx
+``tsx
 if (isLoading) return <Spinner aria-label="Loading resources" />;
 if (resources.length === 0) return <EmptyState message="No resources yet" />;
 if (error) return <ErrorState onRetry={refetch} />;
@@ -128,4 +128,4 @@ Use semantic elements (`<button>`, `<nav>`, `<table>`) before reaching for ARIA;
 - [ ] Shared state uses Context only when justified; no unapproved state library
 - [ ] Async views render loading, empty, and error states
 - [ ] Inputs are labeled, keyboard-operable, and meet AA contrast
-- [ ] A colocated Testing Library test covers the interaction (see ``tests.instructions.md``)
+- [ ] A colocated Testing Library test covers the interaction (see `tests.instructions.md`)

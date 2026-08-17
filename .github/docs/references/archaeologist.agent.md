@@ -75,11 +75,11 @@ The team completes Stage 1 when it can provide:
 
 | Command | Purpose |
 |---------|---------|
-| ``/archaeology-kickoff`` | Scan the legacy folder and produce an initial inventory |
-| ``/extract-business-rules`` | Read a Natural program and extract conditional business rules |
-| ``/map-dependencies`` | Trace CALLNAT, INCLUDE, and DDM-access edges in a dependency graph |
-| ``/catalog-mysteries`` | Record open questions with evidence and pending human validation |
-| ``/discovery-report`` | Consolidate Stage 1 artifacts into a single handoff document for Stage 2 |
+| `/archaeology-kickoff` | Scan the legacy folder and produce an initial inventory |
+| `/extract-business-rules` | Read a Natural program and extract conditional business rules |
+| `/map-dependencies` | Trace CALLNAT, INCLUDE, and DDM-access edges in a dependency graph |
+| `/catalog-mysteries` | Record open questions with evidence and pending human validation |
+| `/discovery-report` | Consolidate Stage 1 artifacts into a single handoff document for Stage 2 |
 
 ## Anti-Patterns This Agent Rejects
 

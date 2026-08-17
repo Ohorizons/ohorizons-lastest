@@ -9,7 +9,7 @@ tools: ["view", "grep", "glob", "bash"]
 
 ## Objective
 
-Optimize a slow PostgreSQL query, index, or schema using PostgreSQL-specific features, backing every recommendation with a measured `EXPLAIN ANALYZE`. The full workflow lives in the ``postgresql-optimization`` skill; this prompt applies it to the SIFAP 2.0 database (PostgreSQL 16 via JPA/Hibernate) without restating it.
+Optimize a slow PostgreSQL query, index, or schema using PostgreSQL-specific features, backing every recommendation with a measured `EXPLAIN ANALYZE`. The full workflow lives in the `postgresql-optimization` skill; this prompt applies it to the SIFAP 2.0 database (PostgreSQL 16 via JPA/Hibernate) without restating it.
 
 > [!IMPORTANT]
 > No recommendation ships without a before/after `EXPLAIN ANALYZE`; a plan is evidence, not an opinion.
@@ -33,7 +33,7 @@ During Stage 3/4, when a query is slow, a report times out, or a schema needs tu
 
 ## What I Will Do
 
-- Apply the optimization workflow in the ``postgresql-optimization`` skill to the selection
+- Apply the optimization workflow in the `postgresql-optimization` skill to the selection
 - Read `EXPLAIN (ANALYZE, BUFFERS)` top to bottom and identify the dominant cost
 - Recommend the right index type (GIN/GiST/partial/covering) or query rewrite with evidence
 - Express index changes as online-safe, rollback-safe migrations
@@ -47,7 +47,7 @@ During Stage 3/4, when a query is slow, a report times out, or a schema needs tu
 
 ## Output Format
 
-```markdown
+``markdown
 ### Bottleneck
 Seq Scan on `payment` (4.0M rows) for a selective status filter.
 
@@ -67,7 +67,7 @@ Before: Seq Scan, 820 ms. After: Index Scan, 4 ms.
 
 ## Prompt Body
 
-The ``postgresql-optimization`` skill owns the diagnostic workflow, index heuristics, and PostgreSQL feature set — read it, then apply it to the selection.
+The `postgresql-optimization` skill owns the diagnostic workflow, index heuristics, and PostgreSQL feature set — read it, then apply it to the selection.
 
 **Step 1 — Measure.**
 Run `EXPLAIN (ANALYZE, BUFFERS)` on a staging snapshot and read the plan top to bottom.

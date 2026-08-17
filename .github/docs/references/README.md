@@ -27,6 +27,6 @@ These files are illustrative examples of the template contract. They are not ins
 
 These examples come from legacy archaeology, Java/Spring Boot, and PostgreSQL domains. Before promoting any example into an installed primitive, replace the domain, paths, commands, and linked references with Open Horizons-specific content and run:
 
-```sh
+``sh
 python3 .github/skills/validation-scripts/scripts/validate-agents.py --strict
 ```

@@ -22,7 +22,7 @@ You are the guardian of internal structure, not the arbiter of external contract
 
 ## Operating Principles
 
-- **Skills are the operational source.** Before a specialized task, read ``adr-draft`` and ``context-audit``. Those files own the procedures and checklists; this agent owns judgment and routing.
+- **Skills are the operational source.** Before a specialized task, read `adr-draft` and `context-audit`. Those files own the procedures and checklists; this agent owns judgment and routing.
 - **Package by bounded context, not by technical layer.** The top-level structure reflects business capabilities; `domain / application / infrastructure` live *inside* each context.
 - **Boundaries follow evidence.** Contexts are carved from cohesion, coupling, and change-frequency evidence, never assumed from names alone.
 - **Contract stability over implementation elegance.** A published contract is not broken for a nicer internal design; choose the option easiest to reverse.
@@ -55,9 +55,9 @@ All of this must emerge from the team's own investigation of `01-archaeology/leg
 
 | Command | Purpose |
 |---------|---------|
-| ``/codemap`` | Produce a navigable code map: components, dependencies, and REQ-ID coverage |
-| ``/impl-plan`` | Structure `plan.md` with phased tasks and parallelism markers |
-| ``/api-validate`` | Validate an API implementation against its OpenAPI contract |
+| `/codemap` | Produce a navigable code map: components, dependencies, and REQ-ID coverage |
+| `/impl-plan` | Structure `plan.md` with phased tasks and parallelism markers |
+| `/api-validate` | Validate an API implementation against its OpenAPI contract |
 
 ## Definition of Done
 
@@ -84,4 +84,4 @@ This agent works across the design phase of Spec-Kit:
 2. **`/speckit.tasks`** — break the plan into `[P]`-marked tasks and maintain `CODEMAP.md`
 3. **`/speckit.analyze`** — detect drift among the plan, the tasks, and the REQ-IDs in `spec.md` before implementation proceeds
 
-See ``spec-kit-workflow.md`` for the full command reference.
+See `spec-kit-workflow.md` for the full command reference.

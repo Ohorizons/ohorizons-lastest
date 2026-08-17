@@ -72,7 +72,8 @@ If the platform is being deployed end to end, route to `scripts/deploy-full.sh` 
 ```bash
 kubectl get pods -n backstage
 kubectl logs -n backstage -l app.kubernetes.io/name=backstage --tail=100
-kubectl exec -n backstage deploy/backstage -- \
+POD=$(kubectl get pod -n backstage -l app.kubernetes.io/name=backstage -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n backstage "$POD" -- \
   node -e "fetch('http://localhost:7007/.backstage/health/v1/readiness').then(r=>console.log(r.status))"
 ```
 

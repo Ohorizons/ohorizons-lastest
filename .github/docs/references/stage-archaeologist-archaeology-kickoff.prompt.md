@@ -44,7 +44,7 @@ At the very beginning of Stage 1, immediately after the team receives access to 
 
 A Markdown file at `01-archaeology/inventory.md` with:
 
-```markdown
+``markdown
 # Legacy Inventory — [Team Name]
 ## Folder Structure
 ## File Count by Type

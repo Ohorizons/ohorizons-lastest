@@ -4,10 +4,10 @@ description: "Review existing PostgreSQL SQL, schema, and functions for PostgreS
 ---
 # PostgreSQL code review
 
-Expert PostgreSQL code review for `${selection}` (or the entire project when nothing is selected). It focuses on the PostgreSQL-specific best practices, anti-patterns, and quality standards that are unique to PostgreSQL rather than generic SQL. To author or tune new PostgreSQL features instead of reviewing existing ones, use ``postgresql-optimization``.
+Expert PostgreSQL code review for `${selection}` (or the entire project when nothing is selected). It focuses on the PostgreSQL-specific best practices, anti-patterns, and quality standards that are unique to PostgreSQL rather than generic SQL. To author or tune new PostgreSQL features instead of reviewing existing ones, use `postgresql-optimization`.
 
 > [!IMPORTANT]
-> The SIFAP 2.0 backend reaches **PostgreSQL 16** through **JPA/Hibernate**. Application queries must use JPQL, Spring Data derived queries, or bound native parameters — never string-concatenated SQL. Schema lives in Flyway migrations under `backend/src/main/resources/db/migration/`. Where this skill and ``database.instructions.md`` overlap, the instruction file is authoritative.
+> The SIFAP 2.0 backend reaches **PostgreSQL 16** through **JPA/Hibernate**. Application queries must use JPQL, Spring Data derived queries, or bound native parameters — never string-concatenated SQL. Schema lives in Flyway migrations under `backend/src/main/resources/db/migration/`. Where this skill and `database.instructions.md` overlap, the instruction file is authoritative.
 
 ## When to invoke
 
@@ -20,7 +20,7 @@ Expert PostgreSQL code review for `${selection}` (or the entire project when not
 
 ### JSONB Best Practices
 
-```sql
+``sql
 -- BAD: Inefficient JSONB usage
 SELECT * FROM orders WHERE data->>'status' = 'shipped';  -- No index support
 
@@ -38,7 +38,7 @@ CHECK (data->>'status' IN ('pending', 'shipped', 'delivered'));
 
 ### Array Operations Review
 
-```sql
+``sql
 -- BAD: Inefficient array operations
 SELECT * FROM products WHERE 'electronics' = ANY(categories);  -- No index
 
@@ -56,7 +56,7 @@ WHERE id IN (SELECT id FROM products WHERE condition);
 
 ### PostgreSQL Schema Design Review
 
-```sql
+``sql
 -- BAD: Not using PostgreSQL features
 CREATE TABLE users (
     id INTEGER,
@@ -79,7 +79,7 @@ CREATE INDEX idx_users_metadata ON users USING gin(metadata);
 
 ### Custom Types and Domains
 
-```sql
+``sql
 -- BAD: Using generic types for specific data
 CREATE TABLE transactions (
     amount DECIMAL(10,2),
@@ -117,7 +117,7 @@ CREATE TABLE transactions (
 
 ### Function and Trigger Issues
 
-```sql
+``sql
 -- BAD: Inefficient trigger function
 CREATE OR REPLACE FUNCTION update_modified_time()
 RETURNS TRIGGER AS $$
@@ -148,7 +148,7 @@ CREATE TRIGGER update_modified_time_trigger
 
 ### Extension Best Practices
 
-```sql
+``sql
 -- Check if extension exists before creating
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -169,7 +169,7 @@ SELECT word_similarity('postgres', 'postgre');
 
 ### Row Level Security (RLS)
 
-```sql
+``sql
 -- GOOD: Implementing RLS
 ALTER TABLE sensitive_data ENABLE ROW LEVEL SECURITY;
 
@@ -180,7 +180,7 @@ CREATE POLICY user_data_policy ON sensitive_data
 
 ### Privilege Management
 
-```sql
+``sql
 -- BAD: Overly broad permissions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;
 
@@ -238,7 +238,7 @@ Focus on PostgreSQL's unique capabilities and ensure the code leverages what mak
 
 Deliver the review as a verdict, a findings table, and paste-ready corrected SQL.
 
-```markdown
+``markdown
 ## PostgreSQL review — <file or selection>
 
 **Verdict**: Pass | Fix required | Reject
@@ -261,4 +261,4 @@ CREATE INDEX idx_orders_data ON orders USING gin(data);
 - [ ] No user input is concatenated into SQL; every parameter is bound (JPQL, derived query, or bound native query).
 - [ ] PostgreSQL-specific types, index types (GIN/GiST/partial), and `CHECK`/`ENUM`/domain constraints are validated.
 - [ ] PII such as CPF or benefit amounts is masked in logs or documented with a column `COMMENT`.
-- [ ] Corrected SQL is paste-ready and any schema change stays rollback-safe (see ``database.instructions.md``).
+- [ ] Corrected SQL is paste-ready and any schema change stays rollback-safe (see `database.instructions.md`).

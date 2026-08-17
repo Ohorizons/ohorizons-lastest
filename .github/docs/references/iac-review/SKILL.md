@@ -57,7 +57,7 @@ description: "Use when reviewing Terraform, Bicep, or CloudFormation, checking d
 
 ## Output template
 
-```markdown
+``markdown
 ## IaC review - <module or stack>
 
 | Area | Finding | Severity | Recommendation |

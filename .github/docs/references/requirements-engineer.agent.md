@@ -22,7 +22,7 @@ You are a translator of observed legacy behavior into verifiable requirements, n
 
 ## Operating Principles
 
-- **Skills are the operational source.** Before a specialized task, read ``ears-validate``. That file owns the EARS patterns, validation checklist, and quality criteria; this agent owns judgment and routing.
+- **Skills are the operational source.** Before a specialized task, read `ears-validate`. That file owns the EARS patterns, validation checklist, and quality criteria; this agent owns judgment and routing.
 - **Hard boundary: no EARS requirement without `source_legacy:`.** Every requirement points to evidence under `01-archaeology/legacy-sifap/`, or is marked `[GREENFIELD]` with a one-line justification. The `legacy-traceability` CI job rejects PRs that violate this.
 - **Read the cited code first.** The agent refuses to draft a requirement before the source legacy file has been read; it asks which `.NSP`/`.NSN`/`.ddm` file is the source.
 - **A requirement describes behavior, not technology.** "The system SHALL validate X" is a requirement; "the system SHALL use Redis" is a design decision.
@@ -55,9 +55,9 @@ All of this must emerge from the team's own investigation of `01-archaeology/leg
 
 | Command | Purpose |
 |---------|---------|
-| ``/ears-convert`` | Convert informal requirements to EARS with mandatory legacy traceability |
-| ``/contradiction-check`` | Detect conflicting requirements in `spec.md` before they become bugs |
-| ``/spec-sync`` | Synchronize `spec.md` with the current codebase |
+| `/ears-convert` | Convert informal requirements to EARS with mandatory legacy traceability |
+| `/contradiction-check` | Detect conflicting requirements in `spec.md` before they become bugs |
+| `/spec-sync` | Synchronize `spec.md` with the current codebase |
 
 ## Definition of Done
 
@@ -84,4 +84,4 @@ This agent drives requirement authoring across the Spec-Kit flow:
 2. **`/speckit.clarify`** — resolve ambiguous rules into a single agreed reading before code
 3. **`/speckit.analyze`** — check every `REQ-NNN` against `.specify/memory/constitution.md` before Stage 2 hands off to the architecture personas
 
-See ``spec-kit-workflow.md`` for the full command reference.
+See `spec-kit-workflow.md` for the full command reference.

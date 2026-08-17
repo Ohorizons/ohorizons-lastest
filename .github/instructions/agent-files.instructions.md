@@ -23,7 +23,7 @@ When sources conflict, the higher-priority source wins. Do not copy obsolete exa
 This file owns schema-safe primitive authoring conventions. Use the `validation-scripts` skill for ordered validation procedures, the domain-specific skills for operational workflows, and prompt files only for VS Code user-selected actions.
 
 > [!IMPORTANT]
-> Prompt files are a VS Code surface only. Copilot CLI discovers agents, instructions, and skills, but it does not discover or execute `*.prompt.md` files.
+> Prompt files are a VS Code surface only. Copilot CLI discovers agents, instructions, and skills, but it does not discover or execute prompt files.
 
 ## Frontmatter Contracts
 
