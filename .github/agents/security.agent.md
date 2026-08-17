@@ -64,12 +64,12 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `azure-cli` — Defender, resource, identity, and policy metadata checks.
-- `github-cli` — GHAS, repository, branch protection, and alert checks.
-- `kubectl-cli` — Kubernetes security inspection with read commands.
-- `terraform-cli` — plan and module security review.
-- `validation-scripts` — repository validation gates.
-- `test-coverage` — quality signal when security changes require tests.
+- azure-cli
+- github-cli
+- kubectl-cli
+- terraform-cli
+- validation-scripts
+- test-coverage
 
 ## Handoffs
 

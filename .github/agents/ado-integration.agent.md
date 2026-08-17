@@ -64,10 +64,10 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `azure-cli` — Azure DevOps CLI context and pipeline operations.
-- `backstage-deployment` — Backstage ADO integration points and catalog provider behavior.
-- `validation-scripts` — repository validation gates.
-- `issue-ops` — issue based integration requests when applicable.
+- azure-cli
+- backstage-deployment
+- validation-scripts
+- issue-ops
 
 ## Handoffs
 

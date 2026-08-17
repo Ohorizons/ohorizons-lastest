@@ -69,11 +69,11 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `backstage-deployment` — Backstage catalog, auth, and scaffolder integration points.
-- `github-cli` — GitHub-side implementation checks.
-- `azure-cli` — Azure DevOps CLI checks.
-- `codespaces-golden-paths` — hybrid template developer experience.
-- `validation-scripts` — repository validation gates.
+- backstage-deployment
+- github-cli
+- azure-cli
+- codespaces-golden-paths
+- validation-scripts
 
 ## Handoffs
 

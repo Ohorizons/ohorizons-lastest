@@ -69,10 +69,10 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `github-cli` — GitHub App, org, repo, Actions, Packages, GHCR, and API operations.
-- `backstage-deployment` — Backstage integration points and callback expectations.
-- `validation-scripts` — repository validation gates.
-- `issue-ops` — issue based operations and routing when integration work starts from issues.
+- github-cli
+- backstage-deployment
+- validation-scripts
+- issue-ops
 
 ## Handoffs
 

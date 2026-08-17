@@ -90,15 +90,15 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `backstage-deployment` — Backstage deployment, runtime config, local validation, and portal health.
-- `backstage-plugin-builder` — plugin and backend module patterns.
-- `codespaces-golden-paths` — Codespaces devcontainer and badge integration for templates.
-- `github-cli` — GitHub App, org discovery, repository, and GHCR checks.
-- `kubectl-cli` — Kubernetes workload inspection.
-- `helm-cli` — Helm release checks when Backstage is managed by a chart.
-- `markdown-writer` — portal and operator documentation.
-- `mcp-ecosystem` — Backstage documentation and plugin reference lookups.
-- `validation-scripts` — repository validation gates.
+- backstage-deployment
+- backstage-plugin-builder
+- codespaces-golden-paths
+- github-cli
+- kubectl-cli
+- helm-cli
+- markdown-writer
+- mcp-ecosystem
+- validation-scripts
 
 ## Handoffs
 

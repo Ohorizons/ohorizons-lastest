@@ -123,15 +123,15 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `deploy-orchestration` — phase sequencing, dry run and apply flows, and evidence capture.
-- `terraform-cli` — Terraform command safety and H1/H2 ordering.
-- `azure-cli` — subscription, provider, quota, and resource checks.
-- `kubectl-cli` — AKS connectivity and workload validation.
-- `argocd-cli` — GitOps application sync and troubleshooting.
-- `helm-cli` — package operations used by platform services.
-- `prerequisites` — CLI and environment readiness.
-- `validation-scripts` — repository validation commands.
-- `mcp-ecosystem` — live platform methodology and reference data.
+- deploy-orchestration
+- terraform-cli
+- azure-cli
+- kubectl-cli
+- argocd-cli
+- helm-cli
+- prerequisites
+- validation-scripts
+- mcp-ecosystem
 
 ## Handoffs
 

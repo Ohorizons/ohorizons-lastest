@@ -67,11 +67,11 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `observability-stack` — Prometheus, Grafana, Loki, and Alertmanager operations.
-- `kubectl-cli` — Kubernetes diagnostics and safe operational commands.
-- `azure-cli` — Azure Monitor, Application Insights, and Managed Grafana metadata.
-- `validation-scripts` — repository deployment validation.
-- `pipeline-diagnostics` — CI/CD failure context when incidents originate in workflows.
+- observability-stack
+- kubectl-cli
+- azure-cli
+- validation-scripts
+- pipeline-diagnostics
 
 ## Handoffs
 

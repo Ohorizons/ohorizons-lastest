@@ -72,10 +72,10 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `terraform-cli` — Terraform command safety, formatting, validation, planning, and state guidance.
-- `azure-infrastructure` — Azure landing zone, networking, identity, private endpoint, and tagging patterns.
-- `azure-cli` — live Azure metadata checks when needed.
-- `validation-scripts` — repository validation commands.
+- terraform-cli
+- azure-infrastructure
+- azure-cli
+- validation-scripts
 
 ## Handoffs
 

@@ -38,14 +38,14 @@ VALID_AGENT_FIELDS = {
     "mcp-servers",
     "metadata",
 }
-VALID_PROMPT_FIELDS = {"description", "mode", "agent", "model", "tools", "argument-hint"}
+VALID_PROMPT_FIELDS = {"description", "name", "mode", "agent", "model", "tools", "argument-hint"}
 VALID_SKILL_FIELDS = {
     "name",
     "description",
     "license",
     "allowed-tools",
 }
-VALID_INSTRUCTION_FIELDS = {"name", "description", "applyTo", "excludeAgent"}
+VALID_INSTRUCTION_FIELDS = {"description", "applyTo", "excludeAgent"}
 VALID_SKILL_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 AGENT_LABEL = re.compile(r"agent:([a-zA-Z0-9_.-]+)")
 PROMPT_TEMPLATE_VAR = re.compile(r"\{\{[^}]+\}\}")
@@ -59,8 +59,12 @@ MAX_AGENT_BODY_CHARS = 30_000
 
 class ValidationReport:
     def __init__(self) -> None:
+        self.infos: list[str] = []
         self.errors: list[str] = []
         self.warnings: list[str] = []
+
+    def info(self, path: Path, message: str) -> None:
+        self.infos.append(f"{display_path(path)}: {message}")
 
     def error(self, path: Path, message: str) -> None:
         self.errors.append(f"{display_path(path)}: {message}")
@@ -69,6 +73,10 @@ class ValidationReport:
         self.warnings.append(f"{display_path(path)}: {message}")
 
     def print(self) -> None:
+        if self.infos:
+            print("\nInfo")
+            for info in self.infos:
+                print(f"  - {info}")
         if self.errors:
             print("\nErrors")
             for error in self.errors:
@@ -312,6 +320,8 @@ def validate_prompts(agent_names: set[str], report: ValidationReport) -> None:
             continue
         metadata, body = parsed
         warn_unknown_fields(path, metadata, VALID_PROMPT_FIELDS, report)
+        if "mode" in metadata:
+            report.info(path, "`mode` is a legacy alias; `agent` is the current documented key")
         require_string(path, metadata, "description", report)
         target_agent = metadata.get("agent")
         if target_agent is not None and target_agent not in agent_names:

@@ -78,12 +78,12 @@ Invoke this agent for user requests such as:
 
 ## Skills
 
-- `azure-cli` — Azure subscription, provider, quota, SKU, inventory, and AKS credential operations.
-- `azure-infrastructure` — Azure architecture, identity, networking, and private endpoint patterns.
-- `kubectl-cli` — AKS connectivity and node checks.
-- `terraform-cli` — Terraform source of truth boundaries and plan context.
-- `validation-scripts` — repository validation gates.
-- `ai-foundry-operations` — Azure AI Foundry readiness checks for H3.
+- azure-cli
+- azure-infrastructure
+- kubectl-cli
+- terraform-cli
+- validation-scripts
+- ai-foundry-operations
 
 ## Handoffs
 
