@@ -57,20 +57,6 @@ spec:
             catalogFilter:
               kind: Group
 
-        contactEmail:
-          title: Contact Email
-          description: Contact email for the gateway owner (used in API metadata)
-          type: string
-          format: email
-          default: platform-team@example.com
-
-        domainName:
-          title: Domain Name
-          description: Base domain used to expose gateway hostnames (e.g. openhorizons.example.com)
-          type: string
-          default: openhorizons.example.com
-          pattern: '^[a-z0-9.-]+$'
-
         description:
           title: Description
           type: string
@@ -391,8 +377,6 @@ spec:
           system: default
           gatewayName: ${{ parameters.gatewayName }}
           team: ${{ parameters.team }}
-          contactEmail: ${{ parameters.contactEmail }}
-          domainName: ${{ parameters.domainName }}
           description: ${{ parameters.description }}
           gatewayType: ${{ parameters.gatewayType }}
           apis: ${{ parameters.apis }}
@@ -408,24 +392,34 @@ spec:
         targetPath: ./repo/config
         values:
           gatewayName: ${{ parameters.gatewayName }}
-          domainName: ${{ parameters.domainName }}
           apis: ${{ parameters.apis }}
           rateLimits: ${{ parameters.rateLimits }}
 
 
     # --------------------------------------------------------------------------
-    # Inject Copilot Agents
+    # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> api-gateway)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/api-gateway/static
         targetPath: ./repo
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/api-gateway/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -474,13 +468,13 @@ spec:
           
           **Security:**
           - Auth Methods: ${{ parameters.authMethods | join(', ') }}
-          - ${{ parameters.enableWAF ? '✅' : '⏭️' }} WAF
-          - ${{ parameters.enableMTLS ? '✅' : '⏭️' }} mTLS
+          - ${{ '✅' if parameters.enableWAF else '⏭️' }} WAF
+          - ${{ '✅' if parameters.enableMTLS else '⏭️' }} mTLS
           
           **Features:**
-          - ${{ parameters.enableRateLimiting ? '✅' : '⏭️' }} Rate Limiting
-          - ${{ parameters.enableCaching ? '✅' : '⏭️' }} Caching
-          - ${{ parameters.enableAnalytics ? '✅' : '⏭️' }} Analytics
+          - ${{ '✅' if parameters.enableRateLimiting else '⏭️' }} Rate Limiting
+          - ${{ '✅' if parameters.enableCaching else '⏭️' }} Caching
+          - ${{ '✅' if parameters.enableAnalytics else '⏭️' }} Analytics
           
           **Next Steps:**
           1. Review gateway configuration

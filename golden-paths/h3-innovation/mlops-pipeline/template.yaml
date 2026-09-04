@@ -198,18 +198,6 @@ spec:
             - westeurope
           default: brazilsouth
           
-    - title: GitHub Repository
-      required:
-        - repoUrl
-      properties:
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-
     - title: Azure Deployment
       description: Optional Azure infrastructure baseline
       properties:
@@ -231,7 +219,7 @@ spec:
         url: ./skeleton
         values:
           lifecycle: production
-          repoUrl: ${{ parameters.repoUrl }}
+          repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
           system: default
           name: ${{ parameters.name }}
           owner: ${{ parameters.owner }}
@@ -260,16 +248,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> mlops-pipeline)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/mlops-pipeline/static
         targetPath: .
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/mlops-pipeline/context
+        targetPath: .
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -286,7 +285,7 @@ spec:
       name: Publish to GitHub
       action: publish:github
       input:
-        repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
         description: MLOps Pipeline - ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: private

@@ -1,7 +1,7 @@
 .PHONY: build test lint
 
 build:
-	docker build -t app:v0.1.0 .
+	docker build -t app:latest .
 
 test:
 	echo 'Running tests...'

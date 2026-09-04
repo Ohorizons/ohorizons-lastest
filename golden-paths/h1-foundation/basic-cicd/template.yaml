@@ -272,7 +272,7 @@ spec:
           title: Container Registry
           description: Azure Container Registry name
           type: string
-          default: ${{ values.acrName | default('acropenhorizons') }}
+          default: ${{ values.acrName | default('acrthreehorizons') }}
 
         dockerfilePath:
           title: Dockerfile Path
@@ -395,16 +395,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> basic-cicd)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/basic-cicd/static
         targetPath: ./repo
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/basic-cicd/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -437,18 +448,18 @@ spec:
           
           **CI Workflows:**
           - ✅ Build workflow (${{ parameters.language }})
-          ${{ parameters.enableTest ? '- ✅ Test workflow with coverage' : '' }}
-          ${{ parameters.enableLint ? '- ✅ Linting and code quality' : '' }}
+          ${{ '- ✅ Test workflow with coverage' if parameters.enableTest else '' }}
+          ${{ '- ✅ Linting and code quality' if parameters.enableLint else '' }}
           
           **Security:**
-          ${{ parameters.enableSecurity ? '- ✅ GitHub Advanced Security (CodeQL)' : '- ⏭️ Security scanning skipped' }}
-          ${{ parameters.enableDependencyReview ? '- ✅ Dependency review on PRs' : '' }}
+          ${{ '- ✅ GitHub Advanced Security (CodeQL)' if parameters.enableSecurity else '- ⏭️ Security scanning skipped' }}
+          ${{ '- ✅ Dependency review on PRs' if parameters.enableDependencyReview else '' }}
           - ✅ Dependabot configuration
           
           **Deployment:**
-          ${{ parameters.enableDeploy ? '- ✅ Deployment to ' + parameters.deploymentTarget : '- ⏭️ Deployment skipped' }}
-          ${{ parameters.enableDeploy ? '- 📦 Environments: ' + parameters.environments.join(', ') : '' }}
-          ${{ parameters.requireApproval ? '- 🔐 Production approval required' : '' }}
+          ${{ ('- ✅ Deployment to ' + parameters.deploymentTarget) if parameters.enableDeploy else '- ⏭️ Deployment skipped' }}
+          ${{ ('- 📦 Environments: ' + parameters.environments.join(', ')) if parameters.enableDeploy else '' }}
+          ${{ '- 🔐 Production approval required' if parameters.requireApproval else '' }}
           
           ### Next Steps
           

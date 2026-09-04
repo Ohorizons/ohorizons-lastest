@@ -7,42 +7,77 @@ This directory contains self-service templates for Backstage that enable develop
 ## Directory Structure
 
 ```
-golden-paths/
-├── h1-foundation/           # Foundation templates (6)
-│   ├── basic-cicd/
-│   ├── documentation-site/
-│   ├── infrastructure-provisioning/
-│   ├── new-microservice/
-│   ├── security-baseline/
-│   └── web-application/
-├── h2-enhancement/          # Enhancement templates (9)
-│   ├── ado-to-github-migration/
-│   ├── api-gateway/
-│   ├── api-microservice/
-│   ├── batch-job/
-│   ├── data-pipeline/
-│   ├── event-driven-microservice/
-│   ├── gitops-deployment/
-│   ├── microservice/
-│   └── reusable-workflows/
-└── h3-innovation/           # Innovation templates (7)
-    ├── ai-evaluation-pipeline/
-    ├── copilot-extension/
-    ├── foundry-agent/
-    ├── mlops-pipeline/
-    ├── multi-agent-system/
-    ├── rag-application/
-    └── sre-agent-integration/
+open-horizons-templates/
+├── h1-foundation/           # Foundation templates (7)
+├── h2-enhancement/          # Enhancement templates (10)
+├── h3-innovation/           # Innovation templates (18)
+├── common/
+│   ├── azure-infrastructure/   # Shared Azure deployment baseline
+│   └── primitives/             # One Copilot primitive bundle per template
+│       ├── profiles.json       # The per-template selection contract
+│       ├── _local-agents/      # Open Horizons agents authored here
+│       ├── _local-skills/      # Open Horizons skills authored here
+│       └── <template>/         # static/ (verbatim) + context/ (rendered)
+├── contracts/
+│   └── scaffolder-actions.json # Actions the portal backend registers
+└── scripts/                    # Catalog gates and generators
 ```
+
+## Copilot primitives
+
+Every template installs a Copilot primitive bundle into the repository it
+generates. The bundles are **not interchangeable**: a Terraform template and an
+MCP server template need different agents, skills, and instructions, and a
+bundle that serves both equally serves neither well.
+
+`common/primitives/profiles.json` is the contract. It declares an immutable pin
+to the primitive source, a small universal base, and one context-specific
+profile per template.
+
+| Profile field | Meaning |
+| --- | --- |
+| `context` | What the generated repository is for. |
+| `stack` | The technologies the primitives are selected against. |
+| `agents`, `skills`, `instructions`, `prompts`, `hooks` | Additions on top of the base. |
+| `delivery` | `control-plane` when the AEG installs the bundle instead of the scaffolder. |
+
+Each profile is materialised into `common/primitives/<template>/`:
+
+| Directory | Fetched with | Why |
+| --- | --- | --- |
+| `static/` | `fetch:plain` | Primitive documents contain `{{ ... }}` examples, so they must never pass through the templating engine. |
+| `context/` | `fetch:template` | `AGENTS.md` and `.github/copilot-instructions.md` carry the generated repository's own name and owner. |
+
+A generated repository therefore receives `.github/agents/`, `.github/skills/`,
+`.github/instructions/`, `.github/prompts/`, `.github/hooks/`,
+`.github/scripts/`, `.github/harness/`, `.github/copilot-instructions.md`, and
+`AGENTS.md`, plus a `validate-primitives.py` it can run itself.
+
+```bash
+python3 scripts/build-primitives.py --check   # offline: completeness and drift
+python3 scripts/build-primitives.py --build   # re-vendor from the pinned commit
+```
+
+## Catalog gates
+
+| Command | What it proves |
+| --- | --- |
+| `./scripts/validate-scaffolder-templates.sh` | Action inputs match the schemas the backend accepts. |
+| `python3 scripts/validate-templates.py` | Every template exists, parses, and its fetch sources resolve. |
+| `node scripts/validate-template-language.js` | Every template **compiles and renders** with the Nunjucks configuration Backstage uses. |
+| `python3 scripts/build-primitives.py --check` | Every template ships a complete bundle and actually fetches it. |
+| `python3 scripts/validate-generated-infrastructure.py` | The rendered Terraform and Bicep initialise, validate, and build. |
+| `python3 -m unittest discover -s tests -t .` | Each gate detects its own regression. |
 
 ## Template Categories
 
-### H1 Foundation (6 templates)
+### H1 Foundation (7 templates)
 
 Basic infrastructure and application templates:
 
 | Template | Description |
 |----------|-------------|
+| `aeg-application` | Governed AEG application delivery |
 | `basic-cicd` | Simple CI/CD pipeline |
 | `documentation-site` | Documentation websites |
 | `infrastructure-provisioning` | Terraform module scaffolding |
@@ -50,7 +85,7 @@ Basic infrastructure and application templates:
 | `security-baseline` | Security configuration |
 | `web-application` | Full-stack web applications |
 
-### H2 Enhancement (9 templates)
+### H2 Enhancement (10 templates)
 
 Advanced application patterns:
 
@@ -66,7 +101,7 @@ Advanced application patterns:
 | `microservice` | Complete microservice with all features |
 | `reusable-workflows` | GitHub Actions workflow library |
 
-### H3 Innovation (7 templates)
+### H3 Innovation (18 templates)
 
 AI/ML and advanced automation:
 
@@ -251,6 +286,6 @@ yarn dev
 
 ## Related Documentation
 
-- [Backstage Expert Agent](../.github/agents/backstage-expert.agent.md)
-- [Deploy Agent](../.github/agents/deploy.agent.md)
+- [Platform Agent](../.github/agents/platform.agent.md)
+- [DevOps Agent](../.github/agents/devops.agent.md)
 - [Backstage Scaffolder](https://backstage.io/docs/features/software-templates/)

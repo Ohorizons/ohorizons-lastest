@@ -356,16 +356,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> security-baseline)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/security-baseline/static
         targetPath: ./output
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/security-baseline/context
+        targetPath: ./output
+        values:
+          name: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -396,21 +407,21 @@ spec:
           ### Security Features Enabled
           
           **Code Analysis:**
-          ${{ parameters.enableCodeScanning ? '- ✅ CodeQL scanning for ' + parameters.primaryLanguage : '- ⏭️ CodeQL skipped' }}
-          ${{ parameters.enableAutofix ? '- ✅ Copilot Autofix enabled' : '' }}
+          ${{ ('- ✅ CodeQL scanning for ' + parameters.primaryLanguage) if parameters.enableCodeScanning else '- ⏭️ CodeQL skipped' }}
+          ${{ '- ✅ Copilot Autofix enabled' if parameters.enableAutofix else '' }}
           
           **Secret Protection:**
-          ${{ parameters.enableSecretScanning ? '- ✅ Secret scanning enabled' : '- ⏭️ Secret scanning skipped' }}
-          ${{ parameters.enableSecretPushProtection ? '- ✅ Push protection enabled' : '' }}
+          ${{ '- ✅ Secret scanning enabled' if parameters.enableSecretScanning else '- ⏭️ Secret scanning skipped' }}
+          ${{ '- ✅ Push protection enabled' if parameters.enableSecretPushProtection else '' }}
           
           **Dependency Security:**
-          ${{ parameters.enableDependencyScanning ? '- ✅ Dependency review on PRs' : '- ⏭️ Dependency review skipped' }}
-          ${{ parameters.enableDependabot ? '- ✅ Dependabot automated updates' : '' }}
+          ${{ '- ✅ Dependency review on PRs' if parameters.enableDependencyScanning else '- ⏭️ Dependency review skipped' }}
+          ${{ '- ✅ Dependabot automated updates' if parameters.enableDependabot else '' }}
           
           **Compliance:**
           - 📋 Framework: ${{ parameters.complianceFramework }}
-          ${{ parameters.enableSecurityPolicy ? '- ✅ SECURITY.md policy added' : '' }}
-          ${{ parameters.enableDefenderIntegration ? '- ✅ Defender integration configured' : '' }}
+          ${{ '- ✅ SECURITY.md policy added' if parameters.enableSecurityPolicy else '' }}
+          ${{ '- ✅ Defender integration configured' if parameters.enableDefenderIntegration else '' }}
           
           ### Configuration Details
           
@@ -461,5 +472,5 @@ spec:
           1. Go to Settings → Branches → Add rule
           2. Require status checks: `CodeQL`, `Dependency Review`
           3. Require ${{ parameters.requiredReviewers }} approving reviews
-          ${{ parameters.requireCodeOwnerReview ? '4. Require review from Code Owners' : '' }}
+          ${{ '4. Require review from Code Owners' if parameters.requireCodeOwnerReview else '' }}
 

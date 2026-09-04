@@ -4,10 +4,9 @@ metadata:
   name: mcp-ecosystem
   title: MCP Ecosystem Server (Full)
   description: |
-    Creates a complete MCP Ecosystem Server with all 17 tool modules:
-    - Group A (Agent & AI): spec-kit, anthropics-skills, agent-framework, gh-aw, agents-md, github-copilot-docs
-    - Group B (Backstage): backstage-docs, backstage-plugins, backstage-ui, spotify-backstage, backstage-org
-    - Group C (Official docs): microsoft-learn, vscode-docs, github-docs, anthropic-docs, azure-caf, azure-waf
+    Creates a complete MCP Ecosystem Server with all 13 tool modules:
+    - Agent & AI: spec-kit, awesome-copilot, agent-framework, gh-aw, agents-md
+    - Backstage: backstage-docs, backstage-plugins, backstage-ui, spotify-backstage, backstage-org
     - Streamable HTTP transport, Docker, Kubernetes-ready
   tags:
     - mcp
@@ -50,13 +49,12 @@ spec:
 
     - title: Tool Modules
       properties:
-        # Group A - Agent & AI frameworks
         enable_spec_kit:
           title: Spec-Kit (Spec-Driven Development)
           type: boolean
           default: true
-        enable_anthropics_skills:
-          title: Anthropic Skills (Agent Skills format)
+        enable_awesome_copilot:
+          title: Awesome Copilot (agents/skills/prompts)
           type: boolean
           default: true
         enable_agent_framework:
@@ -71,11 +69,6 @@ spec:
           title: AGENTS.md Format Reference
           type: boolean
           default: true
-        enable_github_copilot_docs:
-          title: GitHub Copilot Docs
-          type: boolean
-          default: true
-        # Group B - Backstage ecosystem
         enable_backstage_docs:
           title: Backstage Docs
           type: boolean
@@ -96,31 +89,6 @@ spec:
           title: Backstage Org Repos
           type: boolean
           default: true
-        # Group C - Official documentation
-        enable_microsoft_learn:
-          title: Microsoft Learn (federated - Azure/AKS/AI Foundry/CAF/WAF)
-          type: boolean
-          default: true
-        enable_vscode_docs:
-          title: VS Code Docs
-          type: boolean
-          default: true
-        enable_github_docs:
-          title: GitHub Docs (Actions/GHAS/OIDC/Packages)
-          type: boolean
-          default: true
-        enable_anthropic_docs:
-          title: Anthropic / Claude Docs
-          type: boolean
-          default: true
-        enable_azure_caf:
-          title: Azure Cloud Adoption Framework (CAF)
-          type: boolean
-          default: true
-        enable_azure_waf:
-          title: Azure Well-Architected Framework (WAF)
-          type: boolean
-          default: true
 
     - title: Infrastructure
       properties:
@@ -134,18 +102,6 @@ spec:
             - Docker Compose
             - Kubernetes (AKS)
           default: docker_compose
-
-    - title: GitHub Repository
-      required:
-        - repoUrl
-      properties:
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
 
     - title: Azure Deployment
       description: Optional Azure infrastructure baseline
@@ -188,11 +144,32 @@ spec:
           environment: dev
           azureRegion: centralus
           workloadType: "mcp-ecosystem"
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> mcp-ecosystem)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
+      action: fetch:plain
+      input:
+        url: ../../common/primitives/mcp-ecosystem/static
+        targetPath: .
+
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/mcp-ecosystem/context
+        targetPath: .
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+
     - id: publish
       name: Publish to GitHub
       action: publish:github
       input:
-        repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: github.com?owner=Ohorizons&repo=${{ parameters.name }}
         repoVisibility: public
         defaultBranch: main
 

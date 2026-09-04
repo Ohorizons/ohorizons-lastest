@@ -382,7 +382,7 @@ spec:
 
     - id: generate-backend
       name: Generate Backend
-      if: ${{ parameters.backendFramework !== 'none' }}
+      if: ${{ parameters.backendFramework != 'none' }}
       action: fetch:template
       input:
         url: ./skeleton/backend/${{ parameters.backendFramework }}
@@ -418,16 +418,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> web-application)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/web-application/static
         targetPath: ./repo
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/web-application/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.appName }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -480,7 +491,7 @@ spec:
           **Frontend:**
           - Framework: ${{ parameters.frontendFramework }}
           - UI Library: ${{ parameters.uiLibrary }}
-          - TypeScript: ${{ parameters.enableTypeScript ? '✅' : '❌' }}
+          - TypeScript: ${{ '✅' if parameters.enableTypeScript else '❌' }}
           
           **Backend:**
           - Framework: ${{ parameters.backendFramework }}

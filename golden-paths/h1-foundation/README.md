@@ -70,4 +70,4 @@ Select any template from the Backstage portal under "Create" → "Choose a Templ
 ## Related Documentation
 
 - [Golden Paths Overview](../README.md)
-- [Terraform Agent](../../.github/agents/terraform.agent.md)
+- [Platform Agent](../../.github/agents/platform.agent.md)
