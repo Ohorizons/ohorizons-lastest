@@ -41,6 +41,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -74,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://${{ github.event.repository.name }}.openhorizons.example.com
+      url: https://${{ github.event.repository.name }}.ohorizons.ai
     steps:
       - uses: actions/checkout@v4
 

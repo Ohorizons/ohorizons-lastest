@@ -523,41 +523,31 @@ spec:
           serviceName: ${{ parameters.serviceName }}
           language: ${{ parameters.language }}
 
-    # -------------------------------------------------------------------------
-    # Generate Catalog Info
-    # -------------------------------------------------------------------------
-    - id: generate-catalog
-      name: Generate Catalog Info
-      action: fetch:template
-      input:
-        url: ./skeleton/catalog
-        targetPath: ./repo
-        values:
-          serviceName: ${{ parameters.serviceName }}
-          description: ${{ parameters.description }}
-          team: ${{ parameters.team }}
-          system: ${{ parameters.system }}
-          messageBroker: ${{ parameters.messageBroker }}
-          inputTopics: ${{ parameters.inputTopics }}
-          outputTopics: ${{ parameters.outputTopics }}
-
 
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> event-driven-microservice)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/event-driven-microservice/static
         targetPath: ./repo
-    # -------------------------------------------------------------------------
-    # Create Repository
-    # -------------------------------------------------------------------------
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/event-driven-microservice/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.serviceName }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -627,10 +617,10 @@ spec:
           
           **Features:**
           - ✅ ${{ parameters.messageLibrary }} messaging integration
-          - ${{ parameters.kedaEnabled ? '✅' : '⏭️' }} KEDA autoscaling
-          - ${{ parameters.enableDeadLetterQueue ? '✅' : '⏭️' }} Dead letter queue
-          - ${{ parameters.enableIdempotency ? '✅' : '⏭️' }} Idempotency tracking
-          - ${{ parameters.enableDistributedTracing ? '✅' : '⏭️' }} Distributed tracing
+          - ${{ '✅' if parameters.kedaEnabled else '⏭️' }} KEDA autoscaling
+          - ${{ '✅' if parameters.enableDeadLetterQueue else '⏭️' }} Dead letter queue
+          - ${{ '✅' if parameters.enableIdempotency else '⏭️' }} Idempotency tracking
+          - ${{ '✅' if parameters.enableDistributedTracing else '⏭️' }} Distributed tracing
           
           **Next Steps:**
           1. Configure Service Bus/Event Hub connection in Azure

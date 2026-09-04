@@ -442,16 +442,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> microservice)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/microservice/static
         targetPath: ./repo
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/microservice/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.serviceName }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -504,9 +515,9 @@ spec:
           - Target: ${{ parameters.deploymentTarget }}
           
           **Observability:**
-          - ${{ parameters.enableMetrics ? '✅' : '⏭️' }} Prometheus Metrics
-          - ${{ parameters.enableTracing ? '✅' : '⏭️' }} Distributed Tracing
-          - ${{ parameters.enableHealthChecks ? '✅' : '⏭️' }} Health Checks
+          - ${{ '✅' if parameters.enableMetrics else '⏭️' }} Prometheus Metrics
+          - ${{ '✅' if parameters.enableTracing else '⏭️' }} Distributed Tracing
+          - ${{ '✅' if parameters.enableHealthChecks else '⏭️' }} Health Checks
           
           **Environments:** ${{ parameters.environments | join(', ') }}
           

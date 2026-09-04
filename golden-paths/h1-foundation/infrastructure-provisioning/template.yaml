@@ -378,6 +378,7 @@ spec:
         values:
           projectName: ${{ parameters.projectName }}
           environment: ${{ parameters.environment }}
+          owner: ${{ parameters.owner }}
           resourceTypes: ${{ parameters.resourceTypes }}
           azureRegion: ${{ parameters.azureRegion }}
           vnetAddressSpace: ${{ parameters.vnetAddressSpace }}
@@ -405,12 +406,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> infrastructure-provisioning)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/infrastructure-provisioning/static
         targetPath: ./repo
+
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/infrastructure-provisioning/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.projectName }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: create-repo
       name: Create GitHub Repository
       action: publish:github
@@ -451,13 +467,13 @@ spec:
           ${{ parameters.resourceTypes | join(', ') }}
           
           **Security:**
-          - Defender: ${{ parameters.enableDefender ? '✅' : '⏭️' }}
-          - Policy: ${{ parameters.enablePolicyCompliance ? '✅' : '⏭️' }}
-          - Audit Logs: ${{ parameters.enableAuditLogs ? '✅' : '⏭️' }}
+          - Defender: ${{ '✅' if parameters.enableDefender else '⏭️' }}
+          - Policy: ${{ '✅' if parameters.enablePolicyCompliance else '⏭️' }}
+          - Audit Logs: ${{ '✅' if parameters.enableAuditLogs else '⏭️' }}
           
           **Cost Controls:**
           - Budget: ${{ parameters.monthlyBudget }} USD/month
-          - Auto-shutdown: ${{ parameters.enableAutoShutdown ? '✅' : '⏭️' }}
+          - Auto-shutdown: ${{ '✅' if parameters.enableAutoShutdown else '⏭️' }}
           
           **Next Steps:**
           1. Review generated IaC code

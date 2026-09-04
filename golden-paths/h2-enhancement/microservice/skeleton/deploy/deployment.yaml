@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: microservice:v0.1.0
+          image: microservice:latest
           ports:
             - containerPort: 8000
           livenessProbe:

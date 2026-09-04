@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/managed-by: backstage
 spec:
   hosts:
-    - ${{ values.gatewayName }}.${{ values.domainName }}
+    - ${{ values.gatewayName }}.ohorizons.ai
   gateways:
     - ${{ values.gatewayName }}-gateway
   http:

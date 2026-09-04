@@ -1,21 +1,21 @@
 # Web framework
-fastapi==0.115.6
+fastapi==0.109.0
 uvicorn[standard]==0.27.0
-python-multipart>=0.0.27
+python-multipart==0.0.6
 
 # Azure SDKs
-azure-identity>=1.19.0
+azure-identity==1.15.0
 azure-storage-blob==12.19.0
 azure-search-documents==11.4.0
 openai==1.12.0
 
 # LangChain
-langchain==0.3.21
-langchain-openai>=0.2.14
-langchain-community>=0.3.27
+langchain==0.1.5
+langchain-openai==0.0.5
+langchain-community==0.0.17
 
 # Document processing
-pypdf>=6.10.2
+pypdf==4.0.1
 python-docx==1.1.0
 beautifulsoup4==4.12.3
 tiktoken==0.5.2
@@ -29,10 +29,10 @@ opentelemetry-instrumentation-fastapi==0.43b0
 # Utilities
 pydantic==2.6.0
 pydantic-settings==2.1.0
-python-dotenv>=1.2.2
+python-dotenv==1.0.1
 tenacity==8.2.3
 
 # Testing
-pytest>=9.0.3
+pytest==8.0.0
 pytest-asyncio==0.23.4
 httpx==0.26.0

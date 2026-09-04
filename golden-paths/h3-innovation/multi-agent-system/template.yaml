@@ -593,19 +593,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> multi-agent-system)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/multi-agent-system/static
         targetPath: ./repo
-    # -------------------------------------------------------------------------
-    # Create Repository
-    # -------------------------------------------------------------------------
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/multi-agent-system/context
+        targetPath: ./repo
+        values:
+          name: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"
@@ -664,9 +672,9 @@ spec:
           **Pattern:** ${{ parameters.orchestrationPattern }}
           
           **Features:**
-          - ${{ parameters.enableHumanInLoop ? '✅' : '⏭️' }} Human-in-the-Loop
-          - ${{ parameters.enableContentSafety ? '✅' : '⏭️' }} Content Safety
-          - ${{ parameters.enableAuditLog ? '✅' : '⏭️' }} Audit Logging
+          - ${{ '✅' if parameters.enableHumanInLoop else '⏭️' }} Human-in-the-Loop
+          - ${{ '✅' if parameters.enableContentSafety else '⏭️' }} Content Safety
+          - ${{ '✅' if parameters.enableAuditLog else '⏭️' }} Audit Logging
           - Memory: ${{ parameters.memoryType }} (${{ parameters.memoryBackend }})
           
           **Next Steps:**

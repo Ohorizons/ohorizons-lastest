@@ -4,8 +4,8 @@ info:
   description: API Gateway definition for ${{ values.gatewayName }}
   version: "1.0.0"
   contact:
-    name: ${{ values.owner }}
-    email: ${{ values.contactEmail }}
+    name: Platform Team
+    email: platform@ohorizons.ai
 
 servers:
   - url: https://${{ values.gatewayName }}.azure-api.net

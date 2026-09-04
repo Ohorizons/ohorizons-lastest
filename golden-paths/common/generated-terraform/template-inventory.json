@@ -1,0 +1,260 @@
+{
+  "$schema": "https://ohorizons.example/schemas/generated-terraform-template-inventory-v1.json",
+  "feature_id": "008-generated-terraform-azure-iac",
+  "version": "1.0.0",
+  "as_of": "2026-08-26",
+  "task": "T002",
+  "method": "Read-only classification of every template.yaml under scripts/golden-paths against ADR-008-001 applicability selectors (Azure, Terraform, one supported archetype, one dev/qas/prd environment) and the five Contract A archetypes in FR-ARCH-002 through FR-ARCH-006. No template.yaml, skeleton, or Terraform file was changed to produce this inventory.",
+  "path_deviation_note": "TASKS.md T002 names golden-paths/common/generated-terraform/template-inventory.json. This repository's canonical Backstage template tree is scripts/golden-paths/ (see ADR-008-016's own finding of a canonical/mirror split, which does not match current repository reality: no root-level golden-paths/ directory exists). This file is committed at scripts/golden-paths/common/generated-terraform/template-inventory.json to avoid creating a second, conflicting top-level golden-paths/ tree without an architecture decision. Reconciling ADR-008-016 with actual repository layout is an open item for open-horizons-architect, not resolved by this inventory.",
+  "allowed_states": [
+    "applicable",
+    "not_applicable",
+    "blocked"
+  ],
+  "supported_archetypes": [
+    "container-app",
+    "aks-workload",
+    "serverless",
+    "data-pipeline",
+    "ai-workload"
+  ],
+  "templates": [
+    {
+      "path": "h1-foundation/aeg-application",
+      "state": "not_applicable",
+      "reason": "Starts a governed AEG control-plane run instead of publishing a repository. The scaffolder writes no files, so this template selects no archetype and emits no Azure infrastructure of its own; the infrastructure of whatever the AEG implements is classified against the template that generates it."
+    },
+    {
+      "path": "h1-foundation/basic-cicd",
+      "name": "h1-basic-cicd",
+      "state": "not_applicable",
+      "reason": "Adds CI/CD workflows to an existing repository; emits no Azure infrastructure and selects no archetype."
+    },
+    {
+      "path": "h1-foundation/documentation-site",
+      "name": "h1-documentation-site",
+      "state": "not_applicable",
+      "reason": "Generates a static documentation site with TechDocs integration; no Azure resource is provisioned."
+    },
+    {
+      "path": "h1-foundation/infrastructure-provisioning",
+      "name": "h1-infrastructure-provisioning",
+      "state": "blocked",
+      "candidate_archetype": null,
+      "owner": "Platform Engineering",
+      "reason": "Pre-existing generic Azure Terraform/Bicep provisioning template with the closest scope overlap to this feature. It predates the five-archetype contract and is not archetype-scoped. Wiring feature 008 here requires an ADR reconciling ADR-008-016 template ownership with this existing template before T025 can update it, plus every CK-INPUT-001 through CK-INPUT-009 external input."
+    },
+    {
+      "path": "h1-foundation/new-microservice",
+      "name": "h1-new-microservice",
+      "state": "blocked",
+      "candidate_archetype": "aks-workload",
+      "owner": "Platform Engineering",
+      "reason": "Emits Docker and Kubernetes manifests for an existing cluster but no Terraform infrastructure today. Wiring the aks-workload profile here is a T025 candidate once CK-INPUT-001 through CK-INPUT-009 are supplied."
+    },
+    {
+      "path": "h1-foundation/security-baseline",
+      "name": "h1-security-baseline",
+      "state": "not_applicable",
+      "reason": "Applies GHAS and repository security policy; emits no Azure infrastructure and selects no archetype."
+    },
+    {
+      "path": "h1-foundation/web-application",
+      "name": "h1-web-application",
+      "state": "blocked",
+      "candidate_archetype": "container-app",
+      "owner": "Platform Engineering and Application Owner",
+      "reason": "Offers both a container-app-shaped and an aks-workload-shaped deployment target in one template. FR-ARCH-001 requires exactly one archetype per generated manifest, so this template needs a decision on which deployment target this feature wires first, plus CK-INPUT-001 through CK-INPUT-009."
+    },
+    {
+      "path": "h2-enhancement/ado-to-github-migration",
+      "name": "ado-to-github-migration",
+      "state": "not_applicable",
+      "reason": "Repository and pipeline migration tooling; emits no Azure infrastructure."
+    },
+    {
+      "path": "h2-enhancement/api-gateway",
+      "name": "h2-api-gateway",
+      "state": "not_applicable",
+      "reason": "Produces API management configuration (routing, auth, rate limiting), not one of the five Contract A compute/data archetypes."
+    },
+    {
+      "path": "h2-enhancement/api-microservice",
+      "name": "h2-api-microservice",
+      "state": "blocked",
+      "candidate_archetype": "container-app",
+      "owner": "Platform Engineering",
+      "reason": "Production API microservice with a database and cache; matches the container-app profile shape. No Terraform is generated today; wiring requires T025 plus CK-INPUT-001 through CK-INPUT-009."
+    },
+    {
+      "path": "h2-enhancement/batch-job",
+      "name": "h2-batch-job",
+      "state": "blocked",
+      "candidate_archetype": "serverless",
+      "owner": "Platform Engineering",
+      "reason": "Scheduled/background batch execution matches the serverless profile shape; the template supports multiple execution platforms and needs an explicit decision on which one this feature targets first."
+    },
+    {
+      "path": "h2-enhancement/data-pipeline",
+      "name": "h2-data-pipeline",
+      "state": "blocked",
+      "candidate_archetype": "data-pipeline",
+      "owner": "Data Engineering",
+      "reason": "Names Azure Data Factory, Databricks, Synapse, and AKS Spark/Flink as options. The data-pipeline archetype covers Data Factory and storage; the AKS-based option would require the aks-workload profile instead, which needs an explicit disposition."
+    },
+    {
+      "path": "h2-enhancement/event-driven-microservice",
+      "name": "h2-event-driven-microservice",
+      "state": "blocked",
+      "candidate_archetype": "container-app",
+      "owner": "Platform Engineering",
+      "reason": "Event-driven service using Service Bus, Event Hubs, or Event Grid; closest to the container-app profile with an event trigger. No Terraform is generated today."
+    },
+    {
+      "path": "h2-enhancement/gitops-deployment",
+      "name": "h2-gitops-deployment",
+      "state": "not_applicable",
+      "reason": "Generates ArgoCD Application manifests and Kustomize overlays for existing clusters; emits no Terraform and provisions no Azure resource."
+    },
+    {
+      "path": "h2-enhancement/microservice",
+      "name": "h2-microservice",
+      "state": "blocked",
+      "candidate_archetype": "container-app",
+      "owner": "Platform Engineering",
+      "reason": "Containerized microservice with GitOps deployment; matches the container-app profile shape once Terraform generation is wired."
+    },
+    {
+      "path": "h2-enhancement/reusable-workflows",
+      "name": "h2-reusable-workflows",
+      "state": "not_applicable",
+      "reason": "Publishes reusable GitHub Actions workflows and composite actions; emits no Azure infrastructure."
+    },
+    {
+      "path": "h2-enhancement/todo-app",
+      "name": "todo-app",
+      "state": "blocked",
+      "candidate_archetype": "container-app",
+      "owner": "Platform Engineering",
+      "reason": "Already references 'Azure Terraform IaC' in its own description and ships a codespaces-workflow skeleton. This is an existing-IaC overlap case, not a greenfield wiring case: T025 must reconcile ownership with the existing skeleton before this feature's container-app profile can be attached, in addition to CK-INPUT-001 through CK-INPUT-009."
+    },
+    {
+      "path": "h3-innovation/ai-evaluation-pipeline",
+      "name": "ai-evaluation-pipeline",
+      "state": "blocked",
+      "candidate_archetype": "ai-workload",
+      "owner": "AI Platform",
+      "reason": "Model evaluation/benchmarking pipeline; matches the ai-workload profile shape. BLOCK-008-008 AI model, quota, safety, and evaluation inputs are required before any model deployment resource is generated."
+    },
+    {
+      "path": "h3-innovation/copilot-extension",
+      "name": "copilot-extension",
+      "state": "not_applicable",
+      "reason": "Scaffolds a GitHub Copilot Extension (agent/skillset code); no Azure infrastructure archetype is selected in its parameters."
+    },
+    {
+      "path": "h3-innovation/foundry-agent",
+      "name": "h3-foundry-agent",
+      "state": "blocked",
+      "candidate_archetype": "ai-workload",
+      "owner": "AI Platform",
+      "reason": "Deploys to Azure AI Agent Service backed by Azure AI Foundry; matches the ai-workload profile shape. Requires BLOCK-008-002 AVM suitability and BLOCK-008-008 model deployment inputs before generation."
+    },
+    {
+      "path": "h3-innovation/mcp-agent-framework",
+      "name": "mcp-agent-framework",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-agents-md",
+      "name": "mcp-agents-md",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-awesome-copilot",
+      "name": "mcp-awesome-copilot",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-backstage-docs",
+      "name": "mcp-backstage-docs",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-backstage-org",
+      "name": "mcp-backstage-org",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-backstage-plugins",
+      "name": "mcp-backstage-plugins",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-backstage-ui",
+      "name": "mcp-backstage-ui",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-ecosystem",
+      "name": "mcp-ecosystem",
+      "state": "not_applicable",
+      "reason": "Bundles thirteen MCP tool modules into one reference server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-gh-aw",
+      "name": "mcp-gh-aw",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-spec-kit",
+      "name": "mcp-spec-kit",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mcp-spotify-backstage",
+      "name": "mcp-spotify-backstage",
+      "state": "not_applicable",
+      "reason": "Standalone TypeScript MCP reference-tool server; the template selects no Azure infrastructure archetype."
+    },
+    {
+      "path": "h3-innovation/mlops-pipeline",
+      "name": "mlops-pipeline",
+      "state": "blocked",
+      "candidate_archetype": "ai-workload",
+      "owner": "AI Platform",
+      "reason": "Model training, versioning, and feature-store pipeline referencing Foundry, Kubernetes, and serverless execution; closest to the ai-workload profile. Needs an explicit execution-platform disposition plus BLOCK-008-008 inputs."
+    },
+    {
+      "path": "h3-innovation/multi-agent-system",
+      "name": "h3-multi-agent-system",
+      "state": "blocked",
+      "candidate_archetype": "ai-workload",
+      "owner": "AI Platform",
+      "reason": "References AKS, Container Apps, Azure AI/Foundry, and serverless in the same description. This is a multi-candidate template; FR-ARCH-001 requires exactly one archetype, so an owner must pick one execution shape before wiring."
+    },
+    {
+      "path": "h3-innovation/rag-application",
+      "name": "rag-application",
+      "state": "blocked",
+      "candidate_archetype": "ai-workload",
+      "owner": "AI Platform",
+      "reason": "Already ships its own skeleton/infrastructure directory for Azure AI Foundry and vector search. This is an existing-IaC overlap case: T025 must reconcile ownership with the existing infrastructure directory before this feature's ai-workload profile can be attached."
+    },
+    {
+      "path": "h3-innovation/sre-agent-integration",
+      "name": "sre-agent-integration",
+      "state": "not_applicable",
+      "reason": "Integrates AI-powered SRE tooling with existing incident/observability systems; the template selects no Azure infrastructure archetype for a new workload."
+    }
+  ]
+}

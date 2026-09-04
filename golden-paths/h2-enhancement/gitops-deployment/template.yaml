@@ -232,7 +232,7 @@ spec:
           title: Container Registry
           description: Container registry URL
           type: string
-          default: acropenhorizons.azurecr.io
+          default: acrthreehorizons.azurecr.io
 
         imageName:
           title: Image Name
@@ -503,19 +503,27 @@ spec:
     # --------------------------------------------------------------------------
     # Inject Copilot Agents (Pipeline, Sentinel, Compass)
     # --------------------------------------------------------------------------
-    - id: add-copilot-agents
-      name: Add Copilot AI Agents
+    # --------------------------------------------------------------------------
+    # Copilot primitives selected for this template's context
+    # (common/primitives/profiles.json -> gitops-deployment)
+    # --------------------------------------------------------------------------
+    - id: add-copilot-primitives
+      name: Add Copilot Primitives
       action: fetch:plain
       input:
-        url: ../../common/agents
+        url: ../../common/primitives/gitops-deployment/static
         targetPath: ./output
-    # -------------------------------------------------------------------------
-    # Create GitOps Repository
-    # -------------------------------------------------------------------------
 
-    # --------------------------------------------------------------------------
-    # Generate Azure Infrastructure Baseline
-    # --------------------------------------------------------------------------
+    - id: add-copilot-context
+      name: Add Copilot Repository Context
+      action: fetch:template
+      input:
+        url: ../../common/primitives/gitops-deployment/context
+        targetPath: ./output
+        values:
+          name: ${{ parameters.appName }}
+          owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+
     - id: add-azure-infrastructure
       name: Add Azure Infrastructure Baseline
       if: "${{ parameters.deployToAzure }}"

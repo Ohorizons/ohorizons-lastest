@@ -46,7 +46,7 @@ jobs:
 
       - name: Build container image
         run: |
-          docker build -t ghcr.io/${{ '${{ github.repository }}' }}:${{ '${{ github.sha }}' }} .
+          docker build -t ghcr.io/3horizons/${{ values.name }}:${{ '${{ github.sha }}' }} .
 
   test:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           format: 'sarif'

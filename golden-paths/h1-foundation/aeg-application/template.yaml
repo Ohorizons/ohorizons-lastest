@@ -1,0 +1,106 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: h1-aeg-application
+  title: "H1: Create Application with AEG"
+  description: |
+    Start a governed Agentic Engineering Graph run for a new application.
+    The AEG produces requirements and architecture, pauses for the required
+    human gates, executes the approved implementation, and returns the real
+    repository, catalog entity, and DEV application links.
+  tags:
+    - h1-foundation
+    - aeg
+    - agentic-engineering
+    - governed
+    - recommended
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  owner: platform-engineering
+  type: service
+  parameters:
+    - title: Application request
+      required:
+        - name
+        - need
+        - owner
+        - executionEngine
+      properties:
+        name:
+          title: Application name
+          description: Lowercase application name with optional hyphens.
+          type: string
+          pattern: '^[a-z][a-z0-9-]{1,49}$'
+          maxLength: 50
+          ui:autofocus: true
+        need:
+          title: What should the application do?
+          description: |
+            Describe the user outcome and important constraints. The AEG uses
+            this text to draft requirements; G1 still requires human approval.
+          type: string
+          minLength: 20
+          maxLength: 2000
+          ui:widget: textarea
+          ui:options:
+            rows: 6
+        owner:
+          title: Owner
+          description: Team responsible for the generated application.
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        executionEngine:
+          title: Execution engine
+          description: The implementation is executed by the governed AEG.
+          type: string
+          default: aeg
+          enum:
+            - aeg
+          enumNames:
+            - Agentic Engineering Graph (AEG)
+        language:
+          title: Request language
+          type: string
+          default: pt
+          enum:
+            - pt-BR
+            - en
+          enumNames:
+            - Portuguese
+            - English
+        budgetTokens:
+          title: Maximum AEG token budget
+          description: Hard ceiling reserved for this run.
+          type: integer
+          default: 200000
+          minimum: 10000
+          maximum: 1000000
+
+  steps:
+    - id: startAegRun
+      name: Start governed AEG run
+      action: aeg:run:start
+      input:
+        project: ${{ parameters.name }}
+        intent: poc-foundation
+        need: ${{ parameters.need }}
+        language: ${{ parameters.language }}
+        budgetTokens: ${{ parameters.budgetTokens }}
+
+  output:
+    text:
+      - title: AEG run started
+        content: |
+          The request is now governed by the AEG. Requirements and architecture
+          will pause at G1 and G2 for human approval before implementation.
+    links:
+      - title: Open AEG run
+        icon: dashboard
+        url: ${{ steps['startAegRun'].output.runUrl }}
+      - title: View all AEG runs
+        icon: catalog
+        url: /aeg

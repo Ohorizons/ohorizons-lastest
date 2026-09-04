@@ -1,0 +1,37 @@
+{
+  "description": "Scaffolder actions provided by the modules the Backstage backend registers. Regenerate in the portal repository (Ohorizons/ohorizons-demo) with scripts/update-scaffolder-actions.py when backend modules or their versions change, then copy the result here. See CONTRIBUTING.md.",
+  "registered_modules": [
+    "open-horizons-aeg-run-start",
+    "plugin-scaffolder-backend",
+    "plugin-scaffolder-backend-module-github"
+  ],
+  "actions": [
+    "aeg:run:start",
+    "catalog:fetch",
+    "catalog:register",
+    "catalog:write",
+    "debug:log",
+    "debug:wait",
+    "fetch:plain",
+    "fetch:plain:file",
+    "fetch:template",
+    "fetch:template:file",
+    "fs:delete",
+    "fs:readdir",
+    "fs:rename",
+    "github:actions:dispatch",
+    "github:autolinks:create",
+    "github:branch-protection:create",
+    "github:deployKey:create",
+    "github:environment:create",
+    "github:issues:create",
+    "github:issues:label",
+    "github:pages",
+    "github:pages:enable",
+    "github:repo:create",
+    "github:repo:push",
+    "github:webhook",
+    "publish:github",
+    "publish:github:pull-request"
+  ]
+}
